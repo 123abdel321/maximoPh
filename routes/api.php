@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
 //SISTEMA
-// use App\Http\Controllers\Sistema\ConceptoFacturacionController;
+use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
 /*
@@ -29,12 +29,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::group(['middleware' => ['auth:sanctum']], function() {
+Route::group(['middleware' => ['auth:sanctum']], function() {
 
-//     Route::group(['middleware' => ['clientconnection']], function() {
-//         //CONCEPTO FACTURACION
-//         Route::controller(ConceptoFacturacionController::class)->group(function () {
-//             Route::post('concepto-facturacion', 'create');
-//         });
-//     });
-// });
+    Route::group(['middleware' => ['clientconnection']], function() {
+        //CONCEPTO FACTURACION
+        Route::controller(ConceptoFacturacionController::class)->group(function () {
+            Route::post('concepto-facturacion', 'create');
+            Route::put('concepto-facturacion', 'update');
+            Route::delete('concepto-facturacion', 'delete');
+        });
+    });
+});
