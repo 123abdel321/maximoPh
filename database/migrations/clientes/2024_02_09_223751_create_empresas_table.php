@@ -16,7 +16,9 @@ return new class extends Migration
             $table->integer('id_nit')->nullable();
             $table->integer('estado')->default(0)->comment('0: Inactivo temporalmente (acceso limitado solo a super), 1: Activo, 2: Periodo de gracia (Activo pero con mensajes de alerta de pago), 3: Moroso (Inactivo por falta de pago), 4: Retirado (Para hacer seguimiento), 5: en instalacion');
             $table->string('servidor', 100);
-            $table->string('token_db', 200)->nullable();
+            $table->string('token_db_maximo', 200)->nullable();
+            $table->string('token_db_portafolio', 200)->nullable();
+            $table->string('token_api_portafolio', 200)->nullable();
             $table->string('nombre', 200)->nullable();
             $table->string('primer_apellido', 60)->nullable();
             $table->string('segundo_apellido', 60)->nullable();

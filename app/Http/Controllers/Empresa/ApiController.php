@@ -8,11 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Jobs\ProcessProvisionedDatabase;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\PortafolioERP\InstaladorEmpresa;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
+use App\Models\Empresa\UsuarioEmpresa;
 
 class ApiController extends Controller
 {
@@ -29,6 +32,35 @@ class ApiController extends Controller
             'date' => 'El campo :attribute debe ser una fecha válida.',
         ];
 	}
+
+    public function login(Request $request)
+    {
+        $credenciales1 = ['email' => $request->email, 'password' => $request->password];
+        $credenciales2 = ['username' => $request->email, 'password' => $request->password];
+
+        if (Auth::attempt($credenciales1) || Auth::attempt($credenciales2)) {
+
+            $user = User::where('email', $request->email)->first();
+
+            $token = $user->createToken("api_token")->plainTextToken;
+            $user->remember_token = $token;
+            $user->save();
+
+            return response()->json([
+                'success'=>	true,
+                'access_token' => $token,
+                'empresa' => '',
+                'token_type' => 'Bearer',
+                'message'=> 'Usuario logeado con exito!'
+            ], 200);
+        }
+
+        return response()->json([
+    		'success'=>	false,
+    		'data' => '',
+    		'message'=> 'Credenciales incorrectas.'
+    	], 422);
+    }
 
     public function register(Request $request)
     {
@@ -93,12 +125,14 @@ class ApiController extends Controller
 			'primer_nombre' => 'nullable',
 			'otros_nombres' => 'nullable|string|max:60',
 			'razon_social' => 'required',
+            'username' => 'required|string|max:255|unique:clientes.users',
 			'direccion' => 'nullable|min:3|max:100',
 			'telefono' => 'nullable|numeric|digits_between:1,30',
+            'email' => 'required|string|email|max:255|unique:clientes.users',
 		];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
-
+        
         if ($validator->fails()){
             return response()->json([
                 "success"=>false,
@@ -106,10 +140,10 @@ class ApiController extends Controller
                 "message"=>$validator->errors()
             ], 422);
         }
-
+        
         try {
 
-            DB::connection('max')->beginTransaction();
+            DB::connection('clientes')->beginTransaction();
 
             $existEmpresa = Empresa::where('nit',$request->get('nit'))->first();
 
@@ -129,6 +163,15 @@ class ApiController extends Controller
 
             info('Creando empresa: '. $request->razon_social. '...');
 
+            $usuarioOwner = User::create([
+                'firstname' => $request->razon_social,
+                'username' => $request->username,
+                'email' => $request->email,
+                'telefono' => $request->telefono,
+                'password' => $request->nit,
+				'address' => $request->direccion,
+            ]);
+
             $empresa = Empresa::create([
 				'servidor' => 'max',
 				'nombre' => $request->razon_social ?? $request->primer_nombre .' '. $request->primer_apellido,
@@ -141,20 +184,36 @@ class ApiController extends Controller
 				'nit' => $request->nit,
 				'dv' => $request->dv,
 				'telefono' => $request->telefono,
+                'id_usuario_owner' => $usuarioOwner->id,
 				'estado' => 0
 			]);
 
+            $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
+
+            if ($response['status'] > 299) {
+                DB::connection('clientes')->rollback();
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>$response['response']->message
+                ], 422);
+            }
+
             $nameDb = $this->generateUniqueNameDb($empresa);
 
-            $empresa->token_db = $nameDb;
+            $empresa->token_db_maximo = 'maximo_'.$nameDb;
+            $empresa->token_db_portafolio = 'portafolio_'.$nameDb;
+            $empresa->token_api_portafolio = $response['response']->api_key_token;
             $empresa->hash = Hash::make($empresa->id);
 			$empresa->save();
+
+            $this->associateUserToCompany($usuarioOwner, $empresa);
 
             info('Empresa'. $request->razon_social.' creada con exito!');
 
 			ProcessProvisionedDatabase::dispatch($empresa);
 
-            DB::connection('max')->commit();
+            DB::connection('clientes')->commit();
 
             return response()->json([
                 "success" => true,
@@ -163,7 +222,7 @@ class ApiController extends Controller
             ], 200);
 
         } catch (Exception $e) {
-			DB::connection('max')->rollback();
+			DB::connection('clientes')->rollback();
             return response()->json([
                 "success"=>false,
                 'data' => [],
@@ -175,6 +234,47 @@ class ApiController extends Controller
     private function generateUniqueNameDb($empresa)
 	{
 		$razonSocial = str_replace(" ", "_", strtolower($empresa->razon_social));
-		return 'maximo_'.$razonSocial.'_'.$empresa->nit;
+		return $razonSocial.'_'.$empresa->nit;
+	}
+
+    private function associateUserToCompany($user, $empresa)
+	{
+        User::where('id', $user->id)->update([
+            'has_empresa' => $empresa->token_db_maximo,
+        ]);
+
+		$usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $user->id)
+			->where('id_empresa', $empresa->id)
+			->first();
+
+		if(!$usuarioEmpresa){
+			UsuarioEmpresa::create([
+				'id_usuario' => $user->id,
+				'id_empresa' => $empresa->id,
+				'id_rol' => 2, // default: 2
+				'estado' => 1, // default: 1 activo
+			]);
+		}
+        
+		// $permisos = [];
+		// $permissions = Permission::all();
+		// $rol = Role::where('id', 2)->first();
+
+		// foreach ($permissions as $permissions) {
+		// 	$permisos[] = $permissions->id;
+		// }
+		
+		// $user->syncRoles($rol);
+		// $user->syncPermissions($permisos);
+		// UsuarioPermisos::updateOrCreate([
+		// 	'id_user' => $user->id,
+		// 	'id_empresa' => $empresa->id
+		// ],[
+		// 	'ids_permission' => implode(',', $permisos),
+		// 	'ids_bodegas_responsable' => '1',
+		// 	'ids_resolucion_responsable' => '1'
+		// ]);
+
+		return;
 	}
 }

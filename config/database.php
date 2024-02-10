@@ -85,6 +85,27 @@ return [
             ]) : [],
 		],
 
+        'sam' => [
+            'driver' => 'mysql',
+            'url' => env('SAM_DATABASE_URL'),
+            'host' => env('SAM_DB_HOST', '127.0.0.1'),
+            'port' => env('SAM_DB_PORT', '3306'),
+            'database' => env('SAM_DB_DATABASE', 'forge'),
+            'username' => env('SAM_DB_USERNAME', 'forge'),
+            'password' => env('SAM_DB_PASSWORD', ''),
+            'unix_socket' => env('SAM_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::ATTR_TIMEOUT => 120,
+            ]) : [],
+		],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),

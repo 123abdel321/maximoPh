@@ -44,33 +44,27 @@ class ProcessProvisionedDatabase implements ShouldQueue
     public function handle()
     {
         try {
-			createDatabase($this->empresa->token_db);
+			createDatabase($this->empresa->token_db_maximo);
 
 			if (!config('database.connections.' . $this->connectionName)) {
-				copyDBConnection('sam', $this->empresa->token_db);
+				copyDBConnection('max', $this->empresa->token_db_maximo);
 			}
 
-			setDBInConnection('sam', $this->empresa->token_db);
+			setDBInConnection('max', $this->empresa->token_db_maximo);
 
-			// // Artisan::call('migrate', [
-			// // 	'--force' => true,
-			// // 	'--path' => 'database/migrations/sistema',
-			// // 	'--database' => 'sam'
-			// // ]);
+			// Artisan::call('migrate', [
+			// 	'--force' => true,
+			// 	'--path' => 'database/migrations/sistema',
+			// 	'--database' => 'max'
+			// ]);
 
-			// // Artisan::call('db:seed', [
-			// // 	'--force' => true,
-			// // 	'--class' => PropiedadesHorizontalesSeeder::class,
-			// // 	'--database' => 'sam'
-			// // ]);
-
-			info('Base de datos generada: ' . $this->empresa->token_db);
+			info('Base de datos generada: ' . $this->empresa->token_db_maximo);
 			
-			return $this->empresa->token_db;
+			return $this->empresa->token_db_maximo;
 		} catch (Exception $exception) {
 			Log::error('Error al generar base de datos provisionada', ['message' => $exception->getMessage()]);
 
-			$this->dropDb($this->empresa->token_db);
+			$this->dropDb($this->empresa->token_db_maximo);
 		}
     }
 
@@ -85,6 +79,6 @@ class ProcessProvisionedDatabase implements ShouldQueue
 	{
 		Log::error('Error al generar base de datos provisionada desde failed', ['message' => $exception->getMessage()]);
 
-		$this->dropDb($this->empresa->token_db);
+		$this->dropDb($this->empresa->token_db_maximo);
 	}
 }

@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('usuario_empresas', function (Blueprint $table) {
             $table->id();
+            $table->integer('id_usuario');
+            $table->integer('id_empresa');
+            $table->integer('id_rol');
+            $table->integer('estado')->comment('0: inactivo, 1: activo');
             $table->timestamps();
         });
     }
