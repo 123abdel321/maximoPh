@@ -1,0 +1,180 @@
+<?php
+
+namespace App\Http\Controllers\Empresa;
+
+use DB;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use App\Jobs\ProcessProvisionedDatabase;
+use Illuminate\Support\Facades\Validator;
+//MODELS
+use App\Models\User;
+use App\Models\Empresa\Empresa;
+
+class ApiController extends Controller
+{
+    protected $messages = null;
+
+    public function __construct()
+	{
+		$this->messages = [
+            'required' => 'El campo :attribute es requerido.',
+            'exists' => 'El :attribute es inválido.',
+            'numeric' => 'El campo :attribute debe ser un valor numérico.',
+            'string' => 'El campo :attribute debe ser texto',
+            'array' => 'El campo :attribute debe ser un arreglo.',
+            'date' => 'El campo :attribute debe ser una fecha válida.',
+        ];
+	}
+
+    public function register(Request $request)
+    {
+        $rules = [
+            'firstname' => 'required|string',
+            'lastname' => 'required|string',
+            'email' => 'required|string|email|max:255|unique:users',
+            'telefono' => 'required|string',
+            'documento' => 'required|string',
+            'tipo_documento' => 'required|string',
+            'password' => 'required|string'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            DB::connection('max')->beginTransaction();
+
+            User::create([
+                'username' => $request->get('username'),
+                'firstname' => $request->get('firstname'),
+                'lastname' => $request->get('lastname'),
+                'email' => $request->get('email'),
+                'telefono' => $request->get('telefono'),
+                'password' => $request->get('password')
+            ]);
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                "success" => true,
+                "data" => [],
+                "message" => 'Usuario registrado con exito!'
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function createEmpresa(Request $request)
+    {
+        $rules = [
+			'nit' => 'required|max:200',
+			'dv' => "nullable",
+			'tipo_contribuyente' => 'required|in:1,2',
+			'primer_apellido' => 'nullable',
+			'segundo_apellido' => 'nullable|string|max:60|',
+			'primer_nombre' => 'nullable',
+			'otros_nombres' => 'nullable|string|max:60',
+			'razon_social' => 'required',
+			'direccion' => 'nullable|min:3|max:100',
+			'telefono' => 'nullable|numeric|digits_between:1,30',
+		];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            DB::connection('max')->beginTransaction();
+
+            $existEmpresa = Empresa::where('nit',$request->get('nit'))->first();
+
+            if ($existEmpresa) {
+                if ($existEmpresa->estado == 5) {
+                    return response()->json([
+                        "success"=>false,
+                        "errors"=>["La empresa ".$existEmpresa->nombre." con nit ".$existEmpresa->nit." tiene un proceso de pago pendiente. Por favor intenta más tarde"]
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                } else {
+                    return response()->json([
+                        "success"=>false,
+                        "errors"=>["La empresa ".$existEmpresa->nombre." con nit ".$existEmpresa->nit." ya está registrada."]
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+            }
+
+            info('Creando empresa: '. $request->razon_social. '...');
+
+            $empresa = Empresa::create([
+				'servidor' => 'max',
+				'nombre' => $request->razon_social ?? $request->primer_nombre .' '. $request->primer_apellido,
+				'primer_apellido' => $request->primer_apellido,
+				'segundo_apellido' => $request->segundo_apellido,
+				'primer_nombre' => $request->primer_nombre,
+				'otros_nombres' => $request->otros_nombres,
+				'tipo_contribuyente' => $request->tipo_contribuyente,
+				'razon_social' => $request->razon_social,
+				'nit' => $request->nit,
+				'dv' => $request->dv,
+				'telefono' => $request->telefono,
+				'estado' => 0
+			]);
+
+            $nameDb = $this->generateUniqueNameDb($empresa);
+
+            $empresa->token_db = $nameDb;
+            $empresa->hash = Hash::make($empresa->id);
+			$empresa->save();
+
+            info('Empresa'. $request->razon_social.' creada con exito!');
+
+			ProcessProvisionedDatabase::dispatch($empresa);
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                "success" => true,
+                'data' => '',
+                "message" => 'La instalación se está procesando, verifique en 5 minutos.'
+            ], 200);
+
+        } catch (Exception $e) {
+			DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    private function generateUniqueNameDb($empresa)
+	{
+		$razonSocial = str_replace(" ", "_", strtolower($empresa->razon_social));
+		return 'maximo_'.$razonSocial.'_'.$empresa->nit;
+	}
+}
