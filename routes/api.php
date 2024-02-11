@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
 //SISTEMA
+use App\Http\Controllers\Sistema\ZonasController;
+use App\Http\Controllers\Sistema\EntornoController;
+use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
@@ -37,6 +40,22 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('concepto-facturacion', 'create');
             Route::put('concepto-facturacion', 'update');
             Route::delete('concepto-facturacion', 'delete');
+        });
+        //ZONAS
+        Route::controller(ZonasController::class)->group(function () {
+            Route::post('zona', 'create');
+            Route::put('zona', 'update');
+            Route::delete('zona', 'delete');
+        });
+        //INMUEBLES
+        Route::controller(InmuebleController::class)->group(function () {
+            Route::post('inmueble', 'create');
+            Route::put('inmueble', 'update');
+            Route::delete('inmueble', 'delete');
+        });
+        //ENTORNO
+        Route::controller(EntornoController::class)->group(function () {
+            Route::put('entorno', 'update');
         });
     });
 });
