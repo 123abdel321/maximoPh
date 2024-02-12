@@ -76,7 +76,7 @@ class InmuebleController extends Controller
                 'area' => $request->get('area'),
                 'nombre' => $request->get('nombre'),
                 'coeficiente' => $coeficiente,
-                'valor_total_administracion' => $valor_total_administracion,
+                'valor_total_administracion' => round($valor_total_administracion),
                 'observaciones' => $request->get('observaciones'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
@@ -103,7 +103,7 @@ class InmuebleController extends Controller
     public function update (Request $request)
     {
         $rules = [
-            'nombre' => 'required|min:1|max:200',
+            'id' => 'required|exists:max.inmuebles,id',
             'nombre' => ['required','min:1','max:200',
                 function($attribute, $value, $fail) use ($request) {
                     $inmuebleOld = Inmueble::find($request->get('id'));
@@ -161,9 +161,8 @@ class InmuebleController extends Controller
                     'area' => $request->get('area'),
                     'nombre' => $request->get('nombre'),
                     'coeficiente' => $coeficiente,
-                    'valor_total_administracion' => $valor_total_administracion,
+                    'valor_total_administracion' => round($valor_total_administracion),
                     'observaciones' => $request->get('observaciones'),
-                    'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id
                 ]);
 
@@ -188,7 +187,7 @@ class InmuebleController extends Controller
     public function delete (Request $request)
     {
         $rules = [
-            'id' => 'required|min:1|max:200|exists:max.inmuebles,id',
+            'id' => 'required|exists:max.inmuebles,id',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);

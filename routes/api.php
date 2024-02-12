@@ -8,6 +8,7 @@ use App\Http\Controllers\Empresa\ApiController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
+use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
@@ -25,7 +26,7 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 Route::controller(ApiController::class)->group(function () {
     Route::get('login', 'login');
     Route::get('register', 'register');
-    Route::get('create-empresa', 'createEmpresa');
+    Route::post('create-empresa', 'createEmpresa');
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -52,6 +53,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('inmueble', 'create');
             Route::put('inmueble', 'update');
             Route::delete('inmueble', 'delete');
+        });
+        //INMUEBLES NITS
+        Route::controller(InmuebleNitController::class)->group(function () {
+            Route::post('inmueble-nit', 'create');
+            Route::put('inmueble-nit', 'update');
+            Route::delete('inmueble-nit', 'delete');
         });
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {

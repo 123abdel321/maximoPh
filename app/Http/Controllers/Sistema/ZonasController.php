@@ -75,6 +75,7 @@ class ZonasController extends Controller
     public function update (Request $request)
     {
         $rules = [
+            'id' => 'required|exists:max.zonas,id',
             'nombre' => ['required','min:1','max:200',
                 function($attribute, $value, $fail) use ($request) {
                     $zonaOld = Zonas::find($request->get('id'));
