@@ -9,6 +9,7 @@ use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
+use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
@@ -59,6 +60,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('inmueble-nit', 'create');
             Route::put('inmueble-nit', 'update');
             Route::delete('inmueble-nit', 'delete');
+        });
+        //FACTURACION
+        Route::controller(FacturacionController::class)->group(function () {
+            Route::post('facturacion', 'generar');
         });
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {

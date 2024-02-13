@@ -24,5 +24,10 @@ class InmuebleNit extends Model
         'enviar_notificaciones_fisica',
         'created_by',
         'updated_by'
-    ];    
+    ]; 
+    
+    public function inmueble()
+    {
+        return $this->belongsTo(Inmueble::class, 'id_inmueble');
+    }
 }

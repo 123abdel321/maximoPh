@@ -3,13 +3,53 @@
 namespace App\Helpers\PortafolioERP;
 
 use Illuminate\Support\Facades\Http;
+//MODELS
+use App\Models\Empresa\Empresa;
 
 abstract class AbstractPortafolioSender
 {
     public abstract function getEndpoint(): string;
+    public abstract function getMethod(): string;
     public abstract function getParams(): array;
 
-    public function getUrl()
+    public function send()
+    {
+        $bearerToken = 'Bearer 217|g3Vj93TSjyDaIjh0K7LOspwfvfSTEH1fmejdqi1m';
+        $url = $this->getUrl();
+        $method = $this->getMethod();
+        $params = $this->getParams();
+        
+        $dataResponse = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Authorization' => 'Bearer ' . $bearerToken,
+            ])
+            ->timeout(60);
+
+        switch ($method) {//TIPOS DE METODOS
+            case 'GET':
+                $dataResponse = $dataResponse->get($url, $params);
+                break;
+            case 'POST':
+                $dataResponse = $dataResponse->post($url, $params);
+                break;
+            case 'PUT':
+                $dataResponse = $dataResponse->put($url, $params);
+                break;
+            case 'DELETE':
+                $dataResponse = $dataResponse->delete($url, $params);
+                break;        
+        }
+
+        $response = (object) $dataResponse->json();
+
+        return [
+			"status" => $dataResponse->status(),
+			"response" => $response,
+		];
+    }
+
+    private function getUrl()
 	{
         $url = null;
         if (env("APP_ENV") == 'prod') {//PRODUCCION
@@ -21,26 +61,4 @@ abstract class AbstractPortafolioSender
         }
 		return $url . $this->getEndpoint();
 	}
-
-    public function send()
-    {
-        $bearerToken = null;
-        $url = $this->getUrl();
-        $params = $this->getParams();
-        
-        $dataResponse = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'X-Requested-With' => 'XMLHttpRequest',
-                'Authorization' => 'Bearer ' . $bearerToken,
-            ])
-            ->timeout(60)
-            ->post($url, $params);
-
-        $response = (object) $dataResponse->json();
-
-        return [
-			"status" => $dataResponse->status(),
-			"response" => $response,
-		];
-    }
 }

@@ -8,14 +8,21 @@ use App\Models\Empresa\Empresa;
 
 class InstaladorEmpresa extends AbstractPortafolioSender
 {
+	private $method = 'POST';
+	private $endpoint = '/register-api-token';
+
 	private $dataUsuario;
 	private $dataEmpresa;
-	private $endpoint = '/register-api-token';
 
 	public function __construct(Empresa $dataEmpresaEmpresa, User $dataUsuario)
 	{
 		$this->dataEmpresa = $dataEmpresaEmpresa;
 		$this->dataUsuario = $dataUsuario;
+	}
+
+	public function getMethod(): string
+	{
+		return $this->method;
 	}
 
 	public function getEndpoint(): string
