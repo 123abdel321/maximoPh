@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
 //SISTEMA
+use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
@@ -64,6 +65,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //FACTURACION
         Route::controller(FacturacionController::class)->group(function () {
             Route::post('facturacion', 'generar');
+        });
+        //PQRSF
+        Route::controller(PqrsfController::class)->group(function () {
+            Route::post('pqrsf', 'create');
         });
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {

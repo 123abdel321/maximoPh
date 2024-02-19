@@ -127,9 +127,9 @@ class FacturacionController extends Controller
     private function generarFacturaAnticipos(Facturacion $factura, InmuebleNit $inmuebleFactura, $totalInmuebles, $totalAnticipos)
     {
         $totalAnticipar = 0;
-        if ($totalAnticipos >= $totalInmuebles) {
-            $totalAnticipar = $totalInmuebles;
-            $totalAnticipos-= $totalInmuebles;
+        if ($totalAnticipos >= $inmuebleFactura->valor_total) {
+            $totalAnticipar = $inmuebleFactura->valor_total;
+            $totalAnticipos-= $inmuebleFactura->valor_total;
         } else {
             $totalAnticipar = $totalAnticipos;
             $totalAnticipos = 0;
@@ -144,8 +144,8 @@ class FacturacionController extends Controller
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $inmuebleFactura->id_nit,
-            'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
-            'id_cuenta_ingreso' => $inmuebleFactura->inmueble->concepto->id_cuenta_ingreso,
+            'id_cuenta_por_cobrar' => $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar,
+            'id_cuenta_ingreso' => $id_cuenta_anticipos,
             'id_comprobante' => $id_comprobante_notas,
             'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
             'fecha_manual' => $periodo_facturacion,
@@ -158,38 +158,7 @@ class FacturacionController extends Controller
 
         return $totalAnticipos;
     }
-
-    private function totalAnticipos($id_nit)
-    {
-        $extractos = (new Extracto(//TRAER CUENTAS POR PAGAR
-            $id_nit,
-            4,
-        ))->send();
-
-        if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-            DB::connection('max')->rollback();
-            return response()->json([
-                "success"=>false,
-                'data' => [],
-                "message"=> $response['message']
-            ], 422);
-        }
-
-        $extractos = $response['response']->data;
-
-        //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
-        if (!count($extractos)) return 0;
-
-        $totalAnticipos = 0;
-        
-        foreach ($extractos as $extracto) {
-            $extracto = (object)$extracto;
-            $totalAnticipos+= floatval($extracto->saldo);
-        }
-
-        return $totalAnticipos;
-    }
-
+    
     private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura)
     {
         $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
@@ -259,6 +228,37 @@ class FacturacionController extends Controller
         }
 
         return $valorTotal;
+    }
+
+    private function totalAnticipos($id_nit)
+    {
+        $extractos = (new Extracto(//TRAER CUENTAS POR PAGAR
+            $id_nit,
+            4,
+        ))->send();
+
+        if ($extractos['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=> $extractos['message']
+            ], 422);
+        }
+
+        $extractos = $extractos['response']->data;
+
+        //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
+        if (!count($extractos)) return 0;
+
+        $totalAnticipos = 0;
+        
+        foreach ($extractos as $extracto) {
+            $extracto = (object)$extracto;
+            $totalAnticipos+= floatval($extracto->saldo);
+        }
+
+        return $totalAnticipos;
     }
 
     private function generateTokenDocumento()
