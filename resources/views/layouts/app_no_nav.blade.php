@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
     <link rel="icon" type="image/png" href="/img/logo_contabilidad.png">
     <title>
-        Portafolio ERP
+        Maximo PH
     </title>
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -629,8 +629,8 @@
 
     <script>
         //LOCAL
-        const base_url = 'http://localhost:8080/api/';
-        const base_web = 'http://localhost:8080/';
+        const base_url = 'http://127.0.0.1:8090/api/';
+        const base_web = 'http://127.0.0.1:8090/';
         //DEV
         // const base_url = 'https://test.portafolioerp.com/api/';
         // const base_web = 'https://test.portafolioerp.com/';
