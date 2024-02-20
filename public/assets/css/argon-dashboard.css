@@ -19352,19 +19352,19 @@ textarea.form-control-lg {
 
 .btn-warning:hover,
 .btn.bg-gradient-warning:hover {
-  background-color: var(--bs-primary);
-  border-color: var(--bs-primary);
+  background-color: #fb6340;
+  border-color: #fb6340;
 }
 .btn-warning .btn.bg-outline-warning,
 .btn.bg-gradient-warning .btn.bg-outline-warning {
-  border: 1px solid var(--bs-primary);
+  border: 1px solid #fb6340;
 }
 .btn-warning:not(:disabled):not(.disabled).active, .btn-warning:not(:disabled):not(.disabled):active, .show > .btn-warning.dropdown-toggle,
 .btn.bg-gradient-warning:not(:disabled):not(.disabled).active,
 .btn.bg-gradient-warning:not(:disabled):not(.disabled):active,
 .show > .btn.bg-gradient-warning.dropdown-toggle {
-  color: color-yiq(var(--bs-primary));
-  background-color: var(--bs-primary);
+  color: color-yiq(#fb6340);
+  background-color: #fb6340;
 }
 .btn-warning.focus, .btn-warning:focus,
 .btn.bg-gradient-warning.focus,
@@ -19379,7 +19379,7 @@ textarea.form-control-lg {
   background-color: transparent;
   opacity: 0.75;
   box-shadow: none;
-  color: var(--bs-primary);
+  color: #fb6340;
 }
 
 .btn-danger:hover,
@@ -20362,11 +20362,11 @@ label,
 }
 
 .bg-gradient-warning {
-  background-image: linear-gradient(310deg, var(--bs-primary) 0%, #fbb140 100%);
+  background-image: linear-gradient(310deg, #fb6340 0%, #fbb140 100%);
 }
 
 .bg-gradient-danger {
-  background-image: linear-gradient(310deg, #f5365c 0%, var(--bs-primary-second) 100%);
+  background-image: linear-gradient(310deg, #f5365c 0%, #f56036 100%);
 }
 
 .bg-gradient-light {

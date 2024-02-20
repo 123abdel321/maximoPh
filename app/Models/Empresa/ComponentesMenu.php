@@ -30,7 +30,7 @@ class ComponentesMenu extends Model
 	];
 
     public function padre (){
-        return $this->belongsTo("App\Models\Empresas\ComponentesMenu", "id_padre");
+        return $this->belongsTo(ComponentesMenu::class, "id_padre");
     }
     
     public function permisos (){

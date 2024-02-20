@@ -3,25 +3,38 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+//MODELS
+use App\Models\Empresa\Empresa;
+use App\Models\Empresa\ComponentesMenu;
 
 class HomeController extends Controller
 {
-        /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
+    public function index(Request $request)
+    {
+        $hasEmpresa = $request->user()->has_empresa;
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function index()
+        $empresa = Empresa::where('token_db_maximo', $hasEmpresa)
+            ->first();
+
+        $menus = ComponentesMenu::whereNotNull('id_componente')
+            ->where('estado', 1)
+            ->with('padre')
+            ->get();
+
+        foreach ($menus as $key => $menu) {
+            if ($menu->code_name && !$request->user()->hasPermissionTo($menu->code_name.' read')) {
+                unset($menus[$key]);
+            }
+        }
+
+        $data = [
+            'menus' => $menus->groupBy('id_padre')
+        ];
+
+        return view('layouts.app', $data);
+    }
+
+    public function dashboard()
     {
         return view('pages.dashboard');
     }

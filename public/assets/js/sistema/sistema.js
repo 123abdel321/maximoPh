@@ -1,7 +1,7 @@
 
 //LOCAL
-const base_url = 'http://localhost:8000/api/';
-const base_web = 'http://localhost:8000/';
+const base_url = 'http://127.0.0.1:8090/api/';
+const base_web = 'http://127.0.0.1:8090/';
 //DEV
 // const base_url = 'https://test.portafolioerp.com/api/';
 // const base_web = 'https://test.portafolioerp.com/';
@@ -18,6 +18,7 @@ const itemMenuActive = localStorage.getItem("item_active_menu");
 const dateNow = new Date();
 const auth_token = localStorage.getItem("auth_token");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
+var menuOpen = false;
 $.ajaxSetup({
     'headers':{
         "Authorization": auth_token,
@@ -39,75 +40,11 @@ let buttonocultarLateral = document.getElementById('button-ocultar-lateral');
 let iconSidenav = document.getElementById('iconSidenav');
 
 var moduloCreado = {
-    'nit': false,
-    'comprobante': false,
-    'plancuenta': false,
-    'cecos': false,
-    'familias': false,
-    'resoluciones': false,
-    'formapago': false,
-    'bodegas': false,
-    'productos': false,
-    'vendedores': false,
-    'documentogeneral': false,
-    'documentosgenerales': false,
-    'auxiliar': false,
-    'balance': false,
-    'cartera': false,
-    'documentos': false,
-    'compra': false,
-    'venta': false,
-    'compras': false,
-    'ventas': false,
-    'usuarios': false,
-    'empresa': false,
-    'entorno': false,
-    'productoprecios': false,
-    'carguedescargue': false,
-    'movimientoinventario': false,
-    'notacredito': false,
-    'ventasgenestales': false,
-    'estadoactual': false,
-    'estadocomprobante': false,
-    'importnits': false,
-    'importdocumentos': false,
-    'eliminardocumentos': false,
+    'entorno': false
 };
 
 var moduloRoute = {
-    'nit': 'tablas',
-    'comprobante': 'tablas',
-    'plancuenta': 'tablas',
-    'cecos': 'tablas',
-    'familias': 'tablas',
-    'resolucion': 'tablas',
-    'formapago': 'tablas',
-    'bodegas': 'tablas',
-    'productos': 'tablas',
-    'carguedescargue': 'tablas',
-    'vendedores': 'tablas',
-    'documentogeneral': 'capturas',
-    'auxiliar': 'informes',
-    'balance': 'informes',
-    'cartera': 'informes',
-    'documentos': 'informes',
-    'documentosgenerales': 'informes',
-    'compras': 'informes',
-    'compra': 'capturas',
-    'ventas': 'informes',
-    'venta': 'capturas',
-    'usuarios': 'configuracion',
-    'empresa': 'configuracion',
     'entorno': 'configuracion',
-    'productoprecios': 'importador',
-    'movimientoinventario': 'capturas',
-    'notacredito': 'capturas',
-    'ventasgenerales': 'informes',
-    'estadoactual': 'informes',
-    'estadocomprobante': 'informes',
-    'importnits': 'importador',
-    'importdocumentos': 'importador',
-    'eliminardocumentos': 'capturas',
 }
 
 $('.water').show();
@@ -131,7 +68,7 @@ setTimeout(function(){
 },200);
 
 if (localStorage.getItem("empresa_logo") == 'null') {
-    $("#side_main_logo").attr('src', '/img/logo_contabilidad.png');
+    $("#side_main_logo").attr('src', '/img/logo_blanco.png');
 } else{ 
     $("#side_main_logo").attr('src', bucketUrl+localStorage.getItem("empresa_logo"));
 }
@@ -242,9 +179,9 @@ $("#tab-dashboard").click(function(event){
 });
 
 function toggleSidenavMaximo() {
-    if (body.classList.contains(className)) {
-
+    if (menuOpen) {
         body.classList.remove(className);
+        menuOpen = false;
         sidenav.classList.remove('bg-transparent');
         sidenav.classList.add('side-nav-maximo-close');
         sidenav.classList.remove('side-nav-maximo-open');
@@ -255,7 +192,7 @@ function toggleSidenavMaximo() {
         }, 100);
     } else {
         body.classList.add(className);
-
+        menuOpen = true;
         sidenav.classList.add('bg-white');
         sidenav.classList.remove('bg-transparent');
         iconSidenav.classList.remove('d-none');
