@@ -9,6 +9,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword; 
+//CONFIGURACION
+use App\Http\Controllers\Sistema\EntornoController;
 
 Route::get('/', function () {
 	return redirect('/home');
@@ -27,8 +29,15 @@ Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-	Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-	Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+	Route::group(['middleware' => ['clientconnectionweb']], function () {
+		//INICIO
+		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+		Route::get('/home', [HomeController::class, 'index'])->name('home');
+		//ENTORNO
+		Route::get('/entorno', [EntornoController::class, 'index'])->name('entorno');
+	});
+	
 });
             
 

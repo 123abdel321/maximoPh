@@ -88,7 +88,7 @@
     </ul>
 </aside>
 
-<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl" id="sidenav-main-2" style="z-index: 99 !important; width: 11px; cursor: pointer; background-color: #18386d !important; border-radius: 0px 7px 7px 0px;">
+<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl" id="sidenav-main-2" style="z-index: 99 !important; width: 11px; cursor: pointer; background-color: #075260 !important; border-radius: 0px 7px 7px 0px;">
     <span id="button-mostrar-lateral" class="nav-link-text ms-1" style="margin: 0; position: fixed; top: 50%; transform: translateY(-50%);">
         <i class="fas fa-caret-right" style="color: #FFF;"></i>
     </span>

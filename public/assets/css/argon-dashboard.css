@@ -5950,9 +5950,6 @@ textarea.form-control-lg {
 .toast.showing {
   opacity: 0;
 }
-.toast:not(.show) {
-  display: none;
-}
 
 .toast-container {
   width: -webkit-max-content;
@@ -9483,7 +9480,7 @@ textarea.form-control-lg {
 }
 
 .bg-dark {
-  background-color: #344767 !important;
+  background-color: #346067 !important;
 }
 
 .bg-white {

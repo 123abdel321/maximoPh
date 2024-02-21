@@ -11,6 +11,16 @@ use App\Models\Sistema\Entorno;
 
 class EntornoController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $data = [
+            'variables_entorno' => Entorno::get()
+        ];
+        
+        return view('pages.configuracion.entorno.entorno-view', $data);
+    }
+
     public function update (Request $request)
     {
         try {
@@ -39,9 +49,11 @@ class EntornoController extends Controller
             ];
 
             foreach ($variablesEntorno as $variable) {
-                Entorno::where('nombre', $variable)->update([
-                    'valor' => $request->get($variable)
-                ]);
+                if ($request->get($variable)) {
+                    Entorno::where('nombre', $variable)->update([
+                        'valor' => $request->get($variable)
+                    ]);
+                }
             }
 
             DB::connection('max')->commit();
