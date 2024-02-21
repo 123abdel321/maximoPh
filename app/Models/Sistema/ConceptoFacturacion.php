@@ -24,4 +24,24 @@ class ConceptoFacturacion extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function cuenta_ingreso()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_ingreso');
+    }
+
+    public function cuenta_interes()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_interes');
+    }
+
+    public function cuenta_cobrar()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_cobrar');
+    }
+
+    public function cuenta_iva()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_iva');
+    }
 }

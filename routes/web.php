@@ -9,6 +9,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword; 
+//TABLAS
+use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
 
@@ -34,6 +36,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//INICIO
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
+		//TABLAS
+		Route::get('/conceptofacturacion', [ConceptoFacturacionController::class, 'index'])->name('entorno');
 		//ENTORNO
 		Route::get('/entorno', [EntornoController::class, 'index'])->name('entorno');
 	});

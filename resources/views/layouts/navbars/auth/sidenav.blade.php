@@ -63,13 +63,13 @@
             <div data-bs-toggle="collapse" href="#collapse{{ $menu[0]->padre->nombre }}" class="nav-link collapsed" aria-controls="dashboardsExamples" role="button" aria-expanded="false" style="color: white;">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     
-                    <i class="{{ $menu[0]->padre->icon }} text-sm opacity-10" style="color: #0ce0ff !important;"></i>
+                    <i class="{{ $menu[0]->padre->icon }} text-sm opacity-10" style="color: #3a9e00 !important;"></i>
                 </div>
                 <span class="nav-link-text ms-1">{{ $menu[0]->padre->nombre }}</span>
             </div>
 
             <div class="collapse" id="collapse{{ $menu[0]->padre->nombre }}" >
-                <ul class="navbar-nav" style="margin-left: 15px; border-left: solid 1px #0dd7f6; margin-left: 30px;">
+                <ul class="navbar-nav" style="margin-left: 15px; border-left: solid 1px #18ff00; margin-left: 30px;">
 
                     @foreach ($menu as $item)
                         <li class="nav-item tipo_menu_{{ $item->tipo_menu }}">

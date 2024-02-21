@@ -19,6 +19,7 @@ class HomeController extends Controller
         $menus = ComponentesMenu::whereNotNull('id_componente')
             ->where('estado', 1)
             ->with('padre')
+            ->orderBy('orden_menu')
             ->get();
 
         foreach ($menus as $key => $menu) {

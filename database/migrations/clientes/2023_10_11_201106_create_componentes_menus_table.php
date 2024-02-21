@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('url', 100)->default('');
             $table->string('icon', 100)->default('');
             $table->string('code_name', 100)->default('');
+            $table->string('orden_menu', 100)->default('');
             $table->boolean('estado')->default(true);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

@@ -25,6 +25,7 @@ class ComponentesMenu extends Model
         'icon',
         'code_name',
         'estado',
+        'orden_menu',
         'created_by',
         'updated_by'
 	];

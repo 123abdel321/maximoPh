@@ -40,11 +40,13 @@ let buttonocultarLateral = document.getElementById('button-ocultar-lateral');
 let iconSidenav = document.getElementById('iconSidenav');
 
 var moduloCreado = {
-    'entorno': false
+    'entorno': false,
+    'conceptofacturacion': false,
 };
 
 var moduloRoute = {
     'entorno': 'configuracion',
+    'conceptofacturacion': 'tablas'
 }
 
 $('.water').show();

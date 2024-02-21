@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
+//PORTAFOLIO
+use App\Http\Controllers\Portafolio\PlanCuentaController;
 //SISTEMA
 use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
@@ -40,6 +42,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::group(['middleware' => ['clientconnection']], function() {
         //CONCEPTO FACTURACION
         Route::controller(ConceptoFacturacionController::class)->group(function () {
+            Route::get('concepto-facturacion', 'read');
             Route::post('concepto-facturacion', 'create');
             Route::put('concepto-facturacion', 'update');
             Route::delete('concepto-facturacion', 'delete');
@@ -73,6 +76,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {
             Route::put('entorno', 'update');
+        });
+        //PLAN CUENTAS
+        Route::controller(PlanCuentaController::class)->group(function () {
+            Route::get('plan-cuenta/combo-cuenta', 'comboCuenta');
         });
     });
 });
