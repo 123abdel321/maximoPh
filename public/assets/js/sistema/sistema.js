@@ -2,6 +2,7 @@
 //LOCAL
 const base_url = 'http://127.0.0.1:8090/api/';
 const base_web = 'http://127.0.0.1:8090/';
+const base_url_erp = 'http://localhost:8000/api/';
 //DEV
 // const base_url = 'https://test.portafolioerp.com/api/';
 // const base_web = 'https://test.portafolioerp.com/';
@@ -17,6 +18,7 @@ const itemMenuActive = localStorage.getItem("item_active_menu");
 
 const dateNow = new Date();
 const auth_token = localStorage.getItem("auth_token");
+const auth_token_erp = localStorage.getItem("auth_token_erp");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
 var menuOpen = false;
 $.ajaxSetup({
@@ -31,6 +33,12 @@ const headers = {
     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 };
 
+const headersERP = {
+    "Authorization": auth_token_erp,
+    "Content-Type": "application/json",
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+};
+
 let body = document.getElementsByTagName('body')[0];
 let className = 'g-sidenav-pinned';
 let sidenav = document.getElementById('sidenav-main');
@@ -41,12 +49,14 @@ let iconSidenav = document.getElementById('iconSidenav');
 
 var moduloCreado = {
     'entorno': false,
+    'nit': false,
     'conceptofacturacion': false,
 };
 
 var moduloRoute = {
     'entorno': 'configuracion',
-    'conceptofacturacion': 'tablas'
+    'nit': 'tablas',
+    'conceptofacturacion': 'tablas',
 }
 
 $('.water').show();
@@ -58,7 +68,7 @@ $("#titulo-view").text('Inicio');
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
     // console.log('xhr: ',xhr);
     if(xhr.status == 401) {
-        document.getElementById('logout-form').submit();
+        // document.getElementById('logout-form').submit();
     }
 });
 

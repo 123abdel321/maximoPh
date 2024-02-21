@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
 //PORTAFOLIO
+use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\PlanCuentaController;
 //SISTEMA
 use App\Http\Controllers\Sistema\PqrsfController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 Route::controller(ApiController::class)->group(function () {
     Route::get('login', 'login');
     Route::get('register', 'register');
+    Route::get('usuario-accion', 'getUsuario');
     Route::post('create-empresa', 'createEmpresa');
 });
 

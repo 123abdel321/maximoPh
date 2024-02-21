@@ -8,7 +8,9 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
-use App\Http\Controllers\ChangePassword; 
+use App\Http\Controllers\ChangePassword;
+//PORTAFOLIO
+use App\Http\Controllers\Portafolio\NitController;
 //TABLAS
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //CONFIGURACION
@@ -37,6 +39,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		//TABLAS
+		Route::get('/nit', [NitController::class, 'index'])->name('nit');
 		Route::get('/conceptofacturacion', [ConceptoFacturacionController::class, 'index'])->name('entorno');
 		//ENTORNO
 		Route::get('/entorno', [EntornoController::class, 'index'])->name('entorno');

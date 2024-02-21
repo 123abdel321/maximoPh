@@ -100,6 +100,7 @@ class LoginController extends Controller
             return response()->json([
                 'success'=>	true,
                 'access_token' => $plainTextToken,
+                'token_api_portafolio' => $empresaSelect->token_api_portafolio,
                 'token_type' => 'Bearer',
                 'empresa' => $empresaSelect,
                 'notificacion_code' => $notificacionCode,

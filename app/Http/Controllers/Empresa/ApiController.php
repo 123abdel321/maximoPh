@@ -255,26 +255,16 @@ class ApiController extends Controller
 				'estado' => 1, // default: 1 activo
 			]);
 		}
-        
-		// $permisos = [];
-		// $permissions = Permission::all();
-		// $rol = Role::where('id', 2)->first();
-
-		// foreach ($permissions as $permissions) {
-		// 	$permisos[] = $permissions->id;
-		// }
-		
-		// $user->syncRoles($rol);
-		// $user->syncPermissions($permisos);
-		// UsuarioPermisos::updateOrCreate([
-		// 	'id_user' => $user->id,
-		// 	'id_empresa' => $empresa->id
-		// ],[
-		// 	'ids_permission' => implode(',', $permisos),
-		// 	'ids_bodegas_responsable' => '1',
-		// 	'ids_resolucion_responsable' => '1'
-		// ]);
-
 		return;
 	}
+
+    public function getUsuario (Request $request)
+    {
+        $usuario = User::where('id', $request->get('id'))->first();
+
+        return response()->json([
+            "success"=>true,
+            "data"=>$usuario
+        ], 200);
+    }
 }

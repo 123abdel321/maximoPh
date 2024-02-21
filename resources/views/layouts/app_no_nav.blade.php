@@ -668,6 +668,7 @@
                 $("#button-login").show();
                 if(res.success){
                     localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
+                    localStorage.setItem("auth_token_erp", res.token_api_portafolio);
                     localStorage.setItem("empresa_nombre", res.empresa.razon_social);
                     localStorage.setItem("empresa_logo", res.empresa.logo);
                     localStorage.setItem("notificacion_code", res.notificacion_code);
