@@ -42,8 +42,8 @@ function inmuebleInit() {
                 }
                 return '';
             }},
-            {"data": function (row, type, set){  
-                if (row.personas.length) {
+            {"data": function (row, type, set){
+                if (typeof row.personas != "undefined" && row.personas.length) {
                     var totalPorcentaje = 0;
                     for (let index = 0; index < row.personas.length; index++) {
                         const personas = row.personas[index];
@@ -60,7 +60,7 @@ function inmuebleInit() {
             {"data":'coeficiente', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'valor_total_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  
-                if (row.personas.length) {
+                if (typeof row.personas != "undefined" && row.personas.length) {
                     var totalValor = 0;
                     for (let index = 0; index < row.personas.length; index++) {
                         const personas = row.personas[index];
@@ -236,6 +236,7 @@ function inmuebleInit() {
                     }).done((res) => {
                         if(res.success){
                             inmueble_table.row(trInmueble).remove().draw();
+                            getTotalesInmuebles();
                             agregarToast('exito', 'Eliminación exitosa', 'Inmueble eliminado con exito!', true );
                         } else {
                             agregarToast('error', 'Eliminación errada', res.message);
@@ -510,6 +511,7 @@ $(document).on('click', '#saveInmueble', function () {
             $("#saveInmuebleLoading").hide();
             $("#inmuebleFormModal").modal('hide');
             inmueble_table.row.add(res.data).draw();
+            getTotalesInmuebles();
             agregarToast('exito', 'Creación exitosa', 'Inmueble creado con exito!', true);
         }
     }).fail((err) => {
@@ -624,6 +626,7 @@ $(document).on('click', '#updateInmueble', function () {
             $("#saveInmuebleLoading").hide();
             $("#inmuebleFormModal").modal('hide');
             inmueble_table.row.add(res.data).draw();
+            getTotalesInmuebles();
             agregarToast('exito', 'Actualización exitosa', 'Inmueble actualizado con exito!', true);
         }
     }).fail((err) => {
