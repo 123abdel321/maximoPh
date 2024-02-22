@@ -14,12 +14,21 @@ function entornoInit() {
             'periodo_facturacion',
         ];
 
+        var checkEntorno = [
+            'editar_valor_admon_inmueble'
+        ]
+
         if (numberEntorno.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(variable.valor));
+            $('#'+variable.nombre).val(new Intl.NumberFormat().format(variable.valor));
         }
 
         if (dateEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(variable.valor);
+        }
+
+        if (checkEntorno.indexOf(variable.nombre) + 1) {
+            if (variable.valor == '1') $('#'+variable.nombre).prop('checked', true);
+            else $('#'+variable.nombre).prop('checked', false);
         }
     }
 }
@@ -33,7 +42,8 @@ $(document).on('click', '#updateEntorno', function () {
         'numero_total_unidades': stringToNumberFloat($('#numero_total_unidades').val()),
         'valor_total_presupuesto_year_actual': stringToNumberFloat($('#valor_total_presupuesto_year_actual').val()),
         'porcentaje_intereses_mora': stringToNumberFloat($('#porcentaje_intereses_mora').val()),
-        'periodo_facturacion': $('#periodo_facturacion').val()
+        'periodo_facturacion': $('#periodo_facturacion').val(),
+        'editar_valor_admon_inmueble': $("input[type='checkbox']#editar_valor_admon_inmueble").is(':checked') ? '1' : '',
     };
 
     $.ajax({

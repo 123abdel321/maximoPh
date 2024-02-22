@@ -48,15 +48,18 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('concepto-facturacion', 'create');
             Route::put('concepto-facturacion', 'update');
             Route::delete('concepto-facturacion', 'delete');
+            Route::get('concepto-facturacion-combo', 'combo');
         });
         //ZONAS
         Route::controller(ZonasController::class)->group(function () {
             Route::post('zona', 'create');
             Route::put('zona', 'update');
             Route::delete('zona', 'delete');
+            Route::get('zona-combo', 'combo');
         });
         //INMUEBLES
         Route::controller(InmuebleController::class)->group(function () {
+            Route::get('inmueble', 'read');
             Route::post('inmueble', 'create');
             Route::put('inmueble', 'update');
             Route::delete('inmueble', 'delete');

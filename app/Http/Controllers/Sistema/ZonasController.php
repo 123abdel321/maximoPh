@@ -167,4 +167,18 @@ class ZonasController extends Controller
             ], 422);
         }
     }
+
+    public function combo (Request $request)
+    {
+        $zonas = Zonas::select(
+            \DB::raw('*'),
+            \DB::raw("nombre as text")
+        );
+
+        if ($request->get("q")) {
+            $zonas->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
+        }
+
+        return $zonas->paginate(40);
+    }
 }

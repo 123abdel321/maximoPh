@@ -243,4 +243,18 @@ class ConceptoFacturacionController extends Controller
             ], 422);
         }
     }
+
+    public function combo (Request $request)
+    {
+        $conceptoFacturacion = ConceptoFacturacion::select(
+            \DB::raw('*'),
+            \DB::raw("nombre_concepto as text")
+        );
+
+        if ($request->get("q")) {
+            $conceptoFacturacion->where('nombre_concepto', 'LIKE', '%' . $request->get("q") . '%');
+        }
+
+        return $conceptoFacturacion->paginate(40);
+    }
 }

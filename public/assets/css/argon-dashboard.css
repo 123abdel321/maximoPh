@@ -6073,15 +6073,16 @@ textarea.form-control-lg {
   border-bottom: 1px solid #dee2e6;
   border-top-left-radius: calc(0.75rem - 1px);
   border-top-right-radius: calc(0.75rem - 1px);
+  background-color: #075260;
 }
 .modal-header .btn-close {
   padding: 0.5rem 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
 }
 
 .modal-title {
   margin-bottom: 0;
   line-height: 1.5;
+  color: #FFF;
 }
 
 .modal-body {

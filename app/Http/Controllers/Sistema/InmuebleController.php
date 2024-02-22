@@ -26,6 +26,71 @@ class InmuebleController extends Controller
         ];
 	}
 
+    public function index ()
+    {
+        $data = [
+            "editar_valor_admon_inmueble" => Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor,
+            "valor_total_presupuesto_year_actual" => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
+            "numero_total_unidades" => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
+            "area_total_m2" => Entorno::where('nombre', 'area_total_m2')->first()->valor,
+        ];
+
+        return view('pages.tablas.inmuebles.inmuebles-view', $data);
+    }
+
+    public function read (Request $request)
+    {
+        try {
+            $draw = $request->get('draw');
+            $start = $request->get("start");
+            $rowperpage = $request->get("length");
+
+            $columnIndex_arr = $request->get('order');
+            $columnName_arr = $request->get('columns');
+            $order_arr = $request->get('order');
+            $search_arr = $request->get('search');
+
+            $columnIndex = $columnIndex_arr[0]['column']; // Column index
+            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+            $searchValue = $search_arr['value']; // Search value
+
+            $inmueble = Inmueble::orderBy($columnName,$columnSortOrder)
+                ->with('zona', 'concepto')
+                ->where('nombre', 'like', '%' .$searchValue . '%')
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
+
+            $inmuebleTotals = $inmueble->get();
+
+            $inmueblePaginate = $inmueble->skip($start)
+                ->take($rowperpage);
+
+            return response()->json([
+                'success'=>	true,
+                'draw' => $draw,
+                'iTotalRecords' => $inmuebleTotals->count(),
+                'iTotalDisplayRecords' => $inmuebleTotals->count(),
+                'data' => $inmueblePaginate->get(),
+                'perPage' => $rowperpage,
+                'message'=> 'Inmuebles generados con exito!'
+            ]);
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     public function create (Request $request)
     {
         $rules = [
@@ -49,8 +114,8 @@ class InmuebleController extends Controller
         
         try {
             DB::connection('max')->beginTransaction();
+            
             $editar_valor_admon_inmueble =  Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor;
-
             $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor;
             $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual / 12;
             $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first()->valor;

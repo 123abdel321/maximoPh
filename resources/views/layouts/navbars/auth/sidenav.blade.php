@@ -63,7 +63,7 @@
             <div data-bs-toggle="collapse" href="#collapse{{ $menu[0]->padre->nombre }}" class="nav-link collapsed" aria-controls="dashboardsExamples" role="button" aria-expanded="false" style="color: white;">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     
-                    <i class="{{ $menu[0]->padre->icon }} text-sm opacity-10" style="color: #3a9e00 !important;"></i>
+                    <i class="{{ $menu[0]->padre->icon }} text-sm opacity-10" style="color: #12d9ff !important;"></i>
                 </div>
                 <span class="nav-link-text ms-1">{{ $menu[0]->padre->nombre }}</span>
             </div>

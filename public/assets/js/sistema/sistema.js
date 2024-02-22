@@ -50,12 +50,14 @@ let iconSidenav = document.getElementById('iconSidenav');
 var moduloCreado = {
     'entorno': false,
     'nit': false,
+    'inmueble': false,
     'conceptofacturacion': false,
 };
 
 var moduloRoute = {
     'entorno': 'configuracion',
     'nit': 'tablas',
+    'inmueble': 'tablas',
     'conceptofacturacion': 'tablas',
 }
 
