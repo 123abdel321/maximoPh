@@ -32,4 +32,10 @@ class Inmueble extends Model
     {
         return $this->belongsTo(Zonas::class, 'id_zona');
     }
+
+    public function personas()
+    {
+        return $this->hasMany(InmuebleNit::class, 'id_inmueble', 'id');
+    }
+    
 }

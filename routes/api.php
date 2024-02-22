@@ -61,12 +61,15 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //INMUEBLES
         Route::controller(InmuebleController::class)->group(function () {
             Route::get('inmueble', 'read');
+            Route::get('inmueble', 'read');
             Route::post('inmueble', 'create');
             Route::put('inmueble', 'update');
             Route::delete('inmueble', 'delete');
+            Route::get('inmueble-total', 'totales');
         });
         //INMUEBLES NITS
         Route::controller(InmuebleNitController::class)->group(function () {
+            Route::get('inmueble-nit', 'read');
             Route::post('inmueble-nit', 'create');
             Route::put('inmueble-nit', 'update');
             Route::delete('inmueble-nit', 'delete');

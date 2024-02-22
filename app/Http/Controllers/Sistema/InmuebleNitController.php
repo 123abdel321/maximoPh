@@ -27,6 +27,62 @@ class InmuebleNitController extends Controller
         ];
 	}
 
+    public function read (Request $request)
+    {
+        try {
+            $draw = $request->get('draw');
+            $start = $request->get("start");
+            $rowperpage = $request->get("length");
+
+            $columnIndex_arr = $request->get('order');
+            $columnName_arr = $request->get('columns');
+            $order_arr = $request->get('order');
+            $search_arr = $request->get('search');
+
+            $columnIndex = $columnIndex_arr[0]['column']; // Column index
+            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+            $searchValue = $search_arr['value']; // Search value
+
+            $inmuebleNit = InmuebleNit::orderBy($columnName,$columnSortOrder)
+                ->with('nit')
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
+
+            if ($request->has('id_inmueble')) {
+                $inmuebleNit->where('id_inmueble', $request->get('id_inmueble'));
+            }
+
+            $inmuebleNitTotals = $inmuebleNit->get();
+
+            $inmuebleNitPaginate = $inmuebleNit->skip($start)
+                ->take($rowperpage);
+
+            return response()->json([
+                'success'=>	true,
+                'draw' => $draw,
+                'iTotalRecords' => $inmuebleNitTotals->count(),
+                'iTotalDisplayRecords' => $inmuebleNitTotals->count(),
+                'data' => $inmuebleNitPaginate->get(),
+                'perPage' => $rowperpage,
+                'message'=> 'Inmuebles nits generados con exito!'
+            ]);
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     public function create (Request $request)
     {
         $rules = [

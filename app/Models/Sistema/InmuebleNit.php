@@ -30,4 +30,9 @@ class InmuebleNit extends Model
     {
         return $this->belongsTo(Inmueble::class, 'id_inmueble');
     }
+
+    public function nit()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
+    }
 }

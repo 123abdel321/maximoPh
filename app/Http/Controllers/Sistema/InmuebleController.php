@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
+use App\Models\Sistema\InmuebleNit;
 
 class InmuebleController extends Controller
 {
@@ -56,7 +57,7 @@ class InmuebleController extends Controller
             $searchValue = $search_arr['value']; // Search value
 
             $inmueble = Inmueble::orderBy($columnName,$columnSortOrder)
-                ->with('zona', 'concepto')
+                ->with('zona', 'concepto', 'personas')
                 ->where('nombre', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
@@ -286,5 +287,28 @@ class InmuebleController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
+    }
+
+    public function totales ()
+    {
+        $totalInmuebles = Inmueble::count();
+        $areaM2Total = Inmueble::sum('area');
+        $coeficienteTotal = Inmueble::sum('coeficiente');
+        $valorRegistroPresupuesto = InmuebleNit::sum('valor_total');
+
+        $data = [
+            'numero_total_unidades' => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
+            'numero_registro_unidades' => $totalInmuebles,
+            'area_total_m2' => Entorno::where('nombre', 'area_total_m2')->first()->valor,
+            'area_registro_m2' => $areaM2Total,
+            'valor_total_presupuesto' => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
+            'valor_registro_presupuesto' => $valorRegistroPresupuesto,
+            'valor_registro_coeficiente' => intval($coeficienteTotal * 100),
+        ];
+
+        return response()->json([
+            'success'=>	true,
+            'data' => $data
+        ]);
     }
 }
