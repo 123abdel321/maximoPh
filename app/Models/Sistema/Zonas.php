@@ -20,4 +20,11 @@ class Zonas extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function cecos()
+    {
+        return $this->belongsTo('App\Models\Portafolio\CentroCostos', 'id_centro_costos');
+    }
+
+    
 }

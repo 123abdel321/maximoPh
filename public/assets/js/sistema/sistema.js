@@ -52,6 +52,7 @@ var moduloCreado = {
     'nit': false,
     'inmueble': false,
     'conceptofacturacion': false,
+    'zona': false,
 };
 
 var moduloRoute = {
@@ -59,6 +60,7 @@ var moduloRoute = {
     'nit': 'tablas',
     'inmueble': 'tablas',
     'conceptofacturacion': 'tablas',
+    'zona': 'tablas',
 }
 
 $('.water').show();

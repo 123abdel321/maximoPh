@@ -52,6 +52,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         });
         //ZONAS
         Route::controller(ZonasController::class)->group(function () {
+            Route::get('zona', 'read');
             Route::post('zona', 'create');
             Route::put('zona', 'update');
             Route::delete('zona', 'delete');

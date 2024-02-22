@@ -12,6 +12,7 @@ use App\Http\Controllers\ChangePassword;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
 //TABLAS
+use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //CONFIGURACION
@@ -41,6 +42,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		//TABLAS
 		Route::get('/nit', [NitController::class, 'index']);
+		Route::get('/zona', [ZonasController::class, 'index']);
 		Route::get('/inmueble', [InmuebleController::class, 'index']);
 		Route::get('/conceptofacturacion', [ConceptoFacturacionController::class, 'index']);
 		//ENTORNO
