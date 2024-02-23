@@ -19,7 +19,7 @@ function entornoInit() {
         ]
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(new Intl.NumberFormat().format(variable.valor));
+            $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
         }
 
         if (dateEntorno.indexOf(variable.nombre) + 1) {

@@ -76,6 +76,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         });
         //FACTURACION
         Route::controller(FacturacionController::class)->group(function () {
+            Route::get('facturacion', 'read');
             Route::post('facturacion', 'generar');
         });
         //PQRSF

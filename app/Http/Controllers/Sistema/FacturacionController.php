@@ -8,14 +8,80 @@ use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\FacturacionERP;
+use App\Helpers\PortafolioERP\EliminarFacturas;
 //MODELS
 use App\Models\Sistema\Entorno;
+use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\FacturacionDetalle;
 
 class FacturacionController extends Controller
 {
+    public function index ()
+    {
+        $totalInmuebles = Inmueble::count();
+        $areaM2Total = Inmueble::sum('area');
+        $coeficienteTotal = Inmueble::sum('coeficiente');
+        $valorRegistroPresupuesto = InmuebleNit::sum('valor_total');
+
+        $data = [
+            'numero_total_unidades' => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
+            'numero_registro_unidades' => $totalInmuebles,
+            'area_total_m2' => Entorno::where('nombre', 'area_total_m2')->first()->valor,
+            'area_registro_m2' => $areaM2Total,
+            'valor_total_presupuesto' => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
+            'valor_registro_presupuesto' => $valorRegistroPresupuesto,
+            'valor_registro_coeficiente' => intval($coeficienteTotal * 100),
+        ];
+
+        return view('pages.operaciones.facturacion.facturacion-view', $data);
+    }
+
+    public function read (Request $request)
+    {
+        try {
+            $draw = $request->get('draw');
+            $start = $request->get("start");
+            $rowperpage = $request->get("length");
+
+            $columnIndex_arr = $request->get('order');
+            $columnName_arr = $request->get('columns');
+            $order_arr = $request->get('order');
+            $search_arr = $request->get('search');
+
+            $columnIndex = $columnIndex_arr[0]['column']; // Column index
+            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+            $searchValue = $search_arr['value']; // Search value
+
+            $inmueble = InmuebleNit::orderBy($columnName,$columnSortOrder)
+                ->with('inmueble', 'nit', 'inmueble.concepto', 'inmueble.zona');
+
+            $inmuebleTotals = $inmueble->get();
+
+            $inmueblePaginate = $inmueble->skip($start)
+                ->take($rowperpage);
+
+            return response()->json([
+                'success'=>	true,
+                'draw' => $draw,
+                'iTotalRecords' => $inmuebleTotals->count(),
+                'iTotalDisplayRecords' => $inmuebleTotals->count(),
+                'data' => $inmueblePaginate->get(),
+                'perPage' => $rowperpage,
+                'message'=> 'Inmuebles generados con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     public function generar (Request $request)
     {
         try {
@@ -24,6 +90,10 @@ class FacturacionController extends Controller
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
             $nitsFacturacion = InmuebleNit::select('id_nit')->groupBy('id_nit')->get();
+
+            (new EliminarFacturas(
+                $periodo_facturacion
+            ))->send();
 
             //ELIMINAMOS LAS FACTURACIONES EN LA MISMA FECHA
             Facturacion::where('fecha_manual', $periodo_facturacion)->delete();
@@ -86,7 +156,7 @@ class FacturacionController extends Controller
             DB::connection('max')->commit();
 
             return response()->json([
-                "success"=>false,
+                "success"=>true,
                 'data' => [],
                 "message"=>'Facturación creada con exito'
             ], 200);

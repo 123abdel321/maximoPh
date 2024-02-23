@@ -304,6 +304,7 @@ class InmuebleController extends Controller
             'valor_total_presupuesto' => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
             'valor_registro_coeficiente' => intval($coeficienteTotal * 100),
+            'periodo_facturacion' => Entorno::where('nombre', 'periodo_facturacion')->first()->valor,
         ];
 
         return response()->json([

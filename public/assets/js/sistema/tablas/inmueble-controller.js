@@ -462,14 +462,16 @@ $(document).on('click', '#createInmueblesNit', function () {
 
 function changeArea(){
     if ($("#id_inmueble_up").val() && editar_valor_admon_inmueble) return;
+    setTimeout(function(){
+        var area = stringToNumberFloat($('#area_inmueble').val());
 
-    var area = stringToNumberFloat($('#area_inmueble').val());
-    var coeficiente = area / area_total_m2;
-    var totalInmueble = coeficiente * valor_total_presupuesto_year_actual;
-
-    $('#coeficiente_inmueble').val(coeficiente);
-    $('#valor_total_administracion_inmueble').val(totalInmueble);
-    formatCurrency($('#valor_total_administracion_inmueble'));
+        var coeficiente = area / area_total_m2 ;
+        var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual / 12);
+    
+        $('#coeficiente_inmueble').val(coeficiente);
+        $('#valor_total_administracion_inmueble').val(totalInmueble);
+        formatCurrency($('#valor_total_administracion_inmueble'));
+    },100);
 }
 
 function changePorcentajeNit(){
@@ -678,13 +680,15 @@ $(document).on('click', '#updateInmuebleNit', function () {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
+        console.log('res: ',res);
         if(res.success){
             clearFormInmuebleNit();
-            totalPorcentajeNits();
             $("#saveInmuebleNit").show();
             $("#saveInmuebleNitLoading").hide();
             $("#inmuebleNitFormModal").modal('hide');
-            inmueble_nit_table.row.add(res.data).draw();
+            inmueble_nit_table.ajax.reload(function () {
+                totalPorcentajeNits();
+            });
             agregarToast('exito', 'Actualización exitosa', 'Asignación de persona exitosa!', true);
         }
     }).fail((err) => {
@@ -729,10 +733,17 @@ function getTotalesInmuebles(){
         dataType: 'json',
     }).done((res) => {
         if(res.success){
-            $('#inmuebles_registrados_inmueble').text(res.data.numero_registro_unidades+ ' de '+res.data.numero_total_unidades);
-            $('#aream2_registrados_inmueble').text(res.data.area_registro_m2+ ' de '+res.data.area_total_m2);
-            $('#coeficiente_registrados_inmueble').text(res.data.valor_registro_coeficiente+ '% de 100%');
-            $('#presupuesto_registrados_inmueble').text(new Intl.NumberFormat().format(res.data.valor_registro_presupuesto)+ ' de '+new Intl.NumberFormat().format(res.data.valor_total_presupuesto));
+            var countA = new CountUp('inmuebles_registrados_inmueble', 0, res.data.numero_registro_unidades);
+                countA.start();
+
+            var countB = new CountUp('aream2_registrados_inmueble', 0, res.data.area_total_m2);
+                countB.start();
+
+            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente);
+                countC.start();
+
+            var countD = new CountUp('presupuesto_registrados_inmueble', 0, res.data.valor_registro_presupuesto);
+                countD.start();
         }
     }).fail((err) => {
         agregarToast('error', 'Consulta errada', 'Error al consultar totales!');

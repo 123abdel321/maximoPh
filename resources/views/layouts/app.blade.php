@@ -197,6 +197,8 @@
     <script src="assets/js/sistema/jquery.validate.min.js"></script>
     <!-- sweetalert2 -->
     <script src="assets/js/sistema/sweetalert2.all.min.js"></script>
+    <!-- countUp -->
+    <script src="https://cdn.jsdelivr.net/npm/countup@1.8.2/dist/countUp.min.js"></script>
     <!-- PUSHER -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- SISTEMA -->

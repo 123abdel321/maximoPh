@@ -15,6 +15,8 @@ use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
+//OPERACIONES
+use App\Http\Controllers\Sistema\FacturacionController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
 
@@ -45,6 +47,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/zona', [ZonasController::class, 'index']);
 		Route::get('/inmueble', [InmuebleController::class, 'index']);
 		Route::get('/conceptofacturacion', [ConceptoFacturacionController::class, 'index']);
+		//OPERACIONES
+		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		//ENTORNO
 		Route::get('/entorno', [EntornoController::class, 'index']);
 	});
