@@ -214,19 +214,19 @@ thead tr:first-child th {
 }
 
 tr.odd:hover {
-    background-color: #1c45872b;
+    background-color: #0752604a;
 }
 
 tr.even:hover {
-    background-color: #1c45872b;
+    background-color: #0752604a;
 }
 
 tr.odd:focus {
-    background-color: #1c45872b;
+    background-color: #0752604a;
 }
 
 tr.even:focus {
-    background-color: #1c45872b;
+    background-color: #0752604a;
 }
 
 td.dtfc-fixed-right {
@@ -245,7 +245,7 @@ th.dtfc-fixed-right {
 }
 
 .btn {
-    box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 2px 2px 2px rgb(0 0 0 / 57%);
+    box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 3px 3px 2px rgb(0 0 0 / 57%);
 }
 
 .btn:hover {
