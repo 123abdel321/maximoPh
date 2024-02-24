@@ -12,9 +12,11 @@ abstract class AbstractPortafolioSender
     public abstract function getMethod(): string;
     public abstract function getParams(): array;
 
-    public function send()
+    public function send($id_empresa)
     {
-        $bearerToken = 'Bearer 217|g3Vj93TSjyDaIjh0K7LOspwfvfSTEH1fmejdqi1m';
+        $empresa = Empresa::find($id_empresa);
+        
+        $bearerToken = $empresa->token_api_portafolio;
         $url = $this->getUrl();
         $method = $this->getMethod();
         $params = $this->getParams();

@@ -171,7 +171,7 @@ function getTotalesFacturacion(){
             var countA = new CountUp('inmuebles_registrados_facturacion', 0, res.data.numero_registro_unidades);
                 countA.start();
 
-            var countB = new CountUp('aream2_registrados_facturacion', 0, res.data.area_total_m2);
+            var countB = new CountUp('area2_registrados_facturacion', 0, res.data.area_registro_m2);
                 countB.start();
 
             var countC = new CountUp('coeficiente_registrados_facturacion', 0, res.data.valor_registro_coeficiente);

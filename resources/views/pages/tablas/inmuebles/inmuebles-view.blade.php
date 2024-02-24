@@ -55,7 +55,7 @@
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Área M2 Registrada</p>
                             <div style="display: flex;">
-                                <h5 id="aream2_registrados_inmueble" class="font-weight-bolder">
+                                <h5 id="area2_registrados_inmueble" class="font-weight-bolder">
                                     0
                                 </h5>
                                 <h5 class="font-weight-bolder">

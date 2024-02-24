@@ -93,7 +93,7 @@ class FacturacionController extends Controller
 
             (new EliminarFacturas(
                 $periodo_facturacion
-            ))->send();
+            ))->send(request()->user()->id_empresa);
 
             //ELIMINAMOS LAS FACTURACIONES EN LA MISMA FECHA
             Facturacion::where('fecha_manual', $periodo_facturacion)->delete();
@@ -138,7 +138,7 @@ class FacturacionController extends Controller
                 }
 
                 if ($cobrarInteses) {//COBRAR INTERESES
-                    $valor+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0]);
+                    $valor+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa);
                     $factura->valor = $valor;
                     $factura->save();
                 }
@@ -151,7 +151,7 @@ class FacturacionController extends Controller
 
             (new FacturacionERP(
                 $periodo_facturacion
-            ))->send();
+            ))->send(request()->user()->id_empresa);
 
             DB::connection('max')->commit();
 
@@ -229,7 +229,7 @@ class FacturacionController extends Controller
         return $totalAnticipos;
     }
     
-    private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura)
+    private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura, $id_empresa)
     {
         $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
         
@@ -238,7 +238,7 @@ class FacturacionController extends Controller
         $response = (new Extracto(//TRAER CUENTAS POR COBRAR
             $factura->id_nit,
             3,
-        ))->send();
+        ))->send($id_empresa);
 
         if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
             DB::connection('max')->rollback();
