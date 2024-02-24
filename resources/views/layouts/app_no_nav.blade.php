@@ -629,11 +629,11 @@
 
     <script>
         //LOCAL
-        const base_url = 'http://127.0.0.1:8090/api/';
-        const base_web = 'http://127.0.0.1:8090/';
+        // const base_url = 'http://127.0.0.1:8090/api/';
+        // const base_web = 'http://127.0.0.1:8090/';
         //DEV
-        // const base_url = 'https://test.portafolioerp.com/api/';
-        // const base_web = 'https://test.portafolioerp.com/';
+        const base_url = 'https://lobster-app-q2qgt.ondigitalocean.app/api/';
+        const base_web = 'https://lobster-app-q2qgt.ondigitalocean.app/';
         //PRO
         // const base_url = 'https://app.portafolioerp.com/api/';
         // const base_web = 'https://app.portafolioerp.com/';

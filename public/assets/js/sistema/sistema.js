@@ -1,11 +1,13 @@
 
 //LOCAL
-const base_url = 'http://127.0.0.1:8090/api/';
-const base_web = 'http://127.0.0.1:8090/';
-const base_url_erp = 'http://localhost:8000/api/';
+// const base_url = 'http://127.0.0.1:8090/api/';
+// const base_web = 'http://127.0.0.1:8090/';
+// const base_url_erp = 'http://localhost:8000/api/';
 //DEV
-// const base_url = 'https://test.portafolioerp.com/api/';
-// const base_web = 'https://test.portafolioerp.com/';
+const base_url = 'lobster-app-q2qgt.ondigitalocean.app/api/';
+const base_web = 'lobster-app-q2qgt.ondigitalocean.app/';
+const base_url_erp = 'https://test.portafolioerp.com/api/';
+
 //PRO
 // const base_url = 'https://app.portafolioerp.com/api/';
 // const base_web = 'https://app.portafolioerp.com/';
