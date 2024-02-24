@@ -716,3 +716,7 @@ td{
     border: solid 1px;
     transition: 0.5s ease all;
 } */
+
+div.dataTables_processing {
+    z-index: 99 !important;
+}

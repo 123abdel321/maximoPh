@@ -242,7 +242,7 @@ function toggleSidenavMaximoClose() {
 
 //PERSONAL TABLE LENGUAJE
 const lenguajeDatatable = {
-    "sProcessing":     "Cargando <span><i style='font-size: 15px' class='fa fa-spinner fa-spin'></i></span>",
+    "sProcessing":     "",
     "sLengthMenu":     "Mostrar _MENU_ registros",
     "sZeroRecords":    "No se encontraron resultados",
     "sEmptyTable":     "Ningún registro disponible",
