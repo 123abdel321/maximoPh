@@ -4,8 +4,8 @@
 // const base_web = 'http://127.0.0.1:8090/';
 // const base_url_erp = 'http://localhost:8000/api/';
 //DEV
-const base_url = 'lobster-app-q2qgt.ondigitalocean.app/api/';
-const base_web = 'lobster-app-q2qgt.ondigitalocean.app/';
+const base_url = 'https://lobster-app-q2qgt.ondigitalocean.app/api/';
+const base_web = 'https://lobster-app-q2qgt.ondigitalocean.app/';
 const base_url_erp = 'https://test.portafolioerp.com/api/';
 
 //PRO
