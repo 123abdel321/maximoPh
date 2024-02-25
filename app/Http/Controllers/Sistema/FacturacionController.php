@@ -119,7 +119,7 @@ class FacturacionController extends Controller
                     ->where('id_nit', $nit->id_nit)
                     ->get();
 
-                $totalAnticipos = $this->totalAnticipos($factura->id_nit);
+                $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
                 $totalInmuebles = 0;
 
                 //RECORRERMOS INMUEBLES DEL NIT
@@ -300,12 +300,12 @@ class FacturacionController extends Controller
         return $valorTotal;
     }
 
-    private function totalAnticipos($id_nit)
+    private function totalAnticipos($id_nit, $id_empresa)
     {
         $extractos = (new Extracto(//TRAER CUENTAS POR PAGAR
             $id_nit,
             4,
-        ))->send();
+        ))->send($id_empresa);
 
         if ($extractos['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
             DB::connection('max')->rollback();
