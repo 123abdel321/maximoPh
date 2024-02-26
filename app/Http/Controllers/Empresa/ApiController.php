@@ -190,20 +190,21 @@ class ApiController extends Controller
 
             // $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
 
-            if ($response['status'] > 299) {
-                DB::connection('clientes')->rollback();
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=>$response['response']->message
-                ], 422);
-            }
+            // if ($response['status'] > 299) {
+            //     DB::connection('clientes')->rollback();
+            //     return response()->json([
+            //         "success"=>false,
+            //         'data' => [],
+            //         "message"=>$response['response']->message
+            //     ], 422);
+            // }
 
             $nameDb = $this->generateUniqueNameDb($empresa);
 
             $empresa->token_db_maximo = 'maximo_'.$nameDb;
             $empresa->token_db_portafolio = 'portafolio_'.$nameDb;
-            $empresa->token_api_portafolio = $response['response']->api_key_token;
+            $empresa->token_api_portafolio = '';
+            // $empresa->token_api_portafolio = $response['response']->api_key_token;
             $empresa->hash = Hash::make($empresa->id);
 			$empresa->save();
 
