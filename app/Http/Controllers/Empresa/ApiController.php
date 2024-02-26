@@ -188,7 +188,7 @@ class ApiController extends Controller
 				'estado' => 0
 			]);
 
-            $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
+            // $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
 
             if ($response['status'] > 299) {
                 DB::connection('clientes')->rollback();
