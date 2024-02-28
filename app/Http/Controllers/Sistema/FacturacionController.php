@@ -237,7 +237,7 @@ class FacturacionController extends Controller
         
         $response = (new Extracto(//TRAER CUENTAS POR COBRAR
             $factura->id_nit,
-            3,
+            [3,8],
         ))->send($id_empresa);
 
         if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
