@@ -270,6 +270,7 @@ class InmuebleController extends Controller
             DB::connection('max')->beginTransaction();
 
             Inmueble::where('id', $request->get('id'))->delete();
+            InmuebleNit::where('id_inmueble', $request->get('id'))->delete();
 
             DB::connection('max')->commit();
 
