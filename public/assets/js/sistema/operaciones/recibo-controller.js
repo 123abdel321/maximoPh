@@ -83,7 +83,7 @@ function reciboInit () {
         ],
         'rowCallback': function(row, data, index){
             if (data.cuenta_recibo == 'sin_deuda') {
-                $('td', row).css('background-color', '#2dce89');
+                $('td', row).css('background-color', 'rgb(11 177 158)');
                 $('td', row).css('font-weight', 'bold');
                 $('td', row).css('color', 'white');
                 return;
