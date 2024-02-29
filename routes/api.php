@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Empresa\ApiController;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
+use App\Http\Controllers\Portafolio\RecioController;
 use App\Http\Controllers\Portafolio\PlanCuentaController;
 //SISTEMA
 use App\Http\Controllers\Sistema\PqrsfController;
@@ -78,6 +79,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(FacturacionController::class)->group(function () {
             Route::get('facturacion', 'read');
             Route::post('facturacion', 'generar');
+        });
+        Route::controller(ReciboController::class)->group(function () {
+            Route::get('recibo', 'read');
         });
         //PQRSF
         Route::controller(PqrsfController::class)->group(function () {

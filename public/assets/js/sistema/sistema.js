@@ -56,6 +56,7 @@ var moduloCreado = {
     'conceptofacturacion': false,
     'zona': false,
     'facturacion': false,
+    'recibo': false,
 };
 
 var moduloRoute = {
@@ -65,6 +66,7 @@ var moduloRoute = {
     'conceptofacturacion': 'tablas',
     'zona': 'tablas',
     'facturacion': 'operaciones',
+    'recibo': 'operaciones',
 }
 
 $('.water').show();

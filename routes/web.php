@@ -11,6 +11,7 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
+use App\Http\Controllers\Portafolio\ReciboController;
 //TABLAS
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\InmuebleController;
@@ -48,6 +49,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/inmueble', [InmuebleController::class, 'index']);
 		Route::get('/conceptofacturacion', [ConceptoFacturacionController::class, 'index']);
 		//OPERACIONES
+		Route::get('/recibo', [ReciboController::class, 'index']);
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		//ENTORNO
 		Route::get('/entorno', [EntornoController::class, 'index']);
