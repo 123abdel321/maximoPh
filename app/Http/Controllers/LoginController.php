@@ -103,6 +103,7 @@ class LoginController extends Controller
                 'token_api_portafolio' => $empresaSelect->token_api_portafolio,
                 'token_type' => 'Bearer',
                 'empresa' => $empresaSelect,
+                'token_db_portafolio' => base64_encode($empresaSelect->token_db_portafolio),
                 'notificacion_code' => $notificacionCode,
                 'fondo_sistema' => $user->fondo_sistema,
                 'message'=> 'Usuario logeado con exito!'
@@ -114,6 +115,26 @@ class LoginController extends Controller
     		'data' => '',
     		'message'=> 'The provided credentials do not match our records.'
     	], 422);
+    }
+
+    private function encryptData($data)
+    {
+        $method = "AES-256-CBC";
+        $key = "encryptionKey123";
+        $options = 0;
+        $iv = '1234567891011121';
+
+        return openssl_encrypt($data, $method, $key, $options, $iv);
+    }
+
+    private function decryptData($data)
+    {
+        $method = "AES-256-CBC";
+        $key = "encryptionKey123";
+        $options = 0;
+        $iv = '1234567891011121';
+
+        return openssl_decrypt($data, $method, $key, $options, $iv);
     }
 
     public function logout(Request $request)
