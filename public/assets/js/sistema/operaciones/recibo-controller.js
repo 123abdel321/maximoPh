@@ -280,6 +280,14 @@ function saveRecibo() {
         $('#iniciarCapturaRecibo').show();
         $('#iniciarCapturaReciboLoading').hide();
         agregarToast('exito', 'Creación exitosa', 'Recibo creado con exito!', true);
+
+        var url = base_web_erp + 'recibos-print';
+        url+= '?token_db='+localStorage.getItem("token_db_portafolio");
+        url+= '&id='+res.impresion;
+
+        if(res.impresion) {
+            window.open(url, '_blank');
+        }
     }).fail((err) => {
         consecutivoSiguienteRecibo();
         $('#iniciarCapturaRecibo').show();
