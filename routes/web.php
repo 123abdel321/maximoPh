@@ -18,6 +18,7 @@ use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //OPERACIONES
 use App\Http\Controllers\Sistema\FacturacionController;
+use App\Http\Controllers\Sistema\CuotasMultasController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
 
@@ -51,6 +52,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//OPERACIONES
 		Route::get('/recibo', [ReciboController::class, 'index']);
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
+		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ENTORNO
 		Route::get('/entorno', [EntornoController::class, 'index']);
 	});

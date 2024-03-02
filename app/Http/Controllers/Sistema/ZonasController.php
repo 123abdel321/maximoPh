@@ -190,7 +190,7 @@ class ZonasController extends Controller
     public function delete (Request $request)
     {
         $rules = [
-            'id' => 'required|min:1|max:200|exists:max.zonas,id',
+            'id' => 'required|exists:max.zonas,id',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);

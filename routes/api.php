@@ -15,6 +15,7 @@ use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
+use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
@@ -62,10 +63,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //INMUEBLES
         Route::controller(InmuebleController::class)->group(function () {
             Route::get('inmueble', 'read');
-            Route::get('inmueble', 'read');
             Route::post('inmueble', 'create');
             Route::put('inmueble', 'update');
             Route::delete('inmueble', 'delete');
+            Route::get('inmueble-combo', 'combo');
             Route::get('inmueble-total', 'totales');
         });
         //INMUEBLES NITS
@@ -79,6 +80,14 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(FacturacionController::class)->group(function () {
             Route::get('facturacion', 'read');
             Route::post('facturacion', 'generar');
+        });
+        //CUOTAS EXTRA & MULTAS
+        Route::controller(CuotasMultasController::class)->group(function () {
+            Route::get('cuotasmultas', 'read');
+            Route::post('cuotasmultas', 'create');
+            Route::put('cuotasmultas', 'update');
+            Route::delete('cuotasmultas', 'delete');
+            Route::get('cuotasmultas-total', 'totales');
         });
         Route::controller(ReciboController::class)->group(function () {
             Route::get('recibo', 'read');

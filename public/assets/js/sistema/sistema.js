@@ -2,10 +2,12 @@
 //LOCAL
 // const base_url = 'http://127.0.0.1:8090/api/';
 // const base_web = 'http://127.0.0.1:8090/';
+// const base_web_erp = 'http://localhost:8000/';
 // const base_url_erp = 'http://localhost:8000/api/';
 //DEV
 const base_url = 'https://lobster-app-q2qgt.ondigitalocean.app/api/';
 const base_web = 'https://lobster-app-q2qgt.ondigitalocean.app/';
+const base_web_erp = 'https://test.portafolioerp.com/';
 const base_url_erp = 'https://test.portafolioerp.com/api/';
 
 //PRO
@@ -57,6 +59,7 @@ var moduloCreado = {
     'zona': false,
     'facturacion': false,
     'recibo': false,
+    'cuotasmultas': false,
 };
 
 var moduloRoute = {
@@ -67,6 +70,7 @@ var moduloRoute = {
     'zona': 'tablas',
     'facturacion': 'operaciones',
     'recibo': 'operaciones',
+    'cuotasmultas': 'operaciones',
 }
 
 $('.water').show();
