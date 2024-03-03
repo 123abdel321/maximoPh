@@ -13,6 +13,7 @@ use App\Helpers\PortafolioERP\EliminarFacturas;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
+use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\Facturacion;
@@ -59,8 +60,10 @@ class FacturacionController extends Controller
 
             $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
             
-            $query = $this->inmueblesNitsQuery($empresa, $search);
-            $query->unionAll($this->cuotasMultasQuery($empresa, $search));
+            $nitSsearch = $search ? $this->nitsSearch($search) : [];
+            $query = $this->inmueblesNitsQuery($empresa, $search, $nitSsearch);
+
+            $query->unionAll($this->cuotasMultasQuery($empresa, $search, $nitSsearch));
 
             $facturacion = DB::connection('max')
                 ->table(DB::raw("({$query->toSql()}) AS facturaciondata"))
@@ -93,6 +96,8 @@ class FacturacionController extends Controller
             ];
 
             $dataFactura = $facturacionPaginate->get()->toArray();
+            $dataFactura = $this->asignarNombreNit($dataFactura);
+            
             array_push($dataFactura, $dataTotals);
 
             return response()->json([
@@ -366,17 +371,13 @@ class FacturacionController extends Controller
         return $valorTotal;
     }
 
-    private function inmueblesNitsQuery($empresa, $search)
+    private function inmueblesNitsQuery($empresa, $search, $nitSsearch)
     {
         return DB::connection('max')->table('inmueble_nits AS INMN')
             ->select(
                 DB::raw("CONCAT(INM.nombre, ' - ', Z.nombre) AS nombre_inmueble"),
                 "INM.area AS area_inmueble",
-                DB::raw("(CASE
-                    WHEN INMN.id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN CONCAT(numero_documento, ' - ', razon_social)
-                    WHEN INMN.id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT(numero_documento, ' - ', primer_nombre, ' ',primer_apellido)
-                    ELSE NULL
-                END) AS id_nit"),
+                "INMN.id_nit",
                 "INMN.tipo",
                 "INMN.porcentaje_administracion",
                 "INMN.valor_total",
@@ -386,21 +387,17 @@ class FacturacionController extends Controller
             ->leftJoin('inmuebles AS INM', 'INMN.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS Z', 'INM.id_zona', 'Z.id')
             ->leftJoin('concepto_facturacions AS CF', 'INM.id_concepto_facturacion', 'CF.id')
-            ->joinSub(DB::connection('sam')->table('nits'), 'nits', function(JoinClause $join) {
-                $join->on('INMN.id_nit', '=', 'nits.id');
-            })
-            ->when(isset($search), function ($query) use($search) {
+            ->when(isset($search), function ($query) use($search, $nitSsearch) {
                 $query->where('INM.nombre', 'LIKE', '%'.$search.'%')
                     ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.razon_social', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.numero_documento', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.primer_nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.primer_apellido', 'LIKE', '%'.$search.'%')
                     ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
+            })
+            ->when(isset($nitSsearch), function ($query) use($nitSsearch) {
+                $query->orWhereIn('INMN.id_nit', $nitSsearch);
             });
     }
 
-    private function cuotasMultasQuery($empresa, $search)
+    private function cuotasMultasQuery($empresa, $search, $nitSsearch)
     {
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
@@ -409,11 +406,7 @@ class FacturacionController extends Controller
             ->select(
                 DB::raw("CONCAT(INM.nombre, ' - ', Z.nombre) AS nombre_inmueble"),
                 "INM.area AS area_inmueble",
-                DB::raw("(CASE
-                    WHEN CM.id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN CONCAT(numero_documento, ' - ', razon_social)
-                    WHEN CM.id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT(numero_documento, ' - ', primer_nombre, ' ',primer_apellido)
-                    ELSE NULL
-                END) AS id_nit"),
+                "CM.id_nit",
                 "inmueble_nits.tipo",
                 "inmueble_nits.porcentaje_administracion",
                 "CM.valor_total",
@@ -422,9 +415,6 @@ class FacturacionController extends Controller
             )
             ->leftJoin('inmuebles AS INM', 'CM.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS Z', 'INM.id_zona', 'Z.id')
-            ->joinSub(DB::connection('sam')->table('nits'), 'nits', function(JoinClause $join) {
-                $join->on('CM.id_nit', '=', 'nits.id');
-            })
             ->leftJoin('inmueble_nits',function ($join) {
                 $join->on('CM.id_inmueble', '=', 'inmueble_nits.id_inmueble')
                     ->on('inmueble_nits.id_nit', '=', 'CM.id_nit');
@@ -433,14 +423,41 @@ class FacturacionController extends Controller
             ->when(isset($search), function ($query) use($search) {
                 $query->where('INM.nombre', 'LIKE', '%'.$search.'%')
                     ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.razon_social', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.numero_documento', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.primer_nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('nits.primer_apellido', 'LIKE', '%'.$search.'%')
                     ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
+            })
+            ->when(isset($nitSsearch), function ($query) use($nitSsearch) {
+                $query->orWhereIn('CM.id_nit', $nitSsearch);
             })
             ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
             ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_fin, '%Y-%m')"), '<=', $inicioMes);
+    }
+
+    private function asignarNombreNit($dataFacturas)
+    {
+        foreach ($dataFacturas as $dataFactura) {
+            $nit = Nits::find($dataFactura->id_nit);
+            $dataFactura->id_nit = $nit->numero_documento.' - '.$nit->nombre_completo;
+        }
+        return $dataFacturas;
+    }
+
+    private function nitsSearch($search)
+    {
+        $data = [];
+        $nits = DB::connection('sam')->table('nits')->select('id')
+            ->where('razon_social', 'LIKE', '%'.$search.'%')
+            ->orWhere('numero_documento', 'LIKE', '%'.$search.'%')
+            ->orWhere('primer_nombre', 'LIKE', '%'.$search.'%')
+            ->orWhere('primer_apellido', 'LIKE', '%'.$search.'%')
+            ->get()->toArray();
+
+        if (count($nits)) {
+            foreach ($nits as $nit) {
+                $data[] = $nit->id;
+            }
+        }
+
+        return $data;        
     }
 
     private function totalAnticipos($id_nit, $id_empresa)
