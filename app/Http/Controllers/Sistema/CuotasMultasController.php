@@ -51,6 +51,10 @@ class CuotasMultasController extends Controller
             $columnName = $columnName_arr[$columnIndex]['data']; // Column name
             $columnSortOrder = $order_arr[0]['dir']; // asc or desc
 
+            $filtro1 = $request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
+            $filtro2 = !$request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
+            $filtro3 = $request->get('fecha_desde') && !$request->get('fecha_hasta') ? true : false;
+
             $cuotasMultas = CuotasMultas::orderBy($columnName,$columnSortOrder)
                 ->with('concepto', 'nit', 'inmueble', 'inmueble.concepto', 'inmueble.personas', 'inmueble.zona')
                 ->select(
@@ -60,11 +64,15 @@ class CuotasMultasController extends Controller
                     'created_by',
                     'updated_by'
                 )
-                ->when($request->get('fecha_desde'), function ($query) use($request) {
-                    $query->where('fecha_inicio', '>=', $request->get('fecha_desde'));
+                ->when($filtro1, function ($query) use($request) {
+                    $query->where('fecha_inicio', '<=', $request->get('fecha_desde'))
+                        ->where('fecha_fin', '<=', $request->get('fecha_hasta'));
                 })
-                ->when($request->get('fecha_hasta'), function ($query) use($request) {
+                ->when($filtro2, function ($query) use($request) {
                     $query->where('fecha_fin', '<=', $request->get('fecha_hasta'));
+                })
+                ->when($filtro3, function ($query) use($request) {
+                    $query->where('fecha_inicio', '>=', $request->get('fecha_desde'));
                 })
                 ->when($request->get('id_concepto'), function ($query) use($request) {
                     $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));
@@ -342,14 +350,22 @@ class CuotasMultasController extends Controller
 
     public function totales (Request $request)
     {
+        $filtro1 = $request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
+        $filtro2 = !$request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
+        $filtro3 = $request->get('fecha_desde') && !$request->get('fecha_hasta') ? true : false;
+        
         $cuotasMultas = CuotasMultas::select(
                 DB::raw("SUM(valor_total) AS valor_total")
             )
-            ->when($request->get('fecha_desde'), function ($query) use($request) {
-                $query->where('fecha_inicio', '>=', $request->get('fecha_desde'));
+            ->when($filtro1, function ($query) use($request) {
+                $query->where('fecha_inicio', '<=', $request->get('fecha_desde'))
+                    ->where('fecha_fin', '<=', $request->get('fecha_hasta'));
             })
-            ->when($request->get('fecha_hasta'), function ($query) use($request) {
+            ->when($filtro2, function ($query) use($request) {
                 $query->where('fecha_fin', '<=', $request->get('fecha_hasta'));
+            })
+            ->when($filtro3, function ($query) use($request) {
+                $query->where('fecha_inicio', '>=', $request->get('fecha_desde'));
             })
             ->when($request->get('id_concepto'), function ($query) use($request) {
                 $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));
