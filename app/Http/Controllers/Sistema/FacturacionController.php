@@ -62,7 +62,6 @@ class FacturacionController extends Controller
             
             $nitSsearch = $search ? $this->nitsSearch($search) : [];
             $query = $this->inmueblesNitsQuery($empresa, $search, $nitSsearch);
-
             $query->unionAll($this->cuotasMultasQuery($empresa, $search, $nitSsearch));
 
             $facturacion = DB::connection('max')
@@ -392,7 +391,7 @@ class FacturacionController extends Controller
                     ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
                     ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
             })
-            ->when(isset($nitSsearch), function ($query) use($nitSsearch) {
+            ->when(count($nitSsearch), function ($query) use($nitSsearch) {
                 $query->orWhereIn('INMN.id_nit', $nitSsearch);
             });
     }
@@ -425,7 +424,7 @@ class FacturacionController extends Controller
                     ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
                     ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
             })
-            ->when(isset($nitSsearch), function ($query) use($nitSsearch) {
+            ->when(count($nitSsearch), function ($query) use($nitSsearch) {
                 $query->orWhereIn('CM.id_nit', $nitSsearch);
             })
             ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
