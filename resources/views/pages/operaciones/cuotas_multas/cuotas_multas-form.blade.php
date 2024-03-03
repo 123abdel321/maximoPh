@@ -14,7 +14,7 @@
                         <input type="text" class="form-control" name="id_cuota_multa_up" id="id_cuota_multa_up" style="display: none;">
 
                         <div id="input_masivo_cuotas_multas" class="form-check form-switch col-12 col-sm-6 col-md-4" style="padding-left: 4rem;">
-                            <input class="form-check-input" type="checkbox" name="masivo_cuotas_multas" id="masivo_cuotas_multas" style="height: 20px; width: 62px;">
+                            <input class="form-check-input" type="checkbox" name="masivo_cuotas_multas" id="masivo_cuotas_multas" style="height: 20px;">
                             <label class="form-check-label" for="masivo_cuotas_multas">Agregar masivamente</label>
                         </div>
 

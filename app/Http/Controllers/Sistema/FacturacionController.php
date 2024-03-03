@@ -11,9 +11,11 @@ use App\Helpers\PortafolioERP\FacturacionERP;
 use App\Helpers\PortafolioERP\EliminarFacturas;
 //MODELS
 use App\Models\Sistema\Entorno;
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\Facturacion;
+use App\Models\Sistema\CuotasMultas;
 use App\Models\Sistema\FacturacionDetalle;
 
 class FacturacionController extends Controller
@@ -48,29 +50,58 @@ class FacturacionController extends Controller
             $columnIndex_arr = $request->get('order');
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
-            $search_arr = $request->get('search');
+            $search = $request->get('search');
 
             $columnIndex = $columnIndex_arr[0]['column']; // Column index
             $columnName = $columnName_arr[$columnIndex]['data']; // Column name
             $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-            $searchValue = $search_arr['value']; // Search value
 
-            $inmueble = InmuebleNit::orderBy($columnName,$columnSortOrder)
-                ->with('inmueble', 'nit', 'inmueble.concepto', 'inmueble.zona');
+            $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+            
+            $query = $this->inmueblesNitsQuery($empresa, $search);
+            $query->unionAll($this->cuotasMultasQuery($empresa, $search));
 
-            $inmuebleTotals = $inmueble->get();
+            $facturacion = DB::connection('max')
+                ->table(DB::raw("({$query->toSql()}) AS facturaciondata"))
+                ->mergeBindings($query)
+                ->select(
+                    'nombre_inmueble',
+                    'area_inmueble',
+                    'id_nit',
+                    'tipo',
+                    'porcentaje_administracion',
+                    'valor_total',
+                    'nombre_concepto',
+                    'tipo_factura'
+                );
 
-            $inmueblePaginate = $inmueble->skip($start)
+            $facturacionTotals = $facturacion->get();
+
+            $facturacionPaginate = $facturacion->skip($start)
                 ->take($rowperpage);
+
+            $dataTotals = (object)[
+                'nombre_inmueble' => 'TOTAL FACTURA',
+                'area_inmueble' => '',
+                'id_nit' => '',
+                'tipo' => '',
+                'porcentaje_administracion' => '',
+                'valor_total' => $facturacionTotals->sum('valor_total'),
+                'nombre_concepto' => '',
+                'tipo_factura' => 2,
+            ];
+
+            $dataFactura = $facturacionPaginate->get()->toArray();
+            array_push($dataFactura, $dataTotals);
 
             return response()->json([
                 'success'=>	true,
                 'draw' => $draw,
-                'iTotalRecords' => $inmuebleTotals->count(),
-                'iTotalDisplayRecords' => $inmuebleTotals->count(),
-                'data' => $inmueblePaginate->get(),
+                'iTotalRecords' => $facturacionTotals->count(),
+                'iTotalDisplayRecords' => $facturacionTotals->count(),
+                'data' => $dataFactura,
                 'perPage' => $rowperpage,
-                'message'=> 'Inmuebles generados con exito!'
+                'message'=> 'Facturas generadas con exito!'
             ]);
 
         } catch (Exception $e) {
@@ -114,15 +145,22 @@ class FacturacionController extends Controller
 
                 $valor = 0;
                 $cobrarInteses = false;
+                $inicioMes = date('Y-m', strtotime($periodo_facturacion));
 
                 $inmueblesFacturar = InmuebleNit::with('inmueble.concepto', 'inmueble.zona')//INMUEBLES DEL NIT
                     ->where('id_nit', $nit->id_nit)
                     ->get();
 
+                $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
+                    ->where('id_nit', $nit->id_nit)
+                    ->whereDate(DB::raw("DATE_FORMAT(fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
+                    ->whereDate(DB::raw("DATE_FORMAT(fecha_fin, '%Y-%m')"), '<=', $inicioMes)
+                    ->get();
+
                 $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
                 $totalInmuebles = 0;
 
-                //RECORRERMOS INMUEBLES DEL NIT
+                //RECORREMOS INMUEBLES DEL NIT
                 foreach ($inmueblesFacturar as $inmuebleFactura) {
 
                     if (count($inmueblesFacturar) > 1) $totalInmuebles++;
@@ -135,6 +173,11 @@ class FacturacionController extends Controller
                     if ($totalAnticipos > 0) {
                         $totalAnticipos = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos);
                     }
+                }
+
+                //RECORREMOS CUOTAS Y MULTAS
+                foreach ($cuotasMultasFacturar as $cuotaMultaFactura) {
+                    $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 }
 
                 if ($cobrarInteses) {//COBRAR INTERESES
@@ -169,6 +212,28 @@ class FacturacionController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
+    }
+
+    private function generarFacturaCuotaMulta(Facturacion $factura, CuotasMultas $cuotaMultaFactura)
+    {
+        $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
+        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+        
+        $facturaDetalle = FacturacionDetalle::create([
+            'id_factura' => $factura->id,
+            'id_nit' => $cuotaMultaFactura->id_nit,
+            'id_cuenta_por_cobrar' => $cuotaMultaFactura->concepto->id_cuenta_cobrar,
+            'id_cuenta_ingreso' => $cuotaMultaFactura->concepto->id_cuenta_ingreso,
+            'id_comprobante' => $id_comprobante_ventas,
+            'id_centro_costos' => $cuotaMultaFactura->inmueble->zona->id_centro_costos,
+            'fecha_manual' => $periodo_facturacion,
+            'documento_referencia' => $inicioMes,
+            'valor' => $cuotaMultaFactura->valor_total,
+            'concepto' => $cuotaMultaFactura->concepto->nombre_concepto.' '.$cuotaMultaFactura->observacion,
+            'created_by' => request()->user()->id,
+            'updated_by' => request()->user()->id,
+        ]);
     }
 
     private function generarFacturaInmueble(Facturacion $factura, InmuebleNit $inmuebleFactura, $totalInmuebles)
@@ -298,6 +363,79 @@ class FacturacionController extends Controller
         }
 
         return $valorTotal;
+    }
+
+    private function inmueblesNitsQuery($empresa, $search)
+    {
+        return DB::connection('max')->table('inmueble_nits AS INMN')
+            ->select(
+                DB::raw("CONCAT(INM.nombre, ' - ', Z.nombre) AS nombre_inmueble"),
+                "INM.area AS area_inmueble",
+                DB::raw("(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN CONCAT(numero_documento, ' - ', razon_social)
+                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT(numero_documento, ' - ', primer_nombre, ' ',primer_apellido)
+                    ELSE NULL
+                END) AS id_nit"),
+                "INMN.tipo",
+                "INMN.porcentaje_administracion",
+                "INMN.valor_total",
+                "CF.nombre_concepto",
+                DB::raw("0 AS tipo_factura")
+            )
+            ->leftJoin('inmuebles AS INM', 'INMN.id_inmueble', 'INM.id')
+            ->leftJoin('zonas AS Z', 'INM.id_zona', 'Z.id')
+            ->leftJoin('concepto_facturacions AS CF', 'INM.id_concepto_facturacion', 'CF.id')
+            ->leftJoin("$empresa->token_db_portafolio.nits AS NT", 'INMN.id_nit', 'NT.id')
+            ->when(isset($search), function ($query) use($search) {
+                $query->where('INM.nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.razon_social', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.numero_documento', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.primer_nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.primer_apellido', 'LIKE', '%'.$search.'%')
+                    ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
+            });
+    }
+
+    private function cuotasMultasQuery($empresa, $search)
+    {
+        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+
+        return DB::connection('max')->table('cuotas_multas AS CM')
+            ->select(
+                DB::raw("CONCAT(INM.nombre, ' - ', Z.nombre) AS nombre_inmueble"),
+                "INM.area AS area_inmueble",
+                DB::raw("(CASE
+                    WHEN CM.id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN CONCAT(numero_documento, ' - ', razon_social)
+                    WHEN CM.id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT(numero_documento, ' - ', primer_nombre, ' ',primer_apellido)
+                    ELSE NULL
+                END) AS id_nit"),
+                "inmueble_nits.tipo",
+                "inmueble_nits.porcentaje_administracion",
+                "CM.valor_total",
+                "CF.nombre_concepto",
+                DB::raw("1 AS tipo_factura")
+            )
+            ->leftJoin('inmuebles AS INM', 'CM.id_inmueble', 'INM.id')
+            ->leftJoin('zonas AS Z', 'INM.id_zona', 'Z.id')
+            ->leftJoin("$empresa->token_db_portafolio.nits AS NT", 'CM.id_nit', 'NT.id')
+            ->leftJoin('inmueble_nits',function ($join) {
+                $join->on('CM.id_inmueble', '=', 'inmueble_nits.id_inmueble')
+                    ->where('inmueble_nits.id_nit', '=', 'CM.id_nit');
+            })
+            ->leftJoin('concepto_facturacions AS CF', 'CM.id_concepto_facturacion', 'CF.id')
+            ->when(isset($search), function ($query) use($search) {
+                $query->where('INM.nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.razon_social', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.numero_documento', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.primer_nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('NT.primer_apellido', 'LIKE', '%'.$search.'%')
+                    ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
+            })
+            ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
+            ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_fin, '%Y-%m')"), '<=', $inicioMes);
     }
 
     private function totalAnticipos($id_nit, $id_empresa)

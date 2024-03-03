@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
+use App\Models\Sistema\CuotasMultas;
 
 class InmuebleController extends Controller
 {
@@ -312,6 +313,13 @@ class InmuebleController extends Controller
         $areaM2Total = Inmueble::sum('area');
         $coeficienteTotal = Inmueble::sum('coeficiente');
         $valorRegistroPresupuesto = InmuebleNit::sum('valor_total');
+        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+
+        $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
+            ->whereDate(DB::raw("DATE_FORMAT(fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
+            ->whereDate(DB::raw("DATE_FORMAT(fecha_fin, '%Y-%m')"), '<=', $inicioMes)
+            ->get();
 
         $data = [
             'numero_total_unidades' => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
@@ -322,6 +330,7 @@ class InmuebleController extends Controller
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
             'valor_registro_coeficiente' => intval($coeficienteTotal * 100),
             'periodo_facturacion' => Entorno::where('nombre', 'periodo_facturacion')->first()->valor,
+            'total_multas' => $cuotasMultasFacturar->sum('valor_total')
         ];
 
         return response()->json([

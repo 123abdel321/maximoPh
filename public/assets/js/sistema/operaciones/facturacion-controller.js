@@ -1,4 +1,6 @@
+var buscarTotales = false;
 var facturacion_table = null;
+var searchValueFacturacion = null;
 
 function facturacionInit() {
     facturacion_table = $('#facturacionTable').DataTable({
@@ -13,55 +15,54 @@ function facturacionInit() {
         initialLoad: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
-        fixedColumns : {
-            left: 0,
-            right : 1,
-        },
         ajax:  {
             type: "GET",
             headers: headers,
             url: base_url + 'facturacion',
+            data: function ( d ) {
+                d.search = searchValueFacturacion;
+            }
         },
         columns: [
-            {"data":'id_inmueble', visible: false},
-            {"data": function (row, type, set){  
-                if (row.inmueble) {
-                    return row.inmueble.zona.nombre+' - '+row.inmueble.nombre;
-                }
-                return '';
-            }},
-            {"data": function (row, type, set){  
-                if (row.inmueble) {
-                    return row.inmueble.area;
-                }
-                return '';
-            }},
-            {"data": function (row, type, set){  
-                if (row.inmueble) {
-                    return row.nit.numero_documento+ ' - '+row.nit.nombre_completo;
-                }
-                return '';
-            }},
+            {"data":'nombre_inmueble', visible: false},
+            {"data":'nombre_inmueble'},
+            {"data":'area_inmueble'},
+            {"data":'id_nit'},
             {"data": function (row, type, set){  
                 if (row.tipo) {
                     return 'INQUILINO'
                 }
-                return 'PROPIETARIO';
+                if (row.tipo_factura == 2) {
+                    return;
+                }
+                if (row.tipo_factura == 0) {
+                    return 'PROPIETARIO';
+                }
+                return ;
             }},
             {"data":'porcentaje_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
-            {"data": function (row, type, set){  
-                if (row.inmueble) {
-                    return row.inmueble.concepto.nombre_concepto
-                }
-                return '';
-            }},
+            {"data":'nombre_concepto'},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'}
-        ]
+        ],
+        'rowCallback': function(row, data, index){
+            if(data.tipo_factura == 1) {
+                $('td', row).css('background-color', '#00d9ff29');
+                return;
+            }
+            if (data.tipo_factura == 2) {
+                $('td', row).css('background-color', '#065664');
+                $('td', row).css('font-weight', 'bold');
+                $('td', row).css('color', 'white');
+                return;
+            }
+        }
     });
 
     $('.water').hide();
-    facturacion_table.ajax.reload();
-    getTotalesFacturacion();
+    facturacion_table.ajax.reload(function (res) {
+        getTotalesFacturacion();
+    }); 
+    
 }
 
 $(document).on('click', '#generateFacturacion', function () {
@@ -84,8 +85,10 @@ $(document).on('click', '#saveFacturacion', function () {
             $("#saveFacturacion").show();
             $("#saveFacturacionLoading").hide();
             $("#facturacionFormModal").modal('hide');
-            facturacion_table.ajax.reload();
-            getTotalesFacturacion();
+            facturacion_table.ajax.reload(function () {
+                getTotalesFacturacion();
+            });
+            
             agregarToast('exito', 'Facturación exitosa', 'Facturación generada con exito!', true);
         }
     }).fail((err) => {
@@ -109,19 +112,36 @@ $(document).on('click', '#saveFacturacion', function () {
     });
 });
 
+function searchFacturacion (event) {
+    var botonPrecionado = event.key.length == 1 ? event.key : '';
+    searchValueFacturacion = $('#searchInputFacturacion').val();
+    searchValueFacturacion = searchValueFacturacion+botonPrecionado;
+    if(event.key == 'Backspace') searchValueFacturacion = searchValueFacturacion.slice(0, -1);
+
+    facturacion_table.context[0].jqXHR.abort();
+    facturacion_table.ajax.reload(function () {
+        getTotalesFacturacion();
+    });
+}
+
 function getTotalesFacturacion(){
-    $.ajax({
+    if (buscarTotales) {
+        buscarTotales.abort();
+    }
+    buscarTotales = $.ajax({
         url: base_url + 'inmueble-total',
         method: 'GET',
         headers: headers,
         dataType: 'json',
     }).done((res) => {
+        validarFactura = false;
         $('#textLoadingFacturacionCreate').hide();
         if(res.success){
             var dateText = generateTextYear(res.data.periodo_facturacion);
 
-            $('#textFacturacionCreate').text('Generar facturación '+ dateText);
-            $('#generateFacturacion').text('Generar facturación '+ dateText);
+            $('#textFacturacionCreate').text('GENERAR FACTURACIÓN '+ dateText);
+            $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
+            $('#div_total_multas_facturacion').hide();
 
             var numero_registro_unidades = res.data.numero_registro_unidades;
             var numero_total_unidades = res.data.numero_total_unidades;
@@ -130,12 +150,17 @@ function getTotalesFacturacion(){
             var valor_registro_coeficiente = res.data.valor_registro_coeficiente;
             var valor_registro_presupuesto = res.data.valor_registro_presupuesto;
             var valor_total_presupuesto = res.data.valor_total_presupuesto / 12;
+            var total_multas = res.data.total_multas;
 
             $('#validar_inmuebles_facturacion').text('Inmuebles totales: '+numero_registro_unidades+ ' de '+numero_total_unidades);
             $('#validar_area_facturacion').text('Area total: '+area_registro_m2+ ' de '+area_total_m2);
             $('#validar_coeficiente_facturacion').text('Coreficiente total: '+valor_registro_coeficiente+ '% de 100%');
-            $('#validar_presupuesto_facturacion').text('Valor administracion total: '+new Intl.NumberFormat().format(valor_registro_presupuesto)+ ' de '+new Intl.NumberFormat().format(valor_total_presupuesto));
-
+            $('#validar_presupuesto_facturacion').text('Valor administracion total: '+new Intl.NumberFormat("ja-JP").format(valor_registro_presupuesto)+ ' de '+new Intl.NumberFormat("ja-JP").format(valor_total_presupuesto));
+            if (total_multas) {
+                $('#div_total_multas_facturacion').show();
+                $('#text_total_multas_facturacion').text('Total multas: '+new Intl.NumberFormat("ja-JP").format(total_multas))    
+            }
+            
             if (numero_registro_unidades != numero_total_unidades) {
                 $("#validar_inmuebles_facturacion_false").show();
                 $("#validar_inmuebles_facturacion_true").hide();
@@ -181,8 +206,8 @@ function getTotalesFacturacion(){
                 countD.start();
         }
     }).fail((err) => {
+        validarFactura = false;
         $('#textLoadingFacturacionCreate').hide();
-        agregarToast('error', 'Consulta errada', 'Error al consultar totales!');
     });
 }
 

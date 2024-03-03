@@ -29,6 +29,11 @@
                         <i id="validar_presupuesto_facturacion_true" class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
                         <i id="validar_presupuesto_facturacion_false" class="fas fa-times-circle" style="font-size: 20px; color: #d00404; float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
                     </div>
+
+                    <div id="div_total_multas_facturacion" class="col-12 col-sm-12 col-md-12">
+                        <h5 id="text_total_multas_facturacion" style="font-size: 15px; border-bottom: solid 1px #ebebeb; padding: 5px;"><h5>
+                        <i class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px;" aria-hidden="true"></i>
+                    </div>
                 </div>
 
             </div>

@@ -4,13 +4,13 @@
         <div class="row" style="z-index: 9;">
             <div class="col-12 col-md-8 col-sm-8">
                 @can('facturacion create')
-                    <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">Generar facturación
+                    <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">GENERAR FACTURACIÓN
                         <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
                 @endcan
             </div>
             <div class="col-12 col-md-4 col-sm-4" >
-                <input type="text" id="searchInputFacturacion" class="form-control form-control-sm search-table" placeholder="Buscar">
+                <input type="text" id="searchInputFacturacion" class="form-control form-control-sm search-table" onkeydown="searchFacturacion(event)" placeholder="Buscar">
             </div>
         </div>
 
