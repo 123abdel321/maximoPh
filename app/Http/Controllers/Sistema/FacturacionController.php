@@ -6,6 +6,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\FacturacionERP;
 use App\Helpers\PortafolioERP\EliminarFacturas;
@@ -372,8 +373,8 @@ class FacturacionController extends Controller
                 DB::raw("CONCAT(INM.nombre, ' - ', Z.nombre) AS nombre_inmueble"),
                 "INM.area AS area_inmueble",
                 DB::raw("(CASE
-                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN CONCAT(numero_documento, ' - ', razon_social)
-                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT(numero_documento, ' - ', primer_nombre, ' ',primer_apellido)
+                    WHEN INMN.id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN CONCAT(numero_documento, ' - ', razon_social)
+                    WHEN INMN.id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT(numero_documento, ' - ', primer_nombre, ' ',primer_apellido)
                     ELSE NULL
                 END) AS id_nit"),
                 "INMN.tipo",
@@ -385,14 +386,16 @@ class FacturacionController extends Controller
             ->leftJoin('inmuebles AS INM', 'INMN.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS Z', 'INM.id_zona', 'Z.id')
             ->leftJoin('concepto_facturacions AS CF', 'INM.id_concepto_facturacion', 'CF.id')
-            ->leftJoin("$empresa->token_db_portafolio.nits AS NT", 'INMN.id_nit', 'NT.id')
+            ->joinSub(DB::connection('sam')->table('nits'), 'nits', function(JoinClause $join) {
+                $join->on('INMN.id_nit', '=', 'nits.id');
+            })
             ->when(isset($search), function ($query) use($search) {
                 $query->where('INM.nombre', 'LIKE', '%'.$search.'%')
                     ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.razon_social', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.numero_documento', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.primer_nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.primer_apellido', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.razon_social', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.numero_documento', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.primer_nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.primer_apellido', 'LIKE', '%'.$search.'%')
                     ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
             });
     }
@@ -419,19 +422,21 @@ class FacturacionController extends Controller
             )
             ->leftJoin('inmuebles AS INM', 'CM.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS Z', 'INM.id_zona', 'Z.id')
-            ->leftJoin("$empresa->token_db_portafolio.nits AS NT", 'CM.id_nit', 'NT.id')
+            ->joinSub(DB::connection('sam')->table('nits'), 'nits', function(JoinClause $join) {
+                $join->on('CM.id_nit', '=', 'nits.id');
+            })
             ->leftJoin('inmueble_nits',function ($join) {
                 $join->on('CM.id_inmueble', '=', 'inmueble_nits.id_inmueble')
-                    ->where('inmueble_nits.id_nit', '=', 'CM.id_nit');
+                    ->on('inmueble_nits.id_nit', '=', 'CM.id_nit');
             })
             ->leftJoin('concepto_facturacions AS CF', 'CM.id_concepto_facturacion', 'CF.id')
             ->when(isset($search), function ($query) use($search) {
                 $query->where('INM.nombre', 'LIKE', '%'.$search.'%')
                     ->orWhere('Z.nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.razon_social', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.numero_documento', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.primer_nombre', 'LIKE', '%'.$search.'%')
-                    ->orWhere('NT.primer_apellido', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.razon_social', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.numero_documento', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.primer_nombre', 'LIKE', '%'.$search.'%')
+                    ->orWhere('nits.primer_apellido', 'LIKE', '%'.$search.'%')
                     ->orWhere('CF.nombre_concepto', 'LIKE', '%'.$search.'%');
             })
             ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
