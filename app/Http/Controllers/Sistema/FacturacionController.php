@@ -164,6 +164,7 @@ class FacturacionController extends Controller
                     ->get();
 
                 $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
+                
                 $totalInmuebles = 0;
 
                 //RECORREMOS INMUEBLES DEL NIT
@@ -325,6 +326,8 @@ class FacturacionController extends Controller
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return;
+
+        $valorTotal = 0;
         
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
@@ -464,9 +467,9 @@ class FacturacionController extends Controller
 
     private function totalAnticipos($id_nit, $id_empresa)
     {
-        $extractos = (new Extracto(//TRAER CUENTAS POR PAGAR
+        $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
             $id_nit,
-            4,
+            [4,8]
         ))->send($id_empresa);
 
         if ($extractos['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO

@@ -85,7 +85,7 @@ function inmuebleInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (editarInmueble) html+= '<span id="addnitinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary add-nit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Inquilino / Propietario</span>&nbsp;';
+                    if (editarInmueble) html+= '<span id="addnitinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary add-nit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Propietarios</span>&nbsp;';
                     if (editarInmueble) html+= '<span id="editinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (eliminarInmueble) html+= '<span id="deleteinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
