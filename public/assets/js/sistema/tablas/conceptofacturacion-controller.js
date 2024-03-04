@@ -58,6 +58,12 @@ function conceptofacturacionInit() {
                 }
                 return 'NO';
             }},
+            {"data": function (row, type, set){  
+                if (row.tipo_concepto) {
+                    return 'CUOTAS EXTRAS & MULTAS'
+                }
+                return 'FACTURACIÓN';
+            }},
             {"data":'valor'},
             {"data": function (row, type, set){  
                 var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
@@ -341,6 +347,7 @@ $(document).on('click', '#saveConceptoFacturacion', function () {
         id_cuenta_cobrar: $("#id_cuenta_cobrar_concepto_facturacion").val(),
         id_cuenta_iva: $("#id_cuenta_iva_concepto_facturacion").val(),
         intereses: $("input[type='checkbox']#intereses_concepto_facturacion").is(':checked') ? '1' : '',
+        tipo_concepto: $('#tipo_concepto_facturacion').val(),
         valor: $("#valor_concepto_facturacion").val(),
     }
 
@@ -399,6 +406,7 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
         id_cuenta_cobrar: $("#id_cuenta_cobrar_concepto_facturacion").val(),
         id_cuenta_iva: $("#id_cuenta_iva_concepto_facturacion").val(),
         intereses: $("input[type='checkbox']#intereses_concepto_facturacion").is(':checked') ? '1' : '',
+        tipo_concepto: $('#tipo_concepto_facturacion').val(),
         valor: $("#valor_concepto_facturacion").val(),
     }
 

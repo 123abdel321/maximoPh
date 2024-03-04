@@ -7,6 +7,7 @@
             <th>Cuenta intereses</th>
             <th>Cuenta iva</th>
             <th>Intereses</th>
+            <th>Tipo concepto</th>
             <th>Valor</th>
             <th>Creación registro</th>
             <th>Ultima actualización</th>

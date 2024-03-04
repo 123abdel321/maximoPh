@@ -20,6 +20,7 @@ class ConceptoFacturacion extends Model
         'id_cuenta_cobrar',
         'id_cuenta_iva',
         'intereses',
+        'tipo_concepto',
         'valor',
         'created_by',
         'updated_by',

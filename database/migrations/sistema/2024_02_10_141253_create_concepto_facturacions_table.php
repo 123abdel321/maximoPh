@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('id_cuenta_cobrar')->nullable();
             $table->integer('id_cuenta_iva')->nullable();
             $table->boolean('intereses')->nullable()->default(0)->comment('0 - No; 1 - Si;');
+            $table->boolean('tipo_concepto')->nullable()->default(0)->comment('0 - Facturación; 1 - Cuotas extras & multas;');
             $table->decimal('valor', 15)->nullable()->default(0);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

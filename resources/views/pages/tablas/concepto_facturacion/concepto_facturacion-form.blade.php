@@ -47,10 +47,18 @@
                             <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_concepto_facturacion" id="valor_concepto_facturacion" value="0">
                         </div>
 
-                        <div class="form-check form-switch col-12 col-sm-6 col-md-6" style="margin-left: 12px;">
+                        <div id="input_tipo_concepto_facturacion" class="form-group form-group col-6 col-sm-6 col-md-6">
+                            <label for="tipo_concepto_facturacion">Tipo concepto</label>
+                            <select class="form-control form-control-sm" id="tipo_concepto_facturacion">
+                                <option value="0">Facturación inmuebles</option>
+                                <option value="1">Cuotas extras & multas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
                             <input class="form-check-input" type="checkbox" name="intereses_concepto_facturacion" id="intereses_concepto_facturacion" style="height: 20px;">
                             <label class="form-check-label" for="intereses_concepto_facturacion">Intereses</label>
-                        </div>
+                        </div>   
                         
                     </div>  
                 </form>

@@ -117,6 +117,7 @@ class ConceptoFacturacionController extends Controller
                 'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
                 'id_cuenta_iva' => $request->get('id_cuenta_iva'),
                 'intereses' => $request->get('intereses'),
+                'tipo_concepto' => $request->get('tipo_concepto'),
                 'valor' => $request->get('valor'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
@@ -183,6 +184,7 @@ class ConceptoFacturacionController extends Controller
                     'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
                     'id_cuenta_iva' => $request->get('id_cuenta_iva'),
                     'intereses' => $request->get('intereses'),
+                    'tipo_concepto' => $request->get('tipo_concepto'),
                     'valor' => $request->get('valor'),
                     'updated_by' => request()->user()->id
                 ]);
@@ -253,6 +255,14 @@ class ConceptoFacturacionController extends Controller
 
         if ($request->get("q")) {
             $conceptoFacturacion->where('nombre_concepto', 'LIKE', '%' . $request->get("q") . '%');
+        }
+
+        if ($request->get("search")) {
+            $conceptoFacturacion->where('nombre_concepto', 'LIKE', '%' . $request->get("search") . '%');
+        }
+
+        if ($request->has("tipo_concepto")) {
+            $conceptoFacturacion->where('tipo_concepto', $request->get("tipo_concepto"));
         }
 
         return $conceptoFacturacion->paginate(40);
