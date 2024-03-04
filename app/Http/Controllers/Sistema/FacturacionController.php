@@ -286,8 +286,8 @@ class FacturacionController extends Controller
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $inmuebleFactura->id_nit,
-            'id_cuenta_por_cobrar' => $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar,
-            'id_cuenta_ingreso' => $id_cuenta_anticipos,
+            'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
+            'id_cuenta_ingreso' => $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar,
             'id_comprobante' => $id_comprobante_notas,
             'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
             'fecha_manual' => $periodo_facturacion,
