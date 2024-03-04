@@ -149,8 +149,9 @@ class FacturacionController extends Controller
                 ]);
 
                 $valor = 0;
-                $cobrarInteses = false;
+                $cobrarInteses = [];
                 $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+                $finmes = date('Y-m-t', strtotime($periodo_facturacion));
 
                 $inmueblesFacturar = InmuebleNit::with('inmueble.concepto', 'inmueble.zona')//INMUEBLES DEL NIT
                     ->where('id_nit', $nit->id_nit)
@@ -158,8 +159,8 @@ class FacturacionController extends Controller
 
                 $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
                     ->where('id_nit', $nit->id_nit)
-                    ->whereDate(DB::raw("DATE_FORMAT(fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
-                    ->whereDate(DB::raw("DATE_FORMAT(fecha_fin, '%Y-%m')"), '<=', $inicioMes)
+                    ->whereDate("fecha_inicio", '>=', $inicioMes.'-01')
+                    ->whereDate("fecha_fin", '<=', $finmes)
                     ->get();
 
                 $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
@@ -167,10 +168,12 @@ class FacturacionController extends Controller
 
                 //RECORREMOS INMUEBLES DEL NIT
                 foreach ($inmueblesFacturar as $inmuebleFactura) {
-
+                    $cxcIntereses = $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar;
                     if (count($inmueblesFacturar) > 1) $totalInmuebles++;
-                    if ($inmuebleFactura->inmueble->concepto->intereses) $cobrarInteses = true;
-
+                    if ($inmuebleFactura->inmueble->concepto->intereses && !in_array($cxcIntereses, $cobrarInteses)) {
+                        array_push($cobrarInteses, $cxcIntereses);
+                    }
+                    
                     $inicioMes = date('Y-m', strtotime($periodo_facturacion));
                     $valor+= $inmuebleFactura->valor_total;
                     
@@ -179,14 +182,13 @@ class FacturacionController extends Controller
                         $totalAnticipos = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos);
                     }
                 }
-
                 //RECORREMOS CUOTAS Y MULTAS
                 foreach ($cuotasMultasFacturar as $cuotaMultaFactura) {
                     $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 }
 
-                if ($cobrarInteses) {//COBRAR INTERESES
-                    $valor+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa);
+                if (count($cobrarInteses)) {//COBRAR INTERESES
+                    $valor+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa, $cobrarInteses);
                     $factura->valor = $valor;
                     $factura->save();
                 }
@@ -299,7 +301,7 @@ class FacturacionController extends Controller
         return $totalAnticipos;
     }
     
-    private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura, $id_empresa)
+    private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura, $id_empresa, $cobrarInteses)
     {
         $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
         
@@ -326,8 +328,8 @@ class FacturacionController extends Controller
         
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
-
-            if($extracto->id_cuenta == $id_cuenta_intereses) continue;
+            
+            if (!in_array($extracto->id_cuenta, $cobrarInteses)) continue;
 
             $saldo = floatval($extracto->saldo);
 
@@ -400,6 +402,7 @@ class FacturacionController extends Controller
     {
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+        $finmes = date('Y-m-t', strtotime($periodo_facturacion));
 
         return DB::connection('max')->table('cuotas_multas AS CM')
             ->select(
@@ -427,8 +430,8 @@ class FacturacionController extends Controller
             ->when(count($nitSsearch), function ($query) use($nitSsearch) {
                 $query->orWhereIn('CM.id_nit', $nitSsearch);
             })
-            ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_inicio, '%Y-%m')"), '>=', $inicioMes)
-            ->whereDate(DB::raw("DATE_FORMAT(CM.fecha_fin, '%Y-%m')"), '<=', $inicioMes);
+            ->whereDate("CM.fecha_inicio", '>=', $inicioMes.'-01')
+            ->whereDate("CM.fecha_fin", '<=', $finmes);
     }
 
     private function asignarNombreNit($dataFacturas)

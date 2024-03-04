@@ -330,7 +330,8 @@ function cuotasmultasInit() {
             dataType: 'json',
             data: function (params) {
                 var query = {
-                    search: params.term
+                    search: params.term,
+                    tipo_concepto: 1
                 }
                 return query;
             },
@@ -365,7 +366,8 @@ function cuotasmultasInit() {
             dataType: 'json',
             data: function (params) {
                 var query = {
-                    search: params.term
+                    search: params.term,
+                    tipo_concepto: 0
                 }
                 return query;
             },
@@ -399,7 +401,8 @@ function cuotasmultasInit() {
             dataType: 'json',
             data: function (params) {
                 var query = {
-                    search: params.term
+                    search: params.term,
+                    tipo_concepto: 1
                 }
                 return query;
             },
@@ -623,6 +626,9 @@ $(document).on('change', '#fecha_hasta_cuotas_multas', function () {
 });
 
 function searchCuotaMulta (event) {
+    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
+        return;
+    }
     var botonPrecionado = event.key.length == 1 ? event.key : '';
     searchValue = $('#searchInputCuotasMultas').val();
     searchValue = searchValue+botonPrecionado;

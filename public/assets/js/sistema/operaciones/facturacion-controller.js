@@ -113,6 +113,9 @@ $(document).on('click', '#saveFacturacion', function () {
 });
 
 function searchFacturacion (event) {
+    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
+        return;
+    }
     var botonPrecionado = event.key.length == 1 ? event.key : '';
     searchValueFacturacion = $('#searchInputFacturacion').val();
     searchValueFacturacion = searchValueFacturacion+botonPrecionado;

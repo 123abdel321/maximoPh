@@ -422,7 +422,8 @@ function inmuebleInit() {
             dataType: 'json',
             data: function (params) {
                 var query = {
-                    search: params.term
+                    search: params.term,
+                    tipo_concepto: 0
                 }
                 return query;
             },

@@ -667,12 +667,13 @@
                 $("#button-login-loading").hide();
                 $("#button-login").show();
                 if(res.success){
+                    localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
                     localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
                     localStorage.setItem("auth_token_erp", res.token_api_portafolio);
                     localStorage.setItem("empresa_nombre", res.empresa.razon_social);
-                    localStorage.setItem("empresa_logo", res.empresa.logo);
                     localStorage.setItem("notificacion_code", res.notificacion_code);
                     localStorage.setItem("fondo_sistema", res.fondo_sistema);
+                    localStorage.setItem("empresa_logo", res.empresa.logo);
                     var itemMenuActiveIn = localStorage.getItem("item_active_menu");
                     if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
                     } else {

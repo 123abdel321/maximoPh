@@ -65,14 +65,14 @@ class CuotasMultasController extends Controller
                     'updated_by'
                 )
                 ->when($filtro1, function ($query) use($request) {
-                    $query->where('fecha_inicio', '<=', $request->get('fecha_desde'))
-                        ->where('fecha_fin', '<=', $request->get('fecha_hasta'));
+                    $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'))
+                        ->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
                 })
                 ->when($filtro2, function ($query) use($request) {
-                    $query->where('fecha_fin', '<=', $request->get('fecha_hasta'));
+                    $query->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
                 })
                 ->when($filtro3, function ($query) use($request) {
-                    $query->where('fecha_inicio', '>=', $request->get('fecha_desde'));
+                    $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'));
                 })
                 ->when($request->get('id_concepto'), function ($query) use($request) {
                     $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));
@@ -80,7 +80,7 @@ class CuotasMultasController extends Controller
 
             if ($request->get('search')) {
                 $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-                $cuotasMultas->whereHas('nit',  function ($query) use($empresa, $request) {
+                $cuotasMultas->whereHas('nit',  function ($query) use($empresa, $request, $filtro1, $filtro2, $filtro3) {
                     $query->from("$empresa->token_db_portafolio.nits")
                         ->where('primer_nombre', 'LIKE', '%'.$request->get('search').'%')
                         ->orWhere('razon_social', 'LIKE', '%'.$request->get('search').'%')
@@ -353,19 +353,21 @@ class CuotasMultasController extends Controller
         $filtro1 = $request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
         $filtro2 = !$request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
         $filtro3 = $request->get('fecha_desde') && !$request->get('fecha_hasta') ? true : false;
+
+        // $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         
         $cuotasMultas = CuotasMultas::select(
                 DB::raw("SUM(valor_total) AS valor_total")
             )
             ->when($filtro1, function ($query) use($request) {
-                $query->where('fecha_inicio', '<=', $request->get('fecha_desde'))
-                    ->where('fecha_fin', '<=', $request->get('fecha_hasta'));
+                $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'))
+                    ->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
             })
             ->when($filtro2, function ($query) use($request) {
-                $query->where('fecha_fin', '<=', $request->get('fecha_hasta'));
+                $query->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
             })
             ->when($filtro3, function ($query) use($request) {
-                $query->where('fecha_inicio', '>=', $request->get('fecha_desde'));
+                $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'));
             })
             ->when($request->get('id_concepto'), function ($query) use($request) {
                 $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));
