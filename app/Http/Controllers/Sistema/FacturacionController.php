@@ -164,7 +164,6 @@ class FacturacionController extends Controller
                     ->get();
 
                 $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
-                
                 $totalInmuebles = 0;
 
                 //RECORREMOS INMUEBLES DEL NIT
@@ -239,6 +238,7 @@ class FacturacionController extends Controller
             'documento_referencia' => $inicioMes,
             'valor' => $cuotaMultaFactura->valor_total,
             'concepto' => $cuotaMultaFactura->concepto->nombre_concepto.' '.$cuotaMultaFactura->observacion,
+            'naturaleza_opuesta' => true,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
@@ -262,6 +262,7 @@ class FacturacionController extends Controller
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
             'valor' => $inmuebleFactura->valor_total,
             'concepto' => $inmuebleFactura->inmueble->concepto->nombre_concepto.' '.$inmuebleFactura->inmueble->nombre,
+            'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
@@ -295,6 +296,7 @@ class FacturacionController extends Controller
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
             'valor' => $totalAnticipar,
             'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->inmueble->concepto->nombre_concepto.' '.$inmuebleFactura->inmueble->nombre,
+            'naturaleza_opuesta' => true,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
@@ -360,6 +362,7 @@ class FacturacionController extends Controller
                 'documento_referencia' => $inicioMes,
                 'valor' => $valorTotal,
                 'concepto' => 'INTERESES '.$concepto.' - '.$extracto->fecha_manual.' - %'.$porcentaje_intereses_mora.' - BASE: '.$saldo,
+                'naturaleza_opuesta' => true,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id,
             ]);

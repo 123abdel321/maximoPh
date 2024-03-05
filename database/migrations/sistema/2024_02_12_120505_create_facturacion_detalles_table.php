@@ -18,12 +18,13 @@ return new class extends Migration
             $table->integer('id_cuenta_por_cobrar')->nullable();
             $table->integer('id_cuenta_ingreso')->nullable();
             $table->integer('id_comprobante')->nullable();
-            $table->integer('id_centro_costos')->nullable()->index();
+            $table->integer('id_centro_costos')->nullable();
             $table->date('fecha_manual')->nullable();
             $table->string('documento_referencia', 20)->nullable();
             $table->decimal('saldo', 15)->default(0)->nullable();
             $table->decimal('valor', 15)->default(0)->nullable();
             $table->string('concepto', 600)->nullable();
+            $table->boolean('naturaleza_opuesta')->default(false)->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();

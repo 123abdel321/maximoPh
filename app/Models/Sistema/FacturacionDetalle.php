@@ -25,6 +25,7 @@ class FacturacionDetalle extends Model
         'saldo',
         'valor',
         'concepto',
+        'naturaleza_opuesta',
         'created_by',
         'updated_by',
     ];

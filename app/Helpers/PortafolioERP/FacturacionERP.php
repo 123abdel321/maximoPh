@@ -48,6 +48,7 @@ class FacturacionERP extends AbstractPortafolioSender
 					'documento_referencia' => $detalle->documento_referencia,
 					'valor' => $detalle->valor,
 					'concepto' => $detalle->concepto,
+					'naturaleza_opuesta' => $detalle->naturaleza_opuesta,
 					'token_factura' => $factura->token_factura,
 				];
             }
