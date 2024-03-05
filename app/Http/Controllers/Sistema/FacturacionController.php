@@ -240,7 +240,7 @@ class FacturacionController extends Controller
             'documento_referencia' => $inicioMes,
             'valor' => $cuotaMultaFactura->valor_total,
             'concepto' => $cuotaMultaFactura->concepto->nombre_concepto.' '.$cuotaMultaFactura->observacion,
-            'naturaleza_opuesta' => true,
+            'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
