@@ -314,12 +314,13 @@ class InmuebleController extends Controller
         $coeficienteTotal = Inmueble::sum('coeficiente');
         $valorRegistroPresupuesto = InmuebleNit::sum('valor_total');
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
         $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
-            ->whereDate('fecha_inicio', '>=', $inicioMes.'-01')
-            ->whereDate('fecha_fin', '<=', $finMes)
+            ->whereDate('fecha_inicio', '<=', $inicioMes.'-01')
+            ->whereDate('fecha_fin', '>=', $finMes)
             ->get();
 
         $data = [

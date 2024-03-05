@@ -65,14 +65,14 @@ class CuotasMultasController extends Controller
                     'updated_by'
                 )
                 ->when($filtro1, function ($query) use($request) {
-                    $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'))
-                        ->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
+                    $query->whereDate('fecha_inicio', '<=', $request->get('fecha_desde'))
+                        ->whereDate('fecha_fin', '>=', $request->get('fecha_hasta'));
                 })
                 ->when($filtro2, function ($query) use($request) {
-                    $query->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
+                    $query->whereDate('fecha_fin', '>=', $request->get('fecha_hasta'));
                 })
                 ->when($filtro3, function ($query) use($request) {
-                    $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'));
+                    $query->whereDate('fecha_inicio', '<=', $request->get('fecha_desde'));
                 })
                 ->when($request->get('id_concepto'), function ($query) use($request) {
                     $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));

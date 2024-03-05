@@ -22,6 +22,8 @@ use App\Models\Sistema\FacturacionDetalle;
 
 class FacturacionController extends Controller
 {
+    protected $facturas = null;
+    
     public function index ()
     {
         $totalInmuebles = Inmueble::count();
@@ -159,8 +161,8 @@ class FacturacionController extends Controller
 
                 $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
                     ->where('id_nit', $nit->id_nit)
-                    ->whereDate("fecha_inicio", '>=', $inicioMes.'-01')
-                    ->whereDate("fecha_fin", '<=', $finmes)
+                    ->whereDate("fecha_inicio", '<=', $inicioMes.'-01')
+                    ->whereDate("fecha_fin", '>=', $finmes)
                     ->get();
 
                 $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
@@ -285,21 +287,31 @@ class FacturacionController extends Controller
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
 
-        $facturaDetalle = FacturacionDetalle::create([
-            'id_factura' => $factura->id,
-            'id_nit' => $inmuebleFactura->id_nit,
-            'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
-            'id_cuenta_ingreso' => $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar,
-            'id_comprobante' => $id_comprobante_notas,
-            'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
-            'fecha_manual' => $periodo_facturacion,
-            'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
-            'valor' => $totalAnticipar,
-            'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->inmueble->concepto->nombre_concepto.' '.$inmuebleFactura->inmueble->nombre,
-            'naturaleza_opuesta' => true,
-            'created_by' => request()->user()->id,
-            'updated_by' => request()->user()->id,
-        ]);
+        foreach ($this->facturas as $key => $facturacxp) {
+            if ($totalAnticipar <= 0) continue;
+            $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
+            $facturaDetalle = FacturacionDetalle::create([
+                'id_factura' => $factura->id,
+                'id_nit' => $inmuebleFactura->id_nit,
+                'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
+                'id_cuenta_ingreso' => $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar,
+                'id_comprobante' => $id_comprobante_notas,
+                'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
+                'fecha_manual' => $periodo_facturacion,
+                'documento_referencia' => $facturacxp->documento_referencia,
+                'valor' => $totalCruce,
+                'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->inmueble->concepto->nombre_concepto.' '.$inmuebleFactura->inmueble->nombre,
+                'naturaleza_opuesta' => true,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id,
+            ]);
+            $totalAnticipar-= $totalCruce;
+            $this->facturas[$key]->saldo-= $totalCruce;
+        }
+
+        foreach ($this->facturas as $key => $facturacxp) {
+            if ($facturacxp->saldo <= 0) unset($this->facturas[$key]);
+        }
 
         return $totalAnticipos;
     }
@@ -436,8 +448,8 @@ class FacturacionController extends Controller
             ->when(count($nitSsearch), function ($query) use($nitSsearch) {
                 $query->orWhereIn('CM.id_nit', $nitSsearch);
             })
-            ->whereDate("CM.fecha_inicio", '>=', $inicioMes.'-01')
-            ->whereDate("CM.fecha_fin", '<=', $finmes);
+            ->whereDate("CM.fecha_inicio", '<=', $inicioMes.'-01')
+            ->whereDate("CM.fecha_fin", '>=', $finmes);
     }
 
     private function asignarNombreNit($dataFacturas)
@@ -489,10 +501,15 @@ class FacturacionController extends Controller
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
 
+        $this->facturas = [];
         $totalAnticipos = 0;
         
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
+            $this->facturas[] = (object)[
+                'documento_referencia' => $extracto->documento_referencia,
+                'saldo' => floatval($extracto->saldo)
+            ];
             $totalAnticipos+= floatval($extracto->saldo);
         }
 
