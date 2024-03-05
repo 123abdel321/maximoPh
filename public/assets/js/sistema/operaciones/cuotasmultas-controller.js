@@ -589,7 +589,7 @@ $(document).on('change', '#id_inmueble_cuotas_multas', function () {
     }
 
     personas.forEach(persona => {
-        nitsInmuebles.push(persona.id);
+        nitsInmuebles.push(persona.id_nit);
     });
 
     $('#id_nit_cuotas_multas').prop('disabled',false);
