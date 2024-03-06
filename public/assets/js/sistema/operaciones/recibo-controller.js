@@ -34,7 +34,7 @@ function reciboInit () {
             }
         },
         columns: [
-            {"data":'codigo_cuenta', className: 'dt-body-right'},
+            {"data":'codigo_cuenta'},
             {
                 "data": function (row, type, set, col){
                     if (!row.cuenta_recibo) {

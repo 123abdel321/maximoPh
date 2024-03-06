@@ -20,7 +20,9 @@ class Inmueble extends Model
         'area',
         'coeficiente',
         'valor_total_administracion',
-        'observaciones'
+        'observaciones',
+        'created_by',
+        'updated_by'
     ];
 
     public function concepto()

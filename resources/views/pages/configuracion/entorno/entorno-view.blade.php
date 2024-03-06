@@ -53,6 +53,13 @@
                             </div>
 
                             <div class="form-check form-switch col-12 col-sm-6 col-md-4">
+                                <input class="form-check-input" type="checkbox" name="validacion_estricta" id="validacion_estricta" style="height: 20px;">
+                                <label class="form-check-label" for="validacion_estricta">
+                                    Validar Facturación estricta
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-6 col-md-4">
                                 <input class="form-check-input" type="checkbox" name="editar_valor_admon_inmueble" id="editar_valor_admon_inmueble" style="height: 20px;">
                                 <label class="form-check-label" for="editar_valor_admon_inmueble">
                                     Editar valor inmuebles

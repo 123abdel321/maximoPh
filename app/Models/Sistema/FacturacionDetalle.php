@@ -22,6 +22,7 @@ class FacturacionDetalle extends Model
         'id_centro_costos',
         'fecha_manual',
         'documento_referencia',
+        'documento_referencia_anticipo',
         'saldo',
         'valor',
         'concepto',

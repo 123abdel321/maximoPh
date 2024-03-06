@@ -39,7 +39,7 @@ class EntornoController extends Controller
                 'area_total_m2',
                 'numero_total_unidades',
                 'valor_total_presupuesto_year_actual',
-                'validacion_estricta_area',
+                'validacion_estricta',
                 'dia_limite_pago_sin_interes',
                 'dia_limite_descuento_pronto_pago',
                 'porcentaje_descuento_pronto_pago',

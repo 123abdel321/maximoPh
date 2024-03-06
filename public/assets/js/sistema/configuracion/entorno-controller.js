@@ -10,25 +10,26 @@ function entornoInit() {
             'porcentaje_intereses_mora',
         ];
 
+        var checkEntorno = [
+            'editar_valor_admon_inmueble',
+            'validacion_estricta'
+        ];
+
         var dateEntorno = [
             'periodo_facturacion',
         ];
-
-        var checkEntorno = [
-            'editar_valor_admon_inmueble'
-        ]
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
         }
 
-        if (dateEntorno.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(variable.valor);
-        }
-
         if (checkEntorno.indexOf(variable.nombre) + 1) {
             if (variable.valor == '1') $('#'+variable.nombre).prop('checked', true);
             else $('#'+variable.nombre).prop('checked', false);
+        }
+
+        if (dateEntorno.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(variable.valor);
         }
     }
 }
@@ -44,6 +45,7 @@ $(document).on('click', '#updateEntorno', function () {
         'porcentaje_intereses_mora': stringToNumberFloat($('#porcentaje_intereses_mora').val()),
         'periodo_facturacion': $('#periodo_facturacion').val(),
         'editar_valor_admon_inmueble': $("input[type='checkbox']#editar_valor_admon_inmueble").is(':checked') ? '1' : '',
+        'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '',
     };
 
     $.ajax({

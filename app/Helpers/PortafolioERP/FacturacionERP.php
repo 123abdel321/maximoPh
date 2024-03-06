@@ -46,6 +46,7 @@ class FacturacionERP extends AbstractPortafolioSender
 					'id_centro_costos' => $detalle->id_centro_costos,
 					'fecha_manual' => $detalle->fecha_manual,
 					'documento_referencia' => $detalle->documento_referencia,
+					'documento_referencia_anticipo' => $detalle->documento_referencia_anticipo,
 					'valor' => $detalle->valor,
 					'concepto' => $detalle->concepto,
 					'naturaleza_opuesta' => $detalle->naturaleza_opuesta,

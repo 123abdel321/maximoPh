@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('id_centro_costos')->nullable();
             $table->date('fecha_manual')->nullable();
             $table->string('documento_referencia', 20)->nullable();
+            $table->string('documento_referencia_anticipo', 20)->nullable();
             $table->decimal('saldo', 15)->default(0)->nullable();
             $table->decimal('valor', 15)->default(0)->nullable();
             $table->string('concepto', 600)->nullable();
