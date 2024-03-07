@@ -16,9 +16,15 @@ class UsuarioPermisos extends Model
     protected $fillable = [
         'id',
         'id_user',
+        'id_rol',
         'id_empresa',
         'ids_permission',
         'ids_bodegas_responsable',
         'ids_resolucion_responsable',
     ];
+
+    public function rol(){
+        return $this->belongsTo(RolesGenerales::class, "id_rol");
+    }
+
 }

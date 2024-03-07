@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('usuario_permisos', function (Blueprint $table) {
+        Schema::create('roles_generales', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_user')->nullable();
-            $table->string('id_empresa')->nullable();
-            $table->string('id_rol')->nullable();
-            $table->longText('ids_permission')->nullable();
+            $table->string('nombre', 60)->nullable();
+            $table->string('ids_permission', 500)->nullable();
+            $table->integer('tipo')->comment('0: Estricto, 1: Dinamico');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuario_permisos');
+        Schema::dropIfExists('roles_generales');
     }
 };
