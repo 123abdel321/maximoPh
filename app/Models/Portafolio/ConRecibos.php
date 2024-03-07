@@ -21,7 +21,13 @@ class ConRecibos extends Model
         'total_abono',
         'total_anticipo',
         'observacion',
+        'estado',
         'created_by',
         'updated_by'
     ];
+
+    public function pagos()
+	{
+		return $this->hasMany(ConReciboPagos::class, 'id_recibo');
+	}
 }

@@ -19,6 +19,8 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //OPERACIONES
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
+//ADMINISTRATIVO
+use App\Http\Controllers\Sistema\EstadoCuentaController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
 
@@ -53,6 +55,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/recibo', [ReciboController::class, 'index']);
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
+		//ADMINISTRATIVO
+		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
 		//ENTORNO
 		Route::get('/entorno', [EntornoController::class, 'index']);
 	});

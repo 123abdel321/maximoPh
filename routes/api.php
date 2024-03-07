@@ -16,6 +16,7 @@ use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
+use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
@@ -104,5 +105,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(PlanCuentaController::class)->group(function () {
             Route::get('plan-cuenta/combo-cuenta', 'comboCuenta');
         });
+        //estado cuenta
+        Route::controller(EstadoCuentaController::class)->group(function () {
+            Route::get('estadocuenta', 'generate');
+            Route::get('estadocuenta-total', 'totales');
+            Route::get('estadocuenta-pagos', 'pagos');
+            Route::get('estadocuenta-facturas', 'facturas');
+        });
+        
     });
 });

@@ -32,7 +32,7 @@
         <div id="totales_inmuebles_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
             <div class="row ">
                 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Inmuebles Registrados</p>
                             <div style="display: flex;">
@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Área M2 Registrada</p>
                             <div style="display: flex;">
@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Coeficiente %</p>
                             <div style="display: flex;">
@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Asignado Mensual</p>
                             <div style="display: flex;">

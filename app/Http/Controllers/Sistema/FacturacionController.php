@@ -186,6 +186,7 @@ class FacturacionController extends Controller
                 }
                 //RECORREMOS CUOTAS Y MULTAS
                 foreach ($cuotasMultasFacturar as $cuotaMultaFactura) {
+                    $valor+= $cuotaMultaFactura->valor_total;
                     $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 }
                 //GENERAR RECIBOS
@@ -348,7 +349,7 @@ class FacturacionController extends Controller
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return;
 
-        $valorTotal = 0;
+        $valorTotalIntereses = 0;
         
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
@@ -364,7 +365,7 @@ class FacturacionController extends Controller
             
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $valorTotal = $saldo * ($porcentaje_intereses_mora / 100);
-
+            $valorTotalIntereses+= $valorTotal;
             //DEFINIR CONCEPTO DE INTERESES
             $concepto = $extracto->concepto;
             $validateConcepto = explode('INTERESES ', $concepto );
@@ -394,7 +395,7 @@ class FacturacionController extends Controller
                 ]);
         }
 
-        return $valorTotal;
+        return $valorTotalIntereses;
     }
 
     private function inmueblesNitsQuery($empresa, $search, $nitSsearch)
