@@ -798,11 +798,11 @@ function clearFormInmuebleNit(){
 
     $("#id_inmueble_nit_up").val('');
     $("#tipo_inmueble_nit").val(0);
-    $("#porcentaje_administracion_inmueble_nit").val(0);
     $("#valor_total_inmueble_nit").val(0);
-    $("#enviar_notificaciones_mail").prop('checked', false);
-    $("#enviar_notificaciones_fisica").prop('checked', false);
-    
+    $("#porcentaje_administracion_inmueble_nit").val(100);
+    $("#enviar_notificaciones_mail").prop('checked', true);
+    $("#enviar_notificaciones_fisica").prop('checked', true);
+    changePorcentajeNit();
     $comboInmuebleNit.val('').trigger('change');
 }
 
