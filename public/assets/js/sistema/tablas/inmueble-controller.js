@@ -4,6 +4,8 @@ var inmueble_table = null;
 var inmueble_nit_table = null;
 var $comboInmuebleNit = null;
 var $comboZonaInmueble = null;
+var searchValueInmuebles = null;
+var buscarTotalesInmuebles = false;
 var $comboConceptoFacturacionInmueble = null;
 
 function inmuebleInit() {
@@ -28,9 +30,26 @@ function inmuebleInit() {
             type: "GET",
             headers: headers,
             url: base_url + 'inmueble',
+            data: function ( d ) {
+                d.search = searchValueInmuebles;
+            }
         },
         columns: [
             {"data":'nombre'},
+            {"data": function (row, type, set){
+                if (row.personas.length) {
+                    var persona = row.personas[0].nit;
+                    return persona.numero_documento;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
+                if (row.personas.length) {
+                    var persona = row.personas[0].nit;
+                    return persona.primer_nombre+' '+persona.primer_apellido;
+                }
+                return '';
+            }},
             {"data": function (row, type, set){
                 if (row.zona) {
                     return row.zona.nombre;
@@ -728,12 +747,16 @@ $(document).on('click', '#volverInmuebles', function () {
 });
 
 function getTotalesInmuebles(){
-    $.ajax({
+    if (buscarTotalesInmuebles) {
+        buscarTotalesInmuebles.abort();
+    }
+    buscarTotalesInmuebles = $.ajax({
         url: base_url + 'inmueble-total',
         method: 'GET',
         headers: headers,
         dataType: 'json',
     }).done((res) => {
+        buscarTotalesInmuebles = false;
         if(res.success){
             var countA = new CountUp('inmuebles_registrados_inmueble', 0, res.data.numero_registro_unidades);
                 countA.start();
@@ -748,7 +771,7 @@ function getTotalesInmuebles(){
                 countD.start();
         }
     }).fail((err) => {
-        agregarToast('error', 'Consulta errada', 'Error al consultar totales!');
+        buscarTotalesInmuebles = false;
     });
 }
 
@@ -805,6 +828,21 @@ function clearFormInmuebleNit(){
     $("#enviar_notificaciones_fisica").prop('checked', true);
     changePorcentajeNit();
     $comboInmuebleNit.val('').trigger('change');
+}
+
+function searchInmuebles (event) {
+    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
+        return;
+    }
+    var botonPrecionado = event.key.length == 1 ? event.key : '';
+    searchValueInmuebles = $('#searchInputInmuebles').val();
+    searchValueInmuebles = searchValueInmuebles+botonPrecionado;
+    if(event.key == 'Backspace') searchValueInmuebles = searchValueInmuebles.slice(0, -1);
+
+    inmueble_table.context[0].jqXHR.abort();
+    inmueble_table.ajax.reload(function () {
+        getTotalesInmuebles();
+    });
 }
 
 $('.form-control').keyup(function() {

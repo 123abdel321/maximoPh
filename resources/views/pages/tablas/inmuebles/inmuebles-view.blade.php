@@ -24,7 +24,7 @@
                 @endcan
             </div>
             <div class="col-12 col-md-6 col-sm-6" >
-                <input type="text" id="searchInputInmuebles" class="form-control form-control-sm search-table" placeholder="Buscar">
+                <input type="text" id="searchInputInmuebles" class="form-control form-control-sm search-table" placeholder="Buscar" onkeydown="searchInmuebles(event)">
                 <h4 id="nombre_inmueble_nit" style="display: none; float: inline-end; color: white;"></h4>
             </div>
         </div>
@@ -91,7 +91,7 @@
                 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
                     <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Asignado Mensual</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
                             <div style="display: flex;">
                                 <h5 id="presupuesto_registrados_inmueble" class="font-weight-bolder">
                                     0

@@ -50,16 +50,13 @@ class InmuebleController extends Controller
             $columnIndex_arr = $request->get('order');
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
-            $search_arr = $request->get('search');
 
             $columnIndex = $columnIndex_arr[0]['column']; // Column index
             $columnName = $columnName_arr[$columnIndex]['data']; // Column name
             $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-            $searchValue = $search_arr['value']; // Search value
 
             $inmueble = Inmueble::orderBy($columnName,$columnSortOrder)
-                ->with('zona', 'concepto', 'personas')
-                ->where('nombre', 'like', '%' .$searchValue . '%')
+                ->with('zona', 'concepto', 'personas.nit')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -67,6 +64,16 @@ class InmuebleController extends Controller
                     'created_by',
                     'updated_by'
                 );
+
+            if ($request->get('search')) {
+                $nitSsearch = $this->nitsSearch($request->get('search'));
+                $inmueble->where('nombre', 'LIKE', '%'.$request->get('search').'%')
+                    ->orWhere('area', 'LIKE', '%'.$request->get('search').'%')
+                    ->orWhere('coeficiente', 'LIKE', '%'.$request->get('search').'%')
+                    ->orWhereHas('personas',  function ($query) use($nitSsearch) {
+                        $query->whereIn('id_nit', $nitSsearch);
+                    });
+            }
 
             $inmuebleTotals = $inmueble->get();
 
@@ -339,5 +346,28 @@ class InmuebleController extends Controller
             'success'=>	true,
             'data' => $data
         ]);
+    }
+
+    private function nitsSearch($search)
+    {
+        $data = [];
+        $nits = DB::connection('sam')->table('nits')->select('id')
+            ->where('razon_social', 'LIKE', '%'.$search.'%')
+            ->orWhere('numero_documento', 'LIKE', '%'.$search.'%')
+            ->orWhere(DB::raw("(CASE
+                WHEN razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                WHEN (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, otros_nombres, primer_apellido, segundo_apellido)
+                ELSE NULL
+            END)"), 'LIKE', '%'.$search.'%')
+            ->orWhere('email', 'LIKE', '%'.$search.'%')
+            ->get()->toArray();
+
+        if (count($nits)) {
+            foreach ($nits as $nit) {
+                $data[] = $nit->id;
+            }
+        }
+
+        return $data;        
     }
 }

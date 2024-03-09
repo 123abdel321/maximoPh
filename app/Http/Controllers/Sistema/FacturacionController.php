@@ -475,8 +475,12 @@ class FacturacionController extends Controller
         $nits = DB::connection('sam')->table('nits')->select('id')
             ->where('razon_social', 'LIKE', '%'.$search.'%')
             ->orWhere('numero_documento', 'LIKE', '%'.$search.'%')
-            ->orWhere('primer_nombre', 'LIKE', '%'.$search.'%')
-            ->orWhere('primer_apellido', 'LIKE', '%'.$search.'%')
+            ->orWhere(DB::raw("(CASE
+                WHEN razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                WHEN (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, otros_nombres, primer_apellido, segundo_apellido)
+                ELSE NULL
+            END)"), 'LIKE', '%'.$search.'%')
+            ->orWhere('email', 'LIKE', '%'.$search.'%')
             ->get()->toArray();
 
         if (count($nits)) {

@@ -76,7 +76,7 @@
                 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
                     <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Asignado Mensual</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
                             <div style="display: flex;">
                                 <h5 id="presupuesto_registrados_facturacion" class="font-weight-bolder">
                                     0
