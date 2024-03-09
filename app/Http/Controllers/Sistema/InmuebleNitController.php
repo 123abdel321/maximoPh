@@ -124,7 +124,7 @@ class InmuebleNitController extends Controller
 
         try {
             DB::connection('max')->beginTransaction();
-            DB::connection('clientes')->beginTransaction();  
+            // DB::connection('clientes')->beginTransaction();
 
             $inmueble = Inmueble::find($request->get('id_inmueble'));
             $total = $inmueble->valor_total_administracion * ($request->get('porcentaje_administracion') / 100);
@@ -144,46 +144,47 @@ class InmuebleNitController extends Controller
 
             $nit = Nits::find($request->get('id_nit'));
             $empresa = Empresa::find(request()->user()->id_empresa);
-
-            //CREAR USUARIOS
-            $usuarioPropietario = User::where('email', $nit->email)
-                ->first();
-
-            if (!$usuarioPropietario) {
-                $usuarioPropietario = User::create([
-                    'id_empresa' => request()->user()->id_empresa,
-                    'has_empresa' => $empresa->token_db_maximo,
-                    'firstname' => $nit->primer_nombre.' '.$nit->primer_apellido,
-                    'username' => '123'.$nit->primer_nombre.'321',
-                    'email' => $nit->email,
-                    'telefono' => $nit->telefono_1,
-                    'password' => $nit->numero_documento,
-                    'address' => $nit->direccion,
-                    'created_by' => request()->user()->id,
-                    'updated_by' => request()->user()->id
+            if (false) {
+                //CREAR USUARIOS
+                $usuarioPropietario = User::where('email', $nit->email)
+                    ->first();
+    
+                if (!$usuarioPropietario) {
+                    $usuarioPropietario = User::create([
+                        'id_empresa' => request()->user()->id_empresa,
+                        'has_empresa' => $empresa->token_db_maximo,
+                        'firstname' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                        'username' => '123'.$nit->primer_nombre.'321',
+                        'email' => $nit->email,
+                        'telefono' => $nit->telefono_1,
+                        'password' => $nit->numero_documento,
+                        'address' => $nit->direccion,
+                        'created_by' => request()->user()->id,
+                        'updated_by' => request()->user()->id
+                    ]);
+                }
+    
+                $rolPropietario = RolesGenerales::find(3);
+    
+                UsuarioEmpresa::updateOrCreate([
+                    'id_usuario' => $usuarioPropietario->id,
+                    'id_empresa' => request()->user()->id_empresa
+                ],[
+                    'id_rol' => 3, // ROL PROPIETARIO
+                    'estado' => 1, // default: 1 activo
+                ]);
+    
+                UsuarioPermisos::updateOrCreate([
+                    'id_user' => $usuarioPropietario->id,
+                    'id_empresa' => request()->user()->id_empresa
+                ],[
+                    'id_rol' => 3, // ROL PROPIETARIO
+                    'ids_permission' => $rolPropietario->ids_permission
                 ]);
             }
 
-            $rolPropietario = RolesGenerales::find(3);
-
-            UsuarioEmpresa::updateOrCreate([
-                'id_usuario' => $usuarioPropietario->id,
-                'id_empresa' => request()->user()->id_empresa
-            ],[
-                'id_rol' => 3, // ROL PROPIETARIO
-                'estado' => 1, // default: 1 activo
-            ]);
-
-            UsuarioPermisos::updateOrCreate([
-                'id_user' => $usuarioPropietario->id,
-                'id_empresa' => request()->user()->id_empresa
-            ],[
-                'id_rol' => 3, // ROL PROPIETARIO
-                'ids_permission' => $rolPropietario->ids_permission
-            ]);
-
             DB::connection('max')->commit();
-            DB::connection('clientes')->commit();
+            // DB::connection('clientes')->commit();
 
             return response()->json([
                 'success'=>	true,
@@ -237,7 +238,7 @@ class InmuebleNitController extends Controller
 
         try {
             DB::connection('max')->beginTransaction();
-            DB::connection('clientes')->beginTransaction();
+            // DB::connection('clientes')->beginTransaction();
 
             $inmueble = Inmueble::find($request->get('id_inmueble'));
             $total = $inmueble->valor_total_administracion * ($request->get('porcentaje_administracion') / 100);
@@ -245,7 +246,7 @@ class InmuebleNitController extends Controller
             $nit = Nits::find($request->get('id_nit'));
             $empresa = Empresa::find(request()->user()->id_empresa);
 
-            if ($nitOld->id_nit != $request->get('id_nit')) {
+            if ($nitOld->id_nit != $request->get('id_nit') && false) {
 
                 //CREAR USUARIOS
                 $usuarioPropietario = User::where('email', $nit->email)
@@ -299,7 +300,7 @@ class InmuebleNitController extends Controller
                 ]);
 
             DB::connection('max')->commit();
-            DB::connection('clientes')->commit();
+            // DB::connection('clientes')->commit();
 
             return response()->json([
                 'success'=>	true,
