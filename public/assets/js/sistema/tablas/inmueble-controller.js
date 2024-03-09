@@ -15,6 +15,7 @@ function inmuebleInit() {
         processing: true,
         serverSide: true,
         fixedHeader: true,
+        stateSave: true,
         deferLoading: 0,
         initialLoad: false,
         language: lenguajeDatatable,
@@ -722,7 +723,7 @@ $(document).on('click', '#volverInmuebles', function () {
     $('#searchInputInmuebles').show();
     $('#totales_inmuebles_view').show();
 
-    inmueble_table.ajax.reload();
+    inmueble_table.ajax.reload( null, false );
     getTotalesInmuebles();
 });
 
