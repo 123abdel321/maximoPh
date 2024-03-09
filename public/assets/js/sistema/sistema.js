@@ -61,6 +61,7 @@ var moduloCreado = {
     'recibo': false,
     'cuotasmultas': false,
     'estadocuenta': false,
+    'usuarios': false,
 };
 
 var moduloRoute = {
@@ -73,6 +74,7 @@ var moduloRoute = {
     'recibo': 'operaciones',
     'cuotasmultas': 'operaciones',
     'estadocuenta': 'administrativo',
+    'usuarios': 'configuracion',
 }
 
 $('.water').show();

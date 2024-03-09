@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
+use App\Http\Controllers\Empresa\UsuariosController;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\RecioController;
@@ -105,13 +106,21 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(PlanCuentaController::class)->group(function () {
             Route::get('plan-cuenta/combo-cuenta', 'comboCuenta');
         });
-        //estado cuenta
+        //ESTADO CUENTA
         Route::controller(EstadoCuentaController::class)->group(function () {
             Route::get('estadocuenta', 'generate');
             Route::get('estadocuenta-total', 'totales');
             Route::get('estadocuenta-pagos', 'pagos');
             Route::get('estadocuenta-facturas', 'facturas');
         });
+        //USUARIOS
+        Route::controller(UsuariosController::class)->group(function () {
+            Route::get('usuarios', 'generate');
+            Route::post('usuarios', 'create');
+            Route::put('usuarios', 'update');
+            Route::get('usuarios/combo', 'comboUsuario');
+        });
+        
         
     });
 });

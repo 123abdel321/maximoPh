@@ -66,15 +66,15 @@ class User extends Authenticatable
     }
 
     public function empresasExternas(){
-		return $this->hasMany("App\Models\Empresas\UsuarioEmpresa","id_usuario");
+		return $this->hasMany("App\Models\Empresa\UsuarioEmpresa","id_usuario");
 	}
 
 	public function empresasPropias(){
-		return $this->hasMany("App\Models\Empresas\Empresa","id_usuario_owner")->select(["*",DB::raw("1 as propio")]);
+		return $this->hasMany("App\Models\Empresa\Empresa","id_usuario_owner")->select(["*",DB::raw("1 as propio")]);
 	}
 
     public function permisos(){
-        return $this->hasMany("App\Models\Empresas\UsuarioPermisos","id_user");
+        return $this->hasMany("App\Models\Empresa\UsuarioPermisos","id_user");
     }
 
     public function getEmpresasAttribute(){

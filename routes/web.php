@@ -23,6 +23,7 @@ use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
+use App\Http\Controllers\Empresa\UsuariosController;
 
 Route::get('/', function () {
 	return redirect('/home');
@@ -57,8 +58,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
-		//ENTORNO
+		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);
+		Route::get('/usuarios', [UsuariosController::class, 'index']);
 	});
 	
 });
