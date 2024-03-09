@@ -171,7 +171,7 @@ class FacturacionController extends Controller
                 //RECORREMOS INMUEBLES DEL NIT
                 foreach ($inmueblesFacturar as $inmuebleFactura) {
                     $cxcIntereses = $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar;
-                    if (count($inmueblesFacturar) > 1) $totalInmuebles++;
+                    // if (count($inmueblesFacturar) > 1) $totalInmuebles++;
                     if ($inmuebleFactura->inmueble->concepto->intereses && !in_array($cxcIntereses, $cobrarInteses)) {
                         array_push($cobrarInteses, $cxcIntereses);
                     }
