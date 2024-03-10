@@ -231,9 +231,9 @@ function inmuebleInit() {
             $("#id_inmueble_up").val(data.id);
             $("#nombre_inmueble").val(data.nombre);
             
-            $("#area_inmueble").val(new Intl.NumberFormat().format(data.area));
+            $("#area_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.area));
             $("#coeficiente_inmueble").val(data.coeficiente);
-            $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat().format(data.valor_total_administracion));
+            $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.valor_total_administracion));
 
             $("#inmuebleFormModal").modal('show');
         });
@@ -327,7 +327,7 @@ function inmuebleInit() {
 
             $("#id_inmueble_nit_up").val(data.id);
             $("#tipo_inmueble_nit").val(data.tipo);
-            $("#valor_total_inmueble_nit").val(new Intl.NumberFormat().format(data.valor_total));
+            $("#valor_total_inmueble_nit").val(new Intl.NumberFormat("ja-JP").format(data.valor_total));
             $("#porcentaje_administracion_inmueble_nit").val(data.porcentaje_administracion);
 
             if (data.enviar_notificaciones_mail == '1') $('#enviar_notificaciones_mail').prop('checked', true);
@@ -505,7 +505,7 @@ function changeArea(){
 
 function changePorcentajeNit(){
     var totalPorcentajeInmueble = stringToNumberFloat($("#porcentaje_administracion_inmueble_nit").val()) / 100;
-    $('#valor_total_inmueble_nit').val(new Intl.NumberFormat().format(valor_inmueble * totalPorcentajeInmueble));
+    $('#valor_total_inmueble_nit').val(new Intl.NumberFormat("ja-JP").format(valor_inmueble * totalPorcentajeInmueble));
 }
 
 $(document).on('click', '#saveInmueble', function () {
@@ -804,8 +804,8 @@ function totalPorcentajeNits(){
         $('#status_inmueble_nit_true').hide();
     }
 
-    $('#total_porcentaje_inmueble_nit').text('Total porcentaje: '+new Intl.NumberFormat().format(porcentajeTotal)+'%');
-    $('#total_valor_inmueble_nit').text('Total valor: '+new Intl.NumberFormat().format(valorTotal));
+    $('#total_porcentaje_inmueble_nit').text('Total porcentaje: '+new Intl.NumberFormat("ja-JP").format(porcentajeTotal)+'%');
+    $('#total_valor_inmueble_nit').text('Total valor: '+new Intl.NumberFormat("ja-JP").format(valorTotal));
 }
 
 function clearFormInmueble(){

@@ -210,11 +210,11 @@ class InmuebleController extends Controller
             $editar_valor_admon_inmueble =  Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor;
 
             $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor;
-            $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual / 12;
+            $valor_total_presupuesto_mes_actual = $valor_total_presupuesto_year_actual / 12;
             $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first()->valor;
 
             $coeficiente = $request->get('area') / $area_total_m2;
-
+            
             if ($editar_valor_admon_inmueble) {
                 if ($request->get('valor_total_administracion') <= 0) {
                     return response()->json([
@@ -225,7 +225,7 @@ class InmuebleController extends Controller
                 }
                 $valor_total_administracion = $request->get('valor_total_administracion');
             } else {
-                $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                $valor_total_administracion = $coeficiente * $valor_total_presupuesto_mes_actual;
             }
 
             $inmueble = Inmueble::where('id', $request->get('id'))
