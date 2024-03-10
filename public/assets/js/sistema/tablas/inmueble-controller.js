@@ -230,10 +230,19 @@ function inmuebleInit() {
 
             $("#id_inmueble_up").val(data.id);
             $("#nombre_inmueble").val(data.nombre);
+
+            var area = data.area;
+            var coeficiente = area / area_total_m2 ;
+            var totalInmueble = data.valor_total_administracion;
+
+            if (!editar_valor_admon_inmueble) {
+                var coeficiente = data.area / area_total_m2;
+                totalInmueble = coeficiente * (valor_total_presupuesto_year_actual / 12);
+            }
             
             $("#area_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.area));
             $("#coeficiente_inmueble").val(data.coeficiente);
-            $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.valor_total_administracion));
+            $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(totalInmueble));
 
             $("#inmuebleFormModal").modal('show');
         });
@@ -762,6 +771,7 @@ function getTotalesInmuebles(){
         url: base_url + 'inmueble-total',
         method: 'GET',
         headers: headers,
+        data: {search: searchValueInmuebles},
         dataType: 'json',
     }).done((res) => {
         buscarTotalesInmuebles = false;

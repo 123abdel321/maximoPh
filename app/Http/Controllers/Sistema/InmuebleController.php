@@ -212,6 +212,7 @@ class InmuebleController extends Controller
             $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor;
             $valor_total_presupuesto_mes_actual = $valor_total_presupuesto_year_actual / 12;
             $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first()->valor;
+            $valor_total_administracion = 0;
 
             $coeficiente = $request->get('area') / $area_total_m2;
             

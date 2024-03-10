@@ -49,7 +49,7 @@ class EntornoController extends Controller
             ];
 
             foreach ($variablesEntorno as $variable) {
-                if ($request->get($variable)) {
+                if ($request->has($variable)) {
                     Entorno::where('nombre', $variable)->update([
                         'valor' => $request->get($variable)
                     ]);
