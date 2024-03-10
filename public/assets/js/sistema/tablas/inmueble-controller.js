@@ -648,7 +648,7 @@ $(document).on('click', '#updateInmueble', function () {
             $("#saveInmueble").show();
             $("#saveInmuebleLoading").hide();
             $("#inmuebleFormModal").modal('hide');
-            inmueble_table.row.add(res.data).draw();
+            inmueble_table.ajax.reload(null, false);
             getTotalesInmuebles();
             agregarToast('exito', 'Actualización exitosa', 'Inmueble actualizado con exito!', true);
         }
