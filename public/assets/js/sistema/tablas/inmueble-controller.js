@@ -80,8 +80,13 @@ function inmuebleInit() {
                 return '<span class="badge rounded-pill bg-danger">0%</span>';
             }, className: 'dt-body-right'},
             {"data":'area', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
-            {"data":'coeficiente', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
-            {"data":'valor_total_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {
+                data: 'coeficiente',
+                render: function (row, type, data){
+                    return parseFloat(data.coeficiente * 100).toFixed(2);
+                }, className: 'dt-body-right'
+            },
+            // {"data":'valor_total_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  
                 if (typeof row.personas != "undefined" && row.personas.length) {
                     var totalValor = 0;

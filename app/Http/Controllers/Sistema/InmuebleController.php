@@ -240,6 +240,16 @@ class InmuebleController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
 
+            $inmueblesNits = InmuebleNit::where('id_inmueble', $request->get('id'))
+                ->with('inmueble')
+                ->get();
+            
+            foreach ($inmueblesNits as $inmuebleNis) {
+                $total = round($valor_total_administracion * ($inmuebleNis->porcentaje_administracion / 100));
+                $inmuebleNis->valor_total = $total;
+                $inmuebleNis->save();
+            }
+
             DB::connection('max')->commit();
 
             return response()->json([
