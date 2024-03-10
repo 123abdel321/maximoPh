@@ -43,13 +43,16 @@ function inmuebleInit() {
                 }
                 return '';
             }},
-            {"data": function (row, type, set){
-                if (row.personas.length) {
-                    var persona = row.personas[0].nit;
-                    return persona.primer_nombre+' '+persona.primer_apellido;
+            {
+                data: 'id',
+                render: function (row, type, data){
+                    if (data.personas.length) {
+                        var persona = data.personas[0].nit;
+                        return persona.primer_nombre+' '+persona.primer_apellido;
+                    }
+                    return '';
                 }
-                return '';
-            }},
+            },
             {"data": function (row, type, set){
                 if (row.zona) {
                     return row.zona.nombre;
