@@ -348,7 +348,7 @@ class InmuebleController extends Controller
             'area_registro_m2' => $areaM2Total,
             'valor_total_presupuesto' => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
-            'valor_registro_coeficiente' => intval($coeficienteTotal * 100),
+            'valor_registro_coeficiente' => $coeficienteTotal * 100,
             'periodo_facturacion' => Entorno::where('nombre', 'periodo_facturacion')->first()->valor,
             'total_multas' => $cuotasMultasFacturar->sum('valor_total')
         ];
