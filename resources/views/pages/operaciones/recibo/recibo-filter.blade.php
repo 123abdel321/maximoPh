@@ -33,7 +33,7 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-2" >
-                        <label for="example-text-input" class="form-control-label">Total abono</label>
+                        <label for="example-text-input" class="form-control-label">Total pago</label>
                         <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="total_abono_recibo" id="total_abono_recibo" onfocus="this.select();" onkeypress="changeTotalAbonoRecibo(event)"  value="0">
                     </div>
 

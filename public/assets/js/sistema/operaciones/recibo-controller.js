@@ -240,6 +240,13 @@ $(document).on('click', '#iniciarCapturaRecibo', function () {
         $('#crearCapturaReciboDisabled').show();
         $('#iniciarCapturaReciboLoading').hide();
         loadAnticiposRecibo();
+        mostrarValoresRecibos();
+        var [totalSaldo, totalAbonos, totalAnticipos] = totalValoresRecibos();
+        $("#total_abono_recibo").val(new Intl.NumberFormat("ja-JP").format(totalSaldo));
+        setTimeout(function(){
+            $("#total_abono_recibo").focus();
+            $("#total_abono_recibo").select();
+        },80);
     });
 });
 
@@ -421,11 +428,18 @@ function changeTotalAbonoRecibo(event) {
                 }
             });
         }
-        console.log('totalSaldo: ',totalSaldo);
+
         if (totalAbono) {
             $('#total_abono_recibo').val(new Intl.NumberFormat("ja-JP").format(totalSaldo));
         }
+
+        var dataPagoRecibo = recibo_table_pagos.rows().data();
+
+        if(dataPagoRecibo.length > 0) {
+            
+        }
         mostrarValoresRecibos();
+        focusFormaPagoRecibo(dataPagoRecibo[0].id);
     }
 }
 
@@ -541,9 +555,9 @@ function totalValoresRecibos() {
         if (!recibo.cuenta_recibo) {//ANTICIPOS
             totalAnticipos+= recibo.valor_recibido;
         } else if (parseFloat(recibo.valor_recibido)){//PAGOS
-            totalSaldo+= parseFloat(recibo.saldo);
             totalAbonos+= parseFloat(recibo.valor_recibido);
         }
+        totalSaldo+= parseFloat(recibo.saldo);
     }
 
     return [totalSaldo, totalAbonos, totalAnticipos];
