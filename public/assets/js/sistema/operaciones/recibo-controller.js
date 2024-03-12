@@ -433,13 +433,13 @@ function changeTotalAbonoRecibo(event) {
             $('#total_abono_recibo').val(new Intl.NumberFormat("ja-JP").format(totalSaldo));
         }
 
-        var dataPagoRecibo = recibo_table_pagos.rows().data();
-
-        if(dataPagoRecibo.length > 0) {
-            
-        }
+        
         mostrarValoresRecibos();
-        focusFormaPagoRecibo(dataPagoRecibo[0].id);
+        
+        var dataPagoRecibo = recibo_table_pagos.rows().data();
+        if(dataPagoRecibo.length) {
+            focusFormaPagoRecibo(dataPagoRecibo[0].id);
+        }
     }
 }
 
