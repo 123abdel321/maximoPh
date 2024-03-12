@@ -59,7 +59,7 @@
                                     0
                                 </h5>
                                 <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($area_total_m2) }}
+                                    &nbsp;de {{ number_format($area_total_m2, 2, '.', '') }}
                                 </h5>
                             </div>
                             <div class="icon icon-shape bg-gradient-success shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
