@@ -18,7 +18,13 @@ return new class extends Migration
             $table->date('fecha_manual')->nullable();
             $table->string('token_factura', 255)->nullable();
             $table->decimal('valor', 15);
+            $table->decimal('valor_admon', 15)->nullable();
+            $table->decimal('valor_intereses', 15)->nullable();
+            $table->decimal('valor_anticipos', 15)->nullable();
+            $table->decimal('valor_cuotas_multas', 15)->nullable();
+            $table->string('mensajes', 500)->nullable();
             $table->boolean('anulado')->default(false);
+            $table->boolean('errores')->default(true);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();

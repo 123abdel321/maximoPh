@@ -1,7 +1,7 @@
 <div class="container-fluid py-2">
     <div class="row">
 
-        <div class="row" style="z-index: 9;">
+        <div id="header_facturacion_view" class="row" style="z-index: 9;">
             <div class="col-12 col-md-8 col-sm-8">
                 @can('facturacion create')
                     <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">GENERAR FACTURACIÓN
@@ -14,90 +14,58 @@
             </div>
         </div>
 
-        <div id="totales_facturacion_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
-            <div class="row ">
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card" style="height: 100%;">
-                        <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Inmuebles Registrados</p>
-                            <div style="display: flex;">
-                                <h5 id="inmuebles_registrados_facturacion" class="font-weight-bolder">
-                                    0
-                                </h5>
-                                <h5 id="inmuebles_registrados_facturacion_text" class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($numero_total_unidades) }}
-                                </h5>
-                            </div>
-                            <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                                <i class="ni ni-building text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card" style="height: 100%;">
-                        <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Área M2 Registrada</p>
-                            <div style="display: flex;">
-                                <h5 id="area2_registrados_facturacion" class="font-weight-bolder">
-                                    0
-                                </h5>
-                                <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($area_total_m2) }}
-                                </h5>
-                            </div>
-                            <div class="icon icon-shape bg-gradient-success shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                                <i class="fas fa-text-height text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card" style="height: 100%;">
-                        <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Coeficiente %</p>
-                            <div style="display: flex;">
-                                <h5 id="coeficiente_registrados_facturacion" class="font-weight-bolder">
-                                    0
-                                </h5>
-                                <h5 class="font-weight-bolder">
-                                    %&nbsp;de 100%
-                                </h5>
-                            </div>
-                            <div class="icon icon-shape bg-gradient-warning shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                                <i class="fas fa-calculator text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card" style="height: 100%;">
-                        <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
-                            <div style="display: flex;">
-                                <h5 id="presupuesto_registrados_facturacion" class="font-weight-bolder">
-                                    0
-                                </h5>
-                                <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($valor_total_presupuesto / 12) }}
-                                </h5>
-                            </div>
-                            <div class="icon icon-shape bg-gradient-danger shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                                <i class="ni ni-money-coins text-lg opacity-10" style="top: 8px !important;" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div id="header_procesando_view" class="row" style="z-index: 9; display: none;">
+            <div class="col-12 col-md-12 col-sm-12">
+                <button type="button" class="btn btn-danger btn-sm" id="detenerFacturacion">
+                    Detener facturación
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="continuarFacturacion" style="display: none;">
+                    Continuar facturación
+                </button>
+                <button type="button" class="btn btn-warning btn-sm" id="reprocesarFacturacion" style="display: none;">
+                    Volver a facturar
+                </button>
+                <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacion" style="display: none;">
+                    Confirmar facturación
+                </button>
+                <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacionDisabled" style="display: none;" disabled>
+                    Confirmar facturación <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
+                </button>
             </div>
         </div>
 
-        <div id="tablas_facturacion" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
+        <div id="totales_facturacion_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
+            <div class="row ">
+
+                @include('pages.operaciones.facturacion.facturacion-totales', [
+                    'area_total_m2' => $area_total_m2,
+                    'valor_total_presupuesto' => $valor_total_presupuesto,
+                    'numero_total_unidades' => $numero_total_unidades
+                ])
+
+            </div>
+        </div>
+
+        <div id="tablas_facturacion_view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
                 
                 @include('pages.operaciones.facturacion.facturacion-table')
+
+            </div>
+        </div>
+
+        <div id="totales_procesando_facturacion_view" style="content-visibility: auto; overflow: auto; display: none; margin-top: -5px;">
+            <div class="row ">
+
+                @include('pages.operaciones.facturacion.facturacion-proceso-totales')
+
+            </div>
+        </div>
+
+        <div id="tablas_procesando_view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px; display: none; max-height: 400px;">
+            <div class="card-body">
+                
+                @include('pages.operaciones.facturacion.facturacion-proceso-table')
 
             </div>
         </div>

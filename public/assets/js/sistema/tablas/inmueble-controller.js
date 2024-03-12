@@ -37,7 +37,7 @@ function inmuebleInit() {
         columns: [
             {"data":'nombre'},
             {"data": function (row, type, set){
-                if (row.personas.length) {
+                if (row.personas && row.personas.length) {
                     var persona = row.personas[0].nit;
                     return persona.numero_documento;
                 }
@@ -46,7 +46,7 @@ function inmuebleInit() {
             {
                 data: 'id',
                 render: function (row, type, data){
-                    if (data.personas.length) {
+                    if (data.personas && data.personas.length) {
                         var persona = data.personas[0].nit;
                         return persona.primer_nombre+' '+persona.primer_apellido;
                     }

@@ -19,6 +19,10 @@ class Facturacion extends Model
         'fecha_manual',
         'token_factura',
         'valor',
+        'valor_admon',
+        'valor_intereses',
+        'valor_anticipos',
+        'valor_cuotas_multas',
         'anulado',
         'created_by',
         'updated_by'
