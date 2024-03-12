@@ -3,6 +3,7 @@ var comprobanteFile = null;
 var estado_cuenta_table = null;
 var estado_cuenta_pagos_table = null;
 var estado_cuenta_facturas_table = null;
+var adjuntar_pagar_estado_cuenta = false
 
 function estadocuentaInit() {
 
@@ -272,9 +273,12 @@ $(document).on('click', '.imprimir-recibo', function () {
 });
 
 $(document).on('click', '#generatePagoEstadoCuenta', function () {
+    adjuntar_pagar_estado_cuenta = true;
     fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     clearFormEstadoCuenta();
-    $("#textEstadoCuentaPagoCreate").text('Pago total: ' + new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
+    $("#textEstadoCuentaPagoCreate").text('Deuda total: ' + new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
+    
+    $('#valor_pago_estado_cuenta').val(new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
     $('#fecha_pago_estado_cuenta').val(fecha);
     $("#saveEstadoCuentaPago").show();
     $("#updateEstadoCuentaPago").hide();
@@ -297,9 +301,12 @@ $(document).on('click', '#generatePagoEstadoCuenta', function () {
 });
 
 $(document).on('click', '#generateComprobanteEstadoCuenta', function () {
+    adjuntar_pagar_estado_cuenta = false;
     fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     clearFormEstadoCuenta();
-    $("#textEstadoCuentaPagoCreate").text('Pago total: ' + new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
+    $("#textEstadoCuentaPagoCreate").text('Deuda total: ' + new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
+    $('#valor_comprobante_estado_cuenta').val(new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
+
     $('#fecha_pago_estado_cuenta').val(fecha);
     $("#saveEstadoCuentaPago").show();
     $("#updateEstadoCuentaPago").hide();
@@ -340,7 +347,7 @@ $(document).on('click', '#saveEstadoCuentaPago', function () {
         'comprobante': null,
     };
 
-    if ($("input[type='checkbox']#adjuntar_pagar_estado_cuenta").is(':checked')) {
+    if (adjuntar_pagar_estado_cuenta) {
         if (stringToNumberFloat($('#valor_pago_estado_cuenta').val()) > totalCuentasPagar) {
             setTimeout(function(){
                 $('#valor_pago_estado_cuenta').focus();
@@ -490,38 +497,6 @@ $(document).on('click', '#updateEstadoCuentaPago', function () {
     });
 
     
-});
-
-$(document).on('change', '#adjuntar_pagar_estado_cuenta', function () {
-    if ($("input[type='checkbox']#adjuntar_pagar_estado_cuenta").is(':checked')) {
-        $('#input_valor_pago_estado_cuenta').show();
-        $('#input_fecha_pago_estado_cuenta').hide();        
-        $('#input_valor_comprobante_estado_cuenta').hide();
-        $('#input_imagen_comprobante_estado_cuenta').hide();
-        $('#valor_pago_estado_cuenta').prop('required',true);
-        $('#fecha_pago_estado_cuenta').prop('required',false);
-        $('#valor_comprobante_estado_cuenta').prop('required',false);
-        $('#imagen_comprobante_estado_cuenta').prop('required',false);
-    } else {
-        $('#input_valor_pago_estado_cuenta').hide();
-        $('#input_fecha_pago_estado_cuenta').show();
-        $('#input_valor_comprobante_estado_cuenta').show();
-        $('#input_imagen_comprobante_estado_cuenta').show();    
-        $('#valor_pago_estado_cuenta').prop('required',false);
-        $('#fecha_pago_estado_cuenta').prop('required',true);
-        $('#valor_comprobante_estado_cuenta').prop('required',false);
-        $('#imagen_comprobante_estado_cuenta').prop('required',false);
-    }
-    $("input[data-type='currency']").on({
-        keyup: function(event) {
-            if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
-                formatCurrency($(this));
-            }
-        },
-        blur: function() {
-            formatCurrency($(this), "blur");
-        }
-    });
 });
 
 $(document).on('change', '#fecha_desde_estado_cuenta_pagos', function () {

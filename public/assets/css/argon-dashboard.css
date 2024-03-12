@@ -3581,17 +3581,17 @@ textarea.form-control-lg {
 
 .btn-warning {
   color: #000;
-  background-color: var(--bs-primary);
-  border-color: var(--bs-primary);
+  background-color: var(--bs-orange);
+  border-color: var(--bs-orange);
 }
 .btn-warning:hover {
   color: #000;
-  background-color: var(--bs-primary);
+  background-color: var(--bs-orange);
   border-color: #fb7353;
 }
 .btn-check:focus + .btn-warning, .btn-warning:focus {
   color: #000;
-  background-color: var(--bs-primary);
+  background-color: var(--bs-orange);
   border-color: #fb7353;
   box-shadow: 0 0 0 0.2rem rgba(7, 82, 96, 0.5);
 }

@@ -20,12 +20,12 @@
 
                     <div id="input_valor_comprobante_estado_cuenta" style="display: none;" class="form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Valor comprobante<span style="color: red">*</span></label>
-                        <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_comprobante_estado_cuenta" id="valor_comprobante_estado_cuenta" value="0">
+                        <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_comprobante_estado_cuenta" id="valor_comprobante_estado_cuenta" value="0" onfocus="this.select();">
                     </div>
 
                     <div id="input_valor_pago_estado_cuenta" style="display: none;" class="form-group col-12 col-sm-12 col-md-12">
                         <label for="example-text-input" class="form-control-label">Valor pago<span style="color: red">*</span></label>
-                        <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_pago_estado_cuenta" id="valor_pago_estado_cuenta" value="0">
+                        <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_pago_estado_cuenta" id="valor_pago_estado_cuenta" value="0" onfocus="this.select();">
                     </div>
 
                     <div id="input_imagen_comprobante_estado_cuenta" style="display: none;" class="form-group col-12 col-sm-12 col-md-12">

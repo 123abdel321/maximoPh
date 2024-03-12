@@ -15,6 +15,7 @@
                 <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuentaDisabled" style="box-shadow: none; color: white;" disabled>
                     <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Realizar pago
                 </button>
+                &nbsp;
                 <button type="button" class="btn btn-dark btn-sm" id="generateComprobanteEstadoCuenta" style="display: none;">
                     <i class="fas fa-file-invoice-dollar" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Adjuntar comprobante
                 </button>
