@@ -348,13 +348,6 @@ $(document).on('click', '#saveEstadoCuentaPago', function () {
     };
 
     if (adjuntar_pagar_estado_cuenta) {
-        if (stringToNumberFloat($('#valor_pago_estado_cuenta').val()) > totalCuentasPagar) {
-            setTimeout(function(){
-                $('#valor_pago_estado_cuenta').focus();
-                $('#valor_pago_estado_cuenta').select();
-            },10);
-            return;
-        }
         if (!stringToNumberFloat($('#valor_pago_estado_cuenta').val())) {
             setTimeout(function(){
                 $('#valor_pago_estado_cuenta').focus();
@@ -365,13 +358,6 @@ $(document).on('click', '#saveEstadoCuentaPago', function () {
         data.fecha_pago = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
         data.valor_pago = stringToNumberFloat($('#valor_pago_estado_cuenta').val());
     } else {
-        if (stringToNumberFloat($('#valor_comprobante_estado_cuenta').val()) > totalCuentasPagar) {
-            setTimeout(function(){
-                $('#valor_comprobante_estado_cuenta').focus();
-                $('#valor_comprobante_estado_cuenta').select();
-            },10);
-            return;
-        }
         if (!stringToNumberFloat($('#valor_comprobante_estado_cuenta').val())) {
             setTimeout(function(){
                 $('#valor_comprobante_estado_cuenta').focus();

@@ -23,4 +23,9 @@ class ReciboController extends Controller
         return view('pages.operaciones.recibo.recibo-view', $data);
     }
 
+    public function indexPagos ()
+    {
+        return view('pages.operaciones.pago_transferencia.pago_transferencia-view'); 
+    }
+
 }

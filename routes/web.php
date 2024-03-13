@@ -54,6 +54,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/conceptofacturacion', [ConceptoFacturacionController::class, 'index']);
 		//OPERACIONES
 		Route::get('/recibo', [ReciboController::class, 'index']);
+		Route::get('/pagotransferencia', [ReciboController::class, 'indexPagos']);
+		
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO

@@ -62,6 +62,7 @@ var moduloCreado = {
     'cuotasmultas': false,
     'estadocuenta': false,
     'usuarios': false,
+    'pagotransferencia': false,
 };
 
 var moduloRoute = {
@@ -75,6 +76,7 @@ var moduloRoute = {
     'cuotasmultas': 'operaciones',
     'estadocuenta': 'administrativo',
     'usuarios': 'configuracion',
+    'pagotransferencia': 'operaciones',
 }
 
 $('.water').show();

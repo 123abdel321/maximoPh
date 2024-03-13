@@ -256,7 +256,7 @@ class FacturacionController extends Controller
             }
             //COBRAR INTERESES
             if (count($cobrarInteses)) {
-                $valoresIntereses+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa, $cobrarInteses);
+                $valoresIntereses+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa, $cobrarInteses, $periodo_facturacion);
             }
             
             $factura->valor = ($valoresExtra + $valoresAdmon + $valoresIntereses);
@@ -532,7 +532,7 @@ class FacturacionController extends Controller
         return $totalAnticipos;
     }
     
-    private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura, $id_empresa, $cobrarInteses)
+    private function generarFacturaInmuebleIntereses(Facturacion $factura, InmuebleNit $inmuebleFactura, $id_empresa, $cobrarInteses, $periodo_facturacion)
     {
         $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
         
@@ -541,6 +541,8 @@ class FacturacionController extends Controller
         $response = (new Extracto(//TRAER CUENTAS POR COBRAR
             $factura->id_nit,
             [3,7],
+            null,
+            $periodo_facturacion
         ))->send($id_empresa);
 
         if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO

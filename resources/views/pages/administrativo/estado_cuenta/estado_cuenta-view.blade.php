@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div id="table_pagos_estado_cuenta" class="card mb-4" style="content-visibility: auto; overflow: auto;">
+        <div id="table_pagos_estado_cuenta" class="card mb-4" style="content-visibility: auto; overflow: auto; display: none;">
             <div class="card-body">
                 
                 @include('pages.administrativo.estado_cuenta.estado_cuenta_pagos-table')
@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <div id="table_facturas_estado_cuenta" class="card mb-4" style="content-visibility: auto; overflow: auto;">
+        <div id="table_facturas_estado_cuenta" class="card mb-4" style="content-visibility: auto; overflow: auto; display: none;">
             <div class="card-body">
                 
                 @include('pages.administrativo.estado_cuenta.estado_cuenta_facturas-table')
