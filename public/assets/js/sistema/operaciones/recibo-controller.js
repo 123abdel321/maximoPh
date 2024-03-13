@@ -557,7 +557,9 @@ function totalValoresRecibos() {
         } else if (parseFloat(recibo.valor_recibido)){//PAGOS
             totalAbonos+= parseFloat(recibo.valor_recibido);
         }
-        totalSaldo+= parseFloat(recibo.saldo);
+        if (parseFloat(recibo.saldo)) {
+            totalSaldo+= parseFloat(recibo.saldo);
+        }
     }
 
     return [totalSaldo, totalAbonos, totalAnticipos];
