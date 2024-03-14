@@ -3,6 +3,9 @@ var searchValuePagoComprobante = null;
 
 function pagotransferenciaInit() {
 
+    $('#fecha_desde_estado_pago_comprobante').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
+    $('#fecha_hasta_estado_pago_comprobante').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+
     pago_transferencia_table = $('#pagoTransferenciaTable').DataTable({
         pageLength: 15,
         dom: 'Brtip',
@@ -25,6 +28,8 @@ function pagotransferenciaInit() {
             headers: headersERP,
             url: base_url_erp + 'recibos-comprobante',
             data: function ( d ) {
+                d.fecha_desde = $('#fecha_desde_estado_pago_comprobante').val();
+                d.fecha_hasta = $('#fecha_hasta_estado_pago_comprobante').val();
                 d.search = searchValuePagoComprobante;
                 d.estado = $('#estado_pago_comprobante').val();
             }
@@ -261,6 +266,14 @@ $(document).on('click', '#rechazarPagoTransferencia', function () {
 });
 
 $(document).on('change', '#estado_pago_comprobante', function () {
+    pago_transferencia_table.ajax.reload();
+});
+
+$(document).on('change', '#fecha_desde_estado_pago_comprobante', function () {
+    pago_transferencia_table.ajax.reload();
+});
+
+$(document).on('change', '#fecha_hasta_estado_pago_comprobante', function () {
     pago_transferencia_table.ajax.reload();
 });
 
