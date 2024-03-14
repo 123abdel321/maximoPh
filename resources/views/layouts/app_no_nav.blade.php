@@ -632,8 +632,8 @@
         // const base_url = 'http://127.0.0.1:8090/api/';
         // const base_web = 'http://127.0.0.1:8090/';
         //DEV
-        const base_url = 'https://lobster-app-q2qgt.ondigitalocean.app/api/';
-        const base_web = 'https://lobster-app-q2qgt.ondigitalocean.app/';
+        const base_url = 'https://maximoph.com/api/';
+        const base_web = 'https://maximoph.com/';
         //PRO
         // const base_url = 'https://app.portafolioerp.com/api/';
         // const base_web = 'https://app.portafolioerp.com/';
