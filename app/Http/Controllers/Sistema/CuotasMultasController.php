@@ -64,8 +64,8 @@ class CuotasMultasController extends Controller
                     'updated_by'
                 )
                 ->when($filtro1, function ($query) use($request) {
-                    $query->whereBetween('fecha_fin', [$request->get('fecha_desde') ,$request->get('fecha_hasta')])
-                        ->orWhereDate('fecha_inicio', '>=', $request->get('fecha_desde'));
+                    $query->whereDate("fecha_inicio", '<=', $request->get('fecha_desde'))
+                        ->whereDate("fecha_fin", '>=', $request->get('fecha_hasta'));
                 })
                 ->when($filtro2, function ($query) use($request) {
                     $query->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
