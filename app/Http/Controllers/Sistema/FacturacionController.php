@@ -181,7 +181,7 @@ class FacturacionController extends Controller
 
             $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
                 ->where('id_nit', $request->get('id_nit'))
-                ->whereDate("fecha_inicio", '<=', $inicioMes.'-01')
+                ->whereDate("fecha_inicio", '<=', $finmes)
                 ->whereDate("fecha_fin", '>=', $finmes)
                 ->get();
 

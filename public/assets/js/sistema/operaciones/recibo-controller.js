@@ -431,18 +431,38 @@ function changeTotalAbonoRecibo(event) {
                 else recibo.concepto = 'ABONO DEUDA';
             }
 
-            reloadReciboRow(dataAnticipo.index, dataAnticipo.recibo);
+            recibo_table.row(index).data(recibo);
+            $("input[data-type='currency']").on({
+                keyup: function(event) {
+                    if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+                        formatCurrency($(this));
+                    }
+                },
+                blur: function() {
+                    formatCurrency($(this), "blur");
+                }
+            });
         }
 
         if (totalAbono) {
+            
             dataAnticipo.recibo.nuevo_saldo = totalAbono;
             dataAnticipo.recibo.valor_recibido = totalAbono;
             dataAnticipo.recibo.documento_referencia = $('#documento_referencia_recibo').val();
             dataAnticipo.recibo.concepto = "ANTICIPO RECIBO";
             totalSaldo+= parseFloat(totalAbono);
             totalAbono = 0;
-            reloadReciboRow(dataAnticipo.index, dataAnticipo.recibo);
-            // $('#total_abono_recibo').val(new Intl.NumberFormat("ja-JP").format(totalSaldo));
+            recibo_table.row(dataAnticipo.index).data(dataAnticipo.recibo);
+            $("input[data-type='currency']").on({
+                keyup: function(event) {
+                    if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+                        formatCurrency($(this));
+                    }
+                },
+                blur: function() {
+                    formatCurrency($(this), "blur");
+                }
+            });
         }
 
         
@@ -455,8 +475,14 @@ function changeTotalAbonoRecibo(event) {
     }
 }
 
-function reloadReciboRow(index, data) {
-    recibo_table.row(index).data(data);
+function changeConceptoReciboRow(idRow, event) {
+    if (!idRow) return;
+
+    if (event.keyCode == 13) {
+        var concepto = $("#recibo_concepto_"+idRow).val();
+        var data = getDataById(idRow, recibo_table);
+        data.concepto = concepto;
+        recibo_table.row(idRow-1).data(data);
         $("input[data-type='currency']").on({
             keyup: function(event) {
                 if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
@@ -467,16 +493,6 @@ function reloadReciboRow(index, data) {
                 formatCurrency($(this), "blur");
             }
         });
-}
-
-function changeConceptoReciboRow(idRow, event) {
-    if (!idRow) return;
-
-    if (event.keyCode == 13) {
-        var concepto = $("#recibo_concepto_"+idRow).val();
-        var data = getDataById(idRow, recibo_table);
-        data.concepto = concepto;
-        reloadReciboRow(idRow-1, data);
     }
 }
 
@@ -767,7 +783,17 @@ function changeDocumentoRefeReciboRow(idRow, event) {
                     $('#recibo_valor_'+idRow).focus();
                     $('#recibo_valor_'+idRow).select();
                 },10);
-                reloadReciboRow(idRow-1, data);
+                recibo_table.row(idRow-1).data(data);
+                $("input[data-type='currency']").on({
+                    keyup: function(event) {
+                        if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+                            formatCurrency($(this));
+                        }
+                    },
+                    blur: function() {
+                        formatCurrency($(this), "blur");
+                    }
+                });
             }).fail((err) => {
                 validarFacturaRecibo = null;
                 if(err.statusText != "abort") {
@@ -811,7 +837,17 @@ function focusOutDocumentoReferencia(idRow) {
                     $('#recibo_valor_'+idRow).focus();
                     $('#recibo_valor_'+idRow).select();
                 },10);
-                reloadReciboRow(idRow-1, data);
+                recibo_table.row(idRow-1).data(data);
+                $("input[data-type='currency']").on({
+                    keyup: function(event) {
+                        if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+                            formatCurrency($(this));
+                        }
+                    },
+                    blur: function() {
+                        formatCurrency($(this), "blur");
+                    }
+                });
             }).fail((err) => {
                 $('#documentorecibo_load_'+idRow).hide();
                 validarFacturaRecibo = null;
@@ -883,7 +919,17 @@ function focusOutValorReciboRow(idRow) {
         if (!data.concepto) data.concepto = 'ANTICIPO RECIBO';
     }
 
-    reloadReciboRow(idRow-1, data);
+    recibo_table.row(idRow-1).data(data);
+    $("input[data-type='currency']").on({
+        keyup: function(event) {
+            if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+                formatCurrency($(this));
+            }
+        },
+        blur: function() {
+            formatCurrency($(this), "blur");
+        }
+    });
     mostrarValoresRecibos();
     actualizarTotalAbono();
 }
@@ -918,7 +964,17 @@ function changeValorRecibidoReciboRow(idRow, event) {
             if (!data.concepto) data.concepto = 'ANTICIPO RECIBIO';
         }
 
-        reloadReciboRow(idRow-1, data);
+        recibo_table.row(idRow-1).data(data);
+        $("input[data-type='currency']").on({
+            keyup: function(event) {
+                if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+                    formatCurrency($(this));
+                }
+            },
+            blur: function() {
+                formatCurrency($(this), "blur");
+            }
+        });
         mostrarValoresRecibos();
         actualizarTotalAbono();
         setTimeout(function(){
