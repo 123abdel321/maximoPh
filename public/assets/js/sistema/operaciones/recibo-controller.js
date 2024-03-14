@@ -368,9 +368,11 @@ function cancelarRecibo() {
     clearFormasPagoRecibo();
     $('#total_abono_recibo').val('0.00');
     $('#saldo_anticipo_recibo').val('0');
+    $('#recibo_anticipo_disp').text('0');
     $('#crearCapturaRecibo').hide();
     $('#cancelarCapturaRecibo').hide();
     $('#input_anticipos_recibo').hide();
+    $('#recibo_anticipo_disp_view').hide();
     $('#crearCapturaReciboDisabled').hide();
 }
 
@@ -389,12 +391,25 @@ function changeTotalAbonoRecibo(event) {
     var dataRecibos = recibo_table.rows().data();
     if(event.keyCode == 13 && dataRecibos.length) {
         var totalAbono = stringToNumberFloat($('#total_abono_recibo').val());
+        var dataAnticipo = {
+            'index': null,
+            'recibo': null
+        };
         var totalSaldo = 0;
 
         for (let index = 0; index < dataRecibos.length; index++) {
             var recibo = dataRecibos[index];
 
-            if (!recibo.cuenta_recibo) continue;
+            if (!recibo.cuenta_recibo) {
+                if (!dataAnticipo.recibo) {
+                    dataAnticipo.index = index;
+                    dataAnticipo.recibo = recibo;
+                }
+                continue;
+            }
+
+            if (recibo.cuenta_recibo == "sin_deuda") continue;
+
             if (totalAbono <= 0) {
                 recibo.valor_recibido = 0;
                 recibo.nuevo_saldo = recibo.saldo;
@@ -416,21 +431,18 @@ function changeTotalAbonoRecibo(event) {
                 else recibo.concepto = 'ABONO DEUDA';
             }
 
-            recibo_table.row(index).data(recibo);
-            $("input[data-type='currency']").on({
-                keyup: function(event) {
-                    if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
-                        formatCurrency($(this));
-                    }
-                },
-                blur: function() {
-                    formatCurrency($(this), "blur");
-                }
-            });
+            reloadReciboRow(dataAnticipo.index, dataAnticipo.recibo);
         }
 
         if (totalAbono) {
-            $('#total_abono_recibo').val(new Intl.NumberFormat("ja-JP").format(totalSaldo));
+            dataAnticipo.recibo.nuevo_saldo = totalAbono;
+            dataAnticipo.recibo.valor_recibido = totalAbono;
+            dataAnticipo.recibo.documento_referencia = $('#documento_referencia_recibo').val();
+            dataAnticipo.recibo.concepto = "ANTICIPO RECIBO";
+            totalSaldo+= parseFloat(totalAbono);
+            totalAbono = 0;
+            reloadReciboRow(dataAnticipo.index, dataAnticipo.recibo);
+            // $('#total_abono_recibo').val(new Intl.NumberFormat("ja-JP").format(totalSaldo));
         }
 
         
@@ -443,14 +455,8 @@ function changeTotalAbonoRecibo(event) {
     }
 }
 
-function changeConceptoReciboRow(idRow, event) {
-    if (!idRow) return;
-
-    if (event.keyCode == 13) {
-        var concepto = $("#recibo_concepto_"+idRow).val();
-        var data = getDataById(idRow, recibo_table);
-        data.concepto = concepto;
-        recibo_table.row(idRow-1).data(data);
+function reloadReciboRow(index, data) {
+    recibo_table.row(index).data(data);
         $("input[data-type='currency']").on({
             keyup: function(event) {
                 if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
@@ -461,6 +467,16 @@ function changeConceptoReciboRow(idRow, event) {
                 formatCurrency($(this), "blur");
             }
         });
+}
+
+function changeConceptoReciboRow(idRow, event) {
+    if (!idRow) return;
+
+    if (event.keyCode == 13) {
+        var concepto = $("#recibo_concepto_"+idRow).val();
+        var data = getDataById(idRow, recibo_table);
+        data.concepto = concepto;
+        reloadReciboRow(idRow-1, data);
     }
 }
 
@@ -679,7 +695,9 @@ function validateSaveRecibos() {
 function loadAnticiposRecibo() {
     totalAnticiposRecibo = 0;
     $('#input_anticipos_recibo').hide();
+    $('#recibo_anticipo_disp_view').hide();
     $('#saldo_anticipo_recibo').val(0);
+    $('#recibo_anticipo_disp').text('0.00');
 
     if(!$('#id_nit_recibo').val()) return;
     
@@ -701,9 +719,11 @@ function loadAnticiposRecibo() {
                 var saldo = parseFloat(res.data.saldo);
                 if (saldo > 0) {
                     disabled = false;
-                    $('#input_anticipos_recibo').show();
+                    $('#recibo_anticipo_disp_view').show();
+                    // $('#input_anticipos_recibo').show();
                     totalAnticiposRecibo = saldo;
                     $('#saldo_anticipo_recibo').val(new Intl.NumberFormat('ja-JP').format(saldo));
+                    $('#recibo_anticipo_disp').text(new Intl.NumberFormat('ja-JP').format(saldo));
                 }
             }
         }
@@ -747,17 +767,7 @@ function changeDocumentoRefeReciboRow(idRow, event) {
                     $('#recibo_valor_'+idRow).focus();
                     $('#recibo_valor_'+idRow).select();
                 },10);
-                recibo_table.row(idRow-1).data(data);
-                $("input[data-type='currency']").on({
-                    keyup: function(event) {
-                        if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
-                            formatCurrency($(this));
-                        }
-                    },
-                    blur: function() {
-                        formatCurrency($(this), "blur");
-                    }
-                });
+                reloadReciboRow(idRow-1, data);
             }).fail((err) => {
                 validarFacturaRecibo = null;
                 if(err.statusText != "abort") {
@@ -801,17 +811,7 @@ function focusOutDocumentoReferencia(idRow) {
                     $('#recibo_valor_'+idRow).focus();
                     $('#recibo_valor_'+idRow).select();
                 },10);
-                recibo_table.row(idRow-1).data(data);
-                $("input[data-type='currency']").on({
-                    keyup: function(event) {
-                        if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
-                            formatCurrency($(this));
-                        }
-                    },
-                    blur: function() {
-                        formatCurrency($(this), "blur");
-                    }
-                });
+                reloadReciboRow(idRow-1, data);
             }).fail((err) => {
                 $('#documentorecibo_load_'+idRow).hide();
                 validarFacturaRecibo = null;
@@ -883,17 +883,7 @@ function focusOutValorReciboRow(idRow) {
         if (!data.concepto) data.concepto = 'ANTICIPO RECIBO';
     }
 
-    recibo_table.row(idRow-1).data(data);
-    $("input[data-type='currency']").on({
-        keyup: function(event) {
-            if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
-                formatCurrency($(this));
-            }
-        },
-        blur: function() {
-            formatCurrency($(this), "blur");
-        }
-    });
+    reloadReciboRow(idRow-1, data);
     mostrarValoresRecibos();
     actualizarTotalAbono();
 }
@@ -928,17 +918,7 @@ function changeValorRecibidoReciboRow(idRow, event) {
             if (!data.concepto) data.concepto = 'ANTICIPO RECIBIO';
         }
 
-        recibo_table.row(idRow-1).data(data);
-        $("input[data-type='currency']").on({
-            keyup: function(event) {
-                if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
-                    formatCurrency($(this));
-                }
-            },
-            blur: function() {
-                formatCurrency($(this), "blur");
-            }
-        });
+        reloadReciboRow(idRow-1, data);
         mostrarValoresRecibos();
         actualizarTotalAbono();
         setTimeout(function(){

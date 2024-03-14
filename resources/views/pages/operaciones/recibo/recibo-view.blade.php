@@ -133,6 +133,10 @@
 
                     <table class="table table-bordered table-captura-ventas" width="100%" style="margin-top: 12px;">
                         <tbody>
+                            <tr id="recibo_anticipo_disp_view" style="display: none;">
+                                <td><h6 style="margin-bottom: 0px; font-size: 0.9rem; font-weight: 500; color: #0bb19e;">ANTICIPOS DISP: </h6></td>
+                                <td><h6 style="margin-bottom: 0px; float: right; font-size: 0.9rem; color: #0bb19e;" id="recibo_anticipo_disp">0.00</h6></td>
+                            </tr>
                             <tr>
                                 <td><h6 style="margin-bottom: 0px; font-size: 0.9rem; font-weight: 500;">SALDO: </h6></td>
                                 <td><h6 style="margin-bottom: 0px; float: right; font-size: 0.9rem;" id="recibo_saldo">0.00</h6></td>
