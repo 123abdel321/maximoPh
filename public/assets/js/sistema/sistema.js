@@ -778,3 +778,48 @@ const toCamelCase = str => {
         .join(' ');
     return s.slice(0, 1).toUpperCase() + s.slice(1);
 };
+
+function monthYear (date) {
+    var fecha = date.split('-');
+
+    switch (fecha[1]) {
+        case '01':
+            return 'Enero de '+ fecha[0];
+            break;
+        case '02':
+            return 'Febrero de '+ fecha[0];
+            break;
+        case '03':
+            return 'Marzo de '+ fecha[0];
+            break;
+        case '04':
+            return 'Abril de '+ fecha[0];
+            break;
+        case '05':
+            return 'Mayo de '+ fecha[0];
+            break;
+        case '06':
+            return 'Junio de '+ fecha[0];
+            break;
+        case '07':
+            return 'Julio de '+ fecha[0];
+            break;
+        case '08':
+            return 'Agosto de '+ fecha[0];
+            break;
+        case '09':
+            return 'Septiembre de '+ fecha[0];
+            break;
+        case '10':
+            return 'Octubre de '+ fecha[0];
+            break;
+        case '11':
+            return 'Noviembre de '+ fecha[0];
+            break;
+        case '12':
+            return 'Dociembre de '+ fecha[0];
+            break;
+        default:
+            break;
+    }
+};
