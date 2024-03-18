@@ -8,9 +8,9 @@ var $comboConceptoFacturacionCuotasMuldas = null;
 var $comboConceptoTipoFacturacionCuotasMuldas = null;
 
 function cuotasmultasInit() {
-    fechaHasta = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + new Date(dateNow.getFullYear(), dateNow.getMonth()+1, 0). getDate()).slice(-2);
-    $('#fecha_desde_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
-    $('#fecha_hasta_cuotas_multas').val(fechaHasta)
+
+    $('#fecha_desde_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
+    $('#fecha_hasta_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
 
     cuotas_multas_table = $('#cuotaMultaTable').DataTable({
         pageLength: 100,
@@ -59,8 +59,8 @@ function cuotasmultasInit() {
                 }
                 return '';
             }},
-            {"data":'fecha_inicio', className: 'dt-body-left'},
-            {"data":'fecha_fin', className: 'dt-body-left'},
+            {"data":'fecha_inicio', className: 'dt-body-left', render: function (data, type) { return monthYear(data);}},
+            {"data":'fecha_fin', className: 'dt-body-left', render: function (data, type) { return monthYear(data);}},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  
                 if (row.inmueble) {
@@ -304,8 +304,10 @@ function cuotasmultasInit() {
                 return {
                     results: data.data
                 };
-            }
-        }
+            },
+        },
+        templateResult: formatInmuebleCombo,
+        templateSelection: formatInmuebleSelection
     });
 
     $comboConceptoFacturacionCuotasMuldas = $('#id_concepto_facturacion_cuotas_multas').select2({
@@ -418,6 +420,30 @@ function cuotasmultasInit() {
     cuotas_multas_table.ajax.reload(function () {
         getTotalesCuotasMultas();
     });
+}
+
+
+function formatInmuebleSelection (inmueble) {
+    var persona = '';
+
+    if (inmueble && inmueble.personas && inmueble.personas.length) {
+        persona = ' - ' + inmueble.personas[0].nit.nombre_completo
+    }
+
+    return inmueble.text + persona;
+}
+
+function formatInmuebleCombo (inmueble) {
+
+    if (inmueble.loading) return inmueble.text;
+
+    var persona = '';
+
+    if (inmueble && inmueble.personas && inmueble.personas.length) {
+        persona = ' - ' + inmueble.personas[0].nit.nombre_completo
+    }
+
+    return inmueble.text + persona;
 }
 
 $(document).on('click', '#saveCuotaMulta', function () {
@@ -592,6 +618,16 @@ $(document).on('change', '#id_inmueble_cuotas_multas', function () {
         nitsInmuebles.push(persona.id_nit);
     });
 
+    var persona = personas[0];
+
+    var dataNit = {
+        id: persona.nit.id,
+        text: persona.nit.numero_documento + ' - ' + persona.nit.nombre_completo
+    };
+    var newOption = new Option(dataNit.text, dataNit.id, false, false);
+    $comboNitCuotasMuldas.append(newOption).trigger('change');
+    $comboNitCuotasMuldas.val(dataNit.id).trigger('change');
+
     $('#id_nit_cuotas_multas').prop('disabled',false);
 });
 
@@ -731,8 +767,8 @@ function clearForm() {
     $('#id_inmueble_cuotas_multas').val('').change();
     $('#id_nit_cuotas_multas').val('').change();
     $('#id_concepto_facturacion_cuotas_multas').val('').change();
-    $('#fecha_inicio_cuotas_multas').val('');
-    $('#fecha_fin_cuotas_multas').val('');
+    $('#fecha_inicio_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
+    $('#fecha_fin_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
     $('#valor_cuotas_multas').val(0);
     $('#observacion_cuotas_multas').val('');
 }

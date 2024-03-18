@@ -313,10 +313,11 @@ class InmuebleController extends Controller
 
     public function combo (Request $request)
     {
-        $inmuebles = Inmueble::select(
-            \DB::raw('*'),
-            \DB::raw("nombre as text")
-        )->with('personas');
+        $inmuebles = Inmueble::with('personas.nit')
+            ->select(
+                \DB::raw('*'),
+                \DB::raw("nombre as text")
+            );
 
         if ($request->get("search")) {
             $inmuebles->where('nombre', 'LIKE', '%' . $request->get("q") . '%')

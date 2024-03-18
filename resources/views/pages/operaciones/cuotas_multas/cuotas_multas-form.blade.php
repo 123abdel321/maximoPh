@@ -51,13 +51,13 @@
                         </div>
 
                         <div id="input_fecha_inicio_cuotas_multas" style="display: none;" class="form-group col-12 col-sm-6 col-md-4" >
-                            <label for="example-text-input" class="form-control-label">Fecha inicio<span style="color: red">*</span></label>
-                            <input type="date" class="form-control form-control-sm" name="fecha_inicio_cuotas_multas" id="fecha_inicio_cuotas_multas">
+                            <label for="example-text-input" class="form-control-label">Mes inicio<span style="color: red">*</span></label>
+                            <input type="month" class="form-control form-control-sm" name="fecha_inicio_cuotas_multas" id="fecha_inicio_cuotas_multas">
                         </div>
 
                         <div id="input_fecha_fin_cuotas_multas" style="display: none;" class="form-group col-12 col-sm-6 col-md-4" >
-                            <label for="example-text-input" class="form-control-label">Fecha fin<span style="color: red">*</span></label>
-                            <input type="date" class="form-control form-control-sm" name="fecha_fin_cuotas_multas" id="fecha_fin_cuotas_multas">
+                            <label for="example-text-input" class="form-control-label">Mes fin<span style="color: red">*</span></label>
+                            <input type="month" class="form-control form-control-sm" name="fecha_fin_cuotas_multas" id="fecha_fin_cuotas_multas">
                         </div>
 
                         <div id="input_id_concepto_facturacion_cuotas_multas" style="display: none;" class="form-group col-12 col-sm-6 col-md-4">
