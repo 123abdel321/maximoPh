@@ -130,7 +130,7 @@ class FacturacionController extends Controller
             $dataFactura = [];
             $valorInmuebles = 0;
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-            $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+            $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
             $inmuebleNit = InmuebleNit::whereNotNull('valor_total')
                 ->groupBy('id_nit')
@@ -139,7 +139,7 @@ class FacturacionController extends Controller
             foreach ($inmuebleNit as $nit) {
 
                 $factura = Facturacion::where('id_nit', $nit->id_nit)
-                    ->where('fecha_manual', $finmes)
+                    ->where('fecha_manual', $finMes)
                     ->first();
                 
                 $facturaNit = $this->dataDetalleFactura($nit, $factura, $request->get('reprocesar'));
@@ -176,7 +176,7 @@ class FacturacionController extends Controller
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-            $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+            $finMes = date('Y-m-t', strtotime($periodo_facturacion));
             $this->countIntereses = 0;
 
             $inmueblesFacturar = InmuebleNit::with('inmueble.concepto', 'inmueble.zona')
@@ -185,12 +185,12 @@ class FacturacionController extends Controller
 
             $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
                 ->where('id_nit', $request->get('id_nit'))
-                ->whereDate("fecha_inicio", '<=', $finmes)
-                ->whereDate("fecha_fin", '>=', $finmes)
+                ->orWhereBetween("fecha_inicio", [$inicioMes.'-01', $finMes])
+                ->orWhereBetween("fecha_fin", [$inicioMes.'-01', $finMes])
                 ->get();
 
             $facturaEliminar = Facturacion::where('id_nit', $request->get('id_nit'))
-                ->where('fecha_manual', $finmes)
+                ->where('fecha_manual', $finMes)
                 ->first();
             
             if ($facturaEliminar) {
@@ -225,7 +225,7 @@ class FacturacionController extends Controller
             $factura = Facturacion::create([//CABEZA DE FACTURA
                 'id_comprobante' => $id_comprobante_ventas,
                 'id_nit' => $request->get('id_nit'),
-                'fecha_manual' => $finmes,
+                'fecha_manual' => $finMes,
                 'token_factura' => $this->generateTokenDocumento(),
                 'valor' => 0,
                 'created_by' => request()->user()->id,
@@ -275,7 +275,7 @@ class FacturacionController extends Controller
             $factura->save();
 
             $response = (new FacturacionERP(
-                $finmes,
+                $finMes,
                 $request->get('id_nit')
             ))->send(request()->user()->id_empresa);
 
@@ -393,7 +393,7 @@ class FacturacionController extends Controller
                 $valor = 0;
                 $cobrarInteses = [];
                 $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-                $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+                $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
                 $inmueblesFacturar = InmuebleNit::with('inmueble.concepto', 'inmueble.zona')//INMUEBLES DEL NIT
                     ->where('id_nit', $nit->id_nit)
@@ -402,7 +402,7 @@ class FacturacionController extends Controller
                 $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
                     ->where('id_nit', $nit->id_nit)
                     ->whereDate("fecha_inicio", '<=', $inicioMes.'-01')
-                    ->whereDate("fecha_fin", '>=', $finmes)
+                    ->whereDate("fecha_fin", '>=', $finMes)
                     ->get();
 
                 $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
@@ -469,7 +469,7 @@ class FacturacionController extends Controller
         $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-        $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
@@ -478,7 +478,7 @@ class FacturacionController extends Controller
             'id_cuenta_ingreso' => $cuotaMultaFactura->concepto->id_cuenta_ingreso,
             'id_comprobante' => $id_comprobante_ventas,
             'id_centro_costos' => $cuotaMultaFactura->inmueble->zona->id_centro_costos,
-            'fecha_manual' => $finmes,
+            'fecha_manual' => $finMes,
             'documento_referencia' => $inicioMes,
             'valor' => $cuotaMultaFactura->valor_total,
             'concepto' => $cuotaMultaFactura->concepto->nombre_concepto.' '.$cuotaMultaFactura->observacion,
@@ -493,7 +493,7 @@ class FacturacionController extends Controller
         $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-        $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
 
         $facturaDetalle = FacturacionDetalle::create([
@@ -503,7 +503,7 @@ class FacturacionController extends Controller
             'id_cuenta_ingreso' => $inmuebleFactura->inmueble->concepto->id_cuenta_ingreso,
             'id_comprobante' => $id_comprobante_ventas,
             'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
-            'fecha_manual' => $finmes,
+            'fecha_manual' => $finMes,
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
             'valor' => $inmuebleFactura->valor_total,
             'concepto' => $inmuebleFactura->inmueble->concepto->nombre_concepto.' '.$inmuebleFactura->inmueble->nombre,
@@ -530,7 +530,7 @@ class FacturacionController extends Controller
         $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-        $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
 
         foreach ($this->facturas as $key => $facturacxp) {
@@ -543,7 +543,7 @@ class FacturacionController extends Controller
                 'id_cuenta_ingreso' => $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar,
                 'id_comprobante' => $id_comprobante_notas,
                 'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
-                'fecha_manual' => $finmes,
+                'fecha_manual' => $finMes,
                 'documento_referencia' => $documentoReferencia,
                 'documento_referencia_anticipo' => $facturacxp->documento_referencia,
                 'valor' => $totalCruce,
@@ -606,7 +606,7 @@ class FacturacionController extends Controller
             $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
             
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-            $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+            $finMes = date('Y-m-t', strtotime($periodo_facturacion));
             $valorTotal = $saldo * ($porcentaje_intereses_mora / 100);
             $valorTotalIntereses+= $valorTotal;
             //DEFINIR CONCEPTO DE INTERESES
@@ -621,7 +621,7 @@ class FacturacionController extends Controller
                 'id_cuenta_ingreso' => $id_cuenta_ingreso,
                 'id_comprobante' => $id_comprobante_ventas,
                 'id_centro_costos' => $inmuebleFactura->inmueble->zona->id_centro_costos,
-                'fecha_manual' => $finmes,
+                'fecha_manual' => $finMes,
                 'documento_referencia' => $inicioMes,
                 'valor' => $valorTotal,
                 'concepto' => 'INTERESES '.$concepto.' - '.$extracto->fecha_manual.' - %'.$porcentaje_intereses_mora.' - BASE: '.$saldo,
@@ -671,7 +671,7 @@ class FacturacionController extends Controller
     {
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-        $finmes = date('Y-m-t', strtotime($periodo_facturacion));
+        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
         return DB::connection('max')->table('cuotas_multas AS CM')
             ->select(
@@ -700,7 +700,7 @@ class FacturacionController extends Controller
                 $query->orWhereIn('CM.id_nit', $nitSsearch);
             })
             ->whereDate("CM.fecha_inicio", '<=', $inicioMes.'-01')
-            ->whereDate("CM.fecha_fin", '>=', $finmes);
+            ->whereDate("CM.fecha_fin", '>=', $finMes);
     }
 
     private function asignarNombreNit($dataFacturas)
