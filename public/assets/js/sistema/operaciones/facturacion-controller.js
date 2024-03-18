@@ -38,18 +38,21 @@ function facturacionInit() {
             {"data":'nombre_inmueble'},
             {"data":'area_inmueble'},
             {"data":'id_nit'},
-            {"data": function (row, type, set){  
-                if (row.tipo) {
-                    return 'INQUILINO'
+            {
+                data: 'tipo',
+                render: function (row, type, data){
+                    if (data.tipo) {
+                        return 'INQUILINO'
+                    }
+                    if (data.tipo_factura == 2) {
+                        return;
+                    }
+                    if (data.tipo_factura == 0) {
+                        return 'PROPIETARIO';
+                    }
+                    return ;
                 }
-                if (row.tipo_factura == 2) {
-                    return;
-                }
-                if (row.tipo_factura == 0) {
-                    return 'PROPIETARIO';
-                }
-                return ;
-            }},
+            },
             {"data":'porcentaje_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'nombre_concepto'},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'}
@@ -286,6 +289,18 @@ $(document).on('click', '#confirmarFacturacion', function () {
     });
 });
 
+$(document).on('click', '#reloadFacturacion', function () {
+    $("#reloadFacturacionIconNormal").hide();
+    $("#reloadFacturacionIconLoading").show();
+    facturacion_table.ajax.reload(function (res) {
+        getTotalesFacturacion();
+        setTimeout(function(){
+            $("#reloadFacturacionIconNormal").show();
+            $("#reloadFacturacionIconLoading").hide();
+        },500);
+    }); 
+});
+
 function facturarNitIndividual () {
 
     if (detenerFacturacion) return;
@@ -483,8 +498,6 @@ function getTotalesFacturacion(){
                 $('#textFacturacionCreate').text('GENERAR FACTURACIÓN '+ dateText);
                 $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
             }
-            
-            
 
             $('#validar_inmuebles_facturacion').text(numero_registro_unidades+ ' de '+numero_total_unidades);
             $('#validar_area_facturacion').text(parseFloat(area_registro_m2).toFixed(2)+ ' de '+area_total_m2);

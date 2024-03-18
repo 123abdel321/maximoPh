@@ -4,7 +4,11 @@
             <div class="row" style="z-index: 9;">
                 <div class="col-12 col-md-6 col-sm-6">
                     @can('cuotas_multas create')
-                        <button type="button" class="btn btn-primary btn-sm" id="createCuotasMultas">Agregar cuotas / multas</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="createCuotasMultas">Agregar cuotas extras & multas</button>
+                        <button type="button" class="btn btn-sm badge btn-light" id="reloadCuotasMultas" style="vertical-align: middle; height: 30px;">
+                            <i id="reloadCuotasMultasIconLoading" class="fa fa-refresh fa-spin" style="font-size: 17px; color: #2d3257; display: none;"></i>
+                            <i id="reloadCuotasMultasIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                        </button>
                     @endcan
                 </div>
                 <div class="col-12 col-md-6 col-sm-6">

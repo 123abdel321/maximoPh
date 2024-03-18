@@ -7,6 +7,10 @@
                     <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">CARGANDO FACTURACIÓN
                         <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
+                    <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadFacturacion">
+                        <i id="reloadFacturacionIconLoading" class="fa fa-refresh fa-spin" style="font-size: 17px; color: #2d3257; display: none;"></i>
+                        <i id="reloadFacturacionIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                    </button>
                 @endcan
             </div>
             <div class="col-12 col-md-4 col-sm-4" >

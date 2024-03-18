@@ -489,8 +489,8 @@ class InmuebleController extends Controller
                 DB::raw('COUNT(cuotas_multas.id) AS count')
             )
             ->leftJoin('concepto_facturacions', 'cuotas_multas.id_concepto_facturacion', 'concepto_facturacions.id')
-            ->whereDate('fecha_inicio', '<=', $inicioMes.'-01')
-            ->whereDate('fecha_fin', '>=', $finMes)
+            ->orWhereBetween("fecha_inicio", [$inicioMes, $finMes])
+            ->orWhereBetween("fecha_fin", [$inicioMes, $finMes])
             ->groupBy('cuotas_multas.id_concepto_facturacion')
             ->get();
 

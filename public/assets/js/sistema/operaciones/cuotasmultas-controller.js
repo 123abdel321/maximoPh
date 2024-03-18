@@ -422,7 +422,6 @@ function cuotasmultasInit() {
     });
 }
 
-
 function formatInmuebleSelection (inmueble) {
     var persona = '';
 
@@ -658,6 +657,19 @@ $(document).on('change', '#fecha_hasta_cuotas_multas', function () {
     cuotas_multas_table.context[0].jqXHR.abort();
     cuotas_multas_table.ajax.reload(function () {
         getTotalesCuotasMultas();
+    });
+});
+
+$(document).on('click', '#reloadCuotasMultas', function () {
+    console.log('reloadCuotasMultas');
+    $("#reloadCuotasMultasIconNormal").hide();
+    $("#reloadCuotasMultasIconLoading").show();
+    cuotas_multas_table.ajax.reload(function () {
+        getTotalesCuotasMultas();
+        setTimeout(function(){
+            $("#reloadCuotasMultasIconNormal").show();
+            $("#reloadCuotasMultasIconLoading").hide();
+        },500);
     });
 });
 

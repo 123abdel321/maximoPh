@@ -498,25 +498,6 @@ $(document).on('click', '#createInmueblesNit', function () {
     $("#inmuebleNitFormModal").modal('show');
 });
 
-function changeArea(){
-    if ($("#id_inmueble_up").val() && editar_valor_admon_inmueble) return;
-    setTimeout(function(){
-        var area = stringToNumberFloat($('#area_inmueble').val());
-
-        var coeficiente = area / area_total_m2 ;
-        var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual / 12);
-    
-        $('#coeficiente_inmueble').val(coeficiente);
-        $('#valor_total_administracion_inmueble').val(totalInmueble);
-        formatCurrency($('#valor_total_administracion_inmueble'));
-    },100);
-}
-
-function changePorcentajeNit(){
-    var totalPorcentajeInmueble = stringToNumberFloat($("#porcentaje_administracion_inmueble_nit").val()) / 100;
-    $('#valor_total_inmueble_nit').val(new Intl.NumberFormat("ja-JP").format(valor_inmueble * totalPorcentajeInmueble));
-}
-
 $(document).on('click', '#saveInmueble', function () {
     var form = document.querySelector('#inmueblesForm');
 
@@ -763,6 +744,25 @@ $(document).on('click', '#volverInmuebles', function () {
     getTotalesInmuebles();
 });
 
+function changeArea(){
+    if ($("#id_inmueble_up").val() && editar_valor_admon_inmueble) return;
+    setTimeout(function(){
+        var area = stringToNumberFloat($('#area_inmueble').val());
+
+        var coeficiente = area / area_total_m2 ;
+        var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual / 12);
+    
+        $('#coeficiente_inmueble').val(coeficiente);
+        $('#valor_total_administracion_inmueble').val(totalInmueble);
+        formatCurrency($('#valor_total_administracion_inmueble'));
+    },100);
+}
+
+function changePorcentajeNit(){
+    var totalPorcentajeInmueble = stringToNumberFloat($("#porcentaje_administracion_inmueble_nit").val()) / 100;
+    $('#valor_total_inmueble_nit').val(new Intl.NumberFormat("ja-JP").format(valor_inmueble * totalPorcentajeInmueble));
+}
+
 function getTotalesInmuebles(){
     if (buscarTotalesInmuebles) {
         buscarTotalesInmuebles.abort();
@@ -775,6 +775,7 @@ function getTotalesInmuebles(){
         dataType: 'json',
     }).done((res) => {
         buscarTotalesInmuebles = false;
+        console.log('res: ',res);
         if(res.success){
             var countA = new CountUp('inmuebles_registrados_inmueble', 0, res.data.numero_registro_unidades);
                 countA.start();
