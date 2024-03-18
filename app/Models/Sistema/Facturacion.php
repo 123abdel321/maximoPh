@@ -21,8 +21,11 @@ class Facturacion extends Model
         'valor',
         'valor_admon',
         'valor_intereses',
+        'count_intereses',
         'valor_anticipos',
         'valor_cuotas_multas',
+        'count_cuotas_multas',
+        'saldo_base',
         'anulado',
         'created_by',
         'updated_by'

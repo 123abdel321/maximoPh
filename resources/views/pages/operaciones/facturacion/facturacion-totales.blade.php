@@ -59,7 +59,7 @@
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
             <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
-            <div style="display: flex;">
+            <div style="display: flex; place-content: center;">
                 <h5 id="presupuesto_registrados_facturacion" class="font-weight-bolder">
                     0
                 </h5>

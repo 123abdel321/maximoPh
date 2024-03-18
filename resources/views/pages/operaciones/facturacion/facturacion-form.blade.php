@@ -1,4 +1,4 @@
-<div class="modal fade" id="facturacionFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade bd-example-modal-lg" id="facturacionFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,33 +8,68 @@
             </div>
             <div class="modal-body">
 
-                <div class="row">
-                    <div class="col-12 col-sm-12 col-md-12" >
-                        <h5 id="validar_inmuebles_facturacion" style="font-size: 15px; border-bottom: solid 1px #ebebeb; padding: 5px;"><h5>
-                        <i id="validar_inmuebles_facturacion_true" class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                        <i id="validar_inmuebles_facturacion_false" class="fas fa-times-circle" style="font-size: 20px; color: #d00404; float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                    </div>
-                    <div class="col-12 col-sm-12 col-md-12" >
-                        <h5 id="validar_area_facturacion" style="font-size: 15px; border-bottom: solid 1px #ebebeb; padding: 5px;"><h5>
-                        <i id="validar_area_facturacion_true" class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                        <i id="validar_area_facturacion_false" class="fas fa-times-circle" style="font-size: 20px; color: #d00404; float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                    </div>
-                    <div class="col-12 col-sm-12 col-md-12">
-                        <h5 id="validar_coeficiente_facturacion" style="font-size: 15px; border-bottom: solid 1px #ebebeb; padding: 5px;"><h5>
-                        <i id="validar_coeficiente_facturacion_true" class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                        <i id="validar_coeficiente_facturacion_false" class="fas fa-times-circle" style="font-size: 20px; color: #d00404; float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                    </div>
-                    <div class="col-12 col-sm-12 col-md-12">
-                        <h5 id="validar_presupuesto_facturacion" style="font-size: 15px; border-bottom: solid 1px #ebebeb; padding: 5px;"><h5>
-                        <i id="validar_presupuesto_facturacion_true" class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                        <i id="validar_presupuesto_facturacion_false" class="fas fa-times-circle" style="font-size: 20px; color: #d00404; float: inline-end; margin-top: -35px; display: none;" aria-hidden="true"></i>
-                    </div>
+                <table class="table table-bordered facturacion-totales-preview" width="100%" style="margin-top: 12px;">
+                    <tbody id="facturacion-totales-preview">
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Inmuebles</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="validar_inmuebles_facturacion">0</h5></td>
+                            <td>
+                                <h6 style="margin-bottom: 0px; float: right;">
+                                    <i id="validar_inmuebles_facturacion_true" class="fas fa-check-circle" style="font-size: 1.2rem; color: rgb(9, 208, 4); float: inline-end; display: none;" aria-hidden="true"></i>
+                                    <i id="validar_inmuebles_facturacion_false" class="fas fa-times-circle" style="font-size: 1.2rem; color: #d00404; float: inline-end; display: none;" aria-hidden="true"></i>
+                                </h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Area</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="validar_area_facturacion">0</h5></td>
+                            <td>
+                                <h6 style="margin-bottom: 0px; float: right;">
+                                    <i id="validar_area_facturacion_true" class="fas fa-check-circle" style="font-size: 1.2rem; color: rgb(9, 208, 4); float: inline-end; display: none;" aria-hidden="true"></i>
+                                    <i id="validar_area_facturacion_false" class="fas fa-times-circle" style="font-size: 1.2rem; color: #d00404; float: inline-end; display: none;" aria-hidden="true"></i>
+                                </h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Coheficiente</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="validar_coeficiente_facturacion">0</h5></td>
+                            <td>
+                                <h6 style="margin-bottom: 0px; float: right;">
+                                    <i id="validar_coeficiente_facturacion_true" class="fas fa-check-circle" style="font-size: 1.2rem; color: rgb(9, 208, 4); float: inline-end; display: none;" aria-hidden="true"></i>
+                                    <i id="validar_coeficiente_facturacion_false" class="fas fa-times-circle" style="font-size: 1.2rem; color: #d00404; float: inline-end; display: none;" aria-hidden="true"></i>
+                                </h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Presupuesto Mes</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="validar_presupuesto_facturacion">0</h5></td>
+                            <td>
+                                <h6 style="margin-bottom: 0px; float: right;">
+                                    <i id="validar_presupuesto_facturacion_true" class="fas fa-check-circle" style="font-size: 1.2rem; color: rgb(9, 208, 4); float: inline-end; display: none;" aria-hidden="true"></i>
+                                    <i id="validar_presupuesto_facturacion_false" class="fas fa-times-circle" style="font-size: 1.2rem; color: #d00404; float: inline-end; display: none;" aria-hidden="true"></i>
+                                </h6>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Saldo anterior</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="validar_saldo_anterior_facturacion">0</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right;" id="text_count_saldo_anterior_facturacion"></h5></td>
+                        </tr>
 
-                    <div id="div_total_multas_facturacion" class="col-12 col-sm-12 col-md-12">
-                        <h5 id="text_total_multas_facturacion" style="font-size: 15px; border-bottom: solid 1px #ebebeb; padding: 5px;"><h5>
-                        <i class="fas fa-check-circle" style="font-size: 20px; color: rgb(9, 208, 4); float: inline-end; margin-top: -35px;" aria-hidden="true"></i>
-                    </div>
-                </div>
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Intereses</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="text_total_intereses_facturacion">0</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right;" id="text_count_intereses_facturacion"></h5></td>
+                        </tr>
+
+                        <tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">Anticipos</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;" id="text_total_anticipos_facturacion">0</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right;" id="text_count_anticipos_facturacion"></h5></td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
 
             </div>
             <div class="modal-footer">

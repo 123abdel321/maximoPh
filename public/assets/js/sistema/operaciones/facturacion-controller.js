@@ -87,8 +87,10 @@ function facturacionInit() {
         columns: [
             {"data":'documento_nit'},
             {"data":'nombre_nit'},
+            {"data":'valor_anticipos', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'numero_inmuebles'},
             {"data":'valor_inmuebles', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'saldo_base', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'total_intereses', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'total_cuotas_multas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             // {"data":'mensajes'},
@@ -127,6 +129,23 @@ $(document).on('click', '#generateFacturacion', function () {
     $("#facturacionFormModal").modal('show');
 });
 
+$(document).on('click', '#volverFacturacion', function () {
+    $("#volverFacturacion").hide();
+    $("#continuarFacturacion").hide();
+    $("#saveFacturacionLoading").hide();
+    $("#tablas_facturacion_view").show();
+    $("#header_facturacion_view").show();
+    $("#totales_facturacion_view").show();
+    $("#confirmarFacturacionDisabled").hide();
+    
+    $("#saveFacturacion").show();
+    $("#detenerFacturacion").hide();
+    $("#header_procesando_view").hide();
+    $("#tablas_procesando_view").hide();
+    $("#totales_procesando_facturacion_view").hide();
+});
+
+
 $(document).on('click', '#reprocesarFacturacion', function () {
     $.ajax({
         url: base_url + 'facturacion-proceso',
@@ -136,6 +155,7 @@ $(document).on('click', '#reprocesarFacturacion', function () {
         dataType: 'json',
     }).done((res) => {
         if(res.success){
+            $("#volverFacturacion").hide();
             $("#detenerFacturacion").hide();
             $("#continuarFacturacion").hide();
             $("#confirmarFacturacion").hide();
@@ -209,12 +229,14 @@ $(document).on('click', '#saveFacturacion', function () {
 
 $(document).on('click', '#detenerFacturacion', function () {
     detenerFacturacion = true;
+    $('#volverFacturacion').show();
     $('#detenerFacturacion').hide();
     $('#continuarFacturacion').show();
 });
 
 $(document).on('click', '#continuarFacturacion', function () {
     detenerFacturacion = false;
+    $('#volverFacturacion').hide();
     $('#detenerFacturacion').show();
     $('#continuarFacturacion').hide();
     facturarNitIndividual ();
@@ -274,14 +296,12 @@ function facturarNitIndividual () {
     
     do {
         var dataNitFactura = nitsFacturando[nitsFacturados];
-
-        facturacion_proceso_table.row.add(
-            dataNitFactura
-        ).draw(false);
-
+        
         if (dataNitFactura.estado == 1) {
-            calcular = true;
             nitsFacturados++;
+            calcular = true;
+            dataNitFactura.total_factura = (dataNitFactura.saldo_base + dataNitFactura.total_cuotas_multas + dataNitFactura.valor_inmuebles) - dataNitFactura.valor_anticipos
+            dataNitFactura.estado = 1;
             totalesProcesando.total_facturados++;
             totalesProcesando.valor_admon_facturados+= parseFloat(dataNitFactura.total_factura);
             totalesProcesando.valor_otros_facturados+= parseFloat(dataNitFactura.total_cuotas_multas);
@@ -289,17 +309,22 @@ function facturarNitIndividual () {
         } else {
             continues = true;
         }
+
+        facturacion_proceso_table.row.add(
+            dataNitFactura
+        ).draw(false);
         
         if (nitsFacturados >= nitsFacturando.length) {
             facturar = false;
             continues = true;
         }
+
+        if (calcular) actualizarTotalesProcesandoNull();
         
     } while (continues == false);
 
-    if (calcular) actualizarTotalesProcesandoNull();
-
     if (!facturar) {
+        $('#volverFacturacion').show();
         $('#detenerFacturacion').hide();
         $('#continuarFacturacion').hide();
         $('#reprocesarFacturacion').show();
@@ -330,13 +355,17 @@ function facturarNitIndividual () {
                 if(res.success){
                     $('#detenerFacturacion').hide();
                     $('#continuarFacturacion').hide();
-                    $('#reprocesarFacturacion').show();
+
+                    $('#volverFacturacion').show();
                     $('#confirmarFacturacion').show();
+                    $('#reprocesarFacturacion').show();
                     agregarToast('exito', 'Facturación exitosa', 'Facturación generada con exito!', true);
                 }
             }
         }
     }).fail((err) => {
+        facturacion_proceso_table.row(nitsFacturados).remove().draw();
+        document.getElementById('detenerFacturacion').click();
         var errorsMsg = "";
         var mensaje = err.responseJSON.message;
         if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
@@ -426,27 +455,50 @@ function getTotalesFacturacion(){
         if(res.success){
             var dateText = generateTextYear(res.data.periodo_facturacion);
 
-            $('#textFacturacionCreate').text('GENERAR FACTURACIÓN '+ dateText);
-            $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
+            
             $('#div_total_multas_facturacion').hide();
 
             var numero_registro_unidades = res.data.numero_registro_unidades;
             var numero_total_unidades = res.data.numero_total_unidades;
             var area_registro_m2 = res.data.area_registro_m2;
-            var area_total_m2 = parseInt(res.data.area_total_m2);
+            var area_total_m2 = res.data.area_total_m2;
             var valor_registro_coeficiente = res.data.valor_registro_coeficiente;
             var valor_registro_presupuesto = res.data.valor_registro_presupuesto;
             var valor_total_presupuesto = res.data.valor_total_presupuesto / 12;
-            var total_multas = res.data.total_multas;
+            var total_intereses = res.data.total_intereses;
+            var count_intereses = res.data.count_intereses;
+            var conceptos_facturacion = res.data.totales_concepto_facturacion;
+            var extras_multas = res.data.totales_extras_multas;
+            var saldo_anterior = res.data.saldo_anterior;
+            var count_saldo_anterior = res.data.count_saldo_anterior;
+            var total_anticipos = res.data.total_anticipos;
+            var count_anticipos = res.data.count_anticipos;
 
-            $('#validar_inmuebles_facturacion').text('Inmuebles totales: '+numero_registro_unidades+ ' de '+numero_total_unidades);
-            $('#validar_area_facturacion').text('Area total: '+area_registro_m2+ ' de '+area_total_m2);
-            $('#validar_coeficiente_facturacion').text('Coreficiente total: '+valor_registro_coeficiente+ '% de 100%');
-            $('#validar_presupuesto_facturacion').text('Valor administracion total: '+new Intl.NumberFormat("ja-JP").format(valor_registro_presupuesto)+ ' de '+new Intl.NumberFormat("ja-JP").format(valor_total_presupuesto));
-            if (total_multas) {
-                $('#div_total_multas_facturacion').show();
-                $('#text_total_multas_facturacion').text('Total multas: '+new Intl.NumberFormat("ja-JP").format(total_multas))    
+            if (res.data.existe_facturacion) {
+                $('#saveFacturacion').text('Validar Facturación');
+                $('#textFacturacionCreate').text('VALIDAR FACTURACIÓN '+ dateText);
+                $('#generateFacturacion').text('VALIDAR FACTURACIÓN '+ dateText);
+            } else {
+                $('#saveFacturacion').text('Generar Facturación');
+                $('#textFacturacionCreate').text('GENERAR FACTURACIÓN '+ dateText);
+                $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
             }
+            
+            
+
+            $('#validar_inmuebles_facturacion').text(numero_registro_unidades+ ' de '+numero_total_unidades);
+            $('#validar_area_facturacion').text(parseFloat(area_registro_m2).toFixed(2)+ ' de '+area_total_m2);
+            $('#validar_coeficiente_facturacion').text(parseFloat(valor_registro_coeficiente).toFixed(2)+ '% de 100%');
+            $('#validar_presupuesto_facturacion').text('$'+new Intl.NumberFormat("ja-JP").format(valor_registro_presupuesto)+ ' de $'+new Intl.NumberFormat("ja-JP").format(valor_total_presupuesto));
+
+            $('#validar_saldo_anterior_facturacion').text('$'+new Intl.NumberFormat("ja-JP").format(saldo_anterior));
+            $('#text_count_saldo_anterior_facturacion').text(new Intl.NumberFormat("ja-JP").format(count_saldo_anterior));
+
+            $('#text_total_intereses_facturacion').text('$'+new Intl.NumberFormat("ja-JP").format(total_intereses));
+            $('#text_count_intereses_facturacion').text(new Intl.NumberFormat("ja-JP").format(count_intereses));
+
+            $('#text_total_anticipos_facturacion').text('$'+new Intl.NumberFormat("ja-JP").format(total_anticipos));
+            $('#text_count_anticipos_facturacion').text(new Intl.NumberFormat("ja-JP").format(count_anticipos));
             
             if (numero_registro_unidades != numero_total_unidades) {
                 $("#validar_inmuebles_facturacion_false").show();
@@ -478,6 +530,36 @@ function getTotalesFacturacion(){
             } else {
                 $("#validar_presupuesto_facturacion_false").hide();
                 $("#validar_presupuesto_facturacion_true").show();
+            }
+
+            if (conceptos_facturacion.length) {
+                for (let index = 0; index < conceptos_facturacion.length; index++) {
+                    var concepto = conceptos_facturacion[index];
+                    var item = document.createElement('tr');
+                    item.innerHTML = [
+                        `<tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">${toCamelCase(concepto.nombre_concepto)}</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;">$${new Intl.NumberFormat("ja-JP").format(concepto.valor_total)}</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right;" id="text_count_intereses_facturacion">${concepto.count}</h5></td>
+                        </tr>`
+                    ].join('');
+                    document.getElementById('facturacion-totales-preview').insertBefore(item, null);
+                }
+            }
+
+            if (extras_multas.length) {
+                for (let index = 0; index < extras_multas.length; index++) {
+                    var extras = extras_multas[index];
+                    var item = document.createElement('tr');
+                    item.innerHTML = [
+                        `<tr>
+                            <td><h5 style="margin-bottom: 0px; font-size: 1.2rem;">${toCamelCase(extras.nombre_concepto)}</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right; font-size: 1.2rem;">$${new Intl.NumberFormat("ja-JP").format(extras.valor_total)}</h5></td>
+                            <td><h5 style="margin-bottom: 0px; float: right;" id="text_count_intereses_facturacion">${extras.count}</h5></td>
+                        </tr>`
+                    ].join('');
+                    document.getElementById('facturacion-totales-preview').insertBefore(item, null);
+                }
             }
             
             var countA = new CountUp('inmuebles_registrados_facturacion', 0, res.data.numero_registro_unidades);

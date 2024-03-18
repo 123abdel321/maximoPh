@@ -3,8 +3,10 @@
         <tr>
             <th style="border-radius: 15px 0px 0px 0px !important;">Documento</th>
             <th>Nombre</th>
+            <th>Anticipos</th>
             <th>Inmuebles</th>
             <th>Valor admon</th>
+            <th>Saldo base</th>
             <th>Valor intereses</th>
             <th>Otras cuotas</th>
             <!-- <th>Mensaje</th> -->

@@ -736,3 +736,10 @@ div.dataTables_processing {
 .button-totals:hover {
     background-color: #f2fff0 !important;
 }
+
+.back-icon-button {
+    position: absolute;
+    margin-left: -15px;
+    margin-top: 2px;
+    font-size: 14px;
+}

@@ -4,7 +4,7 @@
         <div id="header_facturacion_view" class="row" style="z-index: 9;">
             <div class="col-12 col-md-8 col-sm-8">
                 @can('facturacion create')
-                    <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">GENERAR FACTURACIÓN
+                    <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">CARGANDO FACTURACIÓN
                         <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
                 @endcan
@@ -16,6 +16,10 @@
 
         <div id="header_procesando_view" class="row" style="z-index: 9; display: none;">
             <div class="col-12 col-md-12 col-sm-12">
+                <button type="button" class="btn btn-dark btn-sm" id="volverFacturacion" style="display: none;">
+                    <i class="fas fa-step-backward back-icon-button"></i>&nbsp;
+                    Volver
+                </button>
                 <button type="button" class="btn btn-danger btn-sm" id="detenerFacturacion">
                     Detener facturación
                 </button>
@@ -62,7 +66,7 @@
             </div>
         </div>
 
-        <div id="tablas_procesando_view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px; display: none; max-height: 400px;">
+        <<div id="table-products-view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px; display: none;">
             <div class="card-body">
                 
                 @include('pages.operaciones.facturacion.facturacion-proceso-table')
