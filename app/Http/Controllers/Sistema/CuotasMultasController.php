@@ -77,26 +77,18 @@ class CuotasMultasController extends Controller
                 });
 
             if ($request->get('search')) {
+                $nitSsearch = $this->nitsSearch($request->get('search'));
                 $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-                $cuotasMultas->whereHas('nit',  function ($query) use($empresa, $request) {
-                    $query->from("$empresa->token_db_portafolio.nits")
-                        ->where('primer_nombre', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhere('razon_social', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhere('otros_nombres', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhere('primer_apellido', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhere('segundo_apellido', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhere('numero_documento', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhere('email', 'LIKE', '%'.$request->get('search').'%');
-                })
-                ->orWhereHas('concepto',  function ($query) use($request) {
-                    $query->where('nombre_concepto', 'LIKE', '%'.$request->get('search').'%');
-                })
-                ->orWhereHas('inmueble',  function ($query) use($request) {
-                    $query->where('nombre', 'LIKE', '%'.$request->get('search').'%')
-                        ->orWhereHas('zona',  function ($q) use($request) {
-                            $q->where('nombre', 'LIKE', '%'.$request->get('search').'%');
-                        });
-                });
+                $cuotasMultas->whereIn('id_nit', $nitSsearch)
+                    ->orWhereHas('concepto',  function ($query) use($request) {
+                        $query->where('nombre_concepto', 'LIKE', '%'.$request->get('search').'%');
+                    })
+                    ->orWhereHas('inmueble',  function ($query) use($request) {
+                        $query->where('nombre', 'LIKE', '%'.$request->get('search').'%')
+                            ->orWhereHas('zona',  function ($q) use($request) {
+                                $q->where('nombre', 'LIKE', '%'.$request->get('search').'%');
+                            });
+                    });
             }
 
             $cuotasMultasTotals = $cuotasMultas->get();
@@ -390,5 +382,28 @@ class CuotasMultasController extends Controller
             'success'=>	true,
             'data' => $data
         ]);
+    }
+
+    private function nitsSearch($search)
+    {
+        $data = [];
+        $nits = DB::connection('sam')->table('nits')->select('id')
+            ->where('razon_social', 'LIKE', '%'.$search.'%')
+            ->orWhere('numero_documento', 'LIKE', '%'.$search.'%')
+            ->orWhere(DB::raw("(CASE
+                WHEN razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                WHEN (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, otros_nombres, primer_apellido, segundo_apellido)
+                ELSE NULL
+            END)"), 'LIKE', '%'.$search.'%')
+            ->orWhere('email', 'LIKE', '%'.$search.'%')
+            ->get()->toArray();
+
+        if (count($nits)) {
+            foreach ($nits as $nit) {
+                $data[] = $nit->id;
+            }
+        }
+
+        return $data;        
     }
 }
