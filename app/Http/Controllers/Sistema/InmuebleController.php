@@ -320,9 +320,16 @@ class InmuebleController extends Controller
             );
 
         if ($request->get("search")) {
-            $inmuebles->where('nombre', 'LIKE', '%' . $request->get("q") . '%')
-                ->orWhere('area', 'LIKE', '%' . $request->get("q") . '%')
-                ->orWhere('coeficiente', 'LIKE', '%' . $request->get("q") . '%');
+            $nitSsearch = $this->nitsSearch($request->get('search'));
+            if (count($nitSsearch)) {
+                $inmuebles->whereHas('personas',  function ($query) use($nitSsearch) {
+                    $query->whereIn('id_nit', $nitSsearch);
+                });
+            } else {
+                $inmuebles->orWhere('nombre', 'LIKE', '%' . $request->get("q") . '%')
+                    ->orWhere('area', 'LIKE', '%' . $request->get("q") . '%')
+                    ->orWhere('coeficiente', 'LIKE', '%' . $request->get("q") . '%');
+            }
         }
 
         return $inmuebles->paginate(40);

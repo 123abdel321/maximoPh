@@ -68,7 +68,7 @@
 
                         <div id="input_valor_cuotas_multas" style="display: none;" class="form-group col-12 col-sm-6 col-md-4">
                             <label for="example-text-input" class="form-control-label">Valor<span style="color: red">*</span></label>
-                            <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_cuotas_multas" id="valor_cuotas_multas" value="0">
+                            <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_cuotas_multas" id="valor_cuotas_multas" onfocus="this.select();" value="0">
                         </div>
 
                         <div id="input_observacion_cuotas_multas" style="display: none;" class="form-group col-12 col-sm-6 col-md-4">

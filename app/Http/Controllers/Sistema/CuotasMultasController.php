@@ -70,13 +70,10 @@ class CuotasMultasController extends Controller
                     'created_by',
                     'updated_by'
                 )
-                ->when($filtro1, function ($query) use($request) {
-                    $query->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-                        ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-                        ;
-                })
+                ->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
+                ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
                 ->when($request->get('id_concepto'), function ($query) use($request) {
-                    $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));
+                    $query->where('id_concepto_facturacion', $request->get('id_concepto'));
                 });
 
             if ($request->get('search')) {
@@ -352,26 +349,13 @@ class CuotasMultasController extends Controller
     public function totales (Request $request)
     {
         $filtro1 = $request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
-        $filtro2 = !$request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
-        $filtro3 = $request->get('fecha_desde') && !$request->get('fecha_hasta') ? true : false;
-
-        // $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         
         $cuotasMultas = CuotasMultas::select(
                 DB::raw("SUM(valor_total) AS valor_total")
             )
             ->when($filtro1, function ($query) use($request) {
-                $query->whereBetween('fecha_fin', [$request->get('fecha_desde') ,$request->get('fecha_hasta')])
-                    ->orWhereDate('fecha_inicio', '>=', $request->get('fecha_desde'));
-            })
-            ->when($filtro2, function ($query) use($request) {
-                $query->whereDate('fecha_fin', '<=', $request->get('fecha_hasta'));
-            })
-            ->when($filtro3, function ($query) use($request) {
-                $query->whereDate('fecha_inicio', '>=', $request->get('fecha_desde'));
-            })
-            ->when($request->get('id_concepto'), function ($query) use($request) {
-                $query->where('id_concepto_facturacion', '>=', $request->get('id_concepto'));
+                $query->orWhereBetween('fecha_fin', [$request->get('fecha_desde') , $request->get('fecha_hasta')])
+                    ->orWhereBetween('fecha_inicio', [$request->get('fecha_desde') , $request->get('fecha_hasta')]);
             });
 
         if ($request->get('search')) {
