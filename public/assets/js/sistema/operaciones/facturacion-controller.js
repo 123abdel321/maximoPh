@@ -37,6 +37,7 @@ function facturacionInit() {
             {"data":'nombre_inmueble', visible: false},
             {"data":'nombre_inmueble'},
             {"data":'area_inmueble'},
+            {"data":'numero_documento'},
             {"data":'id_nit'},
             {
                 data: 'tipo',
@@ -359,9 +360,6 @@ function facturarNitIndividual () {
             facturacion_proceso_table.row(nitsFacturados).data(dataRow);
             nitsFacturados++;
             
-            setTimeout(function(){
-                document.getElementById("tablas_procesando_view").scrollTop = 9999999;
-            },80);
             actualizarTotalesProcesando(dataRow);
             
             if (nitsFacturando.length >= nitsFacturados+1) {

@@ -707,7 +707,8 @@ class FacturacionController extends Controller
     {
         foreach ($dataFacturas as $dataFactura) {
             $nit = Nits::find($dataFactura->id_nit);
-            $dataFactura->id_nit = $nit->numero_documento.' - '.$nit->nombre_completo;
+            $dataFactura->numero_documento = $nit->numero_documento;
+            $dataFactura->id_nit = $nit->nombre_completo;
         }
         return $dataFacturas;
     }
