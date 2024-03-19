@@ -4,6 +4,7 @@
             <th style="display: none;"></th>
             <th style="border-radius: 15px 0px 0px 0px !important;">Inmueble</th>
             <th>Area M2</th>
+            <th>Documento</th>
             <th>Persona</th>
             <th>Tipo</th>
             <th>Total %</th>
