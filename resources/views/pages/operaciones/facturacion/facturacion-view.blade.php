@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <<div id="table-products-view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px; display: none;">
+        <div id="tablas_procesando_view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px; display: none;">
             <div class="card-body">
                 
                 @include('pages.operaciones.facturacion.facturacion-proceso-table')
