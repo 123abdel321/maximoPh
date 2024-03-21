@@ -1,3 +1,12 @@
+<style>
+    .table-facturacion thead th {
+        padding: 0.3rem 1.2rem !important;
+    }
+
+    .table-facturacion > :not(caption) > * > * {
+        padding: 0.1rem 0.1rem;
+    }
+</style>
 <div class="container-fluid py-2">
     <div class="row">
 
@@ -7,38 +16,13 @@
                     <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">CARGANDO FACTURACIÓN
                         <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
+                    <button type="button" class="btn btn-danger btn-sm" id="detenerFacturacion" style="display: none;">
+                    </button>
                     <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadFacturacion">
                         <i id="reloadFacturacionIconLoading" class="fa fa-refresh fa-spin" style="font-size: 17px; color: #2d3257; display: none;"></i>
                         <i id="reloadFacturacionIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
                     </button>
                 @endcan
-            </div>
-            <div class="col-12 col-md-4 col-sm-4" >
-                <input type="text" id="searchInputFacturacion" class="form-control form-control-sm search-table" onkeydown="searchFacturacion(event)" placeholder="Buscar">
-            </div>
-        </div>
-
-        <div id="header_procesando_view" class="row" style="z-index: 9; display: none;">
-            <div class="col-12 col-md-12 col-sm-12">
-                <button type="button" class="btn btn-dark btn-sm" id="volverFacturacion" style="display: none;">
-                    <i class="fas fa-step-backward back-icon-button"></i>&nbsp;
-                    Volver
-                </button>
-                <button type="button" class="btn btn-danger btn-sm" id="detenerFacturacion">
-                    Detener facturación
-                </button>
-                <button type="button" class="btn btn-primary btn-sm" id="continuarFacturacion" style="display: none;">
-                    Continuar facturación
-                </button>
-                <button type="button" class="btn btn-warning btn-sm" id="reprocesarFacturacion" style="display: none;">
-                    Volver a facturar
-                </button>
-                <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacion" style="display: none;">
-                    Confirmar facturación
-                </button>
-                <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacionDisabled" style="display: none;" disabled>
-                    Confirmar facturación <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
-                </button>
             </div>
         </div>
 
@@ -54,31 +38,119 @@
             </div>
         </div>
 
-        <div id="tablas_facturacion_view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
+        <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
-                
-                @include('pages.operaciones.facturacion.facturacion-table')
+
+                <table id="tabla_inmuebles_preview" class="table table-bordered display responsive table-facturacion" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
+                            <th>Esperado</th>
+                            <th>Causado</th>
+                            <th>Items</th>
+                            <th>Diferencia</th>
+                            <th style="border-radius: 0px 15px 0px 0px !important;">Items</th>
+                        </tr>
+                    </thead>
+                </table>
 
             </div>
         </div>
 
-        <div id="totales_procesando_facturacion_view" style="content-visibility: auto; overflow: auto; display: none; margin-top: -5px;">
-            <div class="row ">
-
-                @include('pages.operaciones.facturacion.facturacion-proceso-totales')
-
-            </div>
-        </div>
-
-        <div id="tablas_procesando_view" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px; display: none;">
+        <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
-                
-                @include('pages.operaciones.facturacion.facturacion-proceso-table')
+
+                <table id="tabla_extras_preview" class="table table-bordered display responsive table-facturacion" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
+                            <th>Esperado</th>
+                            <th>Causado</th>
+                            <th>Items</th>
+                            <th>Diferencia</th>
+                            <th style="border-radius: 0px 15px 0px 0px !important;">Items</th>
+                        </tr>
+                    </thead>
+                </table>
 
             </div>
         </div>
 
-        @include('pages.operaciones.facturacion.facturacion-form')
+        <!-- <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
+            <div class="card-body">
+                <table id="tabla_other_preview" class="table table-bordered display responsive table-facturacion" style="color: black;" width="100%">
+                    <thead >
+                        <tr>
+                            <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
+                            <th>Items</th>
+                            <th style="border-radius: 0px 15px 0px 0px !important;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SALDO ANTICIPOS</td>
+                            <td style="text-align: end;" id="count_anticipos">0</td>
+                            <td style="text-align: end;" id="total_anticipos">0</td>
+                        </tr>
+                        <tr>
+                            <td>DEUDA ACTUAL</td>
+                            <td style="text-align: end;" id="count_saldo_anterior">0</td>
+                            <td style="text-align: end;" id="total_saldo_anterior">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> -->
+
+        <div class="col-12 col-sm-6 col-md-6" style="margin-top: 5px; padding-bottom: 5px;">
+            <div class="card" style="height: 100%;">
+                <div class="card-body p-2">
+                    <p class="text-sm mb-0 text-uppercase font-weight-bold">SALDO ANTICIPOS</p>
+                    <div style="display: flex;">
+                        <h5 class="font-weight-bolder">
+                            Items: 
+                        </h5>&nbsp;
+                        <h5 id="count_anticipos" class="font-weight-bolder">
+                            0
+                        </h5>&nbsp;
+                        <h5 class="font-weight-bolder">
+                            - Total: 
+                        </h5>&nbsp;
+                        <h5 id="total_anticipos" class="font-weight-bolder">
+                            0
+                        </h5>
+                    </div>
+                    <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
+                        <i class="far fa-credit-card text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-6" style="margin-top: 5px; padding-bottom: 5px;">
+            <div class="card" style="height: 100%;">
+                <div class="card-body p-2">
+                    <p class="text-sm mb-0 text-uppercase font-weight-bold">DEUDA ACTUAL</p>
+                    <div style="display: flex;">
+                        <h5 class="font-weight-bolder">
+                            Items: 
+                        </h5>&nbsp;
+                        <h5 id="count_saldo_anterior" class="font-weight-bolder">
+                            0
+                        </h5>&nbsp;
+                        <h5 class="font-weight-bolder">
+                            - Total: 
+                        </h5>&nbsp;
+                        <h5 id="total_saldo_anterior" class="font-weight-bolder">
+                            0
+                        </h5>
+                    </div>
+                    <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
+                        <i class="fas fa-wallet text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>

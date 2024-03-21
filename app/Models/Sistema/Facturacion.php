@@ -26,6 +26,7 @@ class Facturacion extends Model
         'valor_cuotas_multas',
         'count_cuotas_multas',
         'saldo_base',
+        'mensajes',
         'anulado',
         'created_by',
         'updated_by'

@@ -82,6 +82,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(FacturacionController::class)->group(function () {
             Route::get('facturacion', 'read');
             Route::post('facturacion', 'generar');
+            Route::get('facturacion-preview', 'totales');
             Route::get('facturacion-proceso', 'readDetalle');
             Route::post('facturacion-confirmar', 'confirmar');
             Route::post('facturacion-individual', 'generarIndividual');

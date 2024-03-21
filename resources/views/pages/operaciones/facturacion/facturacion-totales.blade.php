@@ -1,4 +1,4 @@
-<div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+<div class="col-12 col-sm-6 col-md-2" style="margin-top: 5px; padding-bottom: 5px;">
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
             <p class="text-sm mb-0 text-uppercase font-weight-bold">Inmuebles Registrados</p>
@@ -55,11 +55,11 @@
     </div>
 </div>
 
-<div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+<div class="col-12 col-sm-6 col-md-4" style="margin-top: 5px; padding-bottom: 5px;">
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
             <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
-            <div style="display: flex; place-content: center;">
+            <div style="display: flex;">
                 <h5 id="presupuesto_registrados_facturacion" class="font-weight-bolder">
                     0
                 </h5>
