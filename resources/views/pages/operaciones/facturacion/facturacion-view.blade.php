@@ -11,7 +11,7 @@
     <div class="row">
 
         <div id="header_facturacion_view" class="row" style="z-index: 9;">
-            <div class="col-12 col-md-8 col-sm-8">
+            <div class="col-12 col-md-12 col-sm-12">
                 @can('facturacion create')
                     <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">CARGANDO FACTURACIÓN
                         <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
@@ -21,6 +21,12 @@
                     <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadFacturacion">
                         <i id="reloadFacturacionIconLoading" class="fa fa-refresh fa-spin" style="font-size: 17px; color: #2d3257; display: none;"></i>
                         <i id="reloadFacturacionIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacion" style="display: none;">
+                        Confirmar facturación
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacionDisabled" style="display: none;" disabled>
+                        Confirmar facturación <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
                 @endcan
             </div>
@@ -41,13 +47,24 @@
         <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
 
+                <div id="progress_bar" class="progress-wrapper" style="padding: 10px; display: none;">
+                    <div class="progress-info">
+                        <div class="progress-percentage" style="text-align: center;">
+                            <span id="text_progress_bar" class="text-sm font-weight-bold" style="color: black;"></span>
+                        </div>
+                    </div>
+                    <div class="progress">
+                        <div id="width_progress_bar"class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
+                    </div>
+                </div>
+
                 <table id="tabla_inmuebles_preview" class="table table-bordered display responsive table-facturacion" width="100%">
                     <thead>
                         <tr>
                             <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
+                            <th>Items</th>
                             <th>Esperado</th>
                             <th>Causado</th>
-                            <th>Items</th>
                             <th>Diferencia</th>
                             <th style="border-radius: 0px 15px 0px 0px !important;">Items</th>
                         </tr>
@@ -59,96 +76,33 @@
 
         <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
-
-                <table id="tabla_extras_preview" class="table table-bordered display responsive table-facturacion" width="100%">
-                    <thead>
-                        <tr>
-                            <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
-                            <th>Esperado</th>
-                            <th>Causado</th>
-                            <th>Items</th>
-                            <th>Diferencia</th>
-                            <th style="border-radius: 0px 15px 0px 0px !important;">Items</th>
-                        </tr>
-                    </thead>
-                </table>
-
-            </div>
-        </div>
-
-        <!-- <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
-            <div class="card-body">
                 <table id="tabla_other_preview" class="table table-bordered display responsive table-facturacion" style="color: black;" width="100%">
                     <thead >
                         <tr>
                             <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
                             <th>Items</th>
-                            <th style="border-radius: 0px 15px 0px 0px !important;">Total</th>
+                            <th>Valor actual</th>
+                            <th>Caausado</th>
+                            <th style="border-radius: 0px 15px 0px 0px !important;">Nuevo saldo</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <body >
                         <tr>
-                            <td>SALDO ANTICIPOS</td>
-                            <td style="text-align: end;" id="count_anticipos">0</td>
-                            <td style="text-align: end;" id="total_anticipos">0</td>
+                            <td style="font-weight: 600;">ANTICIPOS</td>
+                            <td style="text-align: end;" id="anticipos_items">0</td>
+                            <td style="text-align: end;" id="anticipos_valor">0</td>
+                            <td style="text-align: end;" id="anticipos_causado">0</td>
+                            <td style="text-align: end;" id="anticipos_nuevo_saldo">0</td>
                         </tr>
                         <tr>
-                            <td>DEUDA ACTUAL</td>
-                            <td style="text-align: end;" id="count_saldo_anterior">0</td>
-                            <td style="text-align: end;" id="total_saldo_anterior">0</td>
+                            <td style="font-weight: 600;">SALDO ACTUAL</td>
+                            <td style="text-align: end;" id="saldo_items">0</td>
+                            <td style="text-align: end;" id="saldo_valor">0</td>
+                            <td style="text-align: end; font-weight: bold;" id="saldo_causado">0</td>
+                            <td style="text-align: end; font-weight: bold; color: green;" id="saldo_nuevo_saldo">0</td>
                         </tr>
-                    </tbody>
+                    </body>
                 </table>
-            </div>
-        </div> -->
-
-        <div class="col-12 col-sm-6 col-md-6" style="margin-top: 5px; padding-bottom: 5px;">
-            <div class="card" style="height: 100%;">
-                <div class="card-body p-2">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bold">SALDO ANTICIPOS</p>
-                    <div style="display: flex;">
-                        <h5 class="font-weight-bolder">
-                            Items: 
-                        </h5>&nbsp;
-                        <h5 id="count_anticipos" class="font-weight-bolder">
-                            0
-                        </h5>&nbsp;
-                        <h5 class="font-weight-bolder">
-                            - Total: 
-                        </h5>&nbsp;
-                        <h5 id="total_anticipos" class="font-weight-bolder">
-                            0
-                        </h5>
-                    </div>
-                    <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                        <i class="far fa-credit-card text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-6" style="margin-top: 5px; padding-bottom: 5px;">
-            <div class="card" style="height: 100%;">
-                <div class="card-body p-2">
-                    <p class="text-sm mb-0 text-uppercase font-weight-bold">DEUDA ACTUAL</p>
-                    <div style="display: flex;">
-                        <h5 class="font-weight-bolder">
-                            Items: 
-                        </h5>&nbsp;
-                        <h5 id="count_saldo_anterior" class="font-weight-bolder">
-                            0
-                        </h5>&nbsp;
-                        <h5 class="font-weight-bolder">
-                            - Total: 
-                        </h5>&nbsp;
-                        <h5 id="total_saldo_anterior" class="font-weight-bolder">
-                            0
-                        </h5>
-                    </div>
-                    <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                        <i class="fas fa-wallet text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
-                    </div>
-                </div>
             </div>
         </div>
 

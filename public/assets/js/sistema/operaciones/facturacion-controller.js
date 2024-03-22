@@ -1,11 +1,16 @@
 var cuotasData = [];
 var inmueblesData = [];
+var saldosTotales = [];
 var nitsFacturados = 0;
 var nitsFacturando = [];
 var facturandoPersona = false;
 var detenerFacturacion = false;
 
 function facturacionInit() {
+    saldosTotales = [
+        {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 0; ANTICIPOS
+        {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 1; SALDO ACTUAL
+    ];
     getFacturacionData();
     $('.water').hide();
 }
@@ -18,6 +23,7 @@ function getFacturacionData() {
         dataType: 'json',
     }).done((res) => {
         if(res.success){
+            nitsFacturados = 0;
             nitsFacturando = res.data.nits;
             generarTablaPreview(res.data)
         }
@@ -57,7 +63,7 @@ function generarTablaPreview(data) {
             <td style="text-align: end;">${new Intl.NumberFormat("ja-JP").format(inmueble.valor_total)}</td>
             <td style="text-align: end;" id="inmueble_causado_${inmueble.id_concepto_facturacion}">0</td>
             <td style="text-align: end;" id="inmueble_diferencia_${inmueble.id_concepto_facturacion}">${new Intl.NumberFormat("ja-JP").format(inmueble.valor_total)}</td>
-            <td id="inmueble_items_${inmueble.id_concepto_facturacion}">0</td>
+            <td style="text-align: end;" id="inmueble_items_${inmueble.id_concepto_facturacion}">0</td>
         </tr>`;
     }
 
@@ -95,7 +101,7 @@ function generarTablaPreview(data) {
             <td style="text-align: end;">${new Intl.NumberFormat("ja-JP").format(extra.valor_total)}</td>
             <td style="text-align: end;" id="extras_causado_${extra.id_concepto_facturacion}">0</td>
             <td style="text-align: end;" id="extras_diferencia_${extra.id_concepto_facturacion}">${new Intl.NumberFormat("ja-JP").format(extra.valor_total)}</td>
-            <td id="extras_items_${extra.id_concepto_facturacion}">0</td>
+            <td style="text-align: end;" id="extras_items_${extra.id_concepto_facturacion}">0</td>
         </tr>`;
     }
 
@@ -104,25 +110,48 @@ function generarTablaPreview(data) {
     tbody.innerHTML = [
         htmlExtras
     ].join('');
-    document.getElementById('tabla_extras_preview').insertBefore(tbody, null);
+    document.getElementById('tabla_inmuebles_preview').insertBefore(tbody, null);
 
     //ANTICIPOS
-    $('#count_anticipos').text(new Intl.NumberFormat("ja-JP").format(data.count_anticipos));
-    $('#total_anticipos').text(new Intl.NumberFormat("ja-JP").format(data.total_anticipos));
-    //SALDO ANTERIOR
-    $('#count_saldo_anterior').text(new Intl.NumberFormat("ja-JP").format(data.count_saldo_anterior));
-    $('#total_saldo_anterior').text(new Intl.NumberFormat("ja-JP").format(data.saldo_anterior));
+    var countW = new CountUp('anticipos_items', 0, data.count_anticipos, 0, 0.5);
+        countW.start();
 
-    var countA = new CountUp('inmuebles_registrados_facturacion', 0, data.numero_registro_unidades);
+    var countX = new CountUp('anticipos_valor', 0, data.total_anticipos, 0, 0.5);
+        countX.start();
+
+    var countY = new CountUp('saldo_items', 0, data.count_saldo_anterior, 0, 0.5);
+        countY.start();
+
+    var countZ = new CountUp('saldo_valor', 0, data.saldo_anterior, 0, 0.5);
+        countZ.start();    
+
+    var countP = new CountUp('anticipos_nuevo_saldo', 0, data.total_anticipos, 0, 0.5);
+        countP.start();
+        
+    var countR = new CountUp('saldo_nuevo_saldo', 0, data.saldo_anterior, 0, 0.5);
+        countR.start(); 
+
+    var countY = new CountUp('saldo_causado', 0, 0, 0, 0.5);
+        countY.start();
+
+    saldosTotales[0].items = data.count_anticipos;
+    saldosTotales[0].valor = data.total_anticipos;
+    saldosTotales[0].nuevosaldo = data.total_anticipos;
+
+    saldosTotales[1].items = data.count_saldo_anterior;
+    saldosTotales[1].valor = data.saldo_anterior;
+    saldosTotales[1].nuevosaldo = data.saldo_anterior;
+
+    var countA = new CountUp('inmuebles_registrados_facturacion', 0, data.numero_registro_unidades, 0, 0.5);
         countA.start();
 
-    var countB = new CountUp('area2_registrados_facturacion', 0, data.area_registro_m2, 2);
+    var countB = new CountUp('area2_registrados_facturacion', 0, data.area_registro_m2, 2, 0.5);
         countB.start();
 
-    var countC = new CountUp('coeficiente_registrados_facturacion', 0, data.valor_registro_coeficiente, 2);
+    var countC = new CountUp('coeficiente_registrados_facturacion', 0, data.valor_registro_coeficiente, 2, 0.5);
         countC.start();
 
-    var countD = new CountUp('presupuesto_registrados_facturacion', 0, data.valor_registro_presupuesto);
+    var countD = new CountUp('presupuesto_registrados_facturacion', 0, data.valor_registro_presupuesto, 0, 0.5);
         countD.start();
 
     if (data.numero_registro_unidades != data.numero_total_unidades) {
@@ -153,8 +182,14 @@ function generarTablaPreview(data) {
 function facturarNitIndividual() {
     if (detenerFacturacion) return;
 
-    $("#detenerFacturacion").html(`DETENER: ${nitsFacturando[nitsFacturados].documento_nit + ' ' + nitsFacturando[nitsFacturados].nombre_nit} <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin" style="font-size: 15px; vertical-align: middle;"></i>`);
+    $("#progress_bar").show();
+    $("#detenerFacturacion").html(`DETENER FACTURACION`);
+    var porcentaje = (nitsFacturados / nitsFacturando.length) * 100
+    $("#text_progress_bar").html(`${nitsFacturando[nitsFacturados].nombre_nit} - Facturados ${nitsFacturados} de ${nitsFacturando.length}`);
+    var bar = document.querySelector("#width_progress_bar");
+    bar.style.width = porcentaje + "%";
 
+    $("#reloadFacturacion").hide();
     $("#detenerFacturacion").show();
     $("#generateFacturacion").hide();
 
@@ -168,13 +203,15 @@ function facturarNitIndividual() {
         if (res.success) {
             nitsFacturados++;
             actualizarTotales(JSON.parse(res.data.mensajes));
+            actualizarSaldos(res.data);
             if (nitsFacturando.length >= nitsFacturados+1) {
                 facturarNitIndividual();
             } else {
                 if(res.success){
+                    $("#confirmarFacturacion").show();
                     $("#detenerFacturacion").hide();
                     $("#generateFacturacion").show();
-                    // getFacturacionData();
+                    $("#progress_bar").hide();
                     agregarToast('exito', 'Facturación exitosa', 'Facturación generada con exito!', true);
                 }
             }
@@ -276,8 +313,8 @@ function actualizarTotales(data) {
             var countD = new CountUp('inmueble_causado_total_inmuebles', previoCountD, inmueblesData[total].total_causados, 0, 0.5);
                 countD.start();
 
-            var laterCountE =  inmueblesData[total].valor_total - inmueblesData[index].total_causados;
-            var previoCountE = inmueblesData[total].valor_total - (inmueblesData[index].total_causados - value.valor_causado);
+            var laterCountE = inmueblesData[total].valor_total - inmueblesData[index].total_causados;
+            var previoCountE =  inmueblesData[total].valor_total;
             var countE = new CountUp('inmueble_diferencia_total_inmuebles', previoCountE, laterCountE, 0, 0.5);
                 countE.start();
 
@@ -312,7 +349,75 @@ function actualizarTotales(data) {
             }
         }
     }
+}
+
+function actualizarSaldos(data) {
+
+    var totalValorAnticipo = parseFloat(data.valor_anticipos);
+    if (totalValorAnticipo) {
+
+        saldosTotales[0].items-= 1;
+        saldosTotales[0].causado+= totalValorAnticipo;
+        saldosTotales[0].nuevosaldo-= totalValorAnticipo;
+        
+        var countW = new CountUp('anticipos_items', saldosTotales[0].items + 1, saldosTotales[0].items, 0, 0.5);
+            countW.start();
     
+        var countX = new CountUp('anticipos_causado', saldosTotales[0].causado - totalValorAnticipo, saldosTotales[0].causado, 0, 0.5);
+            countX.start();
+
+        var countP = new CountUp('anticipos_nuevo_saldo', saldosTotales[0].nuevosaldo + totalValorAnticipo, saldosTotales[0].nuevosaldo, 0, 0.5);
+            countP.start();
+    }
+
+    if (saldosTotales[0].items < 0) {
+        document.getElementById('anticipos_items').style.color = "red";
+    } else {
+        document.getElementById('anticipos_items').style.color = "#344767;";
+    }
+
+    if (saldosTotales[0].causado < 0) {
+        document.getElementById('anticipos_causado').style.color = "red";
+    } else {
+        document.getElementById('anticipos_causado').style.color = "#344767;";
+    }
+
+    if (saldosTotales[0].nuevosaldo < 0) {
+        document.getElementById('anticipos_nuevo_saldo').style.color = "red";
+    } else {
+        document.getElementById('anticipos_nuevo_saldo').style.color = "#344767;";
+    }
+
+    var totalY = parseFloat(data.valor);
+    var causadoY = totalValorAnticipo;
+
+    if (totalY) {
+
+        saldosTotales[1].items+= 1;
+        saldosTotales[1].causado+= (totalY - causadoY);
+        saldosTotales[1].nuevosaldo+= (totalY - causadoY);
+
+        var countY = new CountUp('saldo_items', saldosTotales[1].items - 1, saldosTotales[1].items, 0, 0.5);
+            countY.start();
+    
+        var countZ = new CountUp('saldo_causado', saldosTotales[1].causado - (totalY - causadoY), saldosTotales[1].causado, 0, 0.5);
+            countZ.start();
+
+        var countR = new CountUp('saldo_nuevo_saldo', saldosTotales[1].nuevosaldo - (totalY - causadoY), saldosTotales[1].nuevosaldo, 0, 0.5);
+            countR.start();
+
+        if (saldosTotales[1].causado < 0) {
+            document.getElementById('saldo_causado').style.color = "red";
+        } else{
+            document.getElementById('saldo_causado').style.color = "#344767;";
+        }
+
+        if (saldosTotales[1].nuevosaldo < 0) {
+            document.getElementById('saldo_nuevo_saldo').style.color = "red";
+        } else{
+            document.getElementById('saldo_nuevo_saldo').style.color = "#344767;";
+        }
+    }
 }
 
 function generateTextYear(date){
@@ -341,13 +446,55 @@ $(document).on('click', '#reloadFacturacion', function () {
 });
 
 $(document).on('click', '#generateFacturacion', function () {
+    detenerFacturacion = false;
     facturarNitIndividual();
 });
 
 $(document).on('click', '#detenerFacturacion', function () {
     detenerFacturacion = true;
     facturandoPersona.abort();
-    $('#volverFacturacion').show();
+    $('#generateFacturacion').show();
     $('#detenerFacturacion').hide();
     $('#continuarFacturacion').show();
+});
+
+$(document).on('click', '#confirmarFacturacion', function () {
+    $('#detenerFacturacion').hide();
+    $('#generateFacturacion').hide();
+    $('#confirmarFacturacion').hide();
+    $('#confirmarFacturacionDisabled').show();
+
+    $.ajax({
+        url: base_url + 'facturacion-confirmar',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            saldosTotales = null;
+            saldosTotales = [
+                {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 0; ANTICIPOS
+                {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 1; SALDO ACTUAL
+            ];
+            getFacturacionData();
+            $('#reloadFacturacion').show();
+            $('#generateFacturacion').show();
+            $('#confirmarFacturacionDisabled').hide();
+            agregarToast('exito', 'Facturación exitosa', 'Facturación confirmada con exito!', true);
+        }
+    }).fail((err) => {
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Facturación errada', errorsMsg);
+    });
 });

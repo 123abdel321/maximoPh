@@ -264,6 +264,7 @@ class FacturacionController extends Controller
 
             if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
                 DB::connection('max')->rollback();
+                
                 return response()->json([
                     "success"=>false,
                     'data' => [],
@@ -272,6 +273,13 @@ class FacturacionController extends Controller
             }
 
             $factura->valor = ($valoresExtra + $valoresAdmon + $valoresIntereses);
+            $factura->valor_admon = $valoresAdmon;
+            $factura->valor_intereses = $valoresIntereses;
+            $factura->count_intereses = $this->countIntereses;
+            $factura->saldo_base = $this->saldoBase;
+            $factura->valor_anticipos = $anticiposNit;
+            $factura->valor_cuotas_multas = $valoresExtra;
+            $factura->count_cuotas_multas = count($cuotasMultasFacturar);
             $factura->mensajes = json_encode($dataGeneral);
             $factura->save();
 
@@ -280,7 +288,6 @@ class FacturacionController extends Controller
             return response()->json([
                 "success"=>true,
                 'data' => $factura,
-                'data_2' => $dataGeneral,
                 "message"=>'Facturación confirmada con exito'
             ], 200);
 
@@ -603,17 +610,6 @@ class FacturacionController extends Controller
         $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
-        $facturacionMes = Facturacion::select(
-                DB::raw("SUM(count_cuotas_multas) AS count_cuotas_multas"),
-                DB::raw("SUM(count_intereses) AS count_intereses"),
-                DB::raw("SUM(valor_cuotas_multas) AS valor_cuotas_multas"),
-                DB::raw("SUM(valor_admon) AS valor_admon"),
-                DB::raw("SUM(valor_intereses) AS valor_intereses"),
-            )
-            ->where('fecha_manual', $finMes)
-            ->groupBy('fecha_manual')
-            ->first();
-
         $inmuebles = Inmueble::select(
                 DB::raw("id_concepto_facturacion"),
                 DB::raw("COUNT(id) AS items"),
@@ -652,11 +648,12 @@ class FacturacionController extends Controller
             ];
         }
         //INTERESES
+        $fechaPeriodo = date('Y-m-d', strtotime(date('Y-m', strtotime($periodo_facturacion)).'-01'. ' - 1 month'));
         $response = (new Extracto(//TRAER CUENTAS POR COBRAR
             null,
             [3,7],
             null,
-            $periodo_facturacion
+            $fechaPeriodo
         ))->send(request()->user()->id_empresa);
 
         if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
@@ -866,7 +863,7 @@ class FacturacionController extends Controller
             'id_centro_costos' => $cuotaMultaFactura->inmueble->zona->id_centro_costos,
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $inicioMes,
-            'valor' => $cuotaMultaFactura->valor_total,
+            'valor' => round($cuotaMultaFactura->valor_total),
             'concepto' => $cuotaMultaFactura->concepto->nombre_concepto.' '.$cuotaMultaFactura->observacion,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
@@ -891,7 +888,7 @@ class FacturacionController extends Controller
             'id_centro_costos' => $inmuebleFactura->id_centro_costos,
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
-            'valor' => $inmuebleFactura->valor_total,
+            'valor' => round($inmuebleFactura->valor_total),
             'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
