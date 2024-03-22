@@ -3,7 +3,7 @@
 
         <div class="row" style="z-index: 9;">
 
-            <div class="col-12 col-md-6 col-sm-3" style="z-index: 9;">
+            <div class="col-12 col-md-6 col-sm-6" style="z-index: 9;">
                 @can('cuotas_multas create')
                     <button type="button" class="btn btn-primary btn-sm" id="createCuotasMultas">Agregar cuotas extras & multas</button>
                     <button type="button" class="btn btn-sm badge btn-light" id="reloadCuotasMultas" style="vertical-align: middle; height: 30px;">
@@ -13,7 +13,7 @@
                 @endcan
             </div>
 
-            <div class="col-12 col-md-6 col-sm-9" id="totales_multas_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
+            <div class="col-12 col-md-6 col-sm-6" id="totales_multas_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
                 <div class="card">
                     <div class="card-body p-2">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Total cuotas/multas</p>
