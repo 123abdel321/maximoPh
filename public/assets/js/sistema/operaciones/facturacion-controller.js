@@ -480,6 +480,7 @@ $(document).on('click', '#generateFacturacion', function () {
 $(document).on('click', '#detenerFacturacion', function () {
     detenerFacturacion = true;
     facturandoPersona.abort();
+    document.querySelector("#width_progress_bar").style.setProperty("background-color", "#fd7e14", "important");
     $('#generateFacturacion').hide();
     $('#continuarFacturacion').show();
     $('#detenerFacturacion').hide();
@@ -488,6 +489,7 @@ $(document).on('click', '#detenerFacturacion', function () {
 
 $(document).on('click', '#continuarFacturacion', function () {
     detenerFacturacion = false;
+    document.querySelector("#width_progress_bar").style.setProperty("background-color", "#075260", "important");
     $('#detenerFacturacion').show();
     $('#continuarFacturacion').hide();
     facturarNitIndividual ();
