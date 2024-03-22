@@ -27,6 +27,7 @@ class FacturacionController extends Controller
     protected $facturas = null;
     protected $saldoBase = 0;
     protected $countIntereses = 0;
+    protected $valoresBaseProximaAdmin = 0;
     
     public function index ()
     {
@@ -202,6 +203,7 @@ class FacturacionController extends Controller
             $valoresAdmon = 0;
             $totalInmuebles = 0;
             $valoresIntereses = 0;
+
             $anticiposNit = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
             $anticiposDisponibles = $anticiposNit;
 
@@ -651,10 +653,11 @@ class FacturacionController extends Controller
             ];
         }
         //INTERESES
-        $fechaPeriodo = date('Y-m-d', strtotime(date('Y-m', strtotime($periodo_facturacion)).'-01'. ' - 1 month'));
+        $fechaPeriodo = date('Y-m-d', strtotime(date('Y-m', strtotime($periodo_facturacion)).'-01'. ' - 1 day'));
+        
         $response = (new Extracto(//TRAER CUENTAS POR COBRAR
             null,
-            [3,7],
+            3,
             null,
             $fechaPeriodo
         ))->send(request()->user()->id_empresa);
@@ -691,6 +694,7 @@ class FacturacionController extends Controller
         }
 
         $anticipos = $response['response']->data;
+
         $anticiposNits = [];
 
         foreach ($anticipos as $anticipo) {
@@ -741,6 +745,8 @@ class FacturacionController extends Controller
 
         $saldo_anterior = 0;
         $count_saldo_anterior = 0;
+        $saldo_base = 0;
+        $count_saldo_base = 0;
 
         foreach ($inmuebleNit as $nit) {
             $cobrarInteses = [];
@@ -764,17 +770,21 @@ class FacturacionController extends Controller
                 'id_nit' => $nit->id_nit,
                 'facturado' => $factura->count() ? true : false
             ];
-
+            $sumaRapida = 0;
             if (array_key_exists($nit->id_nit, $extractosNits)) {
                 $count_saldo_anterior++;
+                $tieneCXC = false;                
                 foreach ($extractosNits[$nit->id_nit] as $extracto) {
                     $saldo = floatval($extracto->saldo);
                     $saldo_anterior+= $saldo;
                     if (!in_array($extracto->id_cuenta, $cobrarInteses)) continue;
-                    
+                    $tieneCXC = true;
+                    $sumaRapida+= floatval($extracto->saldo);
+                    $saldo_base+= $saldo;
                     $total_intereses+= $saldo * ($porcentaje_intereses_mora / 100);
                     $count_intereses++;
                 }
+                if ($tieneCXC) $count_saldo_base++;
             }
 
             if (array_key_exists($nit->id_nit, $anticiposNits)) {
@@ -839,6 +849,8 @@ class FacturacionController extends Controller
                 'existe_facturacion' => $existe_facturacion,
                 'saldo_anterior' => $saldo_anterior,
                 'count_saldo_anterior' => $count_saldo_anterior,
+                'saldo_base' => $saldo_base,
+                'count_saldo_base' => $count_saldo_base,
                 'total_anticipos' => $total_anticipos,
                 'count_anticipos' => $count_anticipos,
                 'nits' => $inmuebleNitData,
@@ -885,6 +897,8 @@ class FacturacionController extends Controller
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
+
+        $this->valoresBaseProximaAdmin+= 0;
 
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,

@@ -22,6 +22,9 @@
                         <i id="reloadFacturacionIconLoading" class="fa fa-refresh fa-spin" style="font-size: 17px; color: #2d3257; display: none;"></i>
                         <i id="reloadFacturacionIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
                     </button>
+                    <button type="button" class="btn btn-info btn-sm" id="continuarFacturacion" style="display: none;">
+                        CONTINUAR FACTURACION
+                    </button>
                     <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacion" style="display: none;">
                         Confirmar facturación
                     </button>
@@ -47,13 +50,13 @@
         <div class="card mb-1" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
 
-                <div id="progress_bar" class="progress-wrapper" style="padding: 10px; display: none;">
-                    <div class="progress-info">
+                <div id="progress_bar" class="progress-wrapper" style="padding: 10px; margin-top: -5px; display: none;">
+                    <div class="progress-info" style="height: 10px;">
                         <div class="progress-percentage" style="text-align: center;">
                             <span id="text_progress_bar" class="text-sm font-weight-bold" style="color: black;"></span>
                         </div>
                     </div>
-                    <div class="progress">
+                    <div class="progress" style="height: 12px; margin-top: 10px;">
                         <div id="width_progress_bar"class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
                     </div>
                 </div>
@@ -69,6 +72,40 @@
                             <th style="border-radius: 0px 15px 0px 0px !important;">Items</th>
                         </tr>
                     </thead>
+                    <!-- <tfoot>
+                        <tr>
+                            <th style="background-color: #05434e; color: white; font-weight: bold; font-size: 14px; padding: 0.3rem 1.2rem !important;">Concepto</th>
+                            <th style="background-color: #05434e; color: white; font-weight: bold; font-size: 14px; padding: 0.3rem 1.2rem !important;">Items</th>
+                            <th style="background-color: #05434e; color: white; font-weight: bold; font-size: 14px; padding: 0.3rem 1.2rem !important;">Valor actual</th>
+                            <th style="background-color: #05434e; color: white; font-weight: bold; font-size: 14px; padding: 0.3rem 1.2rem !important;">Causado</th>
+                            <th style="background-color: #05434e; color: white; font-weight: bold; font-size: 14px; padding: 0.3rem 1.2rem !important;">Nuevo saldo</th>
+                            <th style="background-color: #05434e; color: white; font-weight: bold; font-size: 14px; padding: 0.3rem 1.2rem !important;">Items</th>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: black;">ANTICIPOS</td>
+                            <td style="text-align: end; color: black;" id="anticipos_items">0</td>
+                            <td style="text-align: end; color: black;" id="anticipos_valor">0</td>
+                            <td style="text-align: end; color: black;" id="anticipos_causado">0</td>
+                            <td style="text-align: end; color: black;" id="anticipos_nuevo_saldo">0</td>
+                            <td style="text-align: end; color: black;" id="anticipos_items_nuevo">0</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: black;">SALDO BASE</td>
+                            <td style="text-align: end; color: black;" id="base_items">0</td>
+                            <td style="text-align: end; color: black;" id="base_valor">0</td>
+                            <td style="text-align: end; color: black;" id="base_causado">0</td>
+                            <td style="text-align: end; color: black;" id="base_nuevo_saldo">0</td>
+                            <td style="text-align: end; color: black;" id="base_items_nuevo">0</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: black;">SALDO ACTUAL</td>
+                            <td style="text-align: end; color: black;" id="saldo_items">0</td>
+                            <td style="text-align: end; color: black;" id="saldo_valor">0</td>
+                            <td style="text-align: end; color: black; font-weight: bold;" id="saldo_causado">0</td>
+                            <td style="text-align: end; color: black; font-weight: bold; color: green;" id="saldo_nuevo_saldo">0</td>
+                            <td style="text-align: end; color: black; font-weight: bold; color: green;" id="saldo_items_nuevo">0</td>
+                        </tr>
+                    </tfoot> -->
                 </table>
 
             </div>
@@ -82,8 +119,9 @@
                             <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
                             <th>Items</th>
                             <th>Valor actual</th>
-                            <th>Caausado</th>
-                            <th style="border-radius: 0px 15px 0px 0px !important;">Nuevo saldo</th>
+                            <th>Causado</th>
+                            <th>Nuevo saldo</th>
+                            <th style="border-radius: 0px 15px 0px 0px !important;">Items</th>
                         </tr>
                     </thead>
                     <body >
@@ -93,6 +131,15 @@
                             <td style="text-align: end;" id="anticipos_valor">0</td>
                             <td style="text-align: end;" id="anticipos_causado">0</td>
                             <td style="text-align: end;" id="anticipos_nuevo_saldo">0</td>
+                            <td style="text-align: end;" id="anticipos_items_nuevo">0</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">SALDO BASE</td>
+                            <td style="text-align: end;" id="base_items">0</td>
+                            <td style="text-align: end;" id="base_valor">0</td>
+                            <td style="text-align: end;" id="base_causado">0</td>
+                            <td style="text-align: end;" id="base_nuevo_saldo">0</td>
+                            <td style="text-align: end;" id="base_items_nuevo">0</td>
                         </tr>
                         <tr>
                             <td style="font-weight: 600;">SALDO ACTUAL</td>
@@ -100,6 +147,7 @@
                             <td style="text-align: end;" id="saldo_valor">0</td>
                             <td style="text-align: end; font-weight: bold;" id="saldo_causado">0</td>
                             <td style="text-align: end; font-weight: bold; color: green;" id="saldo_nuevo_saldo">0</td>
+                            <td style="text-align: end; font-weight: bold; color: green;" id="saldo_items_nuevo">0</td>
                         </tr>
                     </body>
                 </table>

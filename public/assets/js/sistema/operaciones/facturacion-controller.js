@@ -8,8 +8,9 @@ var detenerFacturacion = false;
 
 function facturacionInit() {
     saldosTotales = [
-        {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 0; ANTICIPOS
-        {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 1; SALDO ACTUAL
+        {items: 0, valor: 0, causado: 0, nuevosaldo: 0, items_causados: 0},// 0; ANTICIPOS
+        {items: 0, valor: 0, causado: 0, nuevosaldo: 0, items_causados: 0},// 1; SALDO BASE
+        {items: 0, valor: 0, causado: 0, nuevosaldo: 0, items_causados: 0},// 2; SALDO ACTUAL
     ];
     getFacturacionData();
     $('.water').hide();
@@ -58,7 +59,7 @@ function generarTablaPreview(data) {
         inmueblesData.push(inmueble);
         var styles = 'style="color: black;"';
         if (inmueble.id_concepto_facturacion == 'total_inmuebles') {
-            styles = 'style="background-color: rgb(6, 86, 100); color: white; font-weight: 600;"';
+            styles = 'style="background-color: rgb(9 129 151); color: white; font-weight: 600;"';
         }
         htmlInmuebles+= `<tr ${styles}>
             <td style="font-weight: 600;">${inmueble.concepto_facturacion}</td>
@@ -93,7 +94,7 @@ function generarTablaPreview(data) {
         cuotasData.push(extra);
         var styles = 'style="color: black;"';
         if (extra.id_concepto_facturacion == 'total_extras') {
-            styles = 'style="background-color: rgb(6, 86, 100); color: white; font-weight: 600;"';
+            styles = 'style="background-color: rgb(9 129 151); color: white; font-weight: 600;"';
         } else if (extra.id_concepto_facturacion == 'intereses') {
             styles = 'style="color: black;"';
         }
@@ -137,6 +138,12 @@ function generarTablaPreview(data) {
     var countY = new CountUp('saldo_causado', 0, 0, 0, 0.5);
         countY.start();
 
+    var count1 = new CountUp('base_items', 0, data.count_saldo_base, 0, 0.5);
+        count1.start(); 
+
+    var count2 = new CountUp('base_valor', 0, data.saldo_base, 0, 0.5);
+        count2.start();
+
     saldosTotales[0].items = data.count_anticipos;
     saldosTotales[0].valor = data.total_anticipos;
     saldosTotales[0].nuevosaldo = data.total_anticipos;
@@ -144,6 +151,10 @@ function generarTablaPreview(data) {
     saldosTotales[1].items = data.count_saldo_anterior;
     saldosTotales[1].valor = data.saldo_anterior;
     saldosTotales[1].nuevosaldo = data.saldo_anterior;
+
+    saldosTotales[2].items = data.count_saldo_base;
+    saldosTotales[2].valor = data.saldo_base;
+    saldosTotales[2].nuevosaldo = data.saldo_base;
 
     var countA = new CountUp('inmuebles_registrados_facturacion', 0, data.numero_registro_unidades, 0, 0.5);
         countA.start();
@@ -191,6 +202,7 @@ function facturarNitIndividual() {
     $("#text_progress_bar").html(`${nitsFacturando[nitsFacturados].nombre_nit} - Facturados ${nitsFacturados} de ${nitsFacturando.length}`);
     var bar = document.querySelector("#width_progress_bar");
     bar.style.width = porcentaje + "%";
+    bar.innerText = parseInt(porcentaje) + "%";
 
     $("#reloadFacturacion").hide();
     $("#detenerFacturacion").show();
@@ -357,13 +369,17 @@ function actualizarTotales(data) {
 function actualizarSaldos(data) {
 
     var totalValorAnticipo = parseFloat(data.valor_anticipos);
+    if (totalValorAnticipo > parseFloat(data.valor)) {
+        totalValorAnticipo = parseFloat(data.valor)
+    }
+
     if (totalValorAnticipo) {
 
-        saldosTotales[0].items-= 1;
+        saldosTotales[0].items_causados+= 1;
         saldosTotales[0].causado+= totalValorAnticipo;
         saldosTotales[0].nuevosaldo-= totalValorAnticipo;
         
-        var countW = new CountUp('anticipos_items', saldosTotales[0].items + 1, saldosTotales[0].items, 0, 0.5);
+        var countW = new CountUp('anticipos_items_nuevo', saldosTotales[0].items_causados - 1, saldosTotales[0].items_causados, 0, 0.5);
             countW.start();
     
         var countX = new CountUp('anticipos_causado', saldosTotales[0].causado - totalValorAnticipo, saldosTotales[0].causado, 0, 0.5);
@@ -374,9 +390,9 @@ function actualizarSaldos(data) {
     }
 
     if (saldosTotales[0].items < 0) {
-        document.getElementById('anticipos_items').style.color = "red";
+        document.getElementById('anticipos_items_nuevo').style.color = "red";
     } else {
-        document.getElementById('anticipos_items').style.color = "#344767;";
+        document.getElementById('anticipos_items_nuevo').style.color = "#344767;";
     }
 
     if (saldosTotales[0].causado < 0) {
@@ -396,11 +412,11 @@ function actualizarSaldos(data) {
 
     if (totalY) {
 
-        saldosTotales[1].items+= 1;
+        saldosTotales[1].items_causados+= 1;
         saldosTotales[1].causado+= (totalY - causadoY);
         saldosTotales[1].nuevosaldo+= (totalY - causadoY);
 
-        var countY = new CountUp('saldo_items', saldosTotales[1].items - 1, saldosTotales[1].items, 0, 0.5);
+        var countY = new CountUp('saldo_items_nuevo', saldosTotales[1].items_causados - 1, saldosTotales[1].items_causados, 0, 0.5);
             countY.start();
     
         var countZ = new CountUp('saldo_causado', saldosTotales[1].causado - (totalY - causadoY), saldosTotales[1].causado, 0, 0.5);
@@ -420,6 +436,10 @@ function actualizarSaldos(data) {
         } else{
             document.getElementById('saldo_nuevo_saldo').style.color = "#344767;";
         }
+
+        // saldosTotales[2].items_causados+= 1;
+        // saldosTotales[2].causado+= (totalY - causadoY);
+        // saldosTotales[2].nuevosaldo+= (totalY - causadoY);
     }
 }
 
@@ -456,9 +476,17 @@ $(document).on('click', '#generateFacturacion', function () {
 $(document).on('click', '#detenerFacturacion', function () {
     detenerFacturacion = true;
     facturandoPersona.abort();
-    $('#generateFacturacion').show();
+    $('#generateFacturacion').hide();
+    $('#continuarFacturacion').show();
     $('#detenerFacturacion').hide();
     $('#continuarFacturacion').show();
+});
+
+$(document).on('click', '#continuarFacturacion', function () {
+    detenerFacturacion = false;
+    $('#detenerFacturacion').show();
+    $('#continuarFacturacion').hide();
+    facturarNitIndividual ();
 });
 
 $(document).on('click', '#confirmarFacturacion', function () {
@@ -477,7 +505,8 @@ $(document).on('click', '#confirmarFacturacion', function () {
             saldosTotales = null;
             saldosTotales = [
                 {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 0; ANTICIPOS
-                {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 1; SALDO ACTUAL
+                {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 1; SALDO BASE
+                {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 2; SALDO ACTUAL
             ];
             cuotasData = [];
             inmueblesData = [];
