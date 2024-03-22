@@ -227,7 +227,6 @@ class FacturacionController extends Controller
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                 }
             }
-
             //RECORREMOS CUOTAS Y MULTAS
             foreach ($cuotasMultasFacturar as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
@@ -610,13 +609,17 @@ class FacturacionController extends Controller
         $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
-        $inmuebles = Inmueble::select(
-                DB::raw("id_concepto_facturacion"),
-                DB::raw("COUNT(id) AS items"),
-                DB::raw("SUM(valor_total_administracion) AS valor_total")
+        $inmuebles = DB::connection('max')->table('inmueble_nits')->select(
+                DB::raw("INM.id_concepto_facturacion"),
+                DB::raw("COUNT(INM.id) AS items"),
+                DB::raw("SUM(inmueble_nits.valor_total) AS valor_total")
             )
+            ->leftJoin('inmuebles AS INM', 'inmueble_nits.id_inmueble', 'INM.id')
+            ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
+            ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
             ->groupBy('id_concepto_facturacion')
-            ->get();
+            ->get()
+            ->toArray();
 
         $fecha_facturar = date('Y-m', strtotime($periodo_facturacion));
         $cuotasExtra = CuotasMultas::select(
@@ -641,7 +644,7 @@ class FacturacionController extends Controller
                 'id_concepto_facturacion' => $inmueble->id_concepto_facturacion,
                 'concepto_facturacion' => $concepto->nombre_concepto,
                 'items' => $inmueble->items,
-                'valor_total' => $inmueble->valor_total,
+                'valor_total' => round($inmueble->valor_total),
                 'causado_total'=> 0,
                 'causado_count'=> 0,
                 'diferencia'=> 0,
@@ -700,11 +703,15 @@ class FacturacionController extends Controller
         $total_intereses = 0;
         $count_intereses = 0;
 
+        $totales = DB::connection('max')->table('inmueble_nits')->select(
+            DB::raw("SUM(valor_total) AS valor_total")
+        )->first();
+
         $inmueblesConceptos[] = (object)[
             'id_concepto_facturacion' => 'total_inmuebles',
             'concepto_facturacion' => 'TOTALES',
             'items' => $countInmuebles,
-            'valor_total' => Inmueble::sum('valor_total_administracion'),
+            'valor_total' => round($totales->valor_total),
             'causado_total'=> 0,
             'causado_count'=> 0,
             'diferencia'=> 0,
@@ -719,7 +726,7 @@ class FacturacionController extends Controller
                 'id_concepto_facturacion' => $cuotas->id_concepto_facturacion,
                 'concepto_facturacion' => $concepto->nombre_concepto,
                 'items' => $cuotas->items,
-                'valor_total' => $cuotas->valor_total,
+                'valor_total' => round($cuotas->valor_total),
                 'causado_total'=> 0,
                 'causado_count'=> 0,
                 'diferencia'=> 0,
@@ -783,7 +790,7 @@ class FacturacionController extends Controller
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
             'items' => $count_saldo_anterior,
-            'valor_total' => $total_intereses,
+            'valor_total' => round($total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
             'diferencia'=> 0,
@@ -796,7 +803,7 @@ class FacturacionController extends Controller
             'id_concepto_facturacion' => 'total_extras',
             'concepto_facturacion' => 'TOTALES',
             'items' => $count_saldo_anterior + $countCuotas,
-            'valor_total' => $cuotasMultas->sum('valor_total') + $total_intereses,
+            'valor_total' => round($cuotasMultas->sum('valor_total') + $total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
             'diferencia'=> 0,

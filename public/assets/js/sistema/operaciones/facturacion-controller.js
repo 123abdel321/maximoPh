@@ -23,9 +23,12 @@ function getFacturacionData() {
         dataType: 'json',
     }).done((res) => {
         if(res.success){
+            cuotasData = [];
+            inmueblesData = [];
             nitsFacturados = 0;
             nitsFacturando = res.data.nits;
-            generarTablaPreview(res.data)
+            generarTablaPreview(res.data);
+            $('#confirmarFacturacion').hide();
         }
     }).fail((err) => {
     });
@@ -260,9 +263,9 @@ function actualizarTotales(data) {
                 countF.start();
 
             //VALIDAR ERRORES
-            if (cuotasData[index].total_causados > cuotasData[index].valor_total) {
+            if (parseInt(cuotasData[index].total_causados) > parseInt(cuotasData[index].valor_total)) {
                 document.getElementById('extras_causado_'+key).style.color = "red";
-            } else if (cuotasData[index].valor_total == cuotasData[index].total_causados) {
+            } else if (parseInt(cuotasData[index].valor_total) == parseInt(cuotasData[index].total_causados)) {
                 document.getElementById('extras_causado_'+key).style.color = "green";
             } else {
                 document.getElementById('extras_causado_'+key).style.color = "black";
@@ -276,7 +279,7 @@ function actualizarTotales(data) {
                 document.getElementById('extras_items_'+key).style.color = "black";
             }
 
-            var diferencia = cuotasData[index].valor_total - cuotasData[index].total_causados;
+            var diferencia = parseInt(cuotasData[index].valor_total - cuotasData[index].total_causados);
             if (diferencia < 0) {
                 document.getElementById('extras_diferencia_'+key).style.color = "red";
             } else if (diferencia == 0){
@@ -323,9 +326,9 @@ function actualizarTotales(data) {
                 countF.start();
 
             //VALIDAR ERRORES
-            if (inmueblesData[index].total_causados > inmueblesData[index].valor_total) {
+            if (parseInt(inmueblesData[index].total_causados) > parseInt(inmueblesData[index].valor_total)) {
                 document.getElementById('inmueble_causado_'+key).style.color = "red";
-            } else if (inmueblesData[index].valor_total == inmueblesData[index].total_causados) {
+            } else if (parseInt(inmueblesData[index].valor_total) == parseInt(inmueblesData[index].total_causados)) {
                 document.getElementById('inmueble_causado_'+key).style.color = "green";
             } else {
                 document.getElementById('inmueble_causado_'+key).style.color = "black";
@@ -333,13 +336,13 @@ function actualizarTotales(data) {
 
             if (inmueblesData[index].items_causados > inmueblesData[index].items) {
                 document.getElementById('inmueble_items_'+key).style.color = "red";
-            } else if (inmueblesData[index].items_causados == inmueblesData[index].items) {
+            } else if (parseInt(inmueblesData[index].items_causados) == parseInt(inmueblesData[index].items)) {
                 document.getElementById('inmueble_items_'+key).style.color = "green";
             } else {
                 document.getElementById('inmueble_items_'+key).style.color = "black";
             }
 
-            var diferencia = inmueblesData[index].valor_total - inmueblesData[index].total_causados;
+            var diferencia = parseInt(inmueblesData[index].valor_total) - parseInt(inmueblesData[index].total_causados);
             if (diferencia < 0) {
                 document.getElementById('inmueble_diferencia_'+key).style.color = "red";
             } else if (diferencia == 0){
@@ -476,6 +479,8 @@ $(document).on('click', '#confirmarFacturacion', function () {
                 {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 0; ANTICIPOS
                 {items: 0, valor: 0, causado: 0, nuevosaldo: 0},// 1; SALDO ACTUAL
             ];
+            cuotasData = [];
+            inmueblesData = [];
             getFacturacionData();
             $('#reloadFacturacion').show();
             $('#generateFacturacion').show();

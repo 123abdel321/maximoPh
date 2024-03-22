@@ -5532,7 +5532,7 @@ textarea.form-control-lg {
   text-align: center;
   white-space: nowrap;
   background-color: var(--bs-primary);
-  transition: width 0.6s ease;
+  transition: width 3.0s ease;
 }
 @media (prefers-reduced-motion: reduce) {
   .progress-bar {
