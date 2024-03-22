@@ -349,9 +349,12 @@ class CuotasMultasController extends Controller
                 DB::raw("SUM(valor_total) AS valor_total")
             )
             ->when($filtro1, function ($query) use($request) {
-                $query->orWhereBetween('fecha_fin', [$request->get('fecha_desde') , $request->get('fecha_hasta')])
-                    ->orWhereBetween('fecha_inicio', [$request->get('fecha_desde') , $request->get('fecha_hasta')]);
-            });
+                $query->whereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')]);
+            })
+            ->when($request->get('id_nit'), function ($query) use($request) {
+                $query->where('id_nit', $request->get('id_nit'));
+            })
+            ;
 
         if ($request->get('search')) {
             $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();

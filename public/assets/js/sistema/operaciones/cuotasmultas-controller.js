@@ -4,6 +4,7 @@ var cuotas_multas_table = null;
 var $comboNitCuotasMuldas = null;
 var $comboZonaCuotasMuldas = null;
 var $comboInmuebleCuotasMuldas = null;
+var $comboNitFilterCuotasMultas = null;
 var $comboConceptoFacturacionCuotasMuldas = null;
 var $comboConceptoTipoFacturacionCuotasMuldas = null;
 
@@ -37,6 +38,7 @@ function cuotasmultasInit() {
                 d.fecha_desde = $('#fecha_desde_cuotas_multas').val();
                 d.fecha_hasta = $('#fecha_hasta_cuotas_multas').val();
                 d.id_concepto = $('#id_concepto_filter_cuotas_multas').val();
+                d.id_nit = $('#id_nit_filter_cuotas_multas').val();
             }
         },
         columns: [
@@ -207,6 +209,40 @@ function cuotasmultasInit() {
     $comboNitCuotasMuldas = $('#id_nit_cuotas_multas').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#cuotaMultasFormModal'),
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    id_nits: nitsInmuebles
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboNitFilterCuotasMultas = $('#id_nit_filter_cuotas_multas').select2({
+        theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una persona",
         language: {
@@ -660,6 +696,13 @@ $(document).on('change', '#fecha_hasta_cuotas_multas', function () {
     });
 });
 
+$(document).on('change', '#id_nit_filter_cuotas_multas', function () {
+    cuotas_multas_table.context[0].jqXHR.abort();
+    cuotas_multas_table.ajax.reload(function () {
+        getTotalesCuotasMultas();
+    });
+});
+
 $(document).on('click', '#reloadCuotasMultas', function () {
     console.log('reloadCuotasMultas');
     $("#reloadCuotasMultasIconNormal").hide();
@@ -697,6 +740,7 @@ function getTotalesCuotasMultas(){
             fecha_desde: $('#fecha_desde_cuotas_multas').val(),
             fecha_hasta: $('#fecha_hasta_cuotas_multas').val(),
             id_concepto: $('#id_concepto_filter_cuotas_multas').val(),
+            id_nit: $('#id_nit_filter_cuotas_multas').val(),
             search: searchValue
         },
         dataType: 'json',
