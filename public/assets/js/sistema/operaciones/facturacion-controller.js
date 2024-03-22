@@ -17,6 +17,8 @@ function facturacionInit() {
 }
 
 function getFacturacionData() {
+    $("#reloadFacturacionIconNormal").hide();
+    $("#reloadFacturacionIconLoading").show();
     $.ajax({
         url: base_url + 'facturacion-preview',
         method: 'GET',
@@ -24,6 +26,8 @@ function getFacturacionData() {
         dataType: 'json',
     }).done((res) => {
         if(res.success){
+            $("#reloadFacturacionIconNormal").show();
+            $("#reloadFacturacionIconLoading").hide();
             cuotasData = [];
             inmueblesData = [];
             nitsFacturados = 0;
