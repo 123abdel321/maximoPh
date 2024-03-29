@@ -134,7 +134,7 @@
                             <td style="text-align: end;" id="anticipos_items_nuevo">0</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">SALDO BASE</td>
+                            <td style="font-weight: 600;">BASE INTERESES</td>
                             <td style="text-align: end;" id="base_items">0</td>
                             <td style="text-align: end;" id="base_valor">0</td>
                             <td style="text-align: end;" id="base_causado">0</td>

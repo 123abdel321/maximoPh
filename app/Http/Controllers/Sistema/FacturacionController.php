@@ -681,7 +681,9 @@ class FacturacionController extends Controller
         //ANTICIPOS
         $response = (new Extracto(
             null,
-            [4,8]
+            [4,8],
+            null,
+            $fechaPeriodo
         ))->send(request()->user()->id_empresa);
 
         if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO

@@ -14,6 +14,7 @@ function facturacionInit() {
     ];
     getFacturacionData();
     $('.water').hide();
+    document.querySelector("#width_progress_bar").style.setProperty("background-color", "#075260", "important");
 }
 
 function getFacturacionData() {
@@ -133,11 +134,11 @@ function generarTablaPreview(data) {
     var countZ = new CountUp('saldo_valor', 0, data.saldo_anterior, 0, 0.5);
         countZ.start();    
 
-    var countP = new CountUp('anticipos_nuevo_saldo', 0, data.total_anticipos, 0, 0.5);
-        countP.start();
+    // var countP = new CountUp('anticipos_nuevo_saldo', 0, data.total_anticipos, 0, 0.5);
+    //     countP.start();
         
-    var countR = new CountUp('saldo_nuevo_saldo', 0, data.saldo_anterior, 0, 0.5);
-        countR.start(); 
+    // var countR = new CountUp('saldo_nuevo_saldo', 0, data.saldo_anterior, 0, 0.5);
+    //     countR.start(); 
 
     var countY = new CountUp('saldo_causado', 0, 0, 0, 0.5);
         countY.start();
@@ -257,7 +258,7 @@ function actualizarTotales(data) {
                 countA.start();
 
             var laterCountB =  cuotasData[index].valor_total - cuotasData[index].total_causados;
-            var previoCountB = cuotasData[index].valor_total - (cuotasData[index].total_causados - value.valor_causado);
+            var previoCountB = cuotasData[index].valor_total - (cuotasData[index].total_causados - parseFloat(value.valor_causado));
             var countB = new CountUp('extras_diferencia_'+key, previoCountB, laterCountB, 0, 0.5);
                 countB.start();
 
@@ -265,12 +266,12 @@ function actualizarTotales(data) {
             var countC = new CountUp('extras_items_'+key, previoCountC, cuotasData[index].items_causados, 0, 0.5);
                 countC.start();
 
-            var previoCountD = cuotasData[total].total_causados - value.valor_causado;
+            var previoCountD = cuotasData[total].total_causados - parseFloat(value.valor_causado);
             var countD = new CountUp('extras_causado_total_extras', previoCountD, cuotasData[total].total_causados, 0, 0.5);
                 countD.start();
 
-            var laterCountE =  cuotasData[total].valor_total - cuotasData[index].total_causados;
-            var previoCountE = cuotasData[total].valor_total - (cuotasData[index].total_causados - value.valor_causado);
+            var laterCountE =  cuotasData[total].valor_total - cuotasData[total].total_causados;
+            var previoCountE = cuotasData[total].valor_total - cuotasData[total].total_causados + parseFloat(value.valor_causado);
             var countE = new CountUp('extras_diferencia_total_extras', previoCountE, laterCountE, 0, 0.5);
                 countE.start();
 
@@ -332,8 +333,8 @@ function actualizarTotales(data) {
             var countD = new CountUp('inmueble_causado_total_inmuebles', previoCountD, inmueblesData[total].total_causados, 0, 0.5);
                 countD.start();
 
-            var laterCountE = inmueblesData[total].valor_total - inmueblesData[index].total_causados;
-            var previoCountE =  inmueblesData[total].valor_total;
+            var laterCountE = inmueblesData[total].valor_total - inmueblesData[total].total_causados;
+            var previoCountE =  inmueblesData[total].valor_total - inmueblesData[total].total_causados + inmueblesData[index].total_causados;
             var countE = new CountUp('inmueble_diferencia_total_inmuebles', previoCountE, laterCountE, 0, 0.5);
                 countE.start();
 
