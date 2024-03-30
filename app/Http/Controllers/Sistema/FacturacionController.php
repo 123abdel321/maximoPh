@@ -278,7 +278,7 @@ class FacturacionController extends Controller
             $factura->valor_intereses = $valoresIntereses;
             $factura->count_intereses = $this->countIntereses;
             $factura->saldo_base = $this->saldoBase;
-            $factura->valor_anticipos = $anticiposNit;
+            $factura->valor_anticipos = $anticiposNit - $anticiposDisponibles;
             $factura->valor_cuotas_multas = $valoresExtra;
             $factura->count_cuotas_multas = count($cuotasMultasFacturar);
             $factura->mensajes = json_encode($dataGeneral);
@@ -657,7 +657,7 @@ class FacturacionController extends Controller
         
         $response = (new Extracto(//TRAER CUENTAS POR COBRAR
             null,
-            3,
+            [3,7],
             null,
             $fechaPeriodo
         ))->send(request()->user()->id_empresa);
@@ -789,6 +789,8 @@ class FacturacionController extends Controller
                 if ($tieneCXC) $count_saldo_base++;
             }
 
+            // dd($extractosNits);
+
             if (array_key_exists($nit->id_nit, $anticiposNits)) {
                 foreach ($anticiposNits[$nit->id_nit] as $anticipos) {
                     $anticipo = floatval($anticipos->saldo);
@@ -801,7 +803,7 @@ class FacturacionController extends Controller
         $extrasConceptos[] = (object)[
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
-            'items' => $count_saldo_anterior,
+            'items' => count($extractosNits),
             'valor_total' => round($total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
@@ -999,11 +1001,11 @@ class FacturacionController extends Controller
         
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
+            $this->countIntereses++;
             if (!in_array($extracto->id_cuenta, $cobrarInteses)) continue;
             
             $saldo = floatval($extracto->saldo);
             $this->saldoBase+= $saldo;
-            $this->countIntereses++;
 
             $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;

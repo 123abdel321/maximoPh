@@ -5,6 +5,7 @@ var nitsFacturados = 0;
 var nitsFacturando = [];
 var facturandoPersona = false;
 var detenerFacturacion = false;
+var countIntereses = 0;
 
 function facturacionInit() {
     saldosTotales = [
@@ -32,6 +33,7 @@ function getFacturacionData() {
             cuotasData = [];
             inmueblesData = [];
             nitsFacturados = 0;
+            countIntereses = 0;
             nitsFacturando = res.data.nits;
             generarTablaPreview(res.data);
             $('#confirmarFacturacion').hide();
@@ -222,7 +224,7 @@ function facturarNitIndividual() {
     }).done((res) => {
         if (res.success) {
             nitsFacturados++;
-            actualizarTotales(JSON.parse(res.data.mensajes));
+            actualizarTotales(JSON.parse(res.data.mensajes), res.data);
             actualizarSaldos(res.data);
             if (nitsFacturando.length >= nitsFacturados+1) {
                 facturarNitIndividual();
@@ -240,17 +242,27 @@ function facturarNitIndividual() {
     });
 }
 
-function actualizarTotales(data) {
+function actualizarTotales(data, factura) {
     var extras = data.extras;
     var inmuebles = data.inmuebles;
+
+    if (factura.count_intereses) {
+        countIntereses++;
+    }
 
     for (const [key, value] of Object.entries(extras)) {
         var index = cuotasData.findIndex(item => item.id_concepto_facturacion == key);
         var total = cuotasData.findIndex(item => item.id_concepto_facturacion == "total_extras");
         if (index == 0 || index) {
-            cuotasData[index].items_causados+= parseFloat(value.items);
+            if (cuotasData[index].id_concepto_facturacion == "intereses") {
+                cuotasData[index].items_causados = countIntereses;
+                cuotasData[total].items_causados = countIntereses;
+            } else {
+                cuotasData[index].items_causados+= parseFloat(value.items);
+                cuotasData[total].items_causados+= parseFloat(value.items); 
+            }
+
             cuotasData[index].total_causados+= parseFloat(value.valor_causado);
-            cuotasData[total].items_causados+= parseFloat(value.items);
             cuotasData[total].total_causados+= parseFloat(value.valor_causado);
 
             var previoCountA = cuotasData[index].total_causados - value.valor_causado;
@@ -283,7 +295,7 @@ function actualizarTotales(data) {
             if (parseInt(cuotasData[index].total_causados) > parseInt(cuotasData[index].valor_total)) {
                 document.getElementById('extras_causado_'+key).style.color = "red";
             } else if (parseInt(cuotasData[index].valor_total) == parseInt(cuotasData[index].total_causados)) {
-                document.getElementById('extras_causado_'+key).style.color = "green";
+                document.getElementById('extras_causado_'+key).style.color = "#00de00";
             } else {
                 document.getElementById('extras_causado_'+key).style.color = "black";
             }
@@ -291,7 +303,7 @@ function actualizarTotales(data) {
             if (cuotasData[index].items_causados > cuotasData[index].items) {
                 document.getElementById('extras_items_'+key).style.color = "red";
             } else if (cuotasData[index].items_causados == cuotasData[index].items) {
-                document.getElementById('extras_items_'+key).style.color = "green";
+                document.getElementById('extras_items_'+key).style.color = "#00de00";
             } else {
                 document.getElementById('extras_items_'+key).style.color = "black";
             }
@@ -300,7 +312,7 @@ function actualizarTotales(data) {
             if (diferencia < 0) {
                 document.getElementById('extras_diferencia_'+key).style.color = "red";
             } else if (diferencia == 0){
-                document.getElementById('extras_diferencia_'+key).style.color = "green";
+                document.getElementById('extras_diferencia_'+key).style.color = "#00de00";
             } else {
                 document.getElementById('extras_diferencia_'+key).style.color = "black";
             }
@@ -317,7 +329,7 @@ function actualizarTotales(data) {
             inmueblesData[total].total_causados+= parseFloat(value.valor_causado);
 
             var previoCountA = inmueblesData[index].total_causados - value.valor_causado;
-            var countA = new CountUp('inmueble_causado_'+key, previoCountA, inmueblesData[index].total_causados, 0, 0.5);
+            var countA = new CountUp('inmueble_causado_'+key, previoCountA, parseInt(parseFloat(inmueblesData[index].total_causados).toFixed()), 0, 0.5);
                 countA.start();
 
             var laterCountB =  inmueblesData[index].valor_total - inmueblesData[index].total_causados;
@@ -343,10 +355,10 @@ function actualizarTotales(data) {
                 countF.start();
 
             //VALIDAR ERRORES
-            if (parseInt(inmueblesData[index].total_causados) > parseInt(inmueblesData[index].valor_total)) {
+            if (parseInt(parseFloat(inmueblesData[index].total_causados).toFixed()) > parseInt(inmueblesData[index].valor_total)) {
                 document.getElementById('inmueble_causado_'+key).style.color = "red";
-            } else if (parseInt(inmueblesData[index].valor_total) == parseInt(inmueblesData[index].total_causados)) {
-                document.getElementById('inmueble_causado_'+key).style.color = "green";
+            } else if (parseInt(inmueblesData[index].valor_total) == parseInt(parseFloat(inmueblesData[index].total_causados).toFixed())) {
+                document.getElementById('inmueble_causado_'+key).style.color = "#00de00";
             } else {
                 document.getElementById('inmueble_causado_'+key).style.color = "black";
             }
@@ -354,16 +366,16 @@ function actualizarTotales(data) {
             if (inmueblesData[index].items_causados > inmueblesData[index].items) {
                 document.getElementById('inmueble_items_'+key).style.color = "red";
             } else if (parseInt(inmueblesData[index].items_causados) == parseInt(inmueblesData[index].items)) {
-                document.getElementById('inmueble_items_'+key).style.color = "green";
+                document.getElementById('inmueble_items_'+key).style.color = "#00de00";
             } else {
                 document.getElementById('inmueble_items_'+key).style.color = "black";
             }
 
-            var diferencia = parseInt(inmueblesData[index].valor_total) - parseInt(inmueblesData[index].total_causados);
+            var diferencia = parseInt(inmueblesData[index].valor_total) - parseInt(parseFloat(inmueblesData[index].total_causados).toFixed());
             if (diferencia < 0) {
                 document.getElementById('inmueble_diferencia_'+key).style.color = "red";
             } else if (diferencia == 0){
-                document.getElementById('inmueble_diferencia_'+key).style.color = "green";
+                document.getElementById('inmueble_diferencia_'+key).style.color = "#00de00";
             } else {
                 document.getElementById('inmueble_diferencia_'+key).style.color = "black";
             }

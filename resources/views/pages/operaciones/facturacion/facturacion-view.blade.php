@@ -102,8 +102,8 @@
                             <td style="text-align: end; color: black;" id="saldo_items">0</td>
                             <td style="text-align: end; color: black;" id="saldo_valor">0</td>
                             <td style="text-align: end; color: black; font-weight: bold;" id="saldo_causado">0</td>
-                            <td style="text-align: end; color: black; font-weight: bold; color: green;" id="saldo_nuevo_saldo">0</td>
-                            <td style="text-align: end; color: black; font-weight: bold; color: green;" id="saldo_items_nuevo">0</td>
+                            <td style="text-align: end; color: black; font-weight: bold; color: #00de00;" id="saldo_nuevo_saldo">0</td>
+                            <td style="text-align: end; color: black; font-weight: bold; color: #00de00;" id="saldo_items_nuevo">0</td>
                         </tr>
                     </tfoot> -->
                 </table>
@@ -146,8 +146,8 @@
                             <td style="text-align: end;" id="saldo_items">0</td>
                             <td style="text-align: end;" id="saldo_valor">0</td>
                             <td style="text-align: end; font-weight: bold;" id="saldo_causado">0</td>
-                            <td style="text-align: end; font-weight: bold; color: green;" id="saldo_nuevo_saldo">0</td>
-                            <td style="text-align: end; font-weight: bold; color: green;" id="saldo_items_nuevo">0</td>
+                            <td style="text-align: end; font-weight: bold; color: #00b700;" id="saldo_nuevo_saldo">0</td>
+                            <td style="text-align: end; font-weight: bold; color: #00b700;" id="saldo_items_nuevo">0</td>
                         </tr>
                     </body>
                 </table>
