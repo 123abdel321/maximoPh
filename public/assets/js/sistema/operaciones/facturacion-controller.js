@@ -255,8 +255,8 @@ function actualizarTotales(data, factura) {
         var total = cuotasData.findIndex(item => item.id_concepto_facturacion == "total_extras");
         if (index == 0 || index) {
             if (cuotasData[index].id_concepto_facturacion == "intereses") {
-                cuotasData[index].items_causados = countIntereses;
-                cuotasData[total].items_causados = countIntereses;
+                cuotasData[index].items_causados+= 1;
+                cuotasData[total].items_causados+= 1;
             } else {
                 cuotasData[index].items_causados+= parseFloat(value.items);
                 cuotasData[total].items_causados+= parseFloat(value.items); 

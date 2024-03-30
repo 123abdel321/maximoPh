@@ -784,12 +784,12 @@ class FacturacionController extends Controller
                     $sumaRapida+= floatval($extracto->saldo);
                     $saldo_base+= $saldo;
                     $total_intereses+= $saldo * ($porcentaje_intereses_mora / 100);
-                    $count_intereses++;
                 }
-                if ($tieneCXC) $count_saldo_base++;
+                if ($tieneCXC) { 
+                    $count_saldo_base++;
+                    $count_intereses++;
+                };
             }
-
-            // dd($extractosNits);
 
             if (array_key_exists($nit->id_nit, $anticiposNits)) {
                 foreach ($anticiposNits[$nit->id_nit] as $anticipos) {
@@ -803,7 +803,7 @@ class FacturacionController extends Controller
         $extrasConceptos[] = (object)[
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
-            'items' => count($extractosNits),
+            'items' => $count_intereses,
             'valor_total' => round($total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
@@ -816,7 +816,7 @@ class FacturacionController extends Controller
         $extrasConceptos[] = (object)[
             'id_concepto_facturacion' => 'total_extras',
             'concepto_facturacion' => 'TOTALES',
-            'items' => $count_saldo_anterior + $countCuotas,
+            'items' => $count_intereses + $countCuotas,
             'valor_total' => round($cuotasMultas->sum('valor_total') + $total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
@@ -996,21 +996,39 @@ class FacturacionController extends Controller
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return;
-
-        $valorTotalIntereses = 0;
-        
+        //AGRUPAMOS 
+        $extractosAgrupados = [];
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
-            $this->countIntereses++;
             if (!in_array($extracto->id_cuenta, $cobrarInteses)) continue;
-            
-            $saldo = floatval($extracto->saldo);
-            $this->saldoBase+= $saldo;
+            $this->countIntereses++;
+            if (array_key_exists($extracto->id_cuenta, $extractosAgrupados)) {
+                $extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
+                $extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
+                $extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
+            } else {
+                $extractosAgrupados[$extracto->id_cuenta] = (object)[
+                    'id_nit' => $extracto->id_nit,
+                    'concepto' => $extracto->concepto,
+                    'total_abono' => $extracto->total_abono,
+                    'total_facturas' => $extracto->total_facturas,
+                    'saldo' => $extracto->saldo,
+                ];
+            }
+        }
 
-            $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
-            $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
-            $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-            $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
+        //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
+        if (!count($extractosAgrupados)) return;
+
+        $valorTotalIntereses = 0;
+        $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
+        $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
+        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+        $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
+        
+        foreach ($extractosAgrupados as $extracto) {
+            $saldo = floatval($extracto->saldo);
+            $this->saldoBase+= $saldo;            
             
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
@@ -1031,7 +1049,7 @@ class FacturacionController extends Controller
                 'fecha_manual' => $inicioMes.'-01',
                 'documento_referencia' => $inicioMes,
                 'valor' => $valorTotal,
-                'concepto' => 'INTERESES '.$concepto.' - '.$extracto->fecha_manual.' - %'.$porcentaje_intereses_mora.' - BASE: '.$saldo,
+                'concepto' => 'INTERESES '.$concepto.' - '.$inicioMes.'-01'.' - %'.$porcentaje_intereses_mora.' - BASE: '.$saldo,
                 'naturaleza_opuesta' => false,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id,
@@ -1039,7 +1057,7 @@ class FacturacionController extends Controller
 
             FacturacionDetalle::where('concepto', $extracto->concepto)
                 ->where('id_nit', $extracto->id_nit)
-                ->where('fecha_manual', $extracto->fecha_manual)
+                ->where('fecha_manual', $inicioMes.'-01')
                 ->update([
                     'saldo' => $saldo
                 ]);
