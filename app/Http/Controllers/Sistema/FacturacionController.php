@@ -212,7 +212,7 @@ class FacturacionController extends Controller
             foreach ($inmueblesFacturar as $inmuebleFactura) {
                 if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->items+= 1;
-                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->valor_total+= $inmuebleFactura->valor_total;
+                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->valor_causado+= $inmuebleFactura->valor_total;
                 } else {
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion] = (object)[
                         'items' => 1,
@@ -667,7 +667,7 @@ class FacturacionController extends Controller
             return response()->json([
                 "success"=>false,
                 'data' => [],
-                "message"=> $response['message']
+                "message"=> $response
             ], 422);
         }
 
@@ -1048,7 +1048,7 @@ class FacturacionController extends Controller
                 'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                 'fecha_manual' => $inicioMes.'-01',
                 'documento_referencia' => $inicioMes,
-                'valor' => $valorTotal,
+                'valor' => round($valorTotal),
                 'concepto' => 'INTERESES '.$concepto.' - '.$inicioMes.'-01'.' - %'.$porcentaje_intereses_mora.' - BASE: '.$saldo,
                 'naturaleza_opuesta' => false,
                 'created_by' => request()->user()->id,
