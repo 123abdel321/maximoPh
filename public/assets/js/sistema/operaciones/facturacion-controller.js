@@ -181,7 +181,7 @@ function generarTablaPreview(data) {
         document.getElementById('inmuebles_registrados_facturacion').style.color = "#344767;";
     }
 
-    if (data.area_registro_m2 != data.area_total_m2) {
+    if (parseFloat(data.area_registro_m2) != parseFloat(data.area_total_m2)) {
         document.getElementById('area2_registrados_facturacion').style.color = "red";
     } else {
         document.getElementById('area2_registrados_facturacion').style.color = "#344767;";
@@ -192,8 +192,8 @@ function generarTablaPreview(data) {
     } else {
         document.getElementById('coeficiente_registrados_facturacion').style.color = "#344767;";
     }
-
-    if (data.valor_registro_presupuesto != data.valor_total_presupuesto) {
+    
+    if (data.valor_registro_presupuesto.toFixed() != data.valor_total_presupuesto.toFixed()) {
         document.getElementById('presupuesto_registrados_facturacion').style.color = "red";
     } else {
         document.getElementById('presupuesto_registrados_facturacion').style.color = "#344767;";
@@ -295,7 +295,7 @@ function actualizarTotales(data, factura) {
             if (parseInt(cuotasData[index].total_causados) > parseInt(cuotasData[index].valor_total)) {
                 document.getElementById('extras_causado_'+key).style.color = "red";
             } else if (parseInt(cuotasData[index].valor_total) == parseInt(cuotasData[index].total_causados)) {
-                document.getElementById('extras_causado_'+key).style.color = "#00de00";
+                document.getElementById('extras_causado_'+key).style.color = "#008000";
             } else {
                 document.getElementById('extras_causado_'+key).style.color = "black";
             }
@@ -303,7 +303,7 @@ function actualizarTotales(data, factura) {
             if (cuotasData[index].items_causados > cuotasData[index].items) {
                 document.getElementById('extras_items_'+key).style.color = "red";
             } else if (cuotasData[index].items_causados == cuotasData[index].items) {
-                document.getElementById('extras_items_'+key).style.color = "#00de00";
+                document.getElementById('extras_items_'+key).style.color = "#008000";
             } else {
                 document.getElementById('extras_items_'+key).style.color = "black";
             }
@@ -312,7 +312,7 @@ function actualizarTotales(data, factura) {
             if (diferencia < 0) {
                 document.getElementById('extras_diferencia_'+key).style.color = "red";
             } else if (diferencia == 0){
-                document.getElementById('extras_diferencia_'+key).style.color = "#00de00";
+                document.getElementById('extras_diferencia_'+key).style.color = "#008000";
             } else {
                 document.getElementById('extras_diferencia_'+key).style.color = "black";
             }
@@ -358,7 +358,7 @@ function actualizarTotales(data, factura) {
             if (parseInt(parseFloat(inmueblesData[index].total_causados).toFixed()) > parseInt(inmueblesData[index].valor_total)) {
                 document.getElementById('inmueble_causado_'+key).style.color = "red";
             } else if (parseInt(inmueblesData[index].valor_total) == parseInt(parseFloat(inmueblesData[index].total_causados).toFixed())) {
-                document.getElementById('inmueble_causado_'+key).style.color = "#00de00";
+                document.getElementById('inmueble_causado_'+key).style.color = "#008000";
             } else {
                 document.getElementById('inmueble_causado_'+key).style.color = "black";
             }
@@ -366,7 +366,7 @@ function actualizarTotales(data, factura) {
             if (inmueblesData[index].items_causados > inmueblesData[index].items) {
                 document.getElementById('inmueble_items_'+key).style.color = "red";
             } else if (parseInt(inmueblesData[index].items_causados) == parseInt(inmueblesData[index].items)) {
-                document.getElementById('inmueble_items_'+key).style.color = "#00de00";
+                document.getElementById('inmueble_items_'+key).style.color = "#008000";
             } else {
                 document.getElementById('inmueble_items_'+key).style.color = "black";
             }
@@ -375,7 +375,7 @@ function actualizarTotales(data, factura) {
             if (diferencia < 0) {
                 document.getElementById('inmueble_diferencia_'+key).style.color = "red";
             } else if (diferencia == 0){
-                document.getElementById('inmueble_diferencia_'+key).style.color = "#00de00";
+                document.getElementById('inmueble_diferencia_'+key).style.color = "#008000";
             } else {
                 document.getElementById('inmueble_diferencia_'+key).style.color = "black";
             }
