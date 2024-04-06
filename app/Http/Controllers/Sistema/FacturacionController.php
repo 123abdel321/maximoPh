@@ -213,6 +213,7 @@ class FacturacionController extends Controller
                 if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->items+= 1;
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->valor_causado+= $inmuebleFactura->valor_total;
+                    
                 } else {
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion] = (object)[
                         'items' => 1,

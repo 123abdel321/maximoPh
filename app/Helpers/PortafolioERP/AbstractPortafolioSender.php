@@ -15,16 +15,16 @@ abstract class AbstractPortafolioSender
     public function send($id_empresa)
     {
         $empresa = Empresa::find($id_empresa);
-        
         $bearerToken = $empresa->token_api_portafolio;
+
         $url = $this->getUrl();
         $method = $this->getMethod();
         $params = $this->getParams();
-        
+
         $dataResponse = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'X-Requested-With' => 'XMLHttpRequest',
-                'Authorization' => 'Bearer ' . $bearerToken,
+                'Authorization' => $bearerToken,
             ])
             ->timeout(60);
 
@@ -42,9 +42,9 @@ abstract class AbstractPortafolioSender
                 $dataResponse = $dataResponse->delete($url, $params);
                 break;        
         }
-
+        
         $response = (object) $dataResponse->json();
-
+        
         return [
 			"status" => $dataResponse->status(),
 			"response" => $response,
@@ -61,6 +61,6 @@ abstract class AbstractPortafolioSender
         } else {//LOCAL
             $url = 'http://127.0.0.1:8000/api';
         }
-		return $url . $this->getEndpoint();
+        return $url . $this->getEndpoint();
 	}
 }
