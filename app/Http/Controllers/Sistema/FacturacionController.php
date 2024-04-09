@@ -954,7 +954,7 @@ class FacturacionController extends Controller
                 'fecha_manual' => $inicioMes.'-01',
                 'documento_referencia' => $documentoReferencia,
                 'documento_referencia_anticipo' => $facturacxp->documento_referencia,
-                'valor' => $totalCruce,
+                'valor' => round($totalCruce),
                 'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
                 'naturaleza_opuesta' => true,
                 'created_by' => request()->user()->id,
@@ -974,6 +974,7 @@ class FacturacionController extends Controller
     private function generarFacturaInmuebleIntereses(Facturacion $factura, $inmuebleFactura, $id_empresa, $cobrarInteses, $periodo_facturacion)
     {
         $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
+        $id_cuenta_ingreso_intereses = Entorno::where('nombre', 'id_cuenta_ingreso_intereses')->first()->valor;
         
         if (!$id_cuenta_intereses) return;
         
@@ -1044,7 +1045,7 @@ class FacturacionController extends Controller
                 'id_factura' => $factura->id,
                 'id_nit' => $factura->id_nit,
                 'id_cuenta_por_cobrar' => $id_cuenta_intereses,
-                'id_cuenta_ingreso' => $id_cuenta_ingreso,
+                'id_cuenta_ingreso' => $id_cuenta_ingreso_intereses,
                 'id_comprobante' => $id_comprobante_ventas,
                 'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                 'fecha_manual' => $inicioMes.'-01',

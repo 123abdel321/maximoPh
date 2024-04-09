@@ -10,10 +10,10 @@
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-12 col-sm-12">
                 <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuenta" style="display: none;">
-                    <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Realizar pago
+                    <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
                 </button>
                 <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuentaDisabled" style="box-shadow: none; color: white;" disabled>
-                    <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Realizar pago
+                    <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
                 </button>
                 &nbsp;
                 <button type="button" class="btn btn-dark btn-sm" id="generateComprobanteEstadoCuenta" style="display: none;">

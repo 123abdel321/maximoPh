@@ -251,9 +251,9 @@ function estadocuentaInit() {
         });
     }
 
-    $('#fecha_desde_estado_cuenta_pagos').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
+    $('#fecha_desde_estado_cuenta_pagos').val(dateNow.getFullYear()+'-01-01');
     $('#fecha_hasta_estado_cuenta_pagos').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
-    $('#fecha_desde_estado_cuenta_facturas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
+    $('#fecha_desde_estado_cuenta_facturas').val(dateNow.getFullYear()+'-01-01');
     $('#fecha_hasta_estado_cuenta_facturas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
 
     $('.water').hide();

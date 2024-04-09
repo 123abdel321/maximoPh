@@ -475,6 +475,13 @@ function changeTotalAbonoRecibo(event) {
     }
 }
 
+$(document).on('change', '#id_nit_recibo', function () {
+    let data = $('#id_nit_recibo').select2('data')[0];
+    if (data) {
+        document.getElementById('iniciarCapturaRecibo').click();
+    }
+});
+
 function changeConceptoReciboRow(idRow, event) {
     if (!idRow) return;
 
