@@ -982,7 +982,7 @@ class FacturacionController extends Controller
             $factura->id_nit,
             [3,7],
             null,
-            $periodo_facturacion
+            date("d-m-Y",strtotime($periodo_facturacion."- 1 days"))
         ))->send($id_empresa);
 
         if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
