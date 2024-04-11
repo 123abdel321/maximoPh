@@ -20,6 +20,7 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 //ADMINISTRATIVO
+use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
@@ -45,8 +46,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 	Route::group(['middleware' => ['clientconnectionweb']], function () {
 		//INICIO
-		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
+		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 		//TABLAS
 		Route::get('/nit', [NitController::class, 'index']);
 		Route::get('/zona', [ZonasController::class, 'index']);
@@ -55,10 +56,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//OPERACIONES
 		Route::get('/recibo', [ReciboController::class, 'index']);
 		Route::get('/pagotransferencia', [ReciboController::class, 'indexPagos']);
-		
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
+		Route::get('/porteria', [PorteriaController::class, 'index']);
+		Route::post('/porteria', [PorteriaController::class, 'create']);
+		
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
 		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);

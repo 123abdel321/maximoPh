@@ -63,6 +63,7 @@ var moduloCreado = {
     'estadocuenta': false,
     'usuarios': false,
     'pagotransferencia': false,
+    'porteria': false,
 };
 
 var moduloRoute = {
@@ -77,6 +78,7 @@ var moduloRoute = {
     'estadocuenta': 'administrativo',
     'usuarios': 'configuracion',
     'pagotransferencia': 'operaciones',
+    'porteria': 'administrativo',
 }
 
 $('.water').show();

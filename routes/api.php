@@ -14,6 +14,7 @@ use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
+use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
@@ -109,6 +110,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //PLAN CUENTAS
         Route::controller(PlanCuentaController::class)->group(function () {
             Route::get('plan-cuenta/combo-cuenta', 'comboCuenta');
+        });
+        //PLAN CUENTAS
+        Route::controller(PlanCuentaController::class)->group(function () {
+            Route::get('plan-cuenta/combo-cuenta', 'comboCuenta');
+        });
+        Route::controller(PorteriaController::class)->group(function () {
+            Route::get('porteria', 'read');
         });
         //ESTADO CUENTA
         Route::controller(EstadoCuentaController::class)->group(function () {
