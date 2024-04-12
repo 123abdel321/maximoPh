@@ -22,6 +22,7 @@ use App\Http\Controllers\Sistema\CuotasMultasController;
 //ADMINISTRATIVO
 use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
+use App\Http\Controllers\Sistema\PorteriaEventoController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Empresa\UsuariosController;
@@ -61,6 +62,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//ADMINISTRATIVO
 		Route::get('/porteria', [PorteriaController::class, 'index']);
 		Route::post('/porteria', [PorteriaController::class, 'create']);
+		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
 		
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
 		//CONFIGURACION

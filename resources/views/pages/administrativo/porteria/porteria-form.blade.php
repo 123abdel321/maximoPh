@@ -104,7 +104,9 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button class="btn bg-gradient-danger btn-sm" href="javascript:void(0)" data-bs-dismiss="modal">Cancelar</button>
+                    <span href="javascript:void(0)" class="btn bg-gradient-danger btn-sm" data-bs-dismiss="modal">
+                        Cancelar
+                    </span>
                     <button id="savePorteria" href="javascript:void(0)" class="btn bg-gradient-success btn-sm">Guardar</button>
                     <button id="savePorteriaLoading" class="btn btn-success btn-sm ms-auto" style="display:none; float: left;" disabled>
                         Cargando

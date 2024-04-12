@@ -139,7 +139,6 @@ class PorteriaController extends Controller
                 ]);
             }
 
-            $nameFile = '';
             if ($file) {
                 $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
                 $url = Storage::disk('do_spaces')->put($nameFile, $file, 'public');
@@ -174,6 +173,23 @@ class PorteriaController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
+    }
+
+    public function combo (Request $request)
+    {
+        $inmuebles = Porteria::with('archivos')
+            ->select(
+                \DB::raw('*'),
+                \DB::raw("nombre as text")
+            );
+
+        if ($request->get("search")) {
+            $inmuebles->where('nombre', 'like', '%' .$request->get("search"). '%')
+                ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
+        }
+
+        return $inmuebles->paginate(40);
     }
 
     private function getDiasString ($request)

@@ -54,9 +54,16 @@
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-4 col-sm-4">
-                <button type="button" class="btn btn-primary btn-sm" id="generatePorteriaNueva">
-                    Agregar en porteria
-                </button>
+                @can('porteria create')
+                    <button type="button" class="btn btn-primary btn-sm" id="generatePorteriaNueva">
+                        Agregar en porteria
+                    </button>
+                @endcan
+                @can('porteria eventos')
+                    <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria">
+                        Agregar evento
+                    </button>
+                @endcan
             </div>
             <div class="col-12 col-md-8 col-sm-8">
                 <input type="text" id="searchInputPorteria" class="form-control form-control-sm search-table" onkeydown="searchPorteria(event)" placeholder="Buscar">
@@ -94,12 +101,25 @@
             <i class="fa fa-spinner fa-pulse fa-4x fa-fw" style="color: white;width: 150px;"></i>
         </div>
 
+        <div id="items-tabla-porteria" class="card mb-4" style="content-visibility: auto; overflow: auto;">
+            <div class="card-body">
+                
+                @include('pages.administrativo.porteria.porteria_evento-table')
+
+            </div>
+        </div>
         
         <div id="items-card-porteria" class="row" style="margin-top: 1rem; padding-right: 0px; margin-left: -5px;">
 
         </div>
 
         @include('pages.administrativo.porteria.porteria-form')
+        @include('pages.administrativo.porteria.porteria_evento-form')
 
     </div>
 </div>
+
+<script>
+    var crearPorteria = '<?php echo auth()->user()->can('porteria create'); ?>';
+    var eventoPorteria = '<?php echo auth()->user()->can('porteria eventos'); ?>';
+</script>

@@ -19,6 +19,7 @@ use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
+use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 
 
@@ -115,9 +116,16 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(PlanCuentaController::class)->group(function () {
             Route::get('plan-cuenta/combo-cuenta', 'comboCuenta');
         });
+        //PORTERIA
         Route::controller(PorteriaController::class)->group(function () {
             Route::get('porteria', 'read');
+            Route::get('porteria-combo', 'combo');
         });
+        //PORTERIA EVENTOS
+        Route::controller(PorteriaEventoController::class)->group(function () {
+            Route::get('porteriaevento', 'read');
+        });
+        
         //ESTADO CUENTA
         Route::controller(EstadoCuentaController::class)->group(function () {
             Route::get('estadocuenta', 'generate');

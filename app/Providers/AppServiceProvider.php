@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Relations\Relation;
 //MODELS SISTEMA
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\PorteriaEvento;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             '1' => Porteria::class,
+            '2' => PorteriaEvento::class,
 		]);
     }
 
