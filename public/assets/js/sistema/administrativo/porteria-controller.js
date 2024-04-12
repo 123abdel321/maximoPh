@@ -17,6 +17,7 @@ var $comboInmuebleEventos = null;
 
 function porteriaInit() {
     if (crearPorteria) {
+        $("#items-tabla-porteria").hide();
         loadItemsPorteria();
     } 
 
