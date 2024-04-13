@@ -32,4 +32,9 @@ class Porteria extends Model
         return $this->morphMany(ArchivosGenerales::class, 'relation');
 	}
 
+    public function propietario()
+    {
+		return $this->belongsTo('App\Models\User', 'id_usuario', 'id');
+	}
+
 }

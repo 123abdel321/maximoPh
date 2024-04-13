@@ -30,6 +30,14 @@
         -webkit-box-orient: vertical;
     }
 
+    .text-max-line-1 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+
     .status-autorizado-position {
         position: absolute;
         margin: 0;

@@ -9,6 +9,26 @@ var diaPorteria = [
     "diaPorteria6",
     "diaPorteria7"
 ];
+var semanaPorteria = [
+    'none',
+    'lun',
+    'mar',
+    'mie',
+    'jue',
+    'vie',
+    'sab',
+    'dom'
+];
+var weekGoalkeeper = [
+    'none',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun'
+];
 var searchValuePorteria = null;
 var buscarDatosPorteria = false;
 var porteria_evento_table = null;
@@ -325,7 +345,6 @@ function loadItemsPorteria() {
         $("#loading-porteria").hide();
         buscarDatosPorteria = false;
         if(res.success){
-            dataPorteria = res.data;
             res.data.forEach(data => {
                 createItemPorteria(data);
             });
@@ -370,9 +389,10 @@ function readURLEvento(input) {
 }
 
 function createItemPorteria(porteria) {
-    var tipoPorteria = '';
-    var colorTipo = '';
     var imagen = bucketUrl + 'logos_empresas/no-photo.jpg';
+
+    var tipoPorteria = 'Propietario';
+    var colorTipo = '#7859ed';
     if (porteria.tipo_porteria == 1) {
         tipoPorteria = 'Persona';
         colorTipo = '#59bded';
@@ -381,7 +401,7 @@ function createItemPorteria(porteria) {
         colorTipo = '#4cd361';
     } else if (porteria.tipo_porteria == 3) {
         tipoPorteria = 'Vehiculo';
-        colorTipo = '#f75c5c';
+        colorTipo = '#e4b040';
     }
 
     if (porteria.archivos.length > 0) {
@@ -398,15 +418,22 @@ function createItemPorteria(porteria) {
         action = `onclick="agregarEventoPorteria(${porteria.id})"`;
     }
 
+    var lastName = porteria.propietario.lastname ? porteria.propietario.lastname : '';
+
     var html = `
         <div class="card card-item-porteria" style="margin-bottom: 10px; height: 100%; overflow: hidden;" ${action}>
-            <img style="height: 140px; object-fit: cover; object-position: top;" class="card-img-top img-porteria" src="${imagen}" alt="name_unique">
+            <i id="loading-card-porteria-${porteria.id}" class="fa fa-spinner fa-pulse fa-4x fa-fw" style="position: absolute; top: 45%; left: 35%; color: lightseagreen; display: none;"></i>
+            <img style="height: 160px; object-fit: cover; object-position: top;" class="card-img-top img-porteria" src="${imagen}" alt="name_unique">
             <div class="ribbon" style="background-color: ${colorTipo};">${tipoPorteria}</div>
             <div class="card-body" style="align-content: center; ">
                 ${autorizado(porteria)}
                 <p class="text-max-line-2" style="font-size: 12px; color: black; text-align: -webkit-center; font-weight: 600; margin-bottom: 0px;">${porteria.nombre}</p>
                 ${placaVehiculo(porteria)}
                 ${observacionPorteria(porteria)}
+                ${diasPermiso(porteria)}
+            </div>
+            <div class="modal-footer" style="justify-content: center; padding: 0;">
+                <p class="text-max-line-1" style="font-size: 9px; color: #085361; font-weight: bold;">${porteria.propietario.firstname} ${lastName}</p>
             </div>
         </div>
     `;
@@ -430,7 +457,7 @@ function autorizado(porteria) {
         if (numeroDia == new Date(porteria.hoy).getDay()) {
             return `<span class="badge badge-sm bg-gradient-success status-autorizado-position">AUTORIZADO</span>`;
         }
-        if (diasArray.includes((numeroDia+1)+"")) {
+        if (diasArray.includes((numeroDia)+"")) {
             return `<span class="badge badge-sm bg-gradient-success status-autorizado-position">AUTORIZADO</span>`;
         }
         return `<span class="badge badge-sm bg-gradient-danger status-autorizado-position">NO AUTORIZADO</span>`;
@@ -445,9 +472,35 @@ function placaVehiculo(porteria) {
     return ``;
 }
 
+function diasPermiso(porteria) {
+    if (porteria.dias) {
+        var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+        var numeroDia = new Date(dayNow).getDay();
+        var diasText = '';
+        var dias = porteria.dias.split(',');
+        dias.forEach(dia => {
+            if (diasText) {
+                if (numeroDia == dia) diasText+=', <b style="color: #59bded;">'+semanaPorteria[dia]+'</b>';
+                else diasText+=', '+semanaPorteria[dia];
+                
+            } else { 
+                if (numeroDia == dia) diasText+= '<b style="color: #59bded;">'+semanaPorteria[dia]+'</b>';
+                else diasText+= semanaPorteria[dia];
+            }
+        });
+        return `<p style="font-size: 11px; text-align: -webkit-center; margin-bottom: 0px; margin-top: 5px;">${diasText}</p>`
+    }
+
+    if (porteria.hoy) {
+        return `<p style="font-size: 11px; text-align: -webkit-center; margin-bottom: 0px; margin-top: 5px;">${porteria.hoy}</p>`;
+    }
+
+    return ``;
+}
+
 function observacionPorteria(porteria) {
     if (porteria.observacion) {
-        return `<p class="text-max-line-2" style="margin-top: 5px; font-size: 12px; color: black; text-align: -webkit-center; margin-bottom: 0px;">${porteria.observacion}</p>`
+        return `<p class="text-max-line-2" style="margin-top: 5px; font-size: 11px; color: black; text-align: -webkit-center; margin-bottom: 0px;">${porteria.observacion}</p>`
     }
     return ``;
 }
@@ -496,69 +549,94 @@ function hideInputPorteria() {
 }
 
 function editarItemPorteria(id) {
-    hideInputPorteria();
-
-    var indexPorteria = dataPorteria.findIndex(item => item.id == id);
-    var itemPorteria = dataPorteria[indexPorteria];
-
-    if (itemPorteria.archivos.length) {
-        $('#default_avatar_porteria').attr('src', bucketUrl+itemPorteria.archivos[0].url_archivo);
-    } else {
-        $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
-    }
+    $("#loading-card-porteria-"+id).show();
+    $.ajax({
+        url: base_url + 'porteria-find',
+        method: 'GET',
+        data: {
+            id: id
+        },
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        itemPorteria = res.data;
+        hideInputPorteria();
+        $("#loading-card-porteria-"+id).hide();
+        if (itemPorteria.archivos.length) {
+            $('#default_avatar_porteria').attr('src', bucketUrl+itemPorteria.archivos[0].url_archivo);
+        } else {
+            $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
+        }
+        
+        if(parseInt(itemPorteria.tipo_porteria) == 1) {
+            $("#input_dias_porteria").show();
+            $("#input_tipo_vehiculo_porteria").show();
+            $("#input_placa_persona_porteria").show();
+            $("#input_nombre_persona_porteria").show();
+        } else if (parseInt(itemPorteria.tipo_porteria) == 2) {
+            $("#input_tipo_mascota_porteria").show();
+            $("#input_nombre_persona_porteria").show();
+        } else if (parseInt(itemPorteria.tipo_porteria) == 3) {
+            $("#input_tipo_vehiculo_porteria").show();
+            $("#input_placa_persona_porteria").show();
+        }
     
-    if(parseInt(itemPorteria.tipo_porteria) == 1) {
-        $("#input_dias_porteria").show();
-        $("#input_tipo_vehiculo_porteria").show();
-        $("#input_placa_persona_porteria").show();
-        $("#input_nombre_persona_porteria").show();
-    } else if (parseInt(itemPorteria.tipo_porteria) == 2) {
-        $("#input_tipo_mascota_porteria").show();
-        $("#input_nombre_persona_porteria").show();
-    } else if (parseInt(itemPorteria.tipo_porteria) == 3) {
-        $("#input_tipo_vehiculo_porteria").show();
-        $("#input_placa_persona_porteria").show();
-    }
+        $("#id_porteria_up").val(id);
+        $("#tipo_porteria_create").val(itemPorteria.tipo_porteria);
+        $("#nombre_persona_porteria").val(itemPorteria.nombre);
+        $("#tipo_vehiculo_porteria").val(itemPorteria.tipo_vehiculo);
+        $("#tipo_mascota_porteria").val(itemPorteria.tipo_mascota);
+        $("#placa_persona_porteria").val(itemPorteria.placa);
+        $("#observacion_persona_porteria").val(itemPorteria.observacion);
+    
+        var diasSeleccionado = itemPorteria.dias.split(",");
+    
+        diasSeleccionado.forEach(dia => {
+            $('#diaPorteria'+dia).prop('checked', true);
+        });
+        $("#porteriaFormModal").modal('show');
 
-    $("#id_porteria_up").val(id);
-    $("#tipo_porteria_create").val(itemPorteria.tipo_porteria);
-    $("#nombre_persona_porteria").val(itemPorteria.nombre);
-    $("#tipo_vehiculo_porteria").val(itemPorteria.tipo_vehiculo);
-    $("#tipo_mascota_porteria").val(itemPorteria.tipo_mascota);
-    $("#placa_persona_porteria").val(itemPorteria.placa);
-    $("#observacion_persona_porteria").val(itemPorteria.observacion);
-
-    var diasSeleccionado = itemPorteria.dias.split(",");
-
-    diasSeleccionado.forEach(dia => {
-        $('#diaPorteria'+dia).prop('checked', true);
+    }).fail((err) => {
+        $("#loading-card-porteria-"+id).hide();
     });
-
-    $("#porteriaFormModal").modal('show');
 }
 
 function agregarEventoPorteria (id) {
-    clearFormEventoPorteria();
-    var indexPorteria = dataPorteria.findIndex(item => item.id == id);
-    var itemPorteria = dataPorteria[indexPorteria];
+    $("#loading-card-porteria-"+id).show();
+    $.ajax({
+        url: base_url + 'porteria-find',
+        method: 'GET',
+        data: {
+            id: id
+        },
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        itemPorteria = res.data;
+        clearFormEventoPorteria();
+        $("#loading-card-porteria-"+id).hide();
 
-    if (itemPorteria.tipo_porteria == 3) {
-        var dataPersona = {
-            id: itemPorteria.id,
-            text: itemPorteria.placa
-        };
-    } else {
-        var dataPersona = {
-            id: itemPorteria.id,
-            text: itemPorteria.nombre
-        };
-    }
+        if (itemPorteria.tipo_porteria == 3) {
+            var dataPersona = {
+                id: itemPorteria.id,
+                text: itemPorteria.placa
+            };
+        } else {
+            var dataPersona = {
+                id: itemPorteria.id,
+                text: itemPorteria.nombre
+            };
+        }
+    
+        var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
+        $comboPorteriaEventos.append(newOption).trigger('change');
+        $comboPorteriaEventos.val(itemPorteria.id).trigger('change');
 
-    var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
-    $comboPorteriaEventos.append(newOption).trigger('change');
-    $comboPorteriaEventos.val(itemPorteria.id).trigger('change');
+        $("#porteriaEventoFormModal").modal('show');
 
-    $("#porteriaEventoFormModal").modal('show');
+    }).fail((err) => {
+        $("#loading-card-porteria-"+id).hide();
+    });
 }
 
 function formatInmueblePorteriaSelection (inmueble) {

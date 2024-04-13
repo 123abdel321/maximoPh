@@ -41,7 +41,7 @@ class PorteriaController extends Controller
 
             $porteriaTotal = Porteria::count();
 
-            $porteria = Porteria::with('archivos');
+            $porteria = Porteria::with('archivos', 'propietario');
 
             if ($request->get("search")) {
                 $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
@@ -61,6 +61,28 @@ class PorteriaController extends Controller
             ]);
 
         } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function find (Request $request)
+    {
+        try {
+            $porteria = Porteria::with('archivos', 'propietario')
+                ->where('id', $request->get('id'))
+                ->first();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $porteria,
+                'message'=> 'Datos porteria cargados con exito!'
+            ]);
+        } catch (Exception $e) {
+            
             return response()->json([
                 "success"=>false,
                 'data' => [],
@@ -95,19 +117,15 @@ class PorteriaController extends Controller
             DB::connection('max')->beginTransaction();
 
             $file = $request->file('imagen_porteria');
-            $nombrePorteria = $request->get('nombre_persona_porteria');
 
-            if (!$nombrePorteria) {
-                $nombrePorteria = request()->user()->firstname.' '.request()->user()->lastname;
-            }
-            //ACTUALIZAR 
+            //ACTUALIZAR
             if ($request->get('id_porteria_up')) {
                 Porteria::where('id', $request->get('id_porteria_up'))
                     ->update([
                         'tipo_porteria' => $request->get('tipo_porteria_create'),
                         'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
                         'tipo_mascota' => $request->get('tipo_mascota_porteria'),
-                        'nombre' => $nombrePorteria,
+                        'nombre' => $request->get('nombre_persona_porteria'),
                         'dias' => $this->getDiasString($request),
                         'placa' => $request->get('placa_persona_porteria'),
                         'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
@@ -129,7 +147,7 @@ class PorteriaController extends Controller
                     'tipo_porteria' => $request->get('tipo_porteria_create'),
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
                     'tipo_mascota' => $request->get('tipo_mascota_porteria'),
-                    'nombre' => $nombrePorteria,
+                    'nombre' => $request->get('nombre_persona_porteria'),
                     'dias' => $this->getDiasString($request),
                     'placa' => $request->get('placa_persona_porteria'),
                     'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,

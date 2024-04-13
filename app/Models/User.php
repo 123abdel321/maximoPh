@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     protected $guard_name = 'sanctum';
 
+    protected $connection = 'clientes';
+
     protected $fillable = [
         'username',
         'firstname',
