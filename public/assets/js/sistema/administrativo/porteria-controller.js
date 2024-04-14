@@ -180,7 +180,9 @@ function porteriaInit() {
     }
 
     $('.water').hide();
-    porteria_evento_table.ajax.reload();
+    if (porteria_evento_table) {
+        porteria_evento_table.ajax.reload();
+    }
 }
 
 $('.form-control').keyup(function() {
@@ -213,6 +215,14 @@ $(document).on('change', '#tipo_porteria_create', function () {
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_placa_persona_porteria").show();
     }
+});
+
+$(document).on('change', '#fecha_salida_porteria_evento', function () {
+    $("#fecha_ingreso_porteria_evento").val("");
+});
+
+$(document).on('change', '#fecha_ingreso_porteria_evento', function () {
+    $("#fecha_salida_porteria_evento").val("");
 });
 
 $(document).on('change', '#tipo_vehiculo_porteria', function () {
@@ -284,8 +294,9 @@ $("#form-porteria-evento").submit(function(e) {
 
         $("#items-card-porteria").hide();
         $("#items-tabla-porteria").show();
-
-        porteria_evento_table.ajax.reload();
+        if (porteria_evento_table) {
+            porteria_evento_table.ajax.reload();
+        }
         agregarToast('exito', 'Evento creado', 'Evento creado con exito!', true);
 
         $("#porteriaEventoFormModal").modal('hide');
@@ -418,7 +429,7 @@ function createItemPorteria(porteria) {
         action = `onclick="agregarEventoPorteria(${porteria.id})"`;
     }
 
-    var lastName = porteria.propietario.lastname ? porteria.propietario.lastname : '';
+    var lastName = porteria.propietario ? porteria.propietario.lastname : '';
 
     var html = `
         <div class="card card-item-porteria" style="margin-bottom: 10px; height: 100%; overflow: hidden;" ${action}>
@@ -427,7 +438,7 @@ function createItemPorteria(porteria) {
             <div class="ribbon" style="background-color: ${colorTipo};">${tipoPorteria}</div>
             <div class="card-body" style="align-content: center; ">
                 ${autorizado(porteria)}
-                <p class="text-max-line-2" style="font-size: 12px; color: black; text-align: -webkit-center; font-weight: 600; margin-bottom: 0px;">${porteria.nombre}</p>
+                ${nombrePorteria(porteria)}
                 ${placaVehiculo(porteria)}
                 ${observacionPorteria(porteria)}
                 ${diasPermiso(porteria)}
@@ -461,6 +472,13 @@ function autorizado(porteria) {
             return `<span class="badge badge-sm bg-gradient-success status-autorizado-position">AUTORIZADO</span>`;
         }
         return `<span class="badge badge-sm bg-gradient-danger status-autorizado-position">NO AUTORIZADO</span>`;
+    }
+    return ``;
+}
+
+function nombrePorteria(porteria) {
+    if (porteria.nombre) {
+        return `<p class="text-max-line-2" style="font-size: 12px; color: black; text-align: -webkit-center; font-weight: 600; margin-bottom: 0px;">${porteria.nombre}</p>`
     }
     return ``;
 }
@@ -506,6 +524,7 @@ function observacionPorteria(porteria) {
 }
 
 function clearFormPorteria() {
+    $('#imagen_porteria').val('');
     $('#new_avatar_porteria').hide();
     $('#default_avatar_porteria').show();
     $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
@@ -528,13 +547,16 @@ function clearFormPorteria() {
 }
 
 function clearFormEventoPorteria() {
+    $('#imagen_evento').val('');
+    $('#imagen_porteria').val('');
     $('#new_avatar_evento').hide();
     $('#default_avatar_evento').show();
     $('#default_avatar_evento').attr('src', '/img/add-imagen.png');
 
+    $comboInmuebleEventos.prop('disabled', false);
     $("#persona_porteria_evento").val("").trigger('change');
     $("#inmueble_porteria_evento").val("").trigger('change');
-    $("#fecha_ingreso_porteria_evento").val("");
+    $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
     $("#fecha_salida_porteria_evento").val("");
     $("#observacion_porteria_evento").val("");
     
@@ -616,21 +638,35 @@ function agregarEventoPorteria (id) {
         clearFormEventoPorteria();
         $("#loading-card-porteria-"+id).hide();
 
+        var dataPersona = {
+            id: itemPorteria.id,
+            text: itemPorteria.nombre
+        };
+
         if (itemPorteria.tipo_porteria == 3) {
-            var dataPersona = {
+            dataPersona = {
                 id: itemPorteria.id,
                 text: itemPorteria.placa
-            };
-        } else {
-            var dataPersona = {
-                id: itemPorteria.id,
-                text: itemPorteria.nombre
             };
         }
     
         var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
         $comboPorteriaEventos.append(newOption).trigger('change');
         $comboPorteriaEventos.val(itemPorteria.id).trigger('change');
+
+        if (itemPorteria.inmueble_nit) {
+            var dataInmuebles = {
+                id: itemPorteria.inmueble_nit.inmueble.id,
+                text: itemPorteria.inmueble_nit.inmueble.nombre+' - '+itemPorteria.nit.nombre_completo,
+            }
+            var newOptionInmueble = new Option(dataInmuebles.text, dataInmuebles.id, false, false);
+
+            $comboInmuebleEventos.append(newOptionInmueble).trigger('change');
+            $comboInmuebleEventos.val(dataInmuebles.id).trigger('change');
+            $comboInmuebleEventos.prop('disabled', true);
+        } else {
+            $comboInmuebleEventos.prop('disabled', false);
+        }
 
         $("#porteriaEventoFormModal").modal('show');
 

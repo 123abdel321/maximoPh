@@ -6,10 +6,13 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
+use App\Models\Empresa\UsuarioEmpresa;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ArchivosGenerales;
 
 class PorteriaController extends Controller
@@ -36,6 +39,11 @@ class PorteriaController extends Controller
     public function read (Request $request)
     {
         try {
+
+            $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->user()->id)
+                ->where('id_empresa', $request->user()->id_empresa)
+                ->first();
+            
             $start = $request->get("start");
             $rowperpage = 24;
 
@@ -43,7 +51,16 @@ class PorteriaController extends Controller
 
             $porteria = Porteria::with('archivos', 'propietario');
 
-            if ($request->get("search")) {
+            if ($usuarioEmpresa->id_rol == 3) {
+                $porteria->where('id_usuario', $request->user()->id);
+            }
+
+            if ($usuarioEmpresa->id_rol == 3 && $request->get("search")) {
+                $porteria->where('id_usuario', $request->user()->id)
+                    ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
+            } else if ($request->get("search")){
                 $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
@@ -75,6 +92,11 @@ class PorteriaController extends Controller
             $porteria = Porteria::with('archivos', 'propietario')
                 ->where('id', $request->get('id'))
                 ->first();
+                
+            $nit = Nits::where('email', $porteria->propietario->email)->first();
+            $inmuebleNit = InmuebleNit::with('inmueble')->where('id_nit', $nit->id)->first();
+            $porteria->nit = $nit;
+            $porteria->inmueble_nit = $inmuebleNit;
 
             return response()->json([
                 'success'=>	true,
@@ -173,7 +195,7 @@ class PorteriaController extends Controller
                 $porteria->archivos()->save($archivo);
             }
 
-            $porteria->load('archivos');
+            $porteria->load('archivos', 'propietario');
 
             DB::connection('max')->commit();
 
