@@ -282,7 +282,7 @@ function inmuebleInit() {
                         agregarToast('error', 'Eliminación errada', res.message);
                     });
                 }
-            })
+            });
         });
         //AGREGAR NIT INMUEBLE
         inmueble_table.on('click', '.add-nit-inmueble', function() {

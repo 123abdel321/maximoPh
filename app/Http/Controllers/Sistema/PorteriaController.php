@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Porteria;
 use App\Models\Sistema\InmuebleNit;
+use App\Models\Sistema\PorteriaEvento;
 use App\Models\Sistema\ArchivosGenerales;
 
 class PorteriaController extends Controller
@@ -39,7 +40,6 @@ class PorteriaController extends Controller
     public function read (Request $request)
     {
         try {
-
             $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->user()->id)
                 ->where('id_empresa', $request->user()->id_empresa)
                 ->first();
@@ -49,7 +49,8 @@ class PorteriaController extends Controller
 
             $porteriaTotal = Porteria::count();
 
-            $porteria = Porteria::with('archivos', 'propietario');
+            $porteria = Porteria::with('archivos', 'propietario')
+                ->where('estado', true);
 
             if ($usuarioEmpresa->id_rol == 3) {
                 $porteria->where('id_usuario', $request->user()->id);
@@ -203,6 +204,73 @@ class PorteriaController extends Controller
                 'success'=>	true,
                 'data' => $porteria,
                 'message'=> 'Datos porteria creados con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function delete (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.porterias,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('max')->beginTransaction();
+
+            $eventoPorteria = PorteriaEvento::where('id_porteria', $request->get('id'));
+
+            if ($eventoPorteria->count()) {
+                Porteria::where('id', $request->get('id'))
+                    ->update([
+                        'estado' => false
+                    ]);
+
+                DB::connection('max')->commit();
+
+                return response()->json([
+                    'success'=>	true,
+                    'data' => [],
+                    'message'=> 'Evento porteria eliminado con exito!'
+                ]);
+            }
+
+            $archivos = ArchivosGenerales::where('relation_type', 1)
+                ->where('relation_id', $request->get('id'))
+                ->get();
+
+            if (count($archivos)) {
+                foreach ($archivos as $archivo) {
+                    Storage::disk('do_spaces')->delete($archivo->url_archivo);
+                    $archivo->delete();
+                }
+            }
+
+            Porteria::where('id', $request->get('id'))->delete();
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Evento porteria eliminado con exito!'
             ]);
 
         } catch (Exception $e) {

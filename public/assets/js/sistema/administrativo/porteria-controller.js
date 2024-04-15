@@ -1,4 +1,5 @@
 var dataPorteria = [];
+var abrirEditarItemPorteria = true;
 var diaPorteria = [
     "diaPorteria0",
     "diaPorteria1",
@@ -458,9 +459,7 @@ function createItemPorteria(porteria) {
 
     if (eventoPorteria) {
         action = `onclick="agregarEventoPorteria(${porteria.id})"`;
-    }
-
-    var lastName = porteria.propietario ? porteria.propietario.lastname : '';
+    }    
 
     var html = `
         <div class="card card-item-porteria" style="margin-bottom: 10px; height: 100%; overflow: hidden;" ${action}>
@@ -474,9 +473,7 @@ function createItemPorteria(porteria) {
                 ${observacionPorteria(porteria)}
                 ${diasPermiso(porteria)}
             </div>
-            <div class="modal-footer" style="justify-content: center; padding: 0;">
-                <p class="text-max-line-1" style="font-size: 9px; color: #085361; font-weight: bold;">${porteria.propietario.firstname} ${lastName}</p>
-            </div>
+            ${footerPorteria(porteria)}
         </div>
     `;
 
@@ -545,6 +542,21 @@ function diasPermiso(porteria) {
     }
 
     return ``;
+}
+
+function footerPorteria(porteria) {
+    if (eventoPorteria) {
+        var lastName = porteria.propietario ? porteria.propietario.lastname ? porteria.propietario.lastname : '' : '';
+        return `<div class="modal-footer" style="justify-content: center; padding: 0;">
+            <p class="text-max-line-1" style="font-size: 9px; color: #085361; font-weight: bold;">${porteria.propietario.firstname} ${lastName}</p>
+        </div>`;
+    }
+
+    if (crearPorteria) {
+        return `<div class="modal-footer" style="justify-content: center; padding: 0; background-color: #ff0700c2;" onclick="borrarItemPorteria(${porteria.id})">
+            <p class="text-max-line-1" style="font-size: 9px; color: white; font-weight: bold;"><i class="fas fa-trash-alt" style="font-size: 11px;"></i>&nbsp;ELIMINAR</p>
+        </div>`;
+    }
 }
 
 function observacionPorteria(porteria) {
@@ -618,55 +630,93 @@ function hideInputPorteria() {
 }
 
 function editarItemPorteria(id) {
-    $("#loading-card-porteria-"+id).show();
-    $.ajax({
-        url: base_url + 'porteria-find',
-        method: 'GET',
-        data: {
-            id: id
-        },
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        itemPorteria = res.data;
-        hideInputPorteria();
-        $("#loading-card-porteria-"+id).hide();
-        if (itemPorteria.archivos.length) {
-            $('#default_avatar_porteria').attr('src', bucketUrl+itemPorteria.archivos[0].url_archivo);
-        } else {
-            $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
-        }
+    if (abrirEditarItemPorteria) {
+        $("#loading-card-porteria-"+id).show();
+        $.ajax({
+            url: base_url + 'porteria-find',
+            method: 'GET',
+            data: {
+                id: id
+            },
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+            itemPorteria = res.data;
+            hideInputPorteria();
+            $("#loading-card-porteria-"+id).hide();
+            if (itemPorteria.archivos.length) {
+                $('#default_avatar_porteria').attr('src', bucketUrl+itemPorteria.archivos[0].url_archivo);
+            } else {
+                $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
+            }
+            
+            if(parseInt(itemPorteria.tipo_porteria) == 1) {
+                $("#input_dias_porteria").show();
+                $("#input_tipo_vehiculo_porteria").show();
+                $("#input_placa_persona_porteria").show();
+                $("#input_nombre_persona_porteria").show();
+            } else if (parseInt(itemPorteria.tipo_porteria) == 2) {
+                $("#input_tipo_mascota_porteria").show();
+                $("#input_nombre_persona_porteria").show();
+            } else if (parseInt(itemPorteria.tipo_porteria) == 3) {
+                $("#input_tipo_vehiculo_porteria").show();
+                $("#input_placa_persona_porteria").show();
+            }
         
-        if(parseInt(itemPorteria.tipo_porteria) == 1) {
-            $("#input_dias_porteria").show();
-            $("#input_tipo_vehiculo_porteria").show();
-            $("#input_placa_persona_porteria").show();
-            $("#input_nombre_persona_porteria").show();
-        } else if (parseInt(itemPorteria.tipo_porteria) == 2) {
-            $("#input_tipo_mascota_porteria").show();
-            $("#input_nombre_persona_porteria").show();
-        } else if (parseInt(itemPorteria.tipo_porteria) == 3) {
-            $("#input_tipo_vehiculo_porteria").show();
-            $("#input_placa_persona_porteria").show();
-        }
+            $("#id_porteria_up").val(id);
+            $("#tipo_porteria_create").val(itemPorteria.tipo_porteria);
+            $("#nombre_persona_porteria").val(itemPorteria.nombre);
+            $("#tipo_vehiculo_porteria").val(itemPorteria.tipo_vehiculo);
+            $("#tipo_mascota_porteria").val(itemPorteria.tipo_mascota);
+            $("#placa_persona_porteria").val(itemPorteria.placa);
+            $("#observacion_persona_porteria").val(itemPorteria.observacion);
+        
+            var diasSeleccionado = itemPorteria.dias.split(",");
+        
+            diasSeleccionado.forEach(dia => {
+                $('#diaPorteria'+dia).prop('checked', true);
+            });
+            $("#porteriaFormModal").modal('show');
     
-        $("#id_porteria_up").val(id);
-        $("#tipo_porteria_create").val(itemPorteria.tipo_porteria);
-        $("#nombre_persona_porteria").val(itemPorteria.nombre);
-        $("#tipo_vehiculo_porteria").val(itemPorteria.tipo_vehiculo);
-        $("#tipo_mascota_porteria").val(itemPorteria.tipo_mascota);
-        $("#placa_persona_porteria").val(itemPorteria.placa);
-        $("#observacion_persona_porteria").val(itemPorteria.observacion);
-    
-        var diasSeleccionado = itemPorteria.dias.split(",");
-    
-        diasSeleccionado.forEach(dia => {
-            $('#diaPorteria'+dia).prop('checked', true);
+        }).fail((err) => {
+            $("#loading-card-porteria-"+id).hide();
         });
-        $("#porteriaFormModal").modal('show');
+    } else {
+        abrirEditarItemPorteria = true;
+    }
+}
 
-    }).fail((err) => {
-        $("#loading-card-porteria-"+id).hide();
+function borrarItemPorteria(id) {
+    abrirEditarItemPorteria = false;
+    Swal.fire({
+        title: 'Eliminar item?',
+        text: "No se podrá revertir!",
+        type: 'warning',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Borrar!',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.value){
+            $.ajax({
+                url: base_url + 'porteria',
+                method: 'DELETE',
+                data: JSON.stringify({id: id}),
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                if(res.success){
+                    loadItemsPorteria();
+                    agregarToast('exito', 'Eliminación exitosa', 'Item eliminado con exito!', true );
+                } else {
+                    agregarToast('error', 'Eliminación errada', res.message);
+                }
+            }).fail((res) => {
+                agregarToast('error', 'Eliminación errada', res.message);
+            });
+        }
     });
 }
 

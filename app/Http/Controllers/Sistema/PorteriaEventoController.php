@@ -184,7 +184,7 @@ class PorteriaEventoController extends Controller
                 'message'=> 'Evento porteria actualizado con exito!'
             ]);
 
-        }  catch (Exception $e) {
+        } catch (Exception $e) {
             DB::connection('max')->rollback();
             return response()->json([
                 "success"=>false,

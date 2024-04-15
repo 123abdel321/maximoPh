@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('placa', 100)->nullable();
             $table->date('hoy', 100)->nullable();
             $table->string('observacion', 100)->nullable();
+            $table->boolean('estado')->default(true);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();

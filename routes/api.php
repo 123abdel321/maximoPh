@@ -119,6 +119,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //PORTERIA
         Route::controller(PorteriaController::class)->group(function () {
             Route::get('porteria', 'read');
+            Route::delete('porteria', 'delete');
             Route::get('porteria-find', 'find');
             Route::get('porteria-combo', 'combo');
         });
