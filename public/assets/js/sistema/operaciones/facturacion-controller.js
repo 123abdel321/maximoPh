@@ -253,7 +253,10 @@ function actualizarTotales(data, factura) {
     for (const [key, value] of Object.entries(extras)) {
         var index = cuotasData.findIndex(item => item.id_concepto_facturacion == key);
         var total = cuotasData.findIndex(item => item.id_concepto_facturacion == "total_extras");
-        if (index == 0 || index) {
+        if (index >= 0) {
+            console.log('cuotasData: ',cuotasData);
+            console.log('index: ',index);
+            console.log('total: ',total);
             if (cuotasData[index].id_concepto_facturacion == "intereses") {
                 cuotasData[index].items_causados+= 1;
                 cuotasData[total].items_causados+= 1;

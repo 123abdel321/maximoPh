@@ -244,8 +244,11 @@ class FacturacionController extends Controller
                 }
                 $valoresExtra+= $cuotaMultaFactura->valor_total;
                 $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
+                $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
+                if ($anticiposDisponibles > 0) {
+                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
+                }
             }
-
             //COBRAR INTERESES
             if (count($cobrarInteses)) {
                 $valoresIntereses+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa, $cobrarInteses, $periodo_facturacion);
@@ -871,7 +874,7 @@ class FacturacionController extends Controller
         ], 200);
     }
 
-    private function generarFacturaCuotaMulta(Facturacion $factura, CuotasMultas $cuotaMultaFactura)
+    private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura)
     {
         $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
@@ -881,14 +884,14 @@ class FacturacionController extends Controller
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $cuotaMultaFactura->id_nit,
-            'id_cuenta_por_cobrar' => $cuotaMultaFactura->concepto->id_cuenta_cobrar,
-            'id_cuenta_ingreso' => $cuotaMultaFactura->concepto->id_cuenta_ingreso,
+            'id_cuenta_por_cobrar' => $cuotaMultaFactura->id_cuenta_cobrar,
+            'id_cuenta_ingreso' => $cuotaMultaFactura->id_cuenta_ingreso,
             'id_comprobante' => $id_comprobante_ventas,
-            'id_centro_costos' => $cuotaMultaFactura->inmueble->zona->id_centro_costos,
+            'id_centro_costos' => $cuotaMultaFactura->id_centro_costos,
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $inicioMes,
             'valor' => round($cuotaMultaFactura->valor_total),
-            'concepto' => $cuotaMultaFactura->concepto->nombre_concepto.' '.$cuotaMultaFactura->observacion,
+            'concepto' => $cuotaMultaFactura->nombre_concepto.' '.$cuotaMultaFactura->observacion,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
@@ -1262,11 +1265,27 @@ class FacturacionController extends Controller
     private function extrasNitFacturar($id_nit, $periodo_facturacion)
     {
         $fecha_facturar = date('Y-m', strtotime($periodo_facturacion));
-        return CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
+        return DB::connection('max')->table('cuotas_multas')->select(
+                'cuotas_multas.id_nit',
+                'cuotas_multas.id_inmueble',
+                'cuotas_multas.valor_total',
+                'cuotas_multas.observacion',
+                'INM.nombre',
+                'INM.id_concepto_facturacion',
+                'CFA.nombre_concepto',
+                'CFA.id_cuenta_cobrar',
+                'CFA.id_cuenta_ingreso',
+                'CFA.id_cuenta_interes',
+                'CFA.intereses',
+                'ZO.id_centro_costos'
+            )
+            ->leftJoin('inmuebles AS INM', 'cuotas_multas.id_inmueble', 'INM.id')
+            ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
+            ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
             ->where('id_nit', $id_nit)
             ->where("fecha_inicio", '<=', $fecha_facturar)
             ->where("fecha_fin", '>=', $fecha_facturar)
-            ->get();
+            ->get()->toArray();
     }
 
     private function eliminarFactura($id_nit, $fecha_manual)
