@@ -181,7 +181,7 @@ class FacturacionController extends Controller
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
             $cuotasMultasFacturar = $this->extrasNitFacturar($request->get('id'), $periodo_facturacion);
-
+            
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
             $factura = Facturacion::create([//CABEZA DE FACTURA
@@ -1270,8 +1270,8 @@ class FacturacionController extends Controller
                 'cuotas_multas.id_inmueble',
                 'cuotas_multas.valor_total',
                 'cuotas_multas.observacion',
+                'cuotas_multas.id_concepto_facturacion',
                 'INM.nombre',
-                'INM.id_concepto_facturacion',
                 'CFA.nombre_concepto',
                 'CFA.id_cuenta_cobrar',
                 'CFA.id_cuenta_ingreso',
