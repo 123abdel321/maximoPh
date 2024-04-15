@@ -149,4 +149,70 @@ class PorteriaEventoController extends Controller
             ], 422);
         }
     }
+
+    public function update(Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.porteria_eventos,id',
+            'observacion' => 'min:1|max:200'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('max')->beginTransaction();
+
+            $eventoPorteria = PorteriaEvento::where('id', $request->get('id'))
+                ->update([
+                    'observacion' => $request->get('observacion'),
+                    'updated_by' => request()->user()->id
+                ]);
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $eventoPorteria,
+                'message'=> 'Evento porteria actualizado con exito!'
+            ]);
+
+        }  catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function find (Request $request)
+    {
+        try {
+            $eventoPorteria = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona.archivos')
+                ->where('id', $request->get('id'))
+                ->first();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $eventoPorteria,
+                'message'=> 'Datos evento de porteria cargados con exito!'
+            ]);
+        } catch (Exception $e) {
+            
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
 }

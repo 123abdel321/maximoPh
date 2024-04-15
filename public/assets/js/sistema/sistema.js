@@ -130,7 +130,7 @@ function openNewItem(id, nombre, icon) {
 }
 
 function closeMenu() {
-    if (body.classList.contains(className)) {
+    if (sidenav.classList.contains('side-nav-maximo-open')) {
         toggleSidenavMaximo();
     }
 }

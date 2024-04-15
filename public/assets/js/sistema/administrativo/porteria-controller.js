@@ -72,11 +72,12 @@ function porteriaInit() {
                         urlImg = row.archivos[0].url_archivo;
                         nameImg = row.archivos[0].created_at;
                     }
-
                     return `<img
-                        style="height: 35px; border-radius: 10%;"
+                        style="height: 40px; border-radius: 10%; cursor: pointer;"
+                        onclick="mostrarEventoPorteria(${row.id})"
                         src="${bucketUrl}${urlImg}"
-                        alt="${nameImg}" />`;
+                        alt="${nameImg}"
+                    />`;
 
                 }, className: 'dt-body-center'},
                 {"data": function (row, type, set){
@@ -200,6 +201,35 @@ $(document).on('click', '#generateEventoPorteria', function () {
     $("#porteriaEventoFormModal").modal('show');
 });
 
+$(document).on('click', '#updatePorteriaEvento', function () {
+
+    $("#updatePorteriaEvento").hide();
+    $("#updatePorteriaEventoLoading").show();
+
+    let data = {
+        id: $("#id_evento_porteria_up").val(),
+        observacion: $("#observacion_evento_valor").val(),
+    };
+
+    $.ajax({
+        url: base_url + 'porteriaevento',
+        method: 'PUT',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        $('#saveEstadoCuentaPago').show();
+        $('#updatePorteriaEventoLoading').hide();
+        if (porteria_evento_table) {
+            porteria_evento_table.ajax.reload();
+        }
+        $("#porteriaEventoShowFormModal").modal('hide');
+        agregarToast('exito', 'Evento actualziado', 'Evento actualizado con exito!', true);
+    }).fail((err) => {
+        agregarToast('error', 'Actualización errada', 'Actualización con errores');
+    });
+});
+
 $(document).on('change', '#tipo_porteria_create', function () {
     var tipoPorteria = $("#tipo_porteria_create").val();
     hideInputPorteria();
@@ -282,6 +312,7 @@ $("#form-porteria-evento").submit(function(e) {
 
     $("#savePorteriaEvento").hide();
     $("#savePorteriaEventoLoading").show();
+    $comboInmuebleEventos.prop('disabled', false);
 
     var ajxForm = document.getElementById("form-porteria-evento");
     var data = new FormData(ajxForm);
@@ -559,7 +590,23 @@ function clearFormEventoPorteria() {
     $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
     $("#fecha_salida_porteria_evento").val("");
     $("#observacion_porteria_evento").val("");
-    
+}
+
+function clearEventoPreview() {
+    $("#div-porteria-imagen").hide();
+    $("#div-porteria-persona").hide();
+    $("#div-porteria-inmueble").hide();
+
+    $('#persona_evento_imagen').attr('src', '/img/no-photo.jpg');
+    $('#porteria_evento_imagen').attr('src', '/img/no-photo.jpg');
+
+    $("#id_evento_porteria_up").val("");
+    $("#observacion_evento_valor").val("");
+
+    $("#fecha_evento_text").text("");
+    $("#fecha_evento_valor").text("");
+    $("#persona_evento_nombre").text("");
+    $("#inmueble_evento_nombre").text("");
 }
 
 function hideInputPorteria() {
@@ -620,6 +667,62 @@ function editarItemPorteria(id) {
 
     }).fail((err) => {
         $("#loading-card-porteria-"+id).hide();
+    });
+}
+
+function mostrarEventoPorteria (id) {
+    clearEventoPreview();
+    $.ajax({
+        url: base_url + 'porteriaevento-find',
+        method: 'GET',
+        data: {
+            id: id
+        },
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if (res.success) {
+            var eventoPersona = res.data;
+
+            $("#id_evento_porteria_up").val(eventoPersona.id);
+
+            if (eventoPersona.archivos.length > 0) {
+                $("#div-porteria-imagen").show();
+                $("#porteria_evento_imagen").attr('src', bucketUrl+eventoPersona.archivos[0].url_archivo);
+            }
+
+            if (eventoPersona.persona) {
+                var persona = eventoPersona.persona;
+                var nombre = persona.nombre;
+                var imgPersona = 'img/no-photo.jpg';
+                if (persona.tipo_porteria == 3) nombre = persona.placa;
+                if (persona.archivos.length) imgPersona = persona.archivos[0].url_archivo;
+
+                $("#div-porteria-persona").show();
+                $("#persona_evento_nombre").text(nombre);
+                $("#persona_evento_imagen").attr('src', bucketUrl+imgPersona);
+            }
+
+            if (eventoPersona.inmueble) {
+                var inmueble = eventoPersona.inmueble;
+
+                $("#div-porteria-inmueble").show();
+                $("#inmueble_evento_nombre").text(inmueble.zona.nombre+' - '+inmueble.nombre);
+            }
+            var textoFecha = "FECHA INGRESO:";
+            var valorFecha = eventoPersona.fecha_ingreso;
+            if (eventoPersona.fecha_salida) {
+                textoFecha = "FECHA SALIDA:";
+                valorFecha = eventoPersona.fecha_salida;
+            }
+
+            $("#fecha_evento_text").text(textoFecha);
+            $("#fecha_evento_valor").text(valorFecha);
+            $("#observacion_evento_valor").val(eventoPersona.observacion);
+            
+        }
+        $("#porteriaEventoShowFormModal").modal('show');
+    }).fail((err) => {
     });
 }
 
@@ -703,7 +806,7 @@ function formatPorteriaCombo (porteria) {
 
     var urlImagen = porteria.archivos.length > 0 ?
         bucketUrl+porteria.archivos[0].url_archivo :
-        bucketUrl+'logos_empresas/no-photo.jpg';
+        bucketUrl+'img/no-photo.jpg';
 
     var textoPorteria = porteria.tipo_porteria == 3 ? 
         porteria.placa : 

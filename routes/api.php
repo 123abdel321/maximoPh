@@ -125,6 +125,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //PORTERIA EVENTOS
         Route::controller(PorteriaEventoController::class)->group(function () {
             Route::get('porteriaevento', 'read');
+            Route::put('porteriaevento', 'update');
+            Route::get('porteriaevento-find', 'find');
         });
         
         //ESTADO CUENTA

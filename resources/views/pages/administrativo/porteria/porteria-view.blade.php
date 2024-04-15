@@ -123,6 +123,7 @@
 
         @include('pages.administrativo.porteria.porteria-form')
         @include('pages.administrativo.porteria.porteria_evento-form')
+        @include('pages.administrativo.porteria.porteria_evento-show')
 
     </div>
 </div>
