@@ -558,7 +558,7 @@ function footerPorteria(porteria) {
     }
 
     if (crearPorteria) {
-        return `<div class="modal-footer" style="justify-content: center; padding: 0; background-color: #ff0700c2;" onclick="borrarItemPorteria(${porteria.id})">
+        return `<div class="modal-footer" style="justify-content: center; padding: 0; background-color: #075260;" onclick="borrarItemPorteria(${porteria.id})">
             <p class="text-max-line-1" style="font-size: 9px; color: white; font-weight: bold;"><i class="fas fa-trash-alt" style="font-size: 11px;"></i>&nbsp;ELIMINAR</p>
         </div>`;
     }
@@ -577,7 +577,7 @@ function clearFormPorteria() {
     $('#default_avatar_porteria').show();
     $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
 
-    $("id_porteria_up").val("");
+    $("#id_porteria_up").val("");
     $("#tipo_porteria_create").val(1);
     $("#nombre_persona_porteria").val("");
     $("#tipo_vehiculo_porteria").val("");
