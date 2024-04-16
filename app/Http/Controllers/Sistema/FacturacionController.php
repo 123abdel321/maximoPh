@@ -1281,7 +1281,7 @@ class FacturacionController extends Controller
             )
             ->leftJoin('inmuebles AS INM', 'cuotas_multas.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
-            ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
+            ->leftJoin('concepto_facturacions AS CFA', 'cuotas_multas.id_concepto_facturacion', 'CFA.id')
             ->where('id_nit', $id_nit)
             ->where("fecha_inicio", '<=', $fecha_facturar)
             ->where("fecha_fin", '>=', $fecha_facturar)
