@@ -29,7 +29,7 @@ function reciboInit () {
             headers: headersERP,
             url: base_url_erp + 'recibos',
             data: function ( d ) {
-                d.id_nit = $('#id_nit_recibo').val();
+                d.id_nit = $('#id_nit_recibo_hide').val();
                 d.fecha_manual = $('#fecha_manual_recibo').val();
             }
         },
@@ -166,13 +166,12 @@ function reciboInit () {
     $comboNitRecibos = $('#id_nit_recibo').select2({
         theme: 'bootstrap-5',
         delay: 250,
+        placeholder: "Seleccione un nit",
         language: {
             noResults: function() {
-                createNewNit = true;
                 return "No hay resultado";        
             },
             searching: function() {
-                createNewNit = false;
                 return "Buscando..";
             },
             inputTooShort: function () {
@@ -180,15 +179,23 @@ function reciboInit () {
             }
         },
         ajax: {
-            url: base_url_erp + 'nit/combo-nit',
-            headers: headersERP,
+            url: 'api/inmueble-combo',
+            headers: headers,
             dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
             processResults: function (data) {
                 return {
                     results: data.data
                 };
-            }
-        }
+            },
+        },
+        templateResult: formatInmuebleRecibo,
+        templateSelection: formatInmuebleReciboSelection
     });
     
     $comboComprobanteRecibos= $('#id_comprobante_recibo').select2({
@@ -225,6 +232,29 @@ function reciboInit () {
     }
 
     loadFormasPagoRecibos();
+}
+
+function formatInmuebleRecibo (inmueble) {
+
+    if (inmueble.loading) return inmueble.text;
+
+    var persona = '';
+
+    if (inmueble && inmueble.personas && inmueble.personas.length) {
+        persona = ' - ' + inmueble.personas[0].nit.nombre_completo
+    }
+
+    return inmueble.text + persona;
+}
+
+function formatInmuebleReciboSelection (inmueble) {
+    var persona = '';
+
+    if (inmueble && inmueble.personas && inmueble.personas.length) {
+        persona = ' - ' + inmueble.personas[0].nit.nombre_completo
+    }
+
+    return inmueble.text + persona;
 }
 
 $(document).on('change', '#id_comprobante_recibo', function () {
@@ -267,7 +297,7 @@ function saveRecibo() {
     let data = {
         pagos: getRecibosPagos(),
         movimiento: getMovimientoRecibo(),
-        id_nit: $("#id_nit_recibo").val(),
+        id_nit: $("#id_nit_recibo_hide").val(),
         id_comprobante: $("#id_comprobante_recibo").val(),
         fecha_manual: $("#fecha_manual_recibo").val(),
         consecutivo: $("#documento_referencia_recibo").val(),
@@ -478,6 +508,7 @@ function changeTotalAbonoRecibo(event) {
 $(document).on('change', '#id_nit_recibo', function () {
     let data = $('#id_nit_recibo').select2('data')[0];
     if (data) {
+        $("#id_nit_recibo_hide").val(data.personas.id_nit);
         document.getElementById('iniciarCapturaRecibo').click();
     }
 });
@@ -722,10 +753,10 @@ function loadAnticiposRecibo() {
     $('#saldo_anticipo_recibo').val(0);
     $('#recibo_anticipo_disp').text('0.00');
 
-    if(!$('#id_nit_recibo').val()) return;
+    if(!$('#id_nit_recibo_hide').val()) return;
     
     let data = {
-        id_nit: $('#id_nit_recibo').val(),
+        id_nit: $('#id_nit_recibo_hide').val(),
         id_tipo_cuenta: 8
     }
 

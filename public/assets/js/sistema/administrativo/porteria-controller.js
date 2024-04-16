@@ -342,6 +342,11 @@ $("#form-porteria-evento").submit(function(e) {
 
 function searchPorteria (event) {
     if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
+        if (!$('#searchInputPorteria').val()) {
+            $("#items-card-porteria").show();
+            $("#items-tabla-porteria").hide();
+            loadItemsPorteria();
+        }
         return;
     }
     var botonPrecionado = event.key.length == 1 ? event.key : '';

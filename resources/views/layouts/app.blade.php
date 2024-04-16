@@ -169,6 +169,10 @@
     <!-- FOOTER -->
     @include('layouts.footers.footer')
 
+    <script>
+        var idRolUsuario = JSON.parse('<?php echo $rol_usuario; ?>');
+    </script>
+
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>

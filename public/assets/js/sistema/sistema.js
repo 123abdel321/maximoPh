@@ -118,8 +118,13 @@ if (iconSidenav) {
 if (sidenav2) {
     sidenav2.addEventListener("click", toggleSidenavMaximo);
 }
+//PORTERO
+if (idRolUsuario == 4) {
+    openNewItem('porteria', 'Porteria', 'fas fa-user-shield');
+    closeMenu();
+}
 
-selectMenu(itemMenuActive);
+// selectMenu(itemMenuActive);
 
 function openNewItem(id, nombre, icon) {
     if($('#containner-'+id).length == 0) {
@@ -599,31 +604,7 @@ function numberWithCommas(x) {
 }
 
 function selectMenu(menu) {
-    var nombre = '';
-    var tipoMenu = '';
-
-    if (menu == 'facturacion') {
-        nombre = 'Facturación';
-        
-        tipoMenu = 2;
-    } else if (menu == 'contabilidad') {
-        nombre = 'Contabilidad';
-        
-        tipoMenu = 1;
-    }
-
-    hideAllMenus();
-
-    var elements = document.getElementsByClassName('tipo_menu_'+tipoMenu);
-
-    if (elements.length) { //SHOW ELEMENTS
-        for (let index = 0; index < elements.length; index++) {
-            const element = elements[index];
-            element.style.display = 'block';
-        }
-    }
-    localStorage.setItem("item_active_menu", menu);
-    $('#dropdownTiposMenu').text(nombre);
+    
 }
 
 function showAllMenus() {
