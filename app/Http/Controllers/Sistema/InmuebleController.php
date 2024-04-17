@@ -321,11 +321,14 @@ class InmuebleController extends Controller
 
         if ($request->get("search")) {
             $nitSsearch = $this->nitsSearch($request->get('search'));
+            
             if (count($nitSsearch)) {
-                $inmuebles->where('nombre', 'LIKE', '%' . $request->get("search") . '%')
-                    ->whereHas('personas',  function ($query) use($nitSsearch) {
+                $inmuebles->whereHas('personas',  function ($query) use($nitSsearch) {
                         $query->whereIn('id_nit', $nitSsearch);
-                    });
+                    })
+                    ->orWhere('nombre', 'LIKE', '%' . $request->get("search") . '%')
+                    ->orWhere('area', 'LIKE', '%' . $request->get("search") . '%')
+                    ->orWhere('coeficiente', 'LIKE', '%' . $request->get("search") . '%');
             } else {
                 $inmuebles->where('nombre', 'LIKE', '%' . $request->get("search") . '%')
                     ->orWhere('area', 'LIKE', '%' . $request->get("search") . '%')
