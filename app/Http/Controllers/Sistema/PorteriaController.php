@@ -235,13 +235,20 @@ class PorteriaController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
+            $existeNit = false;
             $eventoPorteria = PorteriaEvento::where('id_porteria', $request->get('id'));
+            $porteria = Porteria::with('archivos')
+                ->where('id', $request->get('id'))
+                ->first();
 
-            if ($eventoPorteria->count()) {
-                Porteria::where('id', $request->get('id'))
-                    ->update([
-                        'estado' => false
-                    ]);
+            if (count($porteria->archivos)) {
+                $existeNit = Nits::where('logo_nit', $porteria->archivos[0]->url_archivo)
+                    ->first();
+            }
+
+            if ($eventoPorteria->count() || $existeNit) {
+                $porteria->estado = true;
+                $porteria->save();
 
                 DB::connection('max')->commit();
 

@@ -171,10 +171,20 @@ class PorteriaEventoController extends Controller
             DB::connection('max')->beginTransaction();
 
             $eventoPorteria = PorteriaEvento::where('id', $request->get('id'))
-                ->update([
-                    'observacion' => $request->get('observacion'),
-                    'updated_by' => request()->user()->id
-                ]);
+                ->first();
+
+            $eventoPorteria->observacion = $request->get('observacion');
+            $eventoPorteria->updated_by = request()->user()->id;
+
+            if ($request->get('fecha_ingreso')) {
+                $eventoPorteria->fecha_ingreso = $request->get('fecha_ingreso');
+            }
+
+            if ($request->get('fecha_salida')) {
+                $eventoPorteria->fecha_salida = $request->get('fecha_salida');
+            }
+
+            $eventoPorteria->save();
 
             DB::connection('max')->commit();
 

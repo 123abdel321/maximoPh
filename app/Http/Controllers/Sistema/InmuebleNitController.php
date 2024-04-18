@@ -12,10 +12,12 @@ use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
+use App\Models\Sistema\Porteria;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
+use App\Models\Sistema\ArchivosGenerales;
 
 class InmuebleNitController extends Controller
 {
@@ -124,7 +126,7 @@ class InmuebleNitController extends Controller
 
         try {
             DB::connection('max')->beginTransaction();
-            // DB::connection('clientes')->beginTransaction();
+            DB::connection('clientes')->beginTransaction();
 
             $inmueble = Inmueble::find($request->get('id_inmueble'));
             $total = $inmueble->valor_total_administracion * ($request->get('porcentaje_administracion') / 100);
@@ -144,47 +146,85 @@ class InmuebleNitController extends Controller
 
             $nit = Nits::find($request->get('id_nit'));
             $empresa = Empresa::find(request()->user()->id_empresa);
-            if (false) {
-                //CREAR USUARIOS
-                $usuarioPropietario = User::where('email', $nit->email)
-                    ->first();
-    
-                if (!$usuarioPropietario) {
-                    $usuarioPropietario = User::create([
-                        'id_empresa' => request()->user()->id_empresa,
-                        'has_empresa' => $empresa->token_db_maximo,
-                        'firstname' => $nit->primer_nombre.' '.$nit->primer_apellido,
-                        'username' => '123'.$nit->primer_nombre.'321',
-                        'email' => $nit->email,
-                        'telefono' => $nit->telefono_1,
-                        'password' => $nit->numero_documento,
-                        'address' => $nit->direccion,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-                }
-    
-                $rolPropietario = RolesGenerales::find(3);
-    
-                UsuarioEmpresa::updateOrCreate([
-                    'id_usuario' => $usuarioPropietario->id,
-                    'id_empresa' => request()->user()->id_empresa
-                ],[
-                    'id_rol' => 3, // ROL PROPIETARIO
-                    'estado' => 1, // default: 1 activo
-                ]);
-    
-                UsuarioPermisos::updateOrCreate([
-                    'id_user' => $usuarioPropietario->id,
-                    'id_empresa' => request()->user()->id_empresa
-                ],[
-                    'id_rol' => 3, // ROL PROPIETARIO
-                    'ids_permission' => $rolPropietario->ids_permission
+            //CREAR USUARIOS
+
+            $usuarioPropietario = User::where('email', $nit->email)
+                ->first();
+
+            if (!$usuarioPropietario) {
+                $usuarioPropietario = User::create([
+                    'id_empresa' => request()->user()->id_empresa,
+                    'has_empresa' => $empresa->token_db_maximo,
+                    'firstname' => $nit->primer_nombre,
+                    'lastname' => $nit->primer_apellido,
+                    'username' => '123'.$nit->primer_nombre.'321',
+                    'email' => $nit->email,
+                    'telefono' => $nit->telefono_1,
+                    'password' => $nit->numero_documento,
+                    'address' => $nit->direccion,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
                 ]);
             }
 
+            $idRol = $request->get('tipo') == 0 ? 5 : 3;
+            $rolPropietario = RolesGenerales::find($idRol);
+
+            UsuarioEmpresa::updateOrCreate([
+                'id_usuario' => $usuarioPropietario->id,
+                'id_empresa' => request()->user()->id_empresa
+            ],[
+                'id_rol' => $idRol, // 3: PROPIETARIO; 4:RESIDENTE
+                'estado' => 1, // default: 1 activo
+            ]);
+
+            UsuarioPermisos::updateOrCreate([
+                'id_user' => $usuarioPropietario->id,
+                'id_empresa' => request()->user()->id_empresa
+            ],[
+                'id_rol' => $idRol, // ROL PROPIETARIO
+                'ids_permission' => $rolPropietario->ids_permission
+            ]);
+
+            $portero = Porteria::where('id_usuario', $usuarioPropietario->id)
+                ->whereIn('tipo_porteria', [0,1])
+                ->first();
+
+            if ($portero) {
+                $portero->tipo_porteria = $request->get('tipo') == 1 ? 1 : 0;
+                $portero->nombre = $nit->primer_nombre.' '.$nit->primer_apellido;
+                $portero->dias = $request->get('tipo') != 0 ? '1,2,3,4,5,6,7' : null;
+                $portero->updated_by = request()->user()->id;
+                $portero->save();
+            } else {
+                $portero = Porteria::create([
+                    'id_usuario' => $usuarioPropietario->id,
+                    'tipo_porteria' => $request->get('tipo') == 1 ? 1 : 0,
+                    'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                    'dias' => $request->get('tipo') != 0 ? '1,2,3,4,5,6,7' : null,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id,
+                ]);
+            }
+
+            $tieneImagen = ArchivosGenerales::where('relation_type', 1)
+                ->where('relation_id', $portero->id);
+                
+            if ($nit->logo_nit && !$tieneImagen->count()) {
+                $archivo = new ArchivosGenerales([
+                    'tipo_archivo' => 'imagen',
+                    'url_archivo' => $nit->logo_nit,
+                    'estado' => 1,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+    
+                $archivo->relation()->associate($portero);
+                $portero->archivos()->save($archivo);
+            }
+
             DB::connection('max')->commit();
-            // DB::connection('clientes')->commit();
+            DB::connection('clientes')->commit();
 
             return response()->json([
                 'success'=>	true,
@@ -238,7 +278,7 @@ class InmuebleNitController extends Controller
 
         try {
             DB::connection('max')->beginTransaction();
-            // DB::connection('clientes')->beginTransaction();
+            DB::connection('clientes')->beginTransaction();
 
             $inmueble = Inmueble::find($request->get('id_inmueble'));
             $total = $inmueble->valor_total_administracion * ($request->get('porcentaje_administracion') / 100);
@@ -246,45 +286,43 @@ class InmuebleNitController extends Controller
             $nit = Nits::find($request->get('id_nit'));
             $empresa = Empresa::find(request()->user()->id_empresa);
 
-            if ($nitOld->id_nit != $request->get('id_nit') && false) {
+            //CREAR USUARIOS
+            $usuarioPropietario = User::where('email', $nit->email)
+                ->first();
 
-                //CREAR USUARIOS
-                $usuarioPropietario = User::where('email', $nit->email)
-                    ->first();
-
-                if (!$usuarioPropietario) {
-                    $usuarioPropietario = User::create([
-                        'id_empresa' => request()->user()->id_empresa,
-                        'has_empresa' => $empresa->token_db_maximo,
-                        'firstname' => $nit->primer_nombre.' '.$nit->primer_apellido,
-                        'username' => '123'.$nit->primer_nombre.'321',
-                        'email' => $nit->email,
-                        'telefono' => $nit->telefono_1,
-                        'password' => $nit->numero_documento,
-                        'address' => $nit->direccion,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-                }
-
-                $rolPropietario = RolesGenerales::find(3);
-
-                UsuarioEmpresa::updateOrCreate([
-                    'id_usuario' => $usuarioPropietario->id,
-                    'id_empresa' => request()->user()->id_empresa
-                ],[
-                    'id_rol' => 3, // ROL PROPIETARIO
-                    'estado' => 1, // default: 1 activo
-                ]);
-
-                UsuarioPermisos::updateOrCreate([
-                    'id_user' => $usuarioPropietario->id,
-                    'id_empresa' => request()->user()->id_empresa
-                ],[
-                    'id_rol' => 3, // ROL PROPIETARIO
-                    'ids_permission' => $rolPropietario->ids_permission
+            if (!$usuarioPropietario) {
+                $usuarioPropietario = User::create([
+                    'id_empresa' => request()->user()->id_empresa,
+                    'has_empresa' => $empresa->token_db_maximo,
+                    'firstname' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                    'username' => '123'.$nit->primer_nombre.'321',
+                    'email' => $nit->email,
+                    'telefono' => $nit->telefono_1,
+                    'password' => $nit->numero_documento,
+                    'address' => $nit->direccion,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
                 ]);
             }
+
+            $idRol = $request->get('tipo') == 0 ? 5 : 3;
+            $rolPropietario = RolesGenerales::find($idRol);
+
+            UsuarioEmpresa::updateOrCreate([
+                'id_usuario' => $usuarioPropietario->id,
+                'id_empresa' => request()->user()->id_empresa
+            ],[
+                'id_rol' => $idRol, // ROL PROPIETARIO
+                'estado' => 1, // default: 1 activo
+            ]);
+
+            UsuarioPermisos::updateOrCreate([
+                'id_user' => $usuarioPropietario->id,
+                'id_empresa' => request()->user()->id_empresa
+            ],[
+                'id_rol' => $idRol, // ROL PROPIETARIO
+                'ids_permission' => $rolPropietario->ids_permission
+            ]);
 
             $inmuebleNit = InmuebleNit::where('id', $request->get('id'))
                 ->update ([
@@ -299,8 +337,45 @@ class InmuebleNitController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
 
+            $portero = Porteria::where('id_usuario', $usuarioPropietario->id)
+                ->whereIn('tipo_porteria', [0,1])
+                ->first();
+
+            if ($portero) {
+                $portero->tipo_porteria = $request->get('tipo') == 1 ? 1 : 0;
+                $portero->nombre = $nit->primer_nombre.' '.$nit->primer_apellido;
+                $portero->dias = $request->get('tipo') != 0 ? '1,2,3,4,5,6,7' : null;
+                $portero->updated_by = request()->user()->id;
+                $portero->save();
+            } else {
+                $portero = Porteria::create([
+                    'id_usuario' => $usuarioPropietario->id,
+                    'tipo_porteria' => $request->get('tipo') == 1 ? 1 : 0,
+                    'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                    'dias' => $request->get('tipo') != 0 ? '1,2,3,4,5,6,7' : null,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id,
+                ]);
+            }
+
+            $tieneImagen = ArchivosGenerales::where('relation_type', 1)
+                ->where('relation_id', $portero->id);
+                
+            if ($nit->logo_nit && !$tieneImagen->count()) {
+                $archivo = new ArchivosGenerales([
+                    'tipo_archivo' => 'imagen',
+                    'url_archivo' => $nit->logo_nit,
+                    'estado' => 1,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+    
+                $archivo->relation()->associate($portero);
+                $portero->archivos()->save($archivo);
+            }
+
             DB::connection('max')->commit();
-            // DB::connection('clientes')->commit();
+            DB::connection('clientes')->commit();
 
             return response()->json([
                 'success'=>	true,

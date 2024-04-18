@@ -154,10 +154,19 @@ function inmuebleInit() {
                 }
             }},
             {"data": function (row, type, set){  
-                if (row.tipo) {
-                    return 'INQUILINO';
+                if (row.tipo == 0) {
+                    return 'PROPIETARIO';
                 }
-                return 'PROPIETARIO';
+
+                if (row.tipo == 1) {
+                    return 'RESIDENTE';
+                }
+
+                if (row.tipo == 2) {
+                    return 'PROPIETARIO & RESIDENTE';
+                }
+
+                return '';
             }},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  

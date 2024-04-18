@@ -24,9 +24,14 @@
                         <p id="inmueble_evento_nombre" style="font-size: 14px; margin-bottom: 0.4rem;">A1 - 117</p>
                     </div>
                     
-                    <div class="col-12" style="display: flex; justify-content: center;">
-                        <p style="font-size: 14px;"><b id="fecha_evento_text">FECHA INGRESO:</b>&nbsp;</p>
-                        <p id="fecha_evento_valor" style="font-size: 14px;">2024-04-15 10:14:00</p>
+                    <div id="div-fecha-ingreso-porteria" class="col-12" style="display: flex; justify-content: center;">
+                        <p style="font-size: 14px; margin-bottom: 0.4rem;"><b >FECHA INGRESO:</b>&nbsp;</p>
+                        <p id="fecha_ingreso_portafolio" style="font-size: 14px; margin-bottom: 0.4rem;"></p>
+                    </div>
+
+                    <div id="div-fecha-salida-porteria" class="col-12" style="display: flex; justify-content: center;">
+                        <p style="font-size: 14px; margin-bottom: 0.4rem;"><b >FECHA SALIDA:</b>&nbsp;</p>
+                        <p id="fecha_salida_portafolio" style="font-size: 14px; margin-bottom: 0.4rem;"></p>
                     </div>
                     
                     <div id="div-porteria-imagen" class="justify-content-center col-12 col-sm-12 col-md-12" style="margin-bottom: 15px;">
@@ -35,9 +40,19 @@
                         </div>
                     </div>
 
+                    <div id="div-porteria-fecha-ingreso" class="form-group col-12 col-sm-12 col-md-12" style="display: none;">
+                        <label for="fecha_salida_porteria_evento-input" class="form-control-label">Fecha ingreso</label>
+                        <input type="datetime-local" class="form-control form-control-sm" name="fecha_ingreso_evento_valor" id="fecha_ingreso_evento_valor">
+                    </div>
+
+                    <div id="div-porteria-fecha-salida" class="form-group col-12 col-sm-12 col-md-12" style="display: none;">
+                        <label for="fecha_salida_porteria_evento-input" class="form-control-label">Fecha salida</label>
+                        <input type="datetime-local" class="form-control form-control-sm" name="fecha_salida_evento_valor" id="fecha_salida_evento_valor">
+                    </div>
+
                     <div class="form-group col-12 col-sm-12 col-md-12" >
                         <label for="observacion_evento_valor-input" class="form-control-label">Observación</label>
-                        <textarea class="form-control form-control-sm" id="observacion_evento_valor" name="observacion_porteria_evento" rows="2"></textarea>
+                        <textarea class="form-control form-control-sm" id="observacion_evento_valor" name="observacion_evento_valor" rows="2"></textarea>
                     </div>
 
                 </form>

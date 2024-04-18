@@ -23,7 +23,8 @@
                         <label for="exampleFormControlSelect1">Tipo<span style="color: red">*</span></label>
                         <select class="form-control form-control-sm" id="tipo_inmueble_nit">
                             <option value="0">PROPIETARIO</option>
-                            <option value="1">INQUILINO</option>
+                            <option value="1">RESIDENTE</option>
+                            <option value="2">PROPIETARIO & RESIDENTE</option>
                         </select>
                     </div>
 
