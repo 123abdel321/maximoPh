@@ -508,7 +508,8 @@ function changeTotalAbonoRecibo(event) {
 $(document).on('change', '#id_nit_recibo', function () {
     let data = $('#id_nit_recibo').select2('data')[0];
     if (data) {
-        $("#id_nit_recibo_hide").val(data.personas.id_nit);
+        // console.log(data.personas[0].id_nit);
+        $("#id_nit_recibo_hide").val(data.personas[0].id_nit);
         document.getElementById('iniciarCapturaRecibo').click();
     }
 });
