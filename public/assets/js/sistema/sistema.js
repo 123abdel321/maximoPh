@@ -64,6 +64,8 @@ var moduloCreado = {
     'usuarios': false,
     'pagotransferencia': false,
     'porteria': false,
+    'instalacionempresa': false,
+    'importrecibos': false,
 };
 
 var moduloRoute = {
@@ -79,6 +81,8 @@ var moduloRoute = {
     'usuarios': 'configuracion',
     'pagotransferencia': 'operaciones',
     'porteria': 'administrativo',
+    'instalacionempresa': 'administrativo',
+    'importrecibos': 'importador',
 }
 
 $('.water').show();

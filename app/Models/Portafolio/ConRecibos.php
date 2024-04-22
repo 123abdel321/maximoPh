@@ -26,6 +26,26 @@ class ConRecibos extends Model
         'updated_by'
     ];
 
+    public function documentos()
+    {
+        return $this->morphMany(DocumentosGeneral::class, 'relation');
+	}
+
+    public function nit()
+    {
+        return $this->belongsTo(Nits::class, 'id_nit');
+	}
+
+    public function comprobante()
+	{
+		return $this->belongsTo(Comprobantes::class, 'id_comprobante');
+	}
+
+    public function detalles()
+	{
+		return $this->hasMany(ConReciboDetalles::class, 'id_recibo');
+	}
+
     public function pagos()
 	{
 		return $this->hasMany(ConReciboPagos::class, 'id_recibo');

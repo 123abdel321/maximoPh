@@ -44,4 +44,18 @@ class Comprobantes extends Model
 		'maestra_padre'
     ];
 
+	public function getTipoResolucionLabelAttribute()
+	{
+		if($tipo = self::TIPO_COMPROBANTE[$this->tipo_resolucion]) {
+			return $tipo;
+		}
+
+		return '';
+	}
+
+	public function resolucion()
+    {
+        return $this->hasOne(FacResoluciones::class, "id_comprobante");
+    }
+
 }

@@ -21,11 +21,14 @@ use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 //ADMINISTRATIVO
 use App\Http\Controllers\Sistema\PorteriaController;
+use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 //CONFIGURACION
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Empresa\UsuariosController;
+//IMPORTADOR
+use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
 Route::get('/', function () {
 	return redirect('/home');
@@ -61,10 +64,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
 		Route::get('/porteria', [PorteriaController::class, 'index']);
+		Route::post('/loadrut', [InstaladorController::class, 'rut']);
+		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
-		
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
+		//IMPORTADOR
+		Route::get('/importrecibos', [ImportadorRecibosController::class, 'index']);
+		Route::get('/importrecibos-exportar', [ImportadorRecibosController::class, 'exportar']);
+		Route::post('/importrecibos-importar', [ImportadorRecibosController::class, 'importar']);
 		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);
 		Route::get('/usuarios', [UsuariosController::class, 'index']);

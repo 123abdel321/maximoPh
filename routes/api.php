@@ -21,6 +21,8 @@ use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
+//IMPORTADOR
+use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
 
 /*
@@ -129,7 +131,6 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('porteriaevento', 'update');
             Route::get('porteriaevento-find', 'find');
         });
-        
         //ESTADO CUENTA
         Route::controller(EstadoCuentaController::class)->group(function () {
             Route::get('estadocuenta', 'generate');
@@ -143,6 +144,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('usuarios', 'create');
             Route::put('usuarios', 'update');
             Route::get('usuarios/combo', 'comboUsuario');
+        });
+        //IMPORTADOR
+        Route::controller(ImportadorRecibosController::class)->group(function () {
+            Route::get('recibos-cache-import', 'generate');
+            Route::post('recibos-cargar-import', 'cargar');
         });
         
         

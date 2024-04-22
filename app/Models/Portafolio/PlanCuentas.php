@@ -13,6 +13,9 @@ class PlanCuentas extends Model
 
     protected $table = "plan_cuentas";
 
+    public const DEBITO = 0;
+	public const CREDITO = 1;
+
     protected $fillable = [
         'id_padre',
         'id_tipo_cuenta',

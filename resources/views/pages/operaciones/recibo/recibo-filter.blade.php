@@ -12,7 +12,7 @@
 
                 <form id="reciboFilterForm" class="needs-validation row" style="margin-top: 10px;" novalidate>
 
-                <input type="text" class="form-control" name="id_nit_recibo_hide" id="id_nit_recibo_hide" style="display: none;">
+                    <input type="text" class="form-control" name="id_nit_recibo_hide" id="id_nit_recibo_hide" style="display: none;">
 
                     <div class="form-group col-12 col-sm-6 col-md-3">
                         <label>Cédula / Nit<span style="color: red">*</span></label>
