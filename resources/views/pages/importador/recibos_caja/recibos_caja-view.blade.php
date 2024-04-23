@@ -19,6 +19,12 @@
             </div>
         </div>
 
+        <div id="totales_import_recibos" style="content-visibility: auto; overflow: auto; display: none; margin-top: -5px;">
+            <div class="row">
+                @include('pages.importador.recibos_caja.recibos_caja-totales')
+            </div>
+        </div>
+
         <div id="card-import-producto-precios" class="card mb-4" style="content-visibility: auto; overflow: auto; border-radius: 20px;">
             @include('pages.importador.recibos_caja.recibos_caja-table')
             <div style="padding: 5px;"></div>

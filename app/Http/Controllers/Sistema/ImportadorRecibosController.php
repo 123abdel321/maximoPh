@@ -145,7 +145,7 @@ class ImportadorRecibosController extends Controller
                 foreach ($recibosImport as $reciboImport) {
                     
                     $valorDisponible = $reciboImport->pago;
-                    $this->fechaManual = request()->user()->can('recibo fecha') ? $request->get('fecha_manual', null) : Carbon::now();
+                    $this->fechaManual = $reciboImport->fecha_manual;
                     $this->consecutivo = $this->getNextConsecutive($comprobante->id, $this->fechaManual);
 
                     $recibo = $this->createFacturaRecibo($reciboImport);
@@ -301,6 +301,26 @@ class ImportadorRecibosController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
+    }
+
+    public function totales (Request $request)
+    {
+        $recibosErrores = ConRecibosImport::where('estado', 1)->count();
+        $recibosBuenos = ConRecibosImport::where('estado', 0)->count();
+        $recibosPagos = ConRecibosImport::where('estado', 0)->sum('pago');
+        $recibosAnticipos = ConRecibosImport::where('estado', 0)->sum('anticipos');
+
+        $data = [
+            'errores' => $recibosErrores,
+            'buenos' => $recibosBuenos,
+            'pagos' => $recibosPagos,
+            'anticipos' => $recibosAnticipos
+        ];
+
+        return response()->json([
+            'success'=>	true,
+            'data' => $data
+        ]);
     }
 
     private function createFacturaRecibo($reciboImport)

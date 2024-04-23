@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('fecha_manual')->nullable();
             $table->decimal('pago', 15)->default(0);
             $table->decimal('saldo', 15)->default(0);
+            $table->decimal('saldo_nuevo', 15)->default(0);
             $table->decimal('anticipos', 15)->default(0);
             $table->mediumText('observacion')->nullable();
             $table->integer('estado')->default(0)->comment('0: Con errores; 1: Recibo nuevo;');

@@ -24,6 +24,7 @@ class ConRecibosImport extends Model
         'fecha_manual',
         'pago',
         'saldo',
+        'saldo_nuevo',
         'anticipos',
         'observacion',
         'estado',

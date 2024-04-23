@@ -149,6 +149,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(ImportadorRecibosController::class)->group(function () {
             Route::get('recibos-cache-import', 'generate');
             Route::post('recibos-cargar-import', 'cargar');
+            Route::get('recibos-totales-import', 'totales');
         });
         
         
