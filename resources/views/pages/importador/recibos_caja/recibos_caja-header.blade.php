@@ -12,7 +12,7 @@
                 <br>
                 <div>
                     <p style="font-size: 14px !important; margin-bottom: 0px; color: black;" >
-                        <b>1.</b> Descarga la plantilla para cargar recibos de caja&nbsp;
+                        <b>1.</b> Descarga la plantilla para cargar pagos&nbsp;
                         <span id="descargarPlantillaRecibos" href="javascript:void(0)" class="btn badge bg-gradient-info" style="min-width: 40px; margin-right: 3px; margin-bottom: 0px !important;">
                             <i class="fas fa-download" style="font-size: 17px;"></i>
                             <b style="vertical-align: text-top;">Descargar plantilla</b>
@@ -20,7 +20,7 @@
                     </p>
                     <p style="font-size: 14px !important; margin-bottom: 0px; color: black;" ><b>2.</b> Realiza los cambios en cada archivo y guárdalo en formato Excel (.xlsx)</p>
                     <p style="font-size: 14px !important; margin-bottom: 0px; color: black;" ><b>3.</b> Adjunta el archivo y haz click en "Cargar plantilla"</p>
-                    <p style="font-size: 14px !important; margin-bottom: 0px; color: black;" ><b>4.</b> Valida los registros que seran cargados y haz click en "Cargar recibos"</p>
+                    <p style="font-size: 14px !important; margin-bottom: 0px; color: black;" ><b>4.</b> Valida los registros que seran cargados y haz click en "Cargar pagos"</p>
                 </div>
                 <br>
                 <div class="row">
@@ -37,7 +37,7 @@
                             </button>
                             <button id="actualizarPlantillaRecibos" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none;">
                                 <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
-                                <b style="vertical-align: text-top;">Cargar recibos</b>
+                                <b style="vertical-align: text-top;">Cargar pagos</b>
                             </button>&nbsp;
                             <button id="cargarPlantillaRecibosLoagind" class="btn btn-sm badge bg-gradient-primary" style="display:none; float: left;" disabled>
                                 <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;

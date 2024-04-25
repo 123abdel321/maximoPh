@@ -7,10 +7,10 @@
             <th>Documento</th>
             <th>Nombre</th>
             <th>Fecha manual</th>
-            <th>Valor Recibo</th>
-            <th>Saldo Anterior</th>
-            <th>Saldo Nuevo</th>
-            <th>Valor Anticipo</th>
+            <th>Saldo Actual</th>
+            <th>Valor Pago</th>
+            <th>Nuevo Saldo</th>
+            <th>Nuevo Anticipo</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Estado</th>
         </tr>
     </thead>

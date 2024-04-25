@@ -174,7 +174,7 @@ class ImportadorRecibosController extends Controller
                             'id_cuenta' => $cuentaPago->id,
                             'id_nit' => $recibo->id_nit,
                             'fecha_manual' => $recibo->fecha_manual,
-                            'documento_referencia' => $recibo->consecutivo,
+                            'documento_referencia' => $extracto->documento_referencia,
                             'consecutivo' => $recibo->consecutivo,
                             'concepto' => 'VALOR IMPORTADO DESDE RECIBOS',
                             'total_factura' => 0,

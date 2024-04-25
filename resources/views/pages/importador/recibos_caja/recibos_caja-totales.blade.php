@@ -1,7 +1,7 @@
 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
-            <p class="text-sm mb-0 text-uppercase font-weight-bold">Recibos con error</p>
+            <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagos con error</p>
             <div style="display: flex;">
                 <h5 id="errores_recibos_import" class="font-weight-bolder">
                     0
@@ -17,7 +17,7 @@
 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
-            <p class="text-sm mb-0 text-uppercase font-weight-bold">Recibos a importar</p>
+            <p class="text-sm mb-0 text-uppercase font-weight-bold">Pagos a importar</p>
             <div style="display: flex;">
                 <h5 id="buenos_recibos_import" class="font-weight-bolder">
                     0
@@ -33,7 +33,7 @@
 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
-            <p class="text-sm mb-0 text-uppercase font-weight-bold">Total recibos</p>
+            <p class="text-sm mb-0 text-uppercase font-weight-bold">Total pagos</p>
             <div style="display: flex;">
                 <h5 id="pagos_recibos_import" class="font-weight-bolder">
                     0
@@ -49,7 +49,7 @@
 <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
     <div class="card" style="height: 100%;">
         <div class="card-body p-2">
-            <p class="text-sm mb-0 text-uppercase font-weight-bold">Anticipo recibos</p>
+            <p class="text-sm mb-0 text-uppercase font-weight-bold">Total anticipos</p>
             <div style="display: flex;">
                 <h5 id="anticipos_recibos_import" class="font-weight-bolder">
                     0
