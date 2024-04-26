@@ -66,6 +66,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/porteria', [PorteriaController::class, 'index']);
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
+		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);

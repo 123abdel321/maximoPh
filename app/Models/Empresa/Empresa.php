@@ -41,4 +41,8 @@ class Empresa extends Model
         'fecha_ultimo_cierre'
 	];
 
+    public function usuario () {
+		return $this->hasOne("App\Models\User", "id", "id_usuario_owner");
+	}
+
 }

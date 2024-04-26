@@ -18,6 +18,7 @@ class User extends Authenticatable
     protected $connection = 'clientes';
 
     protected $fillable = [
+        'id',
         'username',
         'firstname',
         'lastname',

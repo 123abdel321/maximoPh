@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
 use App\Http\Controllers\Empresa\UsuariosController;
+use App\Http\Controllers\Empresa\InstaladorController;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\RecioController;
@@ -151,7 +152,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('recibos-cargar-import', 'cargar');
             Route::get('recibos-totales-import', 'totales');
         });
-        
+        //EMPRESA
+        Route::controller(InstaladorController::class)->group(function () {
+            Route::get('empresas', 'generate');
+        });
         
     });
 });

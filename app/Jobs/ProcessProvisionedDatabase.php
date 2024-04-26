@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Queue\InteractsWithQueue;
+use Database\Seeders\ProvisionadaSeeder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 //MODELS
@@ -43,22 +44,26 @@ class ProcessProvisionedDatabase implements ShouldQueue
     {
         try {
 			createDatabase($this->empresa->token_db_maximo);
-
 			if (!config('database.connections.' . $this->connectionName)) {
 				copyDBConnection('max', $this->empresa->token_db_maximo);
 			}
 
 			setDBInConnection('max', $this->empresa->token_db_maximo);
 
-			// Artisan::call('migrate', [
-			// 	'--force' => true,
-			// 	'--path' => 'database/migrations/sistema',
-			// 	'--database' => 'max'
-			// ]);
+			Artisan::call('migrate', [
+				'--force' => true,
+				'--path' => 'database/migrations/sistema',
+				'--database' => 'max'
+			]);
+
+			Artisan::call('db:seed', [
+				'--force' => true,
+				'--class' => ProvisionadaSeeder::class,
+				'--database' => 'max'
+			]);
 
 			info('Base de datos generada: ' . $this->empresa->token_db_maximo);
 			
-			return $this->empresa->token_db_maximo;
 		} catch (Exception $exception) {
 			Log::error('Error al generar base de datos provisionada', ['message' => $exception->getMessage()]);
 

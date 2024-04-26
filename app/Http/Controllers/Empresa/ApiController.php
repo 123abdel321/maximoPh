@@ -188,16 +188,16 @@ class ApiController extends Controller
 				'estado' => 0
 			]);
 
-            // $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
+            $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
 
-            // if ($response['status'] > 299) {
-            //     DB::connection('clientes')->rollback();
-            //     return response()->json([
-            //         "success"=>false,
-            //         'data' => [],
-            //         "message"=>$response['response']->message
-            //     ], 422);
-            // }
+            if ($response['status'] > 299) {
+                DB::connection('clientes')->rollback();
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>$response['response']->message
+                ], 422);
+            }
 
             $nameDb = $this->generateUniqueNameDb($empresa);
 
