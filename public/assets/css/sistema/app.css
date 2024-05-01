@@ -743,3 +743,35 @@ div.dataTables_processing {
     margin-top: 2px;
     font-size: 14px;
 }
+
+.offcanvas-header-maximo {
+    justify-content: flex-start;
+}
+
+.offcanvas-header-maximo .offcanvas-title {
+    font-size: 15px;
+    margin-left: 10px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.offcanvas-header-maximo .offcanvas-header-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    object-fit: cover;
+}
+
+
+
+.offcanvas-header-maximo .offcanvas-footer {
+    padding: 10px 5px 10px 0px;
+}
+
+.offcanvas-header-maximo .offcanvas-footer .offcanvas-input-textarea {
+    border: solid 2px #979797 !important;
+}

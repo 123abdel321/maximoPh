@@ -722,12 +722,14 @@ function editarItemPorteria(id) {
             $("#placa_persona_porteria").val(itemPorteria.placa);
             $("#observacion_persona_porteria").val(itemPorteria.observacion);
         
-            var diasSeleccionado = itemPorteria.dias.split(",");
-        
-            diasSeleccionado.forEach(dia => {
-                $('#diaPorteria'+dia).prop('checked', true);
-            });
-            $("#porteriaFormModal").modal('show');
+            if (itemPorteria.dias) {
+                var diasSeleccionado = itemPorteria.dias.split(",");
+            
+                diasSeleccionado.forEach(dia => {
+                    $('#diaPorteria'+dia).prop('checked', true);
+                });
+                $("#porteriaFormModal").modal('show');
+            }
     
         }).fail((err) => {
             $("#loading-card-porteria-"+id).hide();

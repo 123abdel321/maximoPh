@@ -74,6 +74,14 @@ function nitInit() {
                     return '';
                 }
             },
+            {
+                "data": function (row, type, set){
+                    if(row.declarante){
+                        return 'SI';
+                    }
+                    return 'NO';
+                }
+            },
             {"data": function (row, type, set){  
                 var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
                 if(!row.created_by && !row.fecha_creacion) return '';
@@ -138,6 +146,12 @@ function nitInit() {
                 var newOption = new Option(dataCiudad.text, dataCiudad.id, false, false);
                 $comboCiudad.append(newOption).trigger('change');
                 $comboCiudad.val(dataCiudad.id).trigger('change');
+            }
+
+            if (data.declarante) {
+                $('#declarante_nit').prop('checked', true);
+            } else {
+                $('#declarante_nit').prop('checked', false);
             }
 
             hideFormNits();
@@ -389,6 +403,7 @@ $(document).on('click', '#updateNit', function () {
             id_ciudad: $("#id_ciudad").val(),
             observaciones: $("#observaciones").val(),
             id_vendedor: $('#id_vendedor_nit').val(),
+            declarante: $("input[type='checkbox']#declarante_nit").is(':checked') ? '1' : '',
             avatar: newImgProfile
         }
 
@@ -456,6 +471,7 @@ $(document).on('click', '#saveNit', function () {
             id_ciudad: $("#id_ciudad").val(),
             observaciones: $("#observaciones").val(),
             id_vendedor: $('#id_vendedor_nit').val(),
+            declarante: $("input[type='checkbox']#declarante_nit").is(':checked') ? '1' : '',
             avatar: newImgProfile
         }
 
@@ -538,6 +554,7 @@ function hideFormNits(){
         'telefono_1',
         'direccion',
         'email',
+        'declarante'
     ];
 
     var nitsForm = [
@@ -549,6 +566,7 @@ function hideFormNits(){
         'telefono_1',
         'direccion',
         'email',
+        'declarante'
     ];
 
     var noNitsForm = [
@@ -563,6 +581,7 @@ function hideFormNits(){
         'telefono_1',
         'direccion',
         'email',
+        'declarante'
     ];
 
     divsForm.forEach(form => {

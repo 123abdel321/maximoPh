@@ -25,7 +25,6 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //IMPORTADOR
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -105,7 +104,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         });
         //PQRSF
         Route::controller(PqrsfController::class)->group(function () {
+            Route::get('pqrsf', 'read');
             Route::post('pqrsf', 'create');
+            Route::get('pqrsf-find', 'find');
         });
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {
@@ -144,7 +145,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('usuarios', 'generate');
             Route::post('usuarios', 'create');
             Route::put('usuarios', 'update');
-            Route::get('usuarios/combo', 'comboUsuario');
+            Route::get('usuarios/combo', 'combo');
         });
         //IMPORTADOR
         Route::controller(ImportadorRecibosController::class)->group(function () {

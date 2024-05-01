@@ -25,6 +25,7 @@ const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
 var menuOpen = false;
+
 $.ajaxSetup({
     'headers':{
         "Authorization": auth_token,
@@ -42,6 +43,16 @@ const headersERP = {
     "Content-Type": "application/json",
     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 };
+
+const medidasSwiper = [
+    'translate3d(calc(13% - 480px), 0px, -200px) rotateZ(4deg) scale(1);',
+    'translate3d(calc(17.25% - 720px), 0px, -300px) rotateZ(6deg) scale(1);',
+    'translate3d(calc(20% - 960px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1200px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1440px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1680px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1920px), 0px, -400px) rotateZ(8deg) scale(1);',
+];
 
 let body = document.getElementsByTagName('body')[0];
 let className = 'g-sidenav-pinned';
@@ -66,6 +77,7 @@ var moduloCreado = {
     'porteria': false,
     'instalacionempresa': false,
     'importrecibos': false,
+    'pqrsf': false,
 };
 
 var moduloRoute = {
@@ -83,6 +95,7 @@ var moduloRoute = {
     'porteria': 'administrativo',
     'instalacionempresa': 'administrativo',
     'importrecibos': 'importador',
+    'pqrsf': 'administrativo',
 }
 
 $('.water').show();

@@ -20,6 +20,7 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 //ADMINISTRATIVO
+use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
@@ -67,9 +68,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
+		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
+		//PORTERIA
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
-		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
+		//PQRSF
+		Route::get('/pqrsf', [PqrsfController::class, 'index']);
+		Route::post('/pqrsf', [PqrsfController::class, 'create']);
+		Route::post('/pqrsf-mensaje/{id}', [PqrsfController::class, 'createMensaje']);
 		//IMPORTADOR
 		Route::get('/importrecibos', [ImportadorRecibosController::class, 'index']);
 		Route::get('/importrecibos-exportar', [ImportadorRecibosController::class, 'exportar']);

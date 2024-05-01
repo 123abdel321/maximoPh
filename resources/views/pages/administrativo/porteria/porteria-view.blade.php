@@ -56,6 +56,15 @@
         transform: scale(1.05);
         box-shadow: 0 0 15px #1096ff;
     }
+
+    .text-max-line-2 {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
 </style>
 <div class="container-fluid py-2">
     <div class="row">

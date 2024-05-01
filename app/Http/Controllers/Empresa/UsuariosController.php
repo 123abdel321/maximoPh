@@ -265,4 +265,24 @@ class UsuariosController extends Controller
             ], 422);
         }
     }
+
+    public function combo (Request $request)
+    {
+        $totalRows = $request->has("totalRows") ? $request->get("totalRows") : 40;
+
+        $user = DB::connection('clientes')->table('usuario_empresas AS UE')
+            ->select(
+                '*',
+                DB::raw("CONCAT_WS(' ', U.firstname, U.lastname) AS text")
+            )
+            ->leftJoin('users AS U', 'UE.id_usuario', 'U.id')
+            ->where('UE.id_empresa', $request->user()['id_empresa']);
+
+        if ($request->get("search")) {
+            $user->where('U.firstname', 'LIKE', $request->get("search") . '%')
+                ->orWhere('U.lastname', 'LIKE', $request->get("search") . '%');
+        }
+
+        return $user->paginate($totalRows);
+    }
 }

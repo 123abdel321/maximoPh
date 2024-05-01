@@ -26,6 +26,10 @@
     <!-- SELECT 2 -->
     <link href="assets/css/sistema/select2.min.css" rel="stylesheet" />
     <link href="assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <!-- UPLOAD IMG -->
+    <link href="assets/css/sistema/image-uploader.min.css" rel="stylesheet" />
+    <!-- SWIPER -->
+    <link rel="stylesheet" href="assets/css/sistema/swiper-bundle.min.css" rel="stylesheet" />
 
 </head>
 
@@ -176,7 +180,7 @@
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
-    <!-- <script src="assets/js/plugins/perfect-scrollbar.min.js"></script> -->
+    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
     <script>
        
@@ -208,6 +212,12 @@
     <!-- SISTEMA -->
     <script src="assets/js/sistema/sistema.js" rel="stylesheet"></script>
     <!-- <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js" rel="stylesheet"></script> -->
+    <!-- WIZARD -->
+    <script src="assets/js/sistema/jquery.bootstrap-wizard.js"></script>
+    <!-- UPLOADER IMG -->
+    <script src="assets/js/sistema/image-uploader.js"></script>
+    <!-- SWIPER -->
+    <script src="assets/js/sistema/swiper-bundle.min.js"></script>
     
     @stack('js')
 </body>
