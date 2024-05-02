@@ -30,6 +30,11 @@ class Pqrsf extends Model
         return $this->morphMany(ArchivosGenerales::class, 'relation');
 	}
 
+    public function notificacion()
+    {
+        return $this->morphTo(Notificaciones::class, 'notificacion');
+	}
+
     public function mensajes(){
 		return $this->hasMany(PqrsfMensajes::class, "id_pqrsf", "id");
 	}

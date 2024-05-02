@@ -5,29 +5,30 @@ namespace App\Models\Sistema;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PqrsfMensajes extends Model
+class Notificaciones extends Model
 {
     use HasFactory;
 
     protected $connection = 'max';
 
-    protected $table = "pqrsf_mensajes";
+    protected $table = "notificaciones";
 
     protected $fillable = [
-        'id_pqrsf',
+        'notificacion_id',
+        'notificacion_type',
         'id_usuario',
-        'descripcion',
+        'mensaje',
+        'menu',
+        'function',
+        'data',
+        'estado',
+        'tipo',
         'created_by',
         'updated_by'
     ];
 
-    public function archivos()
-    {
-        return $this->morphMany(ArchivosGenerales::class, 'relation');
-	}
-
     public function notificacion()
     {
-        return $this->morphTo(Notificaciones::class, 'notificacion');
-	}
+        return $this->morphTo();
+    }
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pqrsf_mensajes', function (Blueprint $table) {
             $table->id();
             $table->integer('id_pqrsf');
+            $table->integer('id_usuario');
             $table->longText('descripcion')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

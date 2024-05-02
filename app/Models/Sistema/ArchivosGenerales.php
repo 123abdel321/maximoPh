@@ -26,8 +26,5 @@ class ArchivosGenerales extends Model
     public function relation()
     {
         return $this->morphTo();
-    }
-
-
-    
+    }    
 }

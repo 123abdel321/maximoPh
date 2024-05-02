@@ -1,103 +1,5 @@
 <div class="container-fluid py-2">
 <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"> -->
-<style>
-    .swiper-slide {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 18px;
-      font-size: 22px;
-      font-weight: bold;
-      color: #fff;
-    }
-
-    .width-500{
-        width: 500px;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
-        -webkit-box-orient: vertical;
-    }
-
-	.button-add-img {
-		background-color: #c9d3e2;
-		height: 100%;
-		width: 100%;
-		cursor: pointer;
-		border-radius: 8px;
-	}
-
-	.button-add-img-select {
-		background-color: #c1f2fb;
-		height: 100%;
-		width: 100%;
-		cursor: pointer;
-		border-radius: 8px;
-		color: #075260;
-	}
-
-	.button-add-img:hover {
-		background-color: #075260;
-		color: white;
-	}
-
-	.button-add-img-select:hover {
-		background-color: #075260;
-		color: white;
-	}
-
-	.button-send-pqrsf {
-		background-color: #075260;
-		color: white;
-		height: 100%;
-		width: 100%;
-		cursor: pointer;
-		border-radius: 8px;
-	}
-
-	.button-send-pqrsf:hover {
-		background-color: #1691a7;
-		color: white;
-	}
-
-    .icono-mensaje-derecha {
-        color: #33a5bb;
-        font-size: 25px;
-        margin-left: auto;
-        float: inline-end;
-        margin-top: -2px;
-        margin-right: -8px;
-    }
-
-    .icono-mensaje-izquierda {
-        color: #767676;
-        font-size: 25px;
-        margin-left: -10px;
-        float: inline-start;
-        margin-top: -2px;
-    }
-
-    .mensaje-estilo-derecha {
-        background-color: #33a5bb;
-        border-radius: 10px 10px 10px 10px;
-        padding: 10px 13px 10px 15px;
-        color: white;
-        margin-top: 10px;
-        margin-left: auto;
-        max-width: fit-content;
-    }
-
-    .mensaje-estilo-izquierda {
-        background-color: #767676;
-        border-radius: 10px 10px 10px 10px;
-        padding: 10px 13px 10px 15px;
-        color: white;
-        margin-top: 10px;
-        max-width: fit-content;
-    }
-
-  </style>
     <div class="row">
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
@@ -107,7 +9,6 @@
                         Agregar pqrsf
                     </button>
                 @endcan
-				<button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
             </div>
             <div class="col-12 col-md-8 col-sm-8">
                 <input type="text" id="searchInputPqrsf" class="form-control form-control-sm search-table" onkeydown="searchPqrsf(event)" placeholder="Buscar">
@@ -150,11 +51,6 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> -->
 
         @include('pages.administrativo.pqrsf.pqrsf-form', ['usuario_empresa' => $usuario_empresa])
-        @include('pages.administrativo.pqrsf.pqrsf-canv')
 
     </div>
 </div>
-
-<script>
-    var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
-</script>

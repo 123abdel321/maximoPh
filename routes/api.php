@@ -21,6 +21,7 @@ use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
+use App\Http\Controllers\Sistema\NotificacionesController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //IMPORTADOR
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
@@ -156,6 +157,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //EMPRESA
         Route::controller(InstaladorController::class)->group(function () {
             Route::get('empresas', 'generate');
+        });
+        //NOTIFICACIONES
+        Route::controller(NotificacionesController::class)->group(function () {
+            Route::get('notificaciones', 'read');
+            Route::put('notificaciones', 'update');
         });
         
     });

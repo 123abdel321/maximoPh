@@ -21,6 +21,131 @@
                         @endif
                     </div>
                 </li>
+
+                <li class="nav-item ps-3 d-flex align-items-center">
+                    <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarNotificacion" onclick="openDropDownNotificaciones()">
+                        <div>
+                            <p id="number_notification" class="number_notification" style="z-index: 99; display: none;"></p>
+                            <i id="bell_notification" class="fas fa-bell" style="font-size: 15px;"></i>
+                        </div>
+                    </a>
+                    <div id="dropdown-notificaciones" class="dropdown-menu dropdown-menu-top-1">
+                        <div class="dropdown-item">
+                            <div>¡SIN NOTIFICACIONES!</div>
+                            <div>
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+
+                        <!-- <div class="dropdown-item" style="width: 231px;">
+                            <div class="row texto-dropdown-notificacion-info">
+                                <div class="col-11 text-wrap texto-dropdown-notificacion">
+                                    <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                                    <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                                </div>
+                                <div class="col-1" style="align-self: center;">
+                                    <span class="placeholder placeholder-sm" style="width: 15px; height: 16px; margin-left: -2px;"></span>
+                                </div>
+                            </div>
+                            <div class="row texto-dropdown-notificacion-info">
+                                <div class="col-12 hora-notificacion">
+                                    <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- <div class="dropdown-item" style="width: 231px;">
+                            <div class="row texto-dropdown-notificacion-info">
+                                <div class="col-11 text-wrap texto-dropdown-notificacion">
+                                    <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                                    <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                                </div>
+                                <div class="col-1" style="align-self: center;">
+                                    <span class="placeholder placeholder-sm" style="width: 15px; height: 16px; margin-left: -2px;"></span>
+                                </div>
+                            </div>
+                            <div class="row texto-dropdown-notificacion-info">
+                                <div class="col-12 hora-notificacion">
+                                    <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dropdown-item" style="width: 231px;">
+                            <div class="row texto-dropdown-notificacion-info">
+                                <div class="col-11 text-wrap texto-dropdown-notificacion">
+                                    <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                                    <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                                </div>
+                                <div class="col-1" style="align-self: center;">
+                                    <span class="placeholder placeholder-sm" style="width: 15px; height: 16px; margin-left: -2px;"></span>
+                                </div>
+                            </div>
+                            <div class="row texto-dropdown-notificacion-info">
+                                <div class="col-12 hora-notificacion">
+                                    <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- <div class="dropdown-item">
+                            <div class="row texto-dropdown-notificacion-success">
+                                <div class="col-11 text-wrap texto-dropdown-notificacion"> Ha recibido un nuevo mensaje de Sandra Ovalle </div>
+                                <div class="col-1" style="align-self: center;">
+                                    <i class="fas fa-share-square" style="color: #0a889f;"></i>
+                                </div>
+                            </div>
+                            <div class="row texto-dropdown-notificacion-success">
+                                <div class="col-12 hora-notificacion">
+                                    Hoy 8:45
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dropdown-item">
+                            <div class="row texto-dropdown-notificacion-warning">
+                                <div class="col-11 text-wrap texto-dropdown-notificacion"> Ha recibido un nuevo mensaje de Sandra Ovalle </div>
+                                <div class="col-1" style="align-self: center;">
+                                    <i class="fas fa-share-square" style="color: #0a889f;"></i>
+                                </div>
+                            </div>
+                            <div class="row texto-dropdown-notificacion-warning">
+                                <div class="col-12 hora-notificacion">
+                                    Hoy 8:45
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- 
+
+                        
+
+                        <div class="dropdown-item">
+                            <div class="row texto-dropdown-notificacion-error">
+                                <div class="col-11 text-wrap texto-dropdown-notificacion"> Ha recibido un nuevo mensaje de Sandra Ovalle </div>
+                                <div class="col-1" style="align-self: center;">
+                                    <i class="fas fa-share-square" style="color: #0a889f;"></i>
+                                </div>
+                            </div>
+                            <div class="row texto-dropdown-notificacion-error">
+                                <div class="col-12 hora-notificacion">
+                                    Hoy 8:45
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" href="#">Something else here</a> -->
+                    </div>
+                </li>
                 
                 <li class="nav-item ps-3 d-flex align-items-center">
                     <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenavMaximo">

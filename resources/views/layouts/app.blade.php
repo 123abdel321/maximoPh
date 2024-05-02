@@ -30,6 +30,8 @@
     <link href="assets/css/sistema/image-uploader.min.css" rel="stylesheet" />
     <!-- SWIPER -->
     <link rel="stylesheet" href="assets/css/sistema/swiper-bundle.min.css" rel="stylesheet" />
+    <!-- ANIMATE CSS -->
+    <link rel="stylesheet" href="assets/css/sistema/animate.min.css" rel="stylesheet" />
 
 </head>
 
@@ -169,6 +171,8 @@
             <path id="steamR" d="M21 6C21 6 21 8.22727 19 9.5C17 10.7727 17 13 17 13" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
     </div>
+    <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
+    @include('components.pqrsf-canv')
 
     <!-- FOOTER -->
     @include('layouts.footers.footer')
@@ -218,7 +222,12 @@
     <script src="assets/js/sistema/image-uploader.js"></script>
     <!-- SWIPER -->
     <script src="assets/js/sistema/swiper-bundle.min.js"></script>
-    
+    <!-- MDB -->
+    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
+    <script>
+        var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
+    </script>
     @stack('js')
 </body>
 

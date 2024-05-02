@@ -6,6 +6,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Events\PrivateMessageEvent;
+use App\Helpers\NotificacionGeneral;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +15,7 @@ use App\Models\Sistema\Pqrsf;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\PqrsfMensajes;
 use App\Models\Empresa\UsuarioEmpresa;
+use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\ArchivosGenerales;
 
 class PqrsfController extends Controller
@@ -193,7 +195,7 @@ class PqrsfController extends Controller
     public function createMensaje (Request $request, string $id)
     {
         $rules = [
-            'mensaje_pqrsf' => 'required',
+            'mensaje_pqrsf_nuevo' => 'required',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -209,9 +211,12 @@ class PqrsfController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
+            $pqrsf = Pqrsf::find($id);
+
             $mensajes = PqrsfMensajes::create([
                 'id_pqrsf' => $id,
-                'descripcion' => $request->get("mensaje_pqrsf"),
+                'id_usuario' => $pqrsf->id_usuario,
+                'descripcion' => $request->get("mensaje_pqrsf_nuevo"),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
@@ -234,23 +239,37 @@ class PqrsfController extends Controller
                 }
             }
 
-            DB::connection('max')->commit();
-
             $mensaje = PqrsfMensajes::where('id', $mensajes->id)
                 ->with('archivos')
                 ->get();
-
-            $pqrsf = Pqrsf::find($id);
+            
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
             $usuarioNotificacion = $pqrsf->id_usuario;
 
             if ($pqrsf->id_usuario == $request->user()['id']) {
                 $usuarioNotificacion = $pqrsf->created_by;
             }
 
-            event(new PrivateMessageEvent('pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion, [
-                'id_pqrsf' => $id,
-                'data' => $mensaje
-            ]));
+            $notificacion =(new NotificacionGeneral(
+                request()->user()->id,
+                $pqrsf->id_usuario,
+                $mensajes
+            ));
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $pqrsf->id_usuario,
+                'mensaje' => 'Ha recibido un nuevo mensaje de '.$nombreUsuario,
+                'function' => 'abrirPqrsfNotificacion',
+                'data' => $id,
+                'estado' => 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+            $notificacion->notificar(
+                'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
+                ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'id_notificacion' => $id_notificacion]
+            );
+
+            DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,

@@ -20,7 +20,8 @@ const bucketUrl = 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/';
 const btnLogout = document.getElementById('sessionLogout');
 const itemMenuActive = localStorage.getItem("item_active_menu");
 
-const dateNow = new Date();
+let dateNow = new Date();
+let dropDownNotificacionOpen = false;
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
@@ -53,6 +54,14 @@ const medidasSwiper = [
     'translate3d(calc(20% - 1680px), 0px, -400px) rotateZ(8deg) scale(1);',
     'translate3d(calc(20% - 1920px), 0px, -400px) rotateZ(8deg) scale(1);',
 ];
+
+function dateDifferenceInDays (dateInitial, dateFinal) {
+    var dias_diferencia = (dateFinal - dateInitial) / 86_400_000;
+    if (dias_diferencia < 0) {
+        return dias_diferencia * -1
+    }
+    return dias_diferencia
+}
 
 let body = document.getElementsByTagName('body')[0];
 let className = 'g-sidenav-pinned';
@@ -141,7 +150,79 @@ if (idRolUsuario == 4) {
     closeMenu();
 }
 
-// selectMenu(itemMenuActive);
+iniciarScrollBar();
+buscarNotificaciones();
+
+function iniciarScrollBar() {
+    var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
+    var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
+
+    new PerfectScrollbar(dropDownNotificacion);
+    new PerfectScrollbar(offcanvasBodyPqrsf);
+}
+
+function setNotificaciones(total = 0) {
+    var numeroNotificaciones = total ? total : parseInt(localStorage.getItem("numero_notificaciones"));
+    if (numeroNotificaciones) {
+        $("#number_notification").text(numeroNotificaciones);
+        $("#number_notification").show();
+        $("#bell_notification").addClass('animate__animated animate__infinite animate__slower animate__tada');
+    } else {
+        $("#number_notification").text('');
+        $("#number_notification").hide();
+        $("#bell_notification").remove('animate__animated animate__infinite animate__slower animate__tada');
+    }
+}
+
+var channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
+
+channelPqrsf.bind('notificaciones', function(data) {
+    var idPqrsfOpen = $("#id_pqrsf_up").val();
+    console.log(data.id_pqrsf, idPqrsfOpen);
+    if (data.id_pqrsf == idPqrsfOpen) {
+
+        mostrarMensajesPqrsf(data.data);
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+        initSwipers();
+        leerNotificaciones(data.id_notificacion);
+    } else {
+        buscarNotificaciones();
+    }
+});
+
+function keyPressPqrsfMensaje(event) {
+    if (event.keyCode == 13) {
+        document.getElementById('button-send-pqrsf').click();
+    }
+}
+
+function buscarNotificaciones() {
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'GET',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            localStorage.setItem("numero_notificaciones", res.total);
+            setNotificaciones(res.total);
+        }
+    }).fail((res) => {
+        agregarToast('error', 'Eliminación errada', res.message);
+    });
+}
+
+function leerNotificaciones(id) {
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'PUT',
+        headers: headers,
+        data: JSON.stringify({id: id, estado: 1}),
+        dataType: 'json',
+    }).done((res) => {
+    }).fail((res) => {
+    });
+}
 
 function openNewItem(id, nombre, icon) {
     if($('#containner-'+id).length == 0) {
@@ -823,3 +904,409 @@ function monthYear (date) {
             break;
     }
 };
+
+function daysWeek (date) {
+    var days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    var d = new Date(date);
+    var dayName = days[d.getDay()];
+    return dayName;
+}
+
+function createMensajePqrsf() {
+
+    var form = document.querySelector('#form-pqrsf-mensajes');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    var idMensaje = $("#id_pqrsf_up").val();
+
+    $("#button-send-pqrsf").hide();
+    $("#button-send-pqrsf-loading").show();
+
+    var ajxForm = document.getElementById("form-pqrsf-mensajes");
+    var data = new FormData(ajxForm);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "pqrsf-mensaje/"+idMensaje);
+    xhr.send(data);
+    xhr.onload = function(res) {
+
+        var responseData = JSON.parse(res.currentTarget.response);
+        
+        $("#button-send-pqrsf").show();
+        $("#button-send-pqrsf-loading").hide();
+
+        if (responseData.success) {
+            mostrarMensajesPqrsf(responseData.data);
+            
+            $("#mensaje_pqrsf_nuevo").val("");
+            setTimeout(function(){
+                $("#mensaje_pqrsf_nuevo").focus().select();
+            }, 100);
+            
+            initSwipers();
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+        } else {
+            agregarToast('error', 'Carga errada', responseData.message);
+        }
+    };
+    xhr.onerror = function (res) {
+        agregarToast('error', 'Carga errada', 'errorsMsg');
+        $("#button-send-pqrsf").show();
+        $("#button-send-pqrsf-loading").hide();
+    };
+}
+
+function mostrarMensajesPqrsf(mensajes) {
+    for (let index = 0; index < mensajes.length; index++) {
+        var html = ``;
+        var className = '';
+        var mensaje = mensajes[index];
+        var htmlImagen = '';
+
+        if (mensaje.archivos) htmlImagen = htmlSwiperImg(mensaje.archivos);
+        
+        if (id_usuario_logeado == mensaje.created_by) {
+            className = 'mensaje-estilo-derecha';
+            html+=`${htmlImagen}<p style="font-size: 13px; margin-bottom: 0; font-weight: 600;">${mensaje.descripcion}</p>
+                <p style="font-size: 10px; margin-bottom: 0; font-weight: 500; text-align: end;">${definirTiempo(mensaje.created_at)}</p>
+                <i class="fas fa-caret-down icono-mensaje-derecha"></i>`;
+        } else {
+            className = 'mensaje-estilo-izquierda';
+            html+=`${htmlImagen}<p style="font-size: 13px; margin-bottom: 0; text-align-last: right; font-weight: 600;">${mensaje.descripcion}</p>
+                <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">${definirTiempo(mensaje.created_at)}</p>
+                <i class="fas fa-caret-down icono-mensaje-izquierda"></i>`;
+        }
+        var mensajeDising = document.createElement('div');
+        mensajeDising.setAttribute("class", className);
+        mensajeDising.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('offcanvas-body-pqrsf').insertBefore(mensajeDising, null);
+    }
+}
+
+function openDropDownNotificaciones(open = false) {
+
+    $("#dropdown-notificaciones").empty();
+
+    $("#dropdown-notificaciones").removeClass('dropdown-menu-top-1');
+    $("#dropdown-notificaciones").removeClass('dropdown-menu-top-2');
+    $("#dropdown-notificaciones").removeClass('dropdown-menu-top-3');
+
+    if (!open) {
+        if (dropDownNotificacionOpen) {
+            $("#dropdown-notificaciones").removeClass('show');
+            dropDownNotificacionOpen = false;
+        } else {
+            $("#dropdown-notificaciones").addClass('show');
+            dropDownNotificacionOpen = true;
+        }
+    } else {
+        $("#dropdown-notificaciones").removeClass('show');
+        $("#dropdown-notificaciones").addClass('show');
+
+    }
+
+    showPlaceholderMenu();
+
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'GET',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        var data = res.data;
+        if (data.length) {
+            $("#dropdown-notificaciones").empty();
+            $("#dropdown-notificaciones").removeClass('dropdown-menu-top-2');
+            pintarNotificaciones(data);
+        } else {
+            $("#dropdown-notificaciones").empty();
+            $("#dropdown-notificaciones").removeClass('dropdown-menu-top-2');
+            pintarSinNotificaciones();
+        }
+    }).fail((err) => {
+        
+    });
+}
+
+function showPlaceholderMenu() {
+    $("#dropdown-notificaciones").addClass('dropdown-menu-top-2');
+
+    var html = `<div class="row texto-dropdown-notificacion-info">
+            <div class="col-11 text-wrap texto-dropdown-notificacion">
+                <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+                <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
+            </div>
+            <div class="col-1" style="align-self: center;">
+                <span class="placeholder placeholder-sm" style="width: 15px; height: 16px; margin-left: -2px;"></span>
+            </div>
+        </div>
+        <div class="row texto-dropdown-notificacion-info">
+            <div class="col-12 hora-notificacion">
+                <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
+            </div>
+        </div>`;
+
+    var mensajeDising = document.createElement('div');
+        mensajeDising.setAttribute("class", "dropdown-item");
+        mensajeDising.setAttribute("style", "width: 251px;");
+        mensajeDising.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('dropdown-notificaciones').insertBefore(mensajeDising, null);
+
+    var mensajeDising = document.createElement('div');
+        mensajeDising.setAttribute("class", "dropdown-item");
+        mensajeDising.setAttribute("style", "width: 251px;");
+        mensajeDising.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('dropdown-notificaciones').insertBefore(mensajeDising, null);
+}
+
+function pintarNotificaciones(notificaciones) {
+    for (let index = 0; index < notificaciones.length; index++) {
+        let notificacion = notificaciones[index];
+
+        var html = `
+            <div class="row texto-dropdown-notificacion-${tipoNotificacion(notificacion.tipo)}">
+                <div class="col-11 text-wrap texto-dropdown-notificacion">${notificacion.mensaje}</div>
+                <div class="col-1" style="align-self: center;">
+                    <i class="fas fa-share-square" style="color: #0a889f;"></i>
+                </div>
+            </div>
+            <div class="row texto-dropdown-notificacion-${tipoNotificacion(notificacion.tipo)}">
+                <div class="col-12 hora-notificacion">
+                    ${definirTiempo(notificacion.created_at)}
+                </div>
+            </div>
+        `;
+        
+        var notificacionesNumber = '1';
+        if (notificaciones.length == 2) {
+            notificacionesNumber = '2';
+        } else if (notificaciones.length > 2) {
+            notificacionesNumber = '3';
+        }
+        
+        $("#dropdown-notificaciones").addClass("dropdown-menu-top-"+notificacionesNumber);
+        var notify = document.createElement('div');
+        notify.setAttribute("class", "dropdown-item item-notificacion");
+        // notify.setAttribute("id", "item-notificacion-"+notificacion.data);
+        notify.setAttribute("onclick", notificacion.function+"("+notificacion.data+", "+notificacion.id+")");
+        notify.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('dropdown-notificaciones').insertBefore(notify, null);
+    }
+}
+
+function pintarSinNotificaciones() {
+    $("#dropdown-notificaciones").addClass("dropdown-menu-top-1");
+    
+    var html = `
+        <div>¡SIN NOTIFICACIONES!</div>
+        <div>
+            <i class="fas fa-check-circle" style="font-size: 20px; color: #22b0c9; opacity: 0.5;"></i>
+        </div>
+    `;
+
+    var notify = document.createElement('div');
+    notify.setAttribute("class", "dropdown-item");
+    notify.setAttribute("style", "text-align: center; width: 250px;");
+    notify.innerHTML = [
+        html
+    ].join('');
+    document.getElementById('dropdown-notificaciones').insertBefore(notify, null);
+}
+
+function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
+    findDataPqrsf(id_pqrsf);
+    leerNotificaciones(id_notificacion);
+    var numeroNotificaciones = parseInt(localStorage.getItem("numero_notificaciones"));
+    localStorage.setItem("numero_notificaciones", numeroNotificaciones - 1);
+    openDropDownNotificaciones(true);
+    setNotificaciones(numeroNotificaciones - 1);
+}
+
+function tipoNotificacion(tipo) {
+    if (tipo == '1') return 'info'; 
+    if (tipo == '2') return 'warning'; 
+    if (tipo == '3') return 'error'; 
+    return 'success';
+}
+
+function initSwipers() {
+    new Swiper(".mySwiper", {
+        effect: "cards",
+        grabCursor: true,
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+    });
+}
+
+function htmlSwiperImg(imagenes) {
+    if (imagenes.length == 1) {
+        return `<img style="height: 180px; object-fit: contain; width: -webkit-fill-available;" src="${bucketUrl+imagenes[0].url_archivo}">`;
+    }
+
+    var html = ``;
+
+    for (let index = 0; index < imagenes.length; index++) {
+        var imagen = imagenes[index];
+        if (index) {
+            html+=`<div class="swiper-slide" role="group" style="width: 300px !important; z-index: 7; transform: ${medidasSwiper[index]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        } else {
+            html+=`<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 300px !important; z-index: 9; transform: ${medidasSwiper[0]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        }
+    }
+    return `<div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress">
+        <div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden;">
+            ${html}
+            <div class="swiper-button-next" tabindex="0" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="false"></div>
+            <div class="swiper-button-prev swiper-button-disabled" tabindex="-1" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="true"></div>
+            <div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal"><span class="swiper-pagination-bullet swiper-pagination-bullet-active" aria-current="true"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span></div>
+            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
+        </div>
+    </div>`;
+}
+
+function definirTiempo(date) {
+
+    var hoy = fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
+    var fechaMensahe = new Date(date);
+    var fecha_mensaje = fechaMensahe.getFullYear()+'-'+("0" + (fechaMensahe.getMonth() + 1)).slice(-2)+'-'+("0" + (fechaMensahe.getDate())).slice(-2);
+    var hora_mensaje = fechaMensahe.getHours()+''.slice(-2)+':'+fechaMensahe.getMinutes()+''.slice(-2)
+    var dias_diferencia = dateDifferenceInDays(
+        new Date(fecha_mensaje),
+        new Date(hoy)
+    );
+
+    if (fecha_mensaje == hoy) {
+        return 'Hoy '+hora_mensaje;
+    }
+
+    if (dias_diferencia == 1) {
+        return 'Ayer '+hora_mensaje;
+    }
+
+    if (dias_diferencia < 6) {
+        return daysWeek(date)+' '+hora_mensaje;
+    }
+
+    return fecha_mensaje+' '+hora_mensaje;
+}
+
+function findDataPqrsf(id) {
+
+    $("#offcanvas-body-pqrsf").empty();
+    document.getElementById('button-open-datelle-pqrsf').click();
+
+    $.ajax({
+        url: base_url + 'pqrsf-find',
+        method: 'GET',
+        data: {
+            id: id
+        },
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        var data = res.data;
+
+        if (id_usuario_logeado == data.id_usuario) {
+            if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
+            else $("#id_name_person_pqrsf").text(data.creador.firstname);
+            if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+        } else {
+            if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+            else $("#id_name_person_pqrsf").text(data.usuario.firstname);
+            if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+        }
+        
+        mostrarDatosCabeza(data);
+        mostrarMensajesPqrsf(data.mensajes);
+        initSwipers();
+
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    }).fail((err) => {
+        
+    });
+}
+
+function mostrarDatosCabeza(data) {
+    if (data.archivos) agregarSwiperImg(data.archivos);
+
+    var asunto = document.createElement('p');
+    asunto.setAttribute("style", "font-weight: bold; margin-top: 15px;");
+    asunto.innerHTML = [
+        data.asunto
+    ].join('');
+    document.getElementById('offcanvas-body-pqrsf').insertBefore(asunto, null);
+
+    var descripcion = document.createElement('p');
+    descripcion.setAttribute("style", "font-size: 13px;");
+    descripcion.innerHTML = [
+        data.descripcion
+    ].join('');
+    document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
+}
+
+function agregarSwiperImg(imagenes) {
+    var html = ``;
+    var item = document.createElement('div');
+    if (imagenes.length == 1) {
+        html = `<img style="height: 180px; object-fit: contain; width: -webkit-fill-available;" src="${bucketUrl+imagenes[0].url_archivo}">`;
+        item.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('offcanvas-body-pqrsf').insertBefore(item, null);
+        return;
+    }
+    for (let index = 0; index < imagenes.length; index++) {
+        var imagen = imagenes[index];
+        if (index) {
+            html+=`<div class="swiper-slide" role="group" style="width: 300px !important; z-index: 7; transform: ${medidasSwiper[index]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        } else {
+            html+=`<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 300px !important; z-index: 9; transform: ${medidasSwiper[0]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        }
+    }
+    item.setAttribute("class", "swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress");
+    
+    item.innerHTML = [
+        `<div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden;">
+            ${html}
+            <div class="swiper-button-next" tabindex="0" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="false"></div>
+            <div class="swiper-button-prev swiper-button-disabled" tabindex="-1" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="true"></div>
+            <div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal"><span class="swiper-pagination-bullet swiper-pagination-bullet-active" aria-current="true"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span></div>
+            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
+        </div>`
+    ].join('');
+    document.getElementById('offcanvas-body-pqrsf').insertBefore(item, null);
+    return;
+}

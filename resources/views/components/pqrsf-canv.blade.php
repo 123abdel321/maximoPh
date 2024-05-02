@@ -4,17 +4,18 @@
         <h5 id="id_name_person_pqrsf" class="offcanvas-title" style="font-size: 15px;"></h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" style="background-color: #088aa3; margin-top: 5px; margin-left: auto;"></button>
     </div>
-    <div id="offcanvas-body-pqrsf" class="offcanvas-body wrapper" style="">
+    <div id="offcanvas-body-pqrsf" class="offcanvas-body wrapper" style="contain: content;">
     
-        <!-- <div class="mensaje-estilo-derecha">
+        <div class="mensaje-estilo-derecha">
             <p style="font-size: 13px; margin-bottom: 0; font-weight: 500;">DFSDFSDF</p>
+            <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">01/04/2024 7:37 PM</p>
             <i class="fas fa-caret-down icono-mensaje-derecha"></i>
         </div>
 
         <div class="mensaje-estilo-izquierda">
             <p style="font-size: 13px; margin-bottom: 0; text-align-last: right; font-weight: 500;">DFSDFSDF</p>
             <i class="fas fa-caret-down icono-mensaje-izquierda"></i>
-        </div> -->
+        </div>
         
         <!-- <div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress">
             <div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden; padding: 10px;">
@@ -52,22 +53,22 @@
 
             {{ csrf_field() }}
 
-            <input type="text" id="id_pqrsf_up" name="id_pqrsf_up" style="position: absolute; opacity: 0;" value="0">
+            <input type="text" id="id_pqrsf_up" name="id_pqrsf_up" style="position: absolute; opacity: 0; margin-left: 120%;" value="0">
 
             <div id="input-images-pqrsf" class="input-field" style="display: none;">
                 <div class="input-images-pqrsf" style="padding-top: .5rem;"></div>
             </div>
 
             <div class="row" style="margin-bottom: 10px; margin-top: 3px;">
-                <div class="col-1" style="padding: 0px 1px 0px 10px; ">
+                <div class="col-1" style="padding: 0px 1px 0px 13px; ">
                     <div id="button-add-img" class="button-add-img" onclick="clickAddImgPqrsfEvent()">
                         <i style="position: relative; top: 42%; transform: translateY(-50%); margin-left: 4px; -webkit-transform: translateY(-50%); cursor: pointer;" class="fas fa-image"></i>
                     </div>
                 </div>
                 <div class="col-10" style="padding: 0px 1px 0px 0px;">
-                    <textarea class="form-control offcanvas-input-textarea" id="mensaje_pqrsf" name="mensaje_pqrsf" rows="2" required></textarea>
+                    <textarea class="form-control offcanvas-input-textarea" id="mensaje_pqrsf_nuevo" name="mensaje_pqrsf_nuevo" rows="2" onkeypress="keyPressPqrsfMensaje(event)" required></textarea>
                 </div>
-                <div class="col-1" style="padding: 0px 10px 0px 0px; ">
+                <div class="col-1" style="padding: 0px 14px 0px 0px; ">
                     <div id="button-send-pqrsf" class="button-send-pqrsf" onclick="createMensajePqrsf()">
                         <i style="position: relative; top: 42%; transform: translateY(-50%); margin-left: 4px; -webkit-transform: translateY(-50%); cursor: pointer;" class="fas fa-paper-plane"></i>
                     </div>
