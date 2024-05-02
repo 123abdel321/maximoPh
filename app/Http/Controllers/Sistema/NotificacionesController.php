@@ -94,6 +94,16 @@ class NotificacionesController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
 
+            $notificacion = Notificaciones::find($request->get('id'));
+            
+            Notificaciones::where('notificacion_type', $notificacion->notificacion_type) 
+                ->where('mensaje', $notificacion->mensaje)
+                ->where('estado', 0)
+                ->update([
+                    'estado' => $request->get('estado'),
+                    'updated_by' => request()->user()->id
+                ]);
+
             DB::connection('max')->commit();
 
             return response()->json([

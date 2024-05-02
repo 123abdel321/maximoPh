@@ -175,7 +175,10 @@ function setNotificaciones(total = 0) {
     } else {
         $("#number_notification").text('');
         $("#number_notification").hide();
-        $("#bell_notification").remove('animate__animated animate__infinite animate__slower animate__tada');
+        $("#bell_notification").removeClass('animate__animated');
+        $("#bell_notification").removeClass('animate__infinite');
+        $("#bell_notification").removeClass('animate__slower');
+        $("#bell_notification").removeClass('animate__tada');
     }
 }
 
@@ -1132,15 +1135,14 @@ function pintarSinNotificaciones() {
 function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
     findDataPqrsf(id_pqrsf);
     leerNotificaciones(id_notificacion);
-    var numeroNotificaciones = parseInt(localStorage.getItem("numero_notificaciones"));
-    localStorage.setItem("numero_notificaciones", numeroNotificaciones - 1);
+
     $("#id_pqrsf_up").val(id_pqrsf);
     $("#mensaje_pqrsf_nuevo").val("");
     
     openDropDownNotificaciones(true);
-    setNotificaciones(numeroNotificaciones - 1);
 
     $("#dropdown-notificaciones").removeClass('show');
+    buscarNotificaciones();
 }
 
 function clickAddImgPqrsfEvent() {
