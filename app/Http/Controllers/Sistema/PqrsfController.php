@@ -287,6 +287,7 @@ class PqrsfController extends Controller
                 $usuarioNotificacion,
                 $mensajes
             ));
+            
             $id_notificacion = $notificacion->crear((object)[
                 'id_usuario' => $usuarioNotificacion,
                 'mensaje' => 'Ha recibido un nuevo mensaje de '.$nombreUsuario,
