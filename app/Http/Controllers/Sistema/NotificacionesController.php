@@ -48,7 +48,7 @@ class NotificacionesController extends Controller
                     'created_by',
                     'updated_by'
                 )
-                // ->where('id_usuario', request()->user()->id)
+                ->where('id_usuario', request()->user()->id)
                 ->get();
 
             return response()->json([
