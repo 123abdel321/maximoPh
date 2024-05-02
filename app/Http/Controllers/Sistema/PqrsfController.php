@@ -134,7 +134,7 @@ class PqrsfController extends Controller
     public function create (Request $request)
     {
         $rules = [
-            'id_usuario_pqrsf' => 'required|exists:clientes.users,id',
+            'id_usuario_pqrsf' => 'nullable|exists:clientes.users,id',
             'tipo_pqrsf' => 'required',
             'hora_inicio_pqrsf' => 'nullable',
             'hora_fin_pqrsf' => 'nullable',
@@ -154,6 +154,13 @@ class PqrsfController extends Controller
         
         try {
             DB::connection('max')->beginTransaction();
+
+            $id_usuario_pqrsf = $request->get('id_usuario_pqrsf');
+
+            if (!$id_usuario_pqrsf) {
+                $empresa = Empresa::find(request()->user()->id_empresa);
+                $id_usuario_pqrsf = $empresa->id_usuario_owner;
+            }
 
             $pqrsf = Pqrsf::create([
                 'id_usuario' => $request->get('id_usuario_pqrsf'),
