@@ -55,6 +55,11 @@ const medidasSwiper = [
     'translate3d(calc(20% - 1920px), 0px, -400px) rotateZ(8deg) scale(1);',
 ];
 
+const myOffcanvas = document.getElementById('offcanvasRight')
+myOffcanvas.addEventListener('hidden.bs.offcanvas', event => {
+    $("#id_pqrsf_up").val(0);
+})
+
 function dateDifferenceInDays (dateInitial, dateFinal) {
     var dias_diferencia = (dateFinal - dateInitial) / 86_400_000;
     if (dias_diferencia < 0) {
@@ -1131,8 +1136,11 @@ function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
     localStorage.setItem("numero_notificaciones", numeroNotificaciones - 1);
     $("#id_pqrsf_up").val(id_pqrsf);
     $("#mensaje_pqrsf_nuevo").val("");
+    
     openDropDownNotificaciones(true);
     setNotificaciones(numeroNotificaciones - 1);
+
+    $("#dropdown-notificaciones").removeClass('show');
 }
 
 function clickAddImgPqrsfEvent() {
@@ -1302,13 +1310,13 @@ function agregarSwiperImg(imagenes) {
         var imagen = imagenes[index];
         if (index) {
             html+=`<div class="swiper-slide" role="group" style="width: 300px !important; z-index: 7; transform: ${medidasSwiper[index]} background-color: #c7c7c7;">
-                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <img style="height: 180px; object-fit: scale-down; width: -webkit-fill-available; object-fit: contain;" src="${bucketUrl+imagen.url_archivo}">
                     <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
                     </div>
                 </div>`;
         } else {
             html+=`<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 300px !important; z-index: 9; transform: ${medidasSwiper[0]} background-color: #c7c7c7;">
-                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <img style="height: 180px; object-fit: scale-down; width: -webkit-fill-available; object-fit: contain;" src="${bucketUrl+imagen.url_archivo}">
                     <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
                     </div>
                 </div>`;
