@@ -185,8 +185,10 @@ $("#form-pqrsf").submit(function(e) {
 
         if (responseData.success) {
             agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
+            pqrsf_table.ajax.reload();
         } else {
             agregarToast('error', 'Carga errada', responseData.message);
+            pqrsf_table.ajax.reload();
         }
 
         $("#pqrsfFormModal").modal('hide');
