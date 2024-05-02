@@ -213,8 +213,6 @@
     <script src="https://cdn.jsdelivr.net/npm/countup@1.8.2/dist/countUp.min.js"></script>
     <!-- PUSHER -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-    <!-- SISTEMA -->
-    <script src="assets/js/sistema/sistema.js" rel="stylesheet"></script>
     <!-- <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js" rel="stylesheet"></script> -->
     <!-- WIZARD -->
     <script src="assets/js/sistema/jquery.bootstrap-wizard.js"></script>
@@ -224,6 +222,8 @@
     <script src="assets/js/sistema/swiper-bundle.min.js"></script>
     <!-- MDB -->
     <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <!-- SISTEMA -->
+    <script src="assets/js/sistema/sistema.js" rel="stylesheet"></script>
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <script>
         var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';

@@ -1,5 +1,5 @@
 <div class="container-fluid py-2">
-<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"> -->
+
     <div class="row">
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
@@ -47,8 +47,6 @@
                 </div> -->
             </div>
         </div>
-
-        <!-- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> -->
 
         @include('pages.administrativo.pqrsf.pqrsf-form', ['usuario_empresa' => $usuario_empresa])
 

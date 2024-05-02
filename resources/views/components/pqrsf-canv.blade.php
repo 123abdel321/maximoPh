@@ -55,8 +55,8 @@
 
             <input type="text" id="id_pqrsf_up" name="id_pqrsf_up" style="position: absolute; opacity: 0; margin-left: 120%;" value="0">
 
-            <div id="input-images-pqrsf" class="input-field" style="display: none;">
-                <div class="input-images-pqrsf" style="padding-top: .5rem;"></div>
+            <div id="input-images-mensaje" class="input-field" style="display: none;">
+                <div class="input-images-mensaje" style="padding-top: .5rem;"></div>
             </div>
 
             <div class="row" style="margin-bottom: 10px; margin-top: 3px;">

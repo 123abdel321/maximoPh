@@ -109,22 +109,6 @@ function pqrsfInit() {
     pqrsf_table.ajax.reload();
 }
 
-function clickAddImgPqrsfEvent() {
-    if (mostrarAgregarImagenes) {
-        mostrarAgregarImagenes = false;
-        $("#button-add-img").removeClass('button-add-img-select');
-        $("#button-add-img").addClass('button-add-img');
-        $("#input-images-pqrsf").hide();
-    }
-    else {
-        mostrarAgregarImagenes = true;
-        $("#button-add-img").removeClass('button-add-img');
-        $("#button-add-img").addClass('button-add-img-select');
-        $("#input-images-pqrsf").show();
-    }
-    document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
-}
-
 function loadingDataPqrsf() {
     var descripcion = document.createElement('div');
     descripcion.innerHTML = [

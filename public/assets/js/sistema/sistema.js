@@ -208,7 +208,7 @@ function buscarNotificaciones() {
             setNotificaciones(res.total);
         }
     }).fail((res) => {
-        agregarToast('error', 'Eliminación errada', res.message);
+        agregarToast('error', 'Error al consultar notificaciones', res.message);
     });
 }
 
@@ -1129,8 +1129,26 @@ function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
     leerNotificaciones(id_notificacion);
     var numeroNotificaciones = parseInt(localStorage.getItem("numero_notificaciones"));
     localStorage.setItem("numero_notificaciones", numeroNotificaciones - 1);
+    $("#id_pqrsf_up").val(id_pqrsf);
+    $("#mensaje_pqrsf_nuevo").val("");
     openDropDownNotificaciones(true);
     setNotificaciones(numeroNotificaciones - 1);
+}
+
+function clickAddImgPqrsfEvent() {
+    if (mostrarAgregarImagenes) {
+        mostrarAgregarImagenes = false;
+        $("#button-add-img").removeClass('button-add-img-select');
+        $("#button-add-img").addClass('button-add-img');
+        $("#input-images-mensaje").hide();
+    }
+    else {
+        mostrarAgregarImagenes = true;
+        $("#button-add-img").removeClass('button-add-img');
+        $("#button-add-img").addClass('button-add-img-select');
+        $("#input-images-mensaje").show();
+    }
+    document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
 }
 
 function tipoNotificacion(tipo) {
@@ -1310,3 +1328,10 @@ function agregarSwiperImg(imagenes) {
     document.getElementById('offcanvas-body-pqrsf').insertBefore(item, null);
     return;
 }
+
+$('.input-images-mensaje').imageUploader({
+    imagesInputName: 'photos',
+    preloadedInputName: 'old',
+    maxSize: 2 * 1024 * 1024,
+    maxFiles: 10
+});

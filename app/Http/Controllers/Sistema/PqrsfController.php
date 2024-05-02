@@ -73,6 +73,17 @@ class PqrsfController extends Controller
             if ($request->get('search')) {
             }
 
+            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
+            if ($usuario_empresa->id_rol == 1 || $usuario_empresa->id_rol == 2) {
+                
+            } else {
+                $pqrsf->where('id_usuario', $request->user()['id'])
+                    ->orWhere('created_by', $request->user()['id']);
+            }
+
             $pqrsfTotals = $pqrsf->get();
 
             $pqrsfPaginate = $pqrsf->skip($start)
@@ -174,6 +185,27 @@ class PqrsfController extends Controller
                 }
             }
 
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
+            $mensaje = 'Ha recibido una nueva '.$this->tipoPqrsf($pqrsf->tipo).' de '.$nombreUsuario;
+            $notificacion = (new NotificacionGeneral(
+                request()->user()->id,
+                $request->get('id_usuario_pqrsf'),
+                $pqrsf
+            ));
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $pqrsf->id_usuario,
+                'mensaje' => $mensaje,
+                'function' => 'abrirPqrsfNotificacion',
+                'data' => $pqrsf->id,
+                'estado' => 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+            $notificacion->notificar(
+                'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$pqrsf->id_usuario ,
+                ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
+            );
+
             DB::connection('max')->commit();
 
             return response()->json([
@@ -263,7 +295,7 @@ class PqrsfController extends Controller
                 'estado' => 0,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
-            ]);
+            ], true);
             $notificacion->notificar(
                 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
                 ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'id_notificacion' => $id_notificacion]
@@ -297,5 +329,16 @@ class PqrsfController extends Controller
             }
         }
         return $dias;
+    }
+
+    private function tipoPqrsf ($tipo)
+    {
+        if ($tipo == '5') return '<b>TAREA</b>';
+        if ($tipo == '1') return '<b>QUEJA</b>';
+        if ($tipo == '2') return '<b>RECLAMO</b>';
+        if ($tipo == '3') return '<b>SOLICITUD</b>';
+        if ($tipo == '4') return '<b>FELICITACION</b>';
+
+        return 'Peticion';
     }
 }
