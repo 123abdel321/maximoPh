@@ -163,7 +163,7 @@ class PqrsfController extends Controller
             }
 
             $pqrsf = Pqrsf::create([
-                'id_usuario' => $request->get('id_usuario_pqrsf'),
+                'id_usuario' => $id_usuario_pqrsf,
                 'id_nit' => null,
                 'tipo' => $request->get("tipo_pqrsf"),
                 'dias' => $this->getDiasString($request),
