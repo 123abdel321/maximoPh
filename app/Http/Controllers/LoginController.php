@@ -86,8 +86,8 @@ class LoginController extends Controller
             $user->save();
 
             $usuarioPermisosEmpresa = UsuarioPermisos::where('id_user', $user->id)
-                ->with('rol')
                 ->where('id_empresa', $empresaSelect->id)
+                ->with('rol')
                 ->first();
 
             $permisosNombre = Permission::whereIn('id', explode(',', $usuarioPermisosEmpresa->rol->ids_permission))->get();

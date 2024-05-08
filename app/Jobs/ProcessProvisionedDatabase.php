@@ -61,8 +61,6 @@ class ProcessProvisionedDatabase implements ShouldQueue
 				'--class' => ProvisionadaSeeder::class,
 				'--database' => 'max'
 			]);
-
-			info('Base de datos generada: ' . $this->empresa->token_db_maximo);
 			
 		} catch (Exception $exception) {
 			Log::error('Error al generar base de datos provisionada', ['message' => $exception->getMessage()]);

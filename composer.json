@@ -14,6 +14,7 @@
         "laravel/ui": "^4.4",
         "league/flysystem-aws-s3-v3": "^3.27",
         "maatwebsite/excel": "^3.1",
+        "marvinlabs/laravel-discord-logger": "^1.4",
         "orangehill/iseed": "^3.0",
         "pusher/pusher-php-server": "^7.2",
         "smalot/pdfparser": "^2.9",
