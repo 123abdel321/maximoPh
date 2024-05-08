@@ -16,7 +16,10 @@ use App\Helpers\PortafolioERP\InstaladorEmpresa;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
+use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
+use App\Models\Empresa\UsuarioPermisos;
+
 
 class InstaladorController extends Controller
 {
@@ -312,12 +315,17 @@ class InstaladorController extends Controller
     private function associateUserToCompany($user, $empresa)
 	{
         User::where('id', $user->id)->update([
+            'id_empresa' => $empresa->id,
             'has_empresa' => $empresa->token_db_maximo,
         ]);
 
 		$usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $user->id)
 			->where('id_empresa', $empresa->id)
 			->first();
+
+        $usuarioPermisos = UsuarioPermisos::where('id_user', $user->id)
+            ->where('id_empresa', $empresa->id)
+            ->first();
 
 		if(!$usuarioEmpresa){
 			UsuarioEmpresa::create([
@@ -327,6 +335,16 @@ class InstaladorController extends Controller
 				'estado' => 1, // default: 1 activo
 			]);
 		}
+
+        if ($usuarioPermisos) {
+            $rolesGenerales = RolesGenerales::where('nombre', 'ADMINISTRADOR')->first();
+            UsuarioPermisos::create([
+                'id_user' => $user->id,
+				'id_empresa' => $empresa->id,
+				'id_rol' => 2, // default: 2
+                'ids_permission' => $rolesGenerales->ids_permission
+            ]);
+        }
 		return;
 	}
 

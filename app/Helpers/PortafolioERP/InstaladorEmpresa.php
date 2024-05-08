@@ -14,9 +14,9 @@ class InstaladorEmpresa extends AbstractPortafolioSender
 	private $dataUsuario;
 	private $dataEmpresa;
 
-	public function __construct(Empresa $dataEmpresaEmpresa, User $dataUsuario)
+	public function __construct(Empresa $dataEmpresa, User $dataUsuario)
 	{
-		$this->dataEmpresa = $dataEmpresaEmpresa;
+		$this->dataEmpresa = $dataEmpresa;
 		$this->dataUsuario = $dataUsuario;
 	}
 
