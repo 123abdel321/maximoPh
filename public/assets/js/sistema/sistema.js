@@ -389,8 +389,7 @@ function callInitFuntion(id) {
 
 function includeJs(id){
     let scriptEle = document.createElement("script");
-
-    let urlFile = "assets/js/sistema/"+moduloRoute[id]+"/"+id+"-controller.js";
+    let urlFile = "assets/js/sistema/"+moduloRoute[id]+"/"+id+"-controller.js?v="+version_app;
     scriptEle.setAttribute("src", urlFile);
     scriptEle.onload = function () {
         callInitFuntion(id);
