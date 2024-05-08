@@ -22,7 +22,7 @@
     <!-- DATATABLE -->
     <link href="assets/css/sistema/dataTables.bootstrap5.min.css" rel="stylesheet" />
     <link href="assets/css/sistema/responsive.bootstrap5.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/app.css" rel="stylesheet" />
+    <link href="assets/css/sistema/app.css?v={{ config('app.version') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
     <link href="assets/css/sistema/select2.min.css" rel="stylesheet" />
     <link href="assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -181,6 +181,7 @@
         var idRolUsuario = JSON.parse('<?php echo $rol_usuario; ?>');
         var is_owner = JSON.parse('<?php echo $is_owner; ?>');
         var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
+        var version_app = '<?php echo config('app.version'); ?>';
     </script>
 
     <!--   Core JS Files   -->
@@ -225,7 +226,7 @@
     <!-- MDB -->
     <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
     <!-- SISTEMA -->
-    <script src="assets/js/sistema/sistema.js" rel="stylesheet"></script>
+    <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}" rel="stylesheet"></script>
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     @stack('js')
 </body>

@@ -36,7 +36,7 @@ class HomeController extends Controller
         $data = [
             'menus' => $menus->groupBy('id_padre'),
             'rol_usuario' => $usuarioEmpresa->id_rol,
-            'is_owner' => Empresa::where('id_usuario_owner', $request->user()->id)->count()
+            'is_owner' => Empresa::where('id_usuario_owner', $request->user()->id)->count(),
         ];
 
         return view('layouts.app', $data);
