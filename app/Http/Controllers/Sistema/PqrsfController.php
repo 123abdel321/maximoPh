@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Sistema;
 
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use App\Events\PrivateMessageEvent;
 use App\Helpers\NotificacionGeneral;
 use App\Http\Controllers\Controller;
@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Pqrsf;
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\PqrsfTiempos;
 use App\Models\Sistema\PqrsfMensajes;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Sistema\Notificaciones;
@@ -112,7 +113,7 @@ class PqrsfController extends Controller
     public function find (Request $request)
     {
         try {
-            $pqrsf = Pqrsf::with('archivos', 'usuario', 'creador', 'mensajes.archivos')
+            $pqrsf = Pqrsf::with('usuario', 'creador', 'archivos', 'tiempos', 'mensajes.archivos')
                 ->where('id', $request->get('id'))
                 ->first();
 
@@ -209,7 +210,10 @@ class PqrsfController extends Controller
                 'updated_by' => request()->user()->id
             ], true);
             $notificacion->notificar(
-                'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$pqrsf->id_usuario ,
+                [
+                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$pqrsf->id_usuario,
+                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
+                ],
                 ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
             );
 
@@ -305,7 +309,10 @@ class PqrsfController extends Controller
                 'updated_by' => request()->user()->id
             ], true);
             $notificacion->notificar(
-                'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
+                [
+                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
+                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
+                ],
                 ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'id_notificacion' => $id_notificacion]
             );
 
@@ -315,6 +322,168 @@ class PqrsfController extends Controller
                 'success'=>	true,
                 'data' => $mensaje,
                 'message'=> 'Mensaje creado con exito!'
+            ]);
+            
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function updateEstado (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.pqrsf,id',
+            'estado' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('max')->beginTransaction();
+            $nombreEstado = '<b class="pqrsf-chat-mensaje-activo">Activo</b>';
+            if ($request->get('estado') == 1) {
+                $nombreEstado = '<b class="pqrsf-chat-mensaje-proceso">En proceso</b>';
+            }
+            if ($request->get('estado') == 2) {
+                $nombreEstado = '<b class="pqrsf-chat-mensaje-cerrado">Cerrado</b>';
+            }
+            
+            $pqrsf = Pqrsf::find($request->get('id'));
+            $pqrsf->estado = $request->get('estado');
+            $pqrsf->save();
+
+            $usuarioNotificacion = $pqrsf->id_usuario;
+
+            if ($pqrsf->id_usuario == $request->user()['id']) {
+                $usuarioNotificacion = $pqrsf->created_by;
+            }
+
+            $mensajes = PqrsfMensajes::create([
+                'id_pqrsf' => $request->get('id'),
+                'id_usuario' => $usuarioNotificacion,
+                'descripcion' => 'Se ha cambiado el estado del pqrsf a '.$nombreEstado,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+
+            $notificacion =(new NotificacionGeneral(
+                request()->user()->id,
+                $usuarioNotificacion,
+                $mensajes
+            ));
+
+            $dataMensaje = [
+                'id_pqrsf' => $mensajes->id_pqrsf,
+                'id_usuario' => $mensajes->id_usuario,
+                'descripcion' => $mensajes->descripcion,
+                'estado' => $request->get('estado'),
+                'created_by' => $mensajes->created_by,
+                'updated_by' => $mensajes->updated_by,
+                'created_at' => $mensajes->created_at,
+                'updated_at' => $mensajes->updated_at,
+            ];
+            
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $usuarioNotificacion,
+                'mensaje' => 'Se ha cambiado el estado del pqrsf a '.$nombreEstado,
+                'function' => 'abrirPqrsfNotificacion',
+                'data' => $request->get('id'),
+                'estado' => 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+            
+            $notificacion->notificar(
+                'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
+                ['id_pqrsf' => $request->get('id'), 'data' => [$dataMensaje], 'id_notificacion' => $id_notificacion]
+            );
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $pqrsf,
+                'mensaje' => [$dataMensaje],
+                'message'=> 'Estado actualizado con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function tiempo (Request $request)
+    {
+        $rules = [
+            'id' => 'nullable|exists:max.pqrsf,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+        
+        try {
+            DB::connection('max')->beginTransaction();
+
+            $pqrsf = Pqrsf::with('tiempo')
+                ->where('id', $request->get('id'))
+                ->first();
+
+            if ($pqrsf->tiempo && $pqrsf->tiempo->fecha_fin && $pqrsf->tiempo->fecha_fin != '0000-00-00 00:00:00') {
+                PqrsfTiempos::create([
+                    'id_pqrsf' => $pqrsf->id,
+                    'id_usuario' => request()->user()->id,
+                    'fecha_inicio' => Carbon::now(),
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+                
+            } else {
+                $fechaInicio = Carbon::parse($pqrsf->tiempo->fecha_inicio);
+                $fechaFin = Carbon::now();
+                $diff = $fechaInicio->diff($fechaFin);
+                PqrsfTiempos::where('id', $pqrsf->tiempo->id)
+                    ->update([
+                        'fecha_fin' => $fechaFin,
+                        'tiempo_total' => $diff->format('%y, %m, %d, %h, %i, %s'),
+                        'updated_by' => request()->user()->id
+                    ]);
+            }
+
+            $pqrsf = Pqrsf::with('tiempos')
+                ->where('id', $request->get('id'))
+                ->first();
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $pqrsf,
+                'message'=> 'Tiempo agregado con exito!'
             ]);
             
         } catch (Exception $e) {

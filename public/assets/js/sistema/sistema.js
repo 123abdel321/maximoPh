@@ -21,11 +21,23 @@ const btnLogout = document.getElementById('sessionLogout');
 const itemMenuActive = localStorage.getItem("item_active_menu");
 
 let dateNow = new Date();
+let openStatusPqrsf = false;
 let dropDownNotificacionOpen = false;
+let channelPqrsf = false;
+let channelAdminPqrsf = false;
+let updatingStatusPqrsf = false;
+let mostrarAgregarImagenes = false;
+let mostrarAgregarTiempos = false;
+let permisoAgregarTiempos = false;
+
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
 var menuOpen = false;
+
+$('.form-control-no-upp').keyup(function() {
+    $(this).val($(this).val().toUpperCase());
+});
 
 $.ajaxSetup({
     'headers':{
@@ -56,6 +68,7 @@ const medidasSwiper = [
 ];
 
 const myOffcanvas = document.getElementById('offcanvasRight')
+
 myOffcanvas.addEventListener('hidden.bs.offcanvas', event => {
     $("#id_pqrsf_up").val(0);
 })
@@ -128,6 +141,7 @@ $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownErr
 $("#nombre-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
+
 setTimeout(function(){
     $(".fondo-sistema").css('background-image', 'url(' +bucketUrl + localStorage.getItem("fondo_sistema")+ ')');
 },200);
@@ -155,8 +169,20 @@ if (idRolUsuario == 4) {
     closeMenu();
 }
 
+$("#id_pqrsf_up").val(0);
+
 iniciarScrollBar();
 buscarNotificaciones();
+actualizarAccionesPqrsf();
+iniciarCanalesDeNotificacion();
+
+function actualizarAccionesPqrsf() {
+    if (idRolUsuario == 1 || idRolUsuario == 2) {
+        $('#content-button-status-pqrsf').show();
+    } else {
+        $('#content-button-status-pqrsf').hide();
+    }
+}
 
 function iniciarScrollBar() {
     var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
@@ -182,26 +208,123 @@ function setNotificaciones(total = 0) {
     }
 }
 
-var channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
-
-channelPqrsf.bind('notificaciones', function(data) {
-    var idPqrsfOpen = $("#id_pqrsf_up").val();
-    console.log(data.id_pqrsf, idPqrsfOpen);
-    if (data.id_pqrsf == idPqrsfOpen) {
-
-        mostrarMensajesPqrsf(data.data);
-        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
-        initSwipers();
-        leerNotificaciones(data.id_notificacion);
+function iniciarCanalesDeNotificacion () {
+    if (idRolUsuario == 1 || idRolUsuario == 2) {
+        channelAdminPqrsf = pusher.subscribe('pqrsf-mensaje-'+arreglarCodigoNotificacionAdmin()+'rol_admin');
     } else {
-        buscarNotificaciones();
+        channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
     }
-});
+}
+
+if (channelPqrsf) {
+    channelPqrsf.bind('notificaciones', function(data) {
+        var idPqrsfOpen = $("#id_pqrsf_up").val();
+        console.log('data: ',data);
+        console.log('data.data.estado: ',data.data);
+        console.log(data.id_pqrsf, idPqrsfOpen);
+        if (data.id_pqrsf == idPqrsfOpen) {
+            mostrarMensajesPqrsf(data.data);
+            if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+            initSwipers();
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+            console.log('data.created_by: ',data.data[0].created_by);
+            console.log('parseInt(id_usuario_logeado): ',parseInt(id_usuario_logeado));
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else {
+            console.log('notificar');
+            buscarNotificaciones();
+        }
+    });
+}
+
+if (channelAdminPqrsf) {
+    channelAdminPqrsf.bind('notificaciones', function(data) {
+        var idPqrsfOpen = $("#id_pqrsf_up").val();
+        console.log('channelAdminPqrsf');
+        console.log('data: ',data.data);
+        console.log(data.id_pqrsf, idPqrsfOpen);
+        if (data.id_pqrsf == idPqrsfOpen) {
+            mostrarMensajesPqrsf(data.data);
+            if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+            initSwipers();
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+            console.log('data.created_by: ',data.data[0].created_by);
+            console.log('parseInt(id_usuario_logeado): ',parseInt(id_usuario_logeado));
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else {
+            buscarNotificaciones();
+        }
+    });
+}
 
 function keyPressPqrsfMensaje(event) {
     if (event.keyCode == 13) {
         document.getElementById('button-send-pqrsf').click();
     }
+}
+
+$("#butonActionActivo").click( function(){
+    ajaxActualizarEstadoPqrsf(0);
+});
+
+$("#butonActionProceso").click( function(){
+    ajaxActualizarEstadoPqrsf(1);
+});
+
+$("#butonActionCerrado").click( function(){
+    ajaxActualizarEstadoPqrsf(2);
+});
+
+function ajaxActualizarEstadoPqrsf(estado) {
+    if (!updatingStatusPqrsf) {
+
+        updatingStatusPqrsf = true;
+        var idMensaje = $("#id_pqrsf_up").val();
+
+        $("#content-button-change-status-iconNormal").hide();
+        $("#content-button-change-status-iconLoading").show();
+
+        $.ajax({
+            url: base_url + 'pqrsf-estado',
+            method: 'POST',
+            data: JSON.stringify({
+                id: idMensaje,
+                estado: estado
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+            if(res.success){
+                var data = res.data;
+                updatingStatusPqrsf = false;
+                $("#content-button-change-status-iconNormal").show();
+                $("#content-button-change-status-iconLoading").hide(); 
+                
+                document.getElementById('content-button-change-status').click();
+                mostrarMensajesPqrsf(res.mensaje);
+                actualizarEstadosPqrsf(data.estado);
+            }
+        }).fail((res) => {
+            updatingStatusPqrsf = false;
+            $("#content-button-change-status-iconNormal").show();
+            $("#content-button-change-status-iconLoading").hide();
+        });
+    }
+}
+
+function arreglarCodigoNotificacionAdmin() {
+    var nombreReal = localStorage.getItem("notificacion_code");
+    var codigoNotificacion = localStorage.getItem("notificacion_code");
+    var arrayNotificacion = codigoNotificacion.split('_');
+    var totalUltimoCodigo = localStorage.getItem("notificacion_code").split('_').slice(-1)[0];
+
+    if (totalUltimoCodigo.length) {
+        for (let index = 0; index < totalUltimoCodigo.length; index++) {
+            nombreReal = nombreReal.substring(0, nombreReal.length - 1);
+        }
+    }
+
+    return nombreReal;
 }
 
 function buscarNotificaciones() {
@@ -947,14 +1070,13 @@ function createMensajePqrsf() {
         $("#button-send-pqrsf-loading").hide();
 
         if (responseData.success) {
-            mostrarMensajesPqrsf(responseData.data);
-            
+            if (idRolUsuario != 1 && idRolUsuario != 2) {
+                mostrarMensajesPqrsf(responseData.data);
+            }
             $("#mensaje_pqrsf_nuevo").val("");
             setTimeout(function(){
                 $("#mensaje_pqrsf_nuevo").focus().select();
             }, 100);
-            
-            initSwipers();
             document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
         } else {
             agregarToast('error', 'Carga errada', responseData.message);
@@ -993,6 +1115,94 @@ function mostrarMensajesPqrsf(mensajes) {
             html
         ].join('');
         document.getElementById('offcanvas-body-pqrsf').insertBefore(mensajeDising, null);
+    }
+}
+
+function iniciarCronometroPqrsf(tiempos) {
+    if (!tiempos.length) return;
+
+    var year = 0;
+    var dias = 0;
+    horas = 0;
+    minutos = 0;
+    segundos = 0;
+    var startCront = false;
+
+    // Convert milliseconds to days, hours, minutes, and seconds
+    var millisecondsInSecond = 1000;
+    var millisecondsInMinute = millisecondsInSecond * 60;
+    var millisecondsInHour = millisecondsInMinute * 60;
+    var millisecondsInDay = millisecondsInHour * 24;
+    var millisecondsInYears = millisecondsInDay * 365;
+
+    for (let index = 0; index < tiempos.length; index++) {
+        let tiempo = tiempos[index];
+        var datetime1 = new Date();
+        var datetime2 = datetime1;
+        if (tiempo.fecha_inicio && tiempo.fecha_fin && tiempo.fecha_fin != '0000-00-00 00:00:00') {
+            datetime1 = new Date(tiempo.fecha_inicio);
+            datetime2 = new Date(tiempo.fecha_fin);
+        } else if (tiempo.fecha_inicio) {
+            startCront = true;
+            datetime1 = new Date(tiempo.fecha_inicio);
+        }
+
+        var diffInMilliseconds = Math.abs(datetime2 - datetime1);
+        segundos+= Math.floor((diffInMilliseconds % millisecondsInMinute) / millisecondsInSecond);
+        minutos+= Math.floor((diffInMilliseconds % millisecondsInHour) / millisecondsInMinute);
+        horas+= Math.floor((diffInMilliseconds % millisecondsInDay) / millisecondsInHour);
+        dias+= Math.floor(diffInMilliseconds / millisecondsInDay);
+        year+= Math.floor(diffInMilliseconds / millisecondsInYears);
+    }
+
+    horas+= (dias * 24) + ((year * 365) * 24);
+
+    SegundosPqrsf.innerHTML = ":"+segundos;
+    MinutosPqrsf.innerHTML = ":"+minutos;
+    HorasPqrsf.innerHTML = horas;
+
+    addTimePqrst();
+    if (startCront) inicioTimePqrsf();
+    else pararPqrsf();
+}
+
+function actualizarBotonesMensaje(cabezaMensaje) {
+    if (idRolUsuario == 1 || idRolUsuario == 2) {
+        $('#content-button-status-pqrsf').show();
+    } else {
+        $('#content-button-status-pqrsf').hide();
+    }
+
+    actualizarEstadosPqrsf(cabezaMensaje.estado);
+}
+
+function actualizarEstadosPqrsf (estado) {
+    console.log('actualizarEstadosPqrsf: ',estado);
+    $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-activo');
+    $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-proceso');
+    $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-cerrado');
+
+    $("#butonActionActivo").hide();
+    $("#butonActionProceso").hide();
+    $("#butonActionCerrado").hide();
+
+    if (estado == 0) {
+        $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-activo');
+        $("#butonActionProceso").show();
+        $("#butonActionCerrado").show();
+        $("#estado_en_mensaje_pqrsf").text("Activo");
+    }
+    if (estado == 1) {
+        $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-proceso');
+        $("#butonActionActivo").show();
+        $("#butonActionCerrado").show();
+        $("#estado_en_mensaje_pqrsf").text("En proceso");
+    }
+    if (estado == 2) {
+        $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-cerrado');
+        $("#butonActionActivo").show();
+        $("#butonActionProceso").show();
+        $("#estado_en_mensaje_pqrsf").text("Cerrado");
     }
 }
 
@@ -1158,7 +1368,89 @@ function clickAddImgPqrsfEvent() {
         $("#button-add-img").addClass('button-add-img-select');
         $("#input-images-mensaje").show();
     }
-    document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    },10);
+}
+
+function guardarInicioPqrsf() {
+    $("#icon-loading-time-pqrsf").show();
+    var data = {
+        id: $("#id_pqrsf_up").val()
+    }
+    $.ajax({
+        url: base_url + 'pqrsf-tiempo',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            inicioTimePqrsf();
+            $("#icon-loading-time-pqrsf").hide();
+        }
+    }).fail((err) => {
+        $("#icon-loading-time-pqrsf").hide();
+    });
+}
+
+function guardarTiempoPqrsf(inicio = false) {
+    $("#icon-loading-time-pqrsf").show();
+    var data = {
+        id: $("#id_pqrsf_up").val()
+    }
+    $.ajax({
+        url: base_url + 'pqrsf-tiempo',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            if (inicio) inicioTimePqrsf();
+            else pararPqrsf();
+            $("#icon-loading-time-pqrsf").hide();
+        }
+    }).fail((err) => {
+        $("#icon-loading-time-pqrsf").hide();
+    });
+}
+
+function addTimePqrst(open = false) {
+    if (mostrarAgregarTiempos && !open) {
+        mostrarAgregarTiempos = false;
+        $(".add-time-pqrsf").hide();
+        $("#content-button-change-time").addClass('button-change-status');
+        $("#content-button-change-time").removeClass('button-change-status-select');
+    } 
+    else {
+        mostrarAgregarTiempos = true;
+        $(".add-time-pqrsf").show();
+        $("#content-button-change-time").removeClass('button-change-status');
+        $("#content-button-change-time").addClass('button-change-status-select');
+    }
+
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    },10);
+}
+
+function changeEstadoPqrst() {
+    if (openStatusPqrsf) {
+        openStatusPqrsf = false;
+        $(".update-status-pqrsf").hide();
+        $("#content-button-change-status").addClass('button-change-status');
+        $("#content-button-change-status").removeClass('button-change-status-select');
+    } 
+    else {
+        openStatusPqrsf = true;
+        $(".update-status-pqrsf").show();
+        $("#content-button-change-status").removeClass('button-change-status');
+        $("#content-button-change-status").addClass('button-change-status-select');
+    }
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    },10);
 }
 
 function tipoNotificacion(tipo) {
@@ -1263,14 +1555,18 @@ function findDataPqrsf(id) {
             if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
             else $("#id_name_person_pqrsf").text(data.creador.firstname);
             if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+            permisoAgregarTiempos = true;
         } else {
             if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
             else $("#id_name_person_pqrsf").text(data.usuario.firstname);
             if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+            permisoAgregarTiempos = false
         }
         
         mostrarDatosCabeza(data);
         mostrarMensajesPqrsf(data.mensajes);
+        iniciarCronometroPqrsf(data.tiempos);
+        actualizarBotonesMensaje(data);
         initSwipers();
 
         document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
@@ -1345,3 +1641,80 @@ $('.input-images-mensaje').imageUploader({
     maxSize: 2 * 1024 * 1024,
     maxFiles: 10
 });
+
+var centesimas = 0;
+var segundos = 0;
+var minutos = 0;
+var horas = 0;
+
+var CentesimasPqrsf = document.getElementById('pqrsf-centesimas');
+var SegundosPqrsf = document.getElementById('pqrsf-segundos');
+var MinutosPqrsf = document.getElementById('pqrsf-minutos');
+var HorasPqrsf = document.getElementById('pqrsf-horas');
+
+function inicioTimePqrsf () {
+    $("#iniciar-tiempo-pqrsf").hide();
+    $("#detener-tiempo-pqrsf").hide();
+    $("#content-button-time-pqrsf").hide();
+    if (permisoAgregarTiempos) {
+        $("#detener-tiempo-pqrsf").show();
+        $("#content-button-time-pqrsf").show();
+    }
+	control = setInterval(cronometroPqrsf,10);
+}
+
+function pararPqrsf () {
+    $("#iniciar-tiempo-pqrsf").hide();
+    $("#detener-tiempo-pqrsf").hide();
+    $("#content-button-time-pqrsf").hide();
+    if (permisoAgregarTiempos) {
+        $("#iniciar-tiempo-pqrsf").show();
+        $("#content-button-time-pqrsf").show();
+    }
+    if (typeof control !== 'undefined') clearInterval(control);
+	
+}
+
+function reinicioPqrsf () {
+	clearInterval(control);
+	centesimas = 0;
+	segundos = 0;
+	minutos = 0;
+	horas = 0;
+	CentesimasPqrsf.innerHTML = ":00";
+	SegundosPqrsf.innerHTML = ":00";
+	MinutosPqrsf.innerHTML = ":00";
+	HorasPqrsf.innerHTML = "00";
+}
+
+function cronometroPqrsf () {
+	if (centesimas < 99) {
+		centesimas++;
+		if (centesimas < 10) { centesimas = "0"+centesimas }
+		CentesimasPqrsf.innerHTML = ":"+centesimas;
+	}
+	if (centesimas == 99) {
+		centesimas = -1;
+	}
+	if (centesimas == 0) {
+		segundos ++;
+		if (segundos < 10) { segundos = "0"+segundos }
+		SegundosPqrsf.innerHTML = ":"+segundos;
+	}
+	if (segundos == 59) {
+		segundos = -1;
+	}
+	if ( (centesimas == 0)&&(segundos == 0) ) {
+		minutos++;
+		if (minutos < 10) { minutos = "0"+minutos }
+		MinutosPqrsf.innerHTML = ":"+minutos;
+	}
+	if (minutos == 59) {
+		minutos = -1;
+	}
+	if ( (centesimas == 0)&&(segundos == 0)&&(minutos == 0) ) {
+		horas ++;
+		if (horas < 10) { horas = "0"+horas }
+		HorasPqrsf.innerHTML = horas;
+	}
+}

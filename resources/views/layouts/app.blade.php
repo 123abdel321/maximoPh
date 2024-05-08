@@ -172,13 +172,15 @@
         </svg>
     </div>
     <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
-    @include('components.pqrsf-canv')
 
+    @include('components.pqrsf-canv', ['rol_usuario', $rol_usuario])
     <!-- FOOTER -->
     @include('layouts.footers.footer')
 
     <script>
         var idRolUsuario = JSON.parse('<?php echo $rol_usuario; ?>');
+        var is_owner = JSON.parse('<?php echo $is_owner; ?>');
+        var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
     </script>
 
     <!--   Core JS Files   -->
@@ -225,9 +227,6 @@
     <!-- SISTEMA -->
     <script src="assets/js/sistema/sistema.js" rel="stylesheet"></script>
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
-    <script>
-        var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
-    </script>
     @stack('js')
 </body>
 

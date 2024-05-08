@@ -5,6 +5,7 @@ use DB;
 use Carbon\Carbon;
 use App\Events\PrivateMessageEvent;
 //MODEL
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Notificaciones;
 
 class NotificacionGeneral
@@ -42,9 +43,20 @@ class NotificacionGeneral
         return $notificacion->id;
     }
 
-    public function notificar($chanel, $data)
+    public function notificar($chanel = null, $data = null, $tree = null)
     {
-        event(new PrivateMessageEvent($chanel, $data));
+        
+        if (is_array($chanel)) {
+            foreach ($chanel as $chanel_unique) {
+                $arrayItems = explode("_", $chanel_unique);
+                if (count($arrayItems)) {
+                    $isOwner = Empresa::where('id_usuario_owner', end($arrayItems));
+                    if (!$isOwner->count()) event(new PrivateMessageEvent($chanel_unique, $data));
+                }
+            }
+        } else {
+            event(new PrivateMessageEvent($chanel, $data));
+        }
     }
 
     private function hideRecurrentes($data)

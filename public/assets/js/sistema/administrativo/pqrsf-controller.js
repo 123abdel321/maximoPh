@@ -1,7 +1,6 @@
 var swiper = null;
 var pqrsf_table = null;
-var $comboUsuarioPqrsf = null;
-var mostrarAgregarImagenes = false;
+var $comboUsuarioPqrsf = null
 
 function pqrsfInit() {
     dateNow = new Date();
@@ -29,6 +28,36 @@ function pqrsfInit() {
         columns: [
             {"data":'id'},
             {"data": function (row, type, set){
+                if (row.estado == '1') {
+                    return `<span class="badge bg-info">EN PROCESO</span><br/>`;
+                }
+                if (row.estado == '2') {
+                    return `<span class="badge bg-success">CERRADO</span><br/>`;
+                }
+                return `<span class="badge bg-light text-dark">ACTIVO</span><br/>`;;
+            }},
+            {"data": function (row, type, set){
+                if (row.tipo == 0) {
+                    return `PREGUNTA`;
+                }
+                if (row.tipo == 1) {
+                    return `QUEJA`;
+                }
+                if (row.tipo == 2) {
+                    return `RECLAMO`;
+                }
+                if (row.tipo == 3) {
+                    return `SOLICITUD`;
+                }
+                if (row.tipo == 4) {
+                    return `FELICITACIONES`;
+                }
+                if (row.tipo == 5) {
+                    return `TAREA`;
+                }
+                return `NINGUNO`;
+            }},
+            {"data": function (row, type, set){
                 if (row.usuario) {
                     return row.usuario.firstname;
                 }
@@ -41,15 +70,7 @@ function pqrsfInit() {
                 return `<div  class="text-wrap width-500">${row.descripcion}</div >`;
             }},
             {"data":'created_at'},
-            {"data": function (row, type, set){
-                if (row.estado == '1') {
-                    return `<span class="badge bg-info">EN PROCESO</span><br/>`;
-                }
-                if (row.estado == '2') {
-                    return `<span class="badge bg-success">CERRADO</span><br/>`;
-                }
-                return `<span class="badge bg-light text-dark">ACTIVO</span><br/>`;;
-            }},
+            
             {
                 "data": function (row, type, set){
                     var html = '';
@@ -131,6 +152,10 @@ function loadingDataPqrsf() {
     ].join('');
     document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
 }
+
+$('.form-control-no-upp').keyup(function() {
+    $(this).val($(this).val().toUpperCase());
+});
 
 $('.input-images-pqrsf').imageUploader({
     imagesInputName: 'photos',

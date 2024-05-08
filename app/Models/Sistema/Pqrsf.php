@@ -39,6 +39,14 @@ class Pqrsf extends Model
 		return $this->hasMany(PqrsfMensajes::class, "id_pqrsf", "id");
 	}
 
+    public function tiempos(){
+		return $this->hasMany(PqrsfTiempos::class, "id_pqrsf", "id");
+	}
+
+    public function tiempo(){
+		return $this->belongsTo(PqrsfTiempos::class, "id", "id_pqrsf")->orderBy('id', 'ASC');
+	}
+
     public function usuario(){
 		return $this->belongsTo("App\Models\User","id_usuario");
 	}

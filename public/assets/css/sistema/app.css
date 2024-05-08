@@ -746,6 +746,7 @@ div.dataTables_processing {
 
 .offcanvas-header-maximo {
     justify-content: flex-start;
+    padding: .6rem .6rem;
 }
 
 .offcanvas-header-maximo .offcanvas-title {
@@ -847,6 +848,85 @@ div.dataTables_processing {
     color: white;
 }
 
+.button-change-status {
+    background-color: #c9d3e2;
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.button-change-status-select {
+    background-color: #070960;
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 8px;
+    color: white;
+}
+
+.button-change-status:hover {
+    background-color: #070960;
+    color: white;
+}
+
+.button-change-status-select:hover {
+    background-color: #070960;
+    color: white;
+}
+
+.item-estado-pqrsf-chat {
+    padding: 2px 10px 2px 10px;
+    width: min-content;
+    border-radius: 10px;
+    font-weight: bold;
+    box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 3px 3px 2px rgb(0 0 0 / 57%);
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    margin-top: 58px;
+    z-index: 99;
+}
+
+.pqrsf-chat-activo {
+    background-color: #1181ef;
+    color: white;
+    width: auto;
+}
+
+.pqrsf-chat-proceso {
+    background-color: #fb8b40;
+    color: white;
+    width: auto;
+}
+
+.pqrsf-chat-cerrado {
+    background-color: #2dcea3;
+    color: white;
+    width: auto;
+}
+
+.pqrsf-chat-mensaje-activo {
+    background-color: white;
+    color: #1181ef;
+    border-radius: 10px;
+    padding: 2px 7px 2px 7px;
+}
+
+.pqrsf-chat-mensaje-proceso {
+    background-color: #fb8b40;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 7px 2px 7px;
+}
+
+.pqrsf-chat-mensaje-cerrado {
+    background-color: #2dcea3;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 7px 2px 7px;
+}
+
 .icono-mensaje-derecha {
     color: #33a5bb;
     font-size: 25px;
@@ -914,6 +994,7 @@ div.dataTables_processing {
     font-size: 10px;
     text-align: -webkit-right;
     margin-top: -5px;
+    text-align: end;
 }
 
 .dropdown-menu-top-3 {
@@ -944,4 +1025,33 @@ div.dataTables_processing {
     transform: translate(0%, -50%);
     max-height: 180px;
     box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 3px 3px 2px rgb(0 0 0 / 57%);
+}
+
+.actions-pqrsf {
+    margin-bottom: 10px;
+    margin-top: 3px;
+}
+
+.actions-pqrsf .content-button-img-pqrsf {
+    padding: 0px 1px 0px 13px;
+}
+
+.actions-pqrsf .content-button-status-pqrsf {
+    padding: 0px 7px 0px 7px;
+}
+
+.actions-pqrsf .content-button-time-pqrsf {
+    padding: 0px 7px 0px 7px;
+}
+
+.actions-pqrsf .content-text-pqrsf {
+    padding: 0px 1px 0px 0px;
+}
+
+.actions-pqrsf .content-send-pqrsf {
+    padding: 0px 14px 0px 0px !important;
+}
+
+.reloj{
+	font-size: 30px;
 }
