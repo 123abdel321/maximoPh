@@ -1119,7 +1119,10 @@ function mostrarMensajesPqrsf(mensajes) {
 }
 
 function iniciarCronometroPqrsf(tiempos) {
-    if (!tiempos.length) return;
+    if (!tiempos.length) {
+        pararPqrsf();
+        return;
+    }
 
     var year = 0;
     var dias = 0;

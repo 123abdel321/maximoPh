@@ -462,7 +462,7 @@ class PqrsfController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
                 
-            } else {
+            } else if ($pqrsf->tiempo){
                 $fechaInicio = Carbon::parse($pqrsf->tiempo->fecha_inicio);
                 $fechaFin = Carbon::now();
                 $diff = $fechaInicio->diff($fechaFin);
