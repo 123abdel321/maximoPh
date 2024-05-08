@@ -472,6 +472,14 @@ class PqrsfController extends Controller
                         'tiempo_total' => $diff->format('%y, %m, %d, %h, %i, %s'),
                         'updated_by' => request()->user()->id
                     ]);
+            } else {
+                PqrsfTiempos::create([
+                    'id_pqrsf' => $pqrsf->id,
+                    'id_usuario' => request()->user()->id,
+                    'fecha_inicio' => Carbon::now(),
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
             }
 
             $pqrsf = Pqrsf::with('tiempos')
