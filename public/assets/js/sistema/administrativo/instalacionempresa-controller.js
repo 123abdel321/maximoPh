@@ -84,6 +84,7 @@ $(document).on('change', '#file_rut_empresa', function () {
     xhr.onload = function(res) {
         var responseData = JSON.parse(res.currentTarget.response);
 
+        
         dataNit = responseData.data;
 
         if (dataNit.razon_social && dataNit.razon_social != " ") $("#razon_social_empresa_nueva").val(dataNit.razon_social);
@@ -115,6 +116,9 @@ $("#form-empresa-create").submit(function(e) {
         return;
     }
 
+    $('#saveEmpresa').hide();
+    $('#saveEmpresaLoading').show();
+
     var ajxForm = document.getElementById("form-empresa-create");
     var data = new FormData(ajxForm);
     var xhr = new XMLHttpRequest();
@@ -122,7 +126,15 @@ $("#form-empresa-create").submit(function(e) {
     xhr.send(data);
     xhr.onload = function(res) {
         var responseData = JSON.parse(res.currentTarget.response);
-        console.log('responseData: ',responseData);
+
+        $('#saveEmpresa').show();
+        $('#saveEmpresaLoading').hide();
+
+        agregarToast('exito', 'Instalacion completada', 'Instalacion completada con exito!');
+        
+        $("#empresaFormModal").modal('hide');
+
+        empresas_table.ajax.reload();
     };
     xhr.onerror = function (res) {
         var responseData = JSON.parse(res.currentTarget.response);

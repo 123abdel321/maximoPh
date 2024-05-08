@@ -336,7 +336,7 @@ class InstaladorController extends Controller
 			]);
 		}
 
-        if ($usuarioPermisos) {
+        if (!$usuarioPermisos) {
             $rolesGenerales = RolesGenerales::where('nombre', 'ADMINISTRADOR')->first();
             UsuarioPermisos::create([
                 'id_user' => $user->id,
