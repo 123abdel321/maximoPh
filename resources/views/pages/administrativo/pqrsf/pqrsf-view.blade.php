@@ -15,7 +15,7 @@
             </div>
         </div>
 
-        <div id="items-tabla-empresa" class="card mb-4" style="content-visibility: auto; overflow: auto;">
+        <div id="items-tabla-pqrsf" class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
 
                 @include('pages.administrativo.pqrsf.pqrsf-table')

@@ -1117,12 +1117,19 @@ function mostrarMensajesPqrsf(mensajes) {
     }
 }
 
-function iniciarCronometroPqrsf(tiempos) {
-    if (!tiempos.length) {
+function iniciarCronometroPqrsf(data) {
+
+    if (data.tipo != 5) {
+        $(".add-time-pqrsf").hide();
+        return;
+    }
+
+    if (!data.tiempos.length) {
         pararPqrsf();
         return;
     }
 
+    var tiempos = data.tiempos;
     var year = 0;
     var dias = 0;
     horas = 0;
@@ -1179,7 +1186,7 @@ function actualizarBotonesMensaje(cabezaMensaje) {
 }
 
 function actualizarEstadosPqrsf (estado) {
-    console.log('actualizarEstadosPqrsf: ',estado);
+
     $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-activo');
     $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-proceso');
     $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-cerrado');
@@ -1559,7 +1566,7 @@ function findDataPqrsf(id) {
             if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
             permisoAgregarTiempos = true;
         } else {
-            if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+            if (data.usuario && data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
             else $("#id_name_person_pqrsf").text(data.usuario.firstname);
             if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
             permisoAgregarTiempos = false
@@ -1567,7 +1574,7 @@ function findDataPqrsf(id) {
         
         mostrarDatosCabeza(data);
         mostrarMensajesPqrsf(data.mensajes);
-        iniciarCronometroPqrsf(data.tiempos);
+        iniciarCronometroPqrsf(data);
         actualizarBotonesMensaje(data);
         initSwipers();
 
