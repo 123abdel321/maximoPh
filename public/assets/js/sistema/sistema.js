@@ -1652,6 +1652,11 @@ function mostrarDatosCabeza(data) {
         data.descripcion
     ].join('');
     document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
+
+    if (data.estado == 2 && idRolUsuario != 1 && idRolUsuario != 2) $("#row-actios-pqrsf").hide();
+    else $("#row-actios-pqrsf").show();
+
+    if (data.estado == 2) permisoAgregarTiempos = false;
 }
 
 function agregarSwiperImg(imagenes) {

@@ -95,7 +95,7 @@
                 <div class="input-images-mensaje" style="padding-top: .5rem;"></div>
             </div>
 
-            <div class="row actions-pqrsf">
+            <div id="row-actios-pqrsf" class="row actions-pqrsf">
                 <!-- BOTON AGREGAR IMAGEN -->
                 <div class="col-1 content-button-img-pqrsf">
                     <div class="button-add-img" style="margin-left: 3px;" onclick="clickAddImgPqrsfEvent()">
