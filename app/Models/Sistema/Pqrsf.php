@@ -20,6 +20,7 @@ class Pqrsf extends Model
         'dias',
         'hoy',
         'asunto',
+        'estado',
         'descripcion',
         'created_by',
         'updated_by'

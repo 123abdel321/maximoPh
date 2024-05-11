@@ -54,18 +54,7 @@
     <div id="offcanvas-footer-pqrsf" class="offcanvas-footer">
         <form id="form-pqrsf-mensajes" class="modal-content" enctype="multipart/form-data" style="border: solid 0px;">
 
-            <div class="update-status-pqrsf" style="padding: 12px; border-top: solid 1px #e5e5e5; display: none;">
-                <div style="background-color: white; width: fit-content; padding: 0px 5px 0px 5px; position: absolute; left: 50%; margin-top: -12px; transform: translate(-50%, -50%); font-size: 12px; border-radius: 5px;">
-                    Actualizar Estado
-                </div>
-                <div>
-                    <span id="butonActionActivo" href="javascript:void(0)" class="btn badge bg-gradient-info" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Activo</span>
-                    <span id="butonActionProceso" href="javascript:void(0)" class="btn badge bg-gradient-warning" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">En Proceso</span>
-                    <span id="butonActionCerrado" href="javascript:void(0)" class="btn badge bg-gradient-success" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Cerrado</span>
-                </div>
-            </div>
-
-            <div class="add-time-pqrsf" style="padding: 12px; border-top: solid 1px #e5e5e5; text-align: center; display: block;">
+            <div class="add-time-pqrsf" style="padding: 12px; border-top: solid 1px #e5e5e5; text-align: center; display: none;">
                 <div style="background-color: white; width: fit-content; padding: 0px 5px 0px 5px; position: absolute; left: 50%; margin-top: -12px; transform: translate(-50%, -50%); font-size: 12px; border-radius: 5px;">
                     Registro de tiempo
                 </div>
@@ -79,16 +68,22 @@
                         </div>
                     </div>
                     <div class="col-8">
-                        <div class="contenedor" style="display: inline-flex;">
-                            <div class="reloj" id="pqrsf-horas">00</div>
-                            <div class="reloj" id="pqrsf-minutos">:00</div>
-                            <div class="reloj" id="pqrsf-segundos">:00</div>
-                            <div class="reloj" id="pqrsf-centesimas" style="display: none;">:00</div>
-                        </div>
+                        <div id="hms" style="font-size: 20px; font-weight: 600;">00:00:00</div>
                     </div>
                     <div class="col-2">
                         <i id="icon-loading-time-pqrsf" style="display: none; align-items: center; font-size: 20px;" class="fas fa-spinner fa-spin"></i>
                     </div>
+                </div>
+            </div>
+
+            <div class="update-status-pqrsf" style="padding: 12px; border-top: solid 1px #e5e5e5; display: none;">
+                <div style="background-color: white; width: fit-content; padding: 0px 5px 0px 5px; position: absolute; left: 50%; margin-top: -12px; transform: translate(-50%, -50%); font-size: 12px; border-radius: 5px;">
+                    Actualizar Estado
+                </div>
+                <div>
+                    <span id="butonActionActivo" href="javascript:void(0)" class="btn badge bg-gradient-info" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Activo</span>
+                    <span id="butonActionProceso" href="javascript:void(0)" class="btn badge bg-gradient-warning" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">En Proceso</span>
+                    <span id="butonActionCerrado" href="javascript:void(0)" class="btn badge bg-gradient-success" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Cerrado</span>
                 </div>
             </div>
 
@@ -121,6 +116,13 @@
                         <i id="content-button-add-time-iconLoading"style="position: relative; top: 30%; transform: translateY(-50%); margin-left: 5px; -webkit-transform: translateY(-50%); cursor: pointer; display: none;" class="fas fa-spinner fa-spin"></i>
                     </div>
                 </div>
+                <!-- BOTON AGREGAR TIEMPO DISABLED -->
+                <div id="content-button-time-pqrsf-disabled" class="col-1 content-button-status-pqrsf" style="display: block; cursor: no-drop;">
+                    <div class="button-change-status-disabled">
+                        <i id="content-button-add-time-iconNormal" style="position: relative; top: 42%; transform: translateY(-50%); margin-left: 5px; -webkit-transform: translateY(-50%); cursor: no-drop;" class="fas fa-stopwatch"></i>
+                    </div>
+                </div>
+
                 <div class="col-9 content-text-pqrsf">
                     <textarea class="form-control form-control-no-upp offcanvas-input-textarea" id="mensaje_pqrsf_nuevo" name="mensaje_pqrsf_nuevo" rows="2" onkeypress="keyPressPqrsfMensaje(event)" keyup="$(this).val();" style="margin-left: -3px;" required></textarea>
                 </div>

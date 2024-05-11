@@ -453,6 +453,10 @@ class PqrsfController extends Controller
                 ->where('id', $request->get('id'))
                 ->first();
 
+            $diff = null;
+            $agregoFechaFinal = false;
+            $mensajeNotificacion = "Se ha iniciado el registro de tiempo";
+
             if ($pqrsf->tiempo && $pqrsf->tiempo->fecha_fin && $pqrsf->tiempo->fecha_fin != '0000-00-00 00:00:00') {
                 PqrsfTiempos::create([
                     'id_pqrsf' => $pqrsf->id,
@@ -463,9 +467,11 @@ class PqrsfController extends Controller
                 ]);
                 
             } else if ($pqrsf->tiempo){
+                $agregoFechaFinal = true;
                 $fechaInicio = Carbon::parse($pqrsf->tiempo->fecha_inicio);
                 $fechaFin = Carbon::now();
                 $diff = $fechaInicio->diff($fechaFin);
+                $mensajeNotificacion = "Se ha finalizado el registro de tiempo con un total de ".$diff->format('%h')." Horas ".$diff->format('%i')." Minutos y ".$diff->format('%s'." Segundos");
                 PqrsfTiempos::where('id', $pqrsf->tiempo->id)
                     ->update([
                         'fecha_fin' => $fechaFin,
@@ -482,15 +488,59 @@ class PqrsfController extends Controller
                 ]);
             }
 
+            $usuarioNotificacion = $pqrsf->id_usuario;
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
+
+            if ($pqrsf->id_usuario == $request->user()['id']) {
+                $usuarioNotificacion = $pqrsf->created_by;
+            }
+
+            $mensajes = PqrsfMensajes::create([
+                'id_pqrsf' => $pqrsf->id,
+                'id_usuario' => $usuarioNotificacion,
+                'descripcion' => $mensajeNotificacion,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+            $mensaje = PqrsfMensajes::where('id', $mensajes->id)
+                ->with('archivos')
+                ->get();
+
+            $notificacion =(new NotificacionGeneral(
+                request()->user()->id,
+                $usuarioNotificacion,
+                $mensajes
+            ));
+            
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $usuarioNotificacion,
+                'mensaje' => $nombreUsuario. ' ah agregado tiempo a la tarea',
+                'function' => 'abrirPqrsfNotificacion',
+                'data' => $pqrsf->id,
+                'estado' => 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+            $notificacion->notificar(
+                [
+                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
+                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
+                ],
+                ['id_pqrsf' => $pqrsf->id, 'data' => $mensaje->toArray(), 'id_notificacion' => $id_notificacion]
+            );
+
             $pqrsf = Pqrsf::with('tiempos')
                 ->where('id', $request->get('id'))
                 ->first();
+
+            $pqrsf->estado = 1;
 
             DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
                 'data' => $pqrsf,
+                'mensaje' => $mensaje->toArray(),
                 'message'=> 'Tiempo agregado con exito!'
             ]);
             

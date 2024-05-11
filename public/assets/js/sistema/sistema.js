@@ -1,14 +1,14 @@
 
 //LOCAL
-// const base_url = 'http://127.0.0.1:8090/api/';
-// const base_web = 'http://127.0.0.1:8090/';
-// const base_web_erp = 'http://localhost:8000/';
-// const base_url_erp = 'http://localhost:8000/api/';
+const base_url = 'http://127.0.0.1:8090/api/';
+const base_web = 'http://127.0.0.1:8090/';
+const base_web_erp = 'http://localhost:8000/';
+const base_url_erp = 'http://localhost:8000/api/';
 //DEV
-const base_url = 'https://maximoph.com/api/';
-const base_web = 'https://maximoph.com/';
-const base_web_erp = 'https://test.portafolioerp.com/';
-const base_url_erp = 'https://test.portafolioerp.com/api/';
+// const base_url = 'https://maximoph.com/api/';
+// const base_web = 'https://maximoph.com/';
+// const base_web_erp = 'https://test.portafolioerp.com/';
+// const base_url_erp = 'https://test.portafolioerp.com/api/';
 
 //PRO
 // const base_url = 'https://app.portafolioerp.com/api/';
@@ -1118,57 +1118,55 @@ function mostrarMensajesPqrsf(mensajes) {
 }
 
 function iniciarCronometroPqrsf(data) {
-
     if (data.tipo != 5) {
-        $(".add-time-pqrsf").hide();
         return;
     }
-
+    $("#content-button-time-pqrsf-disabled").hide();
     if (!data.tiempos.length) {
         pararPqrsf();
         return;
     }
 
+    document.getElementById("hms").innerHTML="00:00:00";
+
     var tiempos = data.tiempos;
     var year = 0;
     var dias = 0;
+    var fechaMasTiempos = new Date();
     horas = 0;
     minutos = 0;
     segundos = 0;
     var startCront = false;
 
-    // Convert milliseconds to days, hours, minutes, and seconds
-    var millisecondsInSecond = 1000;
-    var millisecondsInMinute = millisecondsInSecond * 60;
-    var millisecondsInHour = millisecondsInMinute * 60;
-    var millisecondsInDay = millisecondsInHour * 24;
-    var millisecondsInYears = millisecondsInDay * 365;
-
     for (let index = 0; index < tiempos.length; index++) {
         let tiempo = tiempos[index];
-        var datetime1 = new Date();
-        var datetime2 = datetime1;
-        if (tiempo.fecha_inicio && tiempo.fecha_fin && tiempo.fecha_fin != '0000-00-00 00:00:00') {
-            datetime1 = new Date(tiempo.fecha_inicio);
-            datetime2 = new Date(tiempo.fecha_fin);
-        } else if (tiempo.fecha_inicio) {
-            startCront = true;
-            datetime1 = new Date(tiempo.fecha_inicio);
+        var tiempoSplit = tiempo.tiempo_total.split(', ');
+
+        if (tiempoSplit[5]) {
+            segundos+= parseInt(tiempoSplit[5]);
+            if (segundos>59){minutos++;segundos=segundos-60;}
         }
 
-        var diffInMilliseconds = Math.abs(datetime2 - datetime1);
-        segundos+= Math.floor((diffInMilliseconds % millisecondsInMinute) / millisecondsInSecond);
-        minutos+= Math.floor((diffInMilliseconds % millisecondsInHour) / millisecondsInMinute);
-        horas+= Math.floor((diffInMilliseconds % millisecondsInDay) / millisecondsInHour);
-        dias+= Math.floor(diffInMilliseconds / millisecondsInDay);
-        year+= Math.floor(diffInMilliseconds / millisecondsInYears);
+        if (tiempoSplit[4]) {
+            minutos+= parseInt(tiempoSplit[4]);
+            if (minutos>59){horas++;minutos=minutos-60;}
+        }
+
+        if (tiempoSplit[3]) {
+            horas+= parseInt(tiempoSplit[3]);
+        }
+
+        if (tiempoSplit[2]) {
+            var horasSumadas = (parseInt(tiempoSplit[2]) * 24);
+            horas+=horasSumadas;
+        }
     }
 
-    horas+= (dias * 24) + ((year * 365) * 24);
+    cronometroPqrsf(false);
 
-    SegundosPqrsf.innerHTML = ":"+segundos;
-    MinutosPqrsf.innerHTML = ":"+minutos;
-    HorasPqrsf.innerHTML = horas;
+    $(".add-time-pqrsf").hide();
+    $("#content-button-change-time").addClass('button-change-status');
+    $("#content-button-change-time").removeClass('button-change-status-select');
 
     addTimePqrst();
     if (startCront) inicioTimePqrsf();
@@ -1396,6 +1394,8 @@ function guardarInicioPqrsf() {
     }).done((res) => {
         if(res.success){
             inicioTimePqrsf();
+            console.log(res.mensaje);
+            mostrarMensajesPqrsf(res.mensaje);
             $("#icon-loading-time-pqrsf").hide();
         }
     }).fail((err) => {
@@ -1418,6 +1418,8 @@ function guardarTiempoPqrsf(inicio = false) {
         if(res.success){
             if (inicio) inicioTimePqrsf();
             else pararPqrsf();
+            actualizarEstadosPqrsf(res.data.estado);
+            mostrarMensajesPqrsf(res.mensaje);
             $("#icon-loading-time-pqrsf").hide();
         }
     }).fail((err) => {
@@ -1560,6 +1562,12 @@ function findDataPqrsf(id) {
     }).done((res) => {
         var data = res.data;
 
+        $(".add-time-pqrsf").hide();
+        document.getElementById("hms").innerHTML="00:00:00";
+        horas = 0;
+        minutos = 0;
+        segundos = 0;
+
         if (id_usuario_logeado == data.id_usuario) {
             if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
             else $("#id_name_person_pqrsf").text(data.creador.firstname);
@@ -1571,6 +1579,13 @@ function findDataPqrsf(id) {
             if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
             permisoAgregarTiempos = false
         }
+
+        mostrarAgregarTiempos = false;
+        $("#content-button-time-pqrsf-disabled").show();
+        $("#content-button-time-pqrsf").hide();
+        $("#content-button-change-time").addClass('button-change-status');
+        $("#content-button-change-time").removeClass('button-change-status-select');
+        $(".add-time-pqrsf").hide();
         
         mostrarDatosCabeza(data);
         mostrarMensajesPqrsf(data.mensajes);
@@ -1651,15 +1666,9 @@ $('.input-images-mensaje').imageUploader({
     maxFiles: 10
 });
 
-var centesimas = 0;
 var segundos = 0;
 var minutos = 0;
 var horas = 0;
-
-var CentesimasPqrsf = document.getElementById('pqrsf-centesimas');
-var SegundosPqrsf = document.getElementById('pqrsf-segundos');
-var MinutosPqrsf = document.getElementById('pqrsf-minutos');
-var HorasPqrsf = document.getElementById('pqrsf-horas');
 
 function inicioTimePqrsf () {
     $("#iniciar-tiempo-pqrsf").hide();
@@ -1669,7 +1678,7 @@ function inicioTimePqrsf () {
         $("#detener-tiempo-pqrsf").show();
         $("#content-button-time-pqrsf").show();
     }
-	control = setInterval(cronometroPqrsf,10);
+	control = setInterval(cronometroPqrsf,1000);
 }
 
 function pararPqrsf () {
@@ -1686,44 +1695,22 @@ function pararPqrsf () {
 
 function reinicioPqrsf () {
 	clearInterval(control);
-	centesimas = 0;
 	segundos = 0;
 	minutos = 0;
 	horas = 0;
-	CentesimasPqrsf.innerHTML = ":00";
-	SegundosPqrsf.innerHTML = ":00";
-	MinutosPqrsf.innerHTML = ":00";
-	HorasPqrsf.innerHTML = "00";
 }
 
-function cronometroPqrsf () {
-	if (centesimas < 99) {
-		centesimas++;
-		if (centesimas < 10) { centesimas = "0"+centesimas }
-		CentesimasPqrsf.innerHTML = ":"+centesimas;
-	}
-	if (centesimas == 99) {
-		centesimas = -1;
-	}
-	if (centesimas == 0) {
-		segundos ++;
-		if (segundos < 10) { segundos = "0"+segundos }
-		SegundosPqrsf.innerHTML = ":"+segundos;
-	}
-	if (segundos == 59) {
-		segundos = -1;
-	}
-	if ( (centesimas == 0)&&(segundos == 0) ) {
-		minutos++;
-		if (minutos < 10) { minutos = "0"+minutos }
-		MinutosPqrsf.innerHTML = ":"+minutos;
-	}
-	if (minutos == 59) {
-		minutos = -1;
-	}
-	if ( (centesimas == 0)&&(segundos == 0)&&(minutos == 0) ) {
-		horas ++;
-		if (horas < 10) { horas = "0"+horas }
-		HorasPqrsf.innerHTML = horas;
-	}
+function cronometroPqrsf (init = true) {
+
+    var hAux, mAux, sAux;
+    if (init) segundos++;
+
+    if (segundos>59){minutos++;segundos=0;}
+    if (minutos>59){horas++;minutos=0;}
+
+    if (segundos<10){sAux="0"+segundos;}else{sAux=segundos;}
+    if (minutos<10){mAux="0"+minutos;}else{mAux=minutos;}
+    if (horas<10){hAux="0"+horas;}else{hAux=horas;}
+
+    document.getElementById("hms").innerHTML = hAux + ":" + mAux + ":" + sAux; 
 }
