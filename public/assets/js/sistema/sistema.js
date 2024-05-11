@@ -1657,6 +1657,8 @@ function mostrarDatosCabeza(data) {
     else $("#row-actios-pqrsf").show();
 
     if (data.estado == 2) permisoAgregarTiempos = false;
+
+    if (data.estado != 2 && (idRolUsuario == 1 || idRolUsuario == 2)) $("#content-button-time-pqrsf-disabled").hide();
 }
 
 function agregarSwiperImg(imagenes) {
