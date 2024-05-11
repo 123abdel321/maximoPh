@@ -245,11 +245,15 @@ if (channelAdminPqrsf) {
         console.log(data.id_pqrsf, idPqrsfOpen);
         if (data.id_pqrsf == idPqrsfOpen) {
             mostrarMensajesPqrsf(data.data);
+            
             if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+            else if (data.estado) actualizarEstadosPqrsf(data.estado);
             initSwipers();
+
+            if (data.function == 'inicioTimePqrsf') inicioTimePqrsf();
+            else if (data.function == 'pararPqrsf') pararPqrsf();
+
             document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
-            console.log('data.created_by: ',data.data[0].created_by);
-            console.log('parseInt(id_usuario_logeado): ',parseInt(id_usuario_logeado));
             if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
         } else {
             buscarNotificaciones();
@@ -1132,7 +1136,7 @@ function iniciarCronometroPqrsf(data) {
     var tiempos = data.tiempos;
     var year = 0;
     var dias = 0;
-    var fechaMasTiempos = new Date();
+    var fechaAhora = new Date();
     horas = 0;
     minutos = 0;
     segundos = 0;
@@ -1140,25 +1144,58 @@ function iniciarCronometroPqrsf(data) {
 
     for (let index = 0; index < tiempos.length; index++) {
         let tiempo = tiempos[index];
-        var tiempoSplit = tiempo.tiempo_total.split(', ');
+        if (tiempo.tiempo_total) {
+            var tiempoSplit = tiempo.tiempo_total.split(', ');
+    
+            if (tiempoSplit[5]) {
+                segundos+= parseInt(tiempoSplit[5]);
+                if (segundos>59){minutos++;segundos=segundos-60;}
+            }
+    
+            if (tiempoSplit[4]) {
+                minutos+= parseInt(tiempoSplit[4]);
+                if (minutos>59){horas++;minutos=minutos-60;}
+            }
+    
+            if (tiempoSplit[3]) {
+                horas+= parseInt(tiempoSplit[3]);
+            }
+    
+            if (tiempoSplit[2]) {
+                var horasSumadas = (parseInt(tiempoSplit[2]) * 24);
+                horas+=horasSumadas;
+            }
+        } else {
+            var fechaInicio = new Date(tiempo.fecha_inicio);
+            var diffTime = Math.abs(fechaAhora - fechaInicio);
+            var diffDat = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            var diffHou = Math.floor(diffTime / (1000 * 60 * 60));
+            var diffMin = Math.floor(diffTime / (1000 * 60));
+            var diffSec = fechaInicio.getSeconds() - fechaAhora.getSeconds();
+            
+            if (diffSec) {
+                if (diffSec < 0) segundos+= parseInt(diffSec * -1);
+                else segundos+= parseInt(diffSec);
+                if (segundos>59){minutos++;segundos=segundos-60;}
+            }
+    
+            if (diffMin) {
+                if (diffMin < 0) minutos+= parseInt(diffMin * -1);
+                else minutos+= parseInt(diffMin);
+                if (minutos>59){horas++;minutos=minutos-60;}
+            }
+    
+            if (diffHou) {
+                if (diffHou < 0) horas+= parseInt(diffHou * -1);
+                else horas+= parseInt(diffHou);
+            }
 
-        if (tiempoSplit[5]) {
-            segundos+= parseInt(tiempoSplit[5]);
-            if (segundos>59){minutos++;segundos=segundos-60;}
-        }
+            if (diffDat) {
+                if (diffDat < 0) horas+= (parseInt(diffDat * -1) * 24);
+                else horas+= (parseInt(diffDat) * 24);
+            }
 
-        if (tiempoSplit[4]) {
-            minutos+= parseInt(tiempoSplit[4]);
-            if (minutos>59){horas++;minutos=minutos-60;}
-        }
-
-        if (tiempoSplit[3]) {
-            horas+= parseInt(tiempoSplit[3]);
-        }
-
-        if (tiempoSplit[2]) {
-            var horasSumadas = (parseInt(tiempoSplit[2]) * 24);
-            horas+=horasSumadas;
+            startCront = true;
         }
     }
 

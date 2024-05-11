@@ -313,7 +313,7 @@ class PqrsfController extends Controller
                     'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
                     'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
                 ],
-                ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'id_notificacion' => $id_notificacion]
+                ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'estado' => 1, 'id_notificacion' => $id_notificacion]
             );
 
             DB::connection('max')->commit();
@@ -454,6 +454,7 @@ class PqrsfController extends Controller
                 ->first();
 
             $diff = null;
+            $function = 'inicioTimePqrsf';
             $agregoFechaFinal = false;
             $mensajeNotificacion = "Se ha iniciado el registro de tiempo";
 
@@ -467,6 +468,7 @@ class PqrsfController extends Controller
                 ]);
                 
             } else if ($pqrsf->tiempo){
+                $function = 'pararPqrsf';
                 $agregoFechaFinal = true;
                 $fechaInicio = Carbon::parse($pqrsf->tiempo->fecha_inicio);
                 $fechaFin = Carbon::now();
@@ -521,12 +523,18 @@ class PqrsfController extends Controller
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);
+
             $notificacion->notificar(
                 [
                     'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
                     'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
                 ],
-                ['id_pqrsf' => $pqrsf->id, 'data' => $mensaje->toArray(), 'id_notificacion' => $id_notificacion]
+                [
+                    'id_pqrsf' => $pqrsf->id,
+                    'data' => $mensaje->toArray(),
+                    'id_notificacion' => $id_notificacion,
+                    'function' => $function,
+                ]
             );
 
             $pqrsf = Pqrsf::with('tiempos')
@@ -534,6 +542,7 @@ class PqrsfController extends Controller
                 ->first();
 
             $pqrsf->estado = 1;
+            $pqrsf->save();
 
             DB::connection('max')->commit();
 
