@@ -105,6 +105,7 @@ var moduloCreado = {
     'instalacionempresa': false,
     'importrecibos': false,
     'pqrsf': false,
+    'perfil': false,
 };
 
 var moduloRoute = {
@@ -123,6 +124,7 @@ var moduloRoute = {
     'instalacionempresa': 'administrativo',
     'importrecibos': 'importador',
     'pqrsf': 'administrativo',
+    'perfil': 'administrativo',
 }
 
 $('.water').show();

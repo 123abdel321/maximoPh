@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 //EMPRESA
 use App\Http\Controllers\Empresa\ApiController;
+use App\Http\Controllers\Empresa\PerfilController;
 use App\Http\Controllers\Empresa\UsuariosController;
 use App\Http\Controllers\Empresa\InstaladorController;
 //PORTAFOLIO
@@ -114,6 +115,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {
             Route::put('entorno', 'update');
+        });
+        //PERFILES
+        Route::controller(PerfilController::class)->group(function () {
+            Route::get('perfil', 'nit');
+            Route::put('perfil', 'update');
+            Route::post('perfil', 'fondo');
         });
         //PLAN CUENTAS
         Route::controller(PlanCuentaController::class)->group(function () {

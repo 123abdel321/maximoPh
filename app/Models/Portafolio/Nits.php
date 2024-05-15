@@ -70,4 +70,8 @@ class Nits extends Model
 		return "$this->primer_nombre $this->otros_nombres $this->primer_apellido $this->segundo_apellido";
 	}
 
+	public function ciudad() {
+		return $this->belongsTo('App\Models\Empresa\Ciudades', 'id_ciudad', 'id');
+	}
+
 }

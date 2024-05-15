@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
@@ -9,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
+use App\Models\Portafolio\Nits;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
 use Spatie\Permission\Models\Permission;
@@ -76,10 +78,23 @@ class LoginController extends Controller
 
                 $idEmpresa = $empresa->id;
             }
-                
-            $notificacionCode =  null;
+
+            $usuarioEmpresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
             $empresaSelect = Empresa::where('id', $idEmpresa)->first();
 
+            if (!$usuarioEmpresa->id_nit) {
+                Config::set('database.connections.sam.database', $empresaSelect->token_db_portafolio);
+                $findNit = Nits::where('email', $request->email)->first();
+                if ($findNit) {
+                    $usuarioEmpresa->id_nit = $findNit->id;
+                    $usuarioEmpresa->save();
+                }
+            }
+                
+            $notificacionCode =  null;
             $notificacionCode = $empresaSelect->token_db_maximo.'_'.$user->id;
             $user->id_empresa = $empresaSelect->id;
             $user->has_empresa = $empresaSelect->token_db_maximo;

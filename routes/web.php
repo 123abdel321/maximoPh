@@ -26,6 +26,7 @@ use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 //CONFIGURACION
+use App\Http\Controllers\Empresa\PerfilController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Empresa\UsuariosController;
 //IMPORTADOR
@@ -37,14 +38,8 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
-Route::post('/register', [RegisterController::class, 'store'])->middleware('guest')->name('register.perform');
 Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login.perform');
-Route::get('/reset-password', [ResetPassword::class, 'show'])->middleware('guest')->name('reset-password');
-Route::post('/reset-password', [ResetPassword::class, 'send'])->middleware('guest')->name('reset.perform');
-Route::get('/change-password', [ChangePassword::class, 'show'])->middleware('guest')->name('change-password');
-Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -69,6 +64,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
+		//PERFIL
+		Route::get('/perfil', [PerfilController::class, 'index']);
+		Route::post('/perfil-fondo', [PerfilController::class, 'fondo']);
+		Route::post('/perfil-avatar', [PerfilController::class, 'avatar']);
 		//PORTERIA
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
