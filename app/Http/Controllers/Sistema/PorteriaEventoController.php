@@ -105,6 +105,7 @@ class PorteriaEventoController extends Controller
             $file = $request->file('imagen_evento');
 
             $evento = PorteriaEvento::Create([
+                'tipo' => $request->get('tipo_evento'),
                 'id_inmueble' => $request->get('inmueble_porteria_evento'),
                 'id_porteria' => $request->get('persona_porteria_evento'),
                 'fecha_ingreso' => $request->get('fecha_ingreso_porteria_evento'),

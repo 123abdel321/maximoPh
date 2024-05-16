@@ -30,6 +30,7 @@ var weekGoalkeeper = [
     'Sat',
     'Sun'
 ];
+var buscarPorteriaHoy = null;
 var searchValuePorteria = null;
 var buscarDatosPorteria = false;
 var porteria_evento_table = null;
@@ -81,6 +82,15 @@ function porteriaInit() {
                     />`;
 
                 }, className: 'dt-body-center'},
+                {"data": function (row, type, set){
+                    if (row.tipo == '1') {
+                        return 'Paquete';
+                    }
+                    if (row.tipo == '2') {
+                        return 'Minuta';
+                    }
+                    return 'Visita';
+                }},
                 {"data": function (row, type, set){
                     if (row.inmueble) {
                         return row.inmueble.zona.nombre+' - '+row.inmueble.nombre
@@ -200,6 +210,23 @@ $(document).on('click', '#generatePorteriaNueva', function () {
 $(document).on('click', '#generateEventoPorteria', function () {
     clearFormEventoPorteria();
     $("#porteriaEventoFormModal").modal('show');
+});
+
+$(document).on('click', '#verEventoPorteriaHoy', function () {
+    $("#items-card-porteria").show();
+    $("#items-tabla-porteria").hide();
+    $("#verEventoPorteriaHoy").hide();
+    $("#quitarEventoPorteriaHoy").show();
+    buscarPorteriaHoy = true;
+    loadItemsPorteria();
+});
+
+$(document).on('click', '#quitarEventoPorteriaHoy', function () {
+    $("#items-card-porteria").hide();
+    $("#items-tabla-porteria").show();
+    $("#verEventoPorteriaHoy").show();
+    $("#quitarEventoPorteriaHoy").hide();
+    buscarPorteriaHoy = false;
 });
 
 $(document).on('click', '#updatePorteriaEvento', function () {
@@ -347,7 +374,8 @@ $("#form-porteria-evento").submit(function(e) {
 
 function searchPorteria (event) {
     if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
-        if (!$('#searchInputPorteria').val()) {
+        var datosBuscar = $('#searchInputPorteria').val();
+        if (datosBuscar != '') {
             $("#items-card-porteria").show();
             $("#items-tabla-porteria").hide();
             loadItemsPorteria();
@@ -386,12 +414,15 @@ function loadItemsPorteria() {
         buscarDatosPorteria.abort();
     }
 
+    let data = {
+        search: searchValuePorteria,
+        hoy: buscarPorteriaHoy ? true : ''
+    }
+
     buscarDatosPorteria = $.ajax({
         url: base_url + 'porteria',
         method: 'GET',
-        data: {
-            search: searchValuePorteria
-        },
+        data: data,
         headers: headers,
         dataType: 'json',
     }).done((res) => {
@@ -645,6 +676,7 @@ function clearFormEventoPorteria() {
     $('#default_avatar_evento').attr('src', '/img/add-imagen.png');
 
     $comboInmuebleEventos.prop('disabled', false);
+    $("#tipo_evento").val(0).trigger('change');
     $("#persona_porteria_evento").val("").trigger('change');
     $("#inmueble_porteria_evento").val("").trigger('change');
     $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));

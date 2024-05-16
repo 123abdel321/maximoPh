@@ -16,6 +16,7 @@ class PorteriaEvento extends Model
     protected $fillable = [
         'id_inmueble',
         'id_porteria',
+        'tipo',
         'fecha_ingreso',
         'fecha_salida',
         'observacion',

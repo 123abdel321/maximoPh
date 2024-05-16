@@ -67,6 +67,14 @@ class PorteriaController extends Controller
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
             }
 
+            if ($request->get("hoy")) {
+                $fechaHoy = Carbon::now();
+                $diaHoy = $fechaHoy->dayOfWeek;
+
+                $porteria->where('dias', 'LIKE', '%'.$diaHoy.'%')
+                    ->orWhere('hoy', $fechaHoy->format('Y-m-d'));
+            }
+
             $porteria->skip($start)->take($rowperpage);
 
             return response()->json([
@@ -321,5 +329,4 @@ class PorteriaController extends Controller
         }
         return $dias;
     }
-
 }

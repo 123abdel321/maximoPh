@@ -20,7 +20,16 @@
 
                 <input type="file" name="imagen_evento" id="imagen_evento" onchange="readURLEvento(this);" style="display: none" />
 
-                <div   class="form-group col-12 col-sm-12 col-md-6">
+                <div class="form-group form-group col-12 col-sm-12 col-md-6">
+                    <label for="exampleFormControlSelect1">Tipo evento<span style="color: red">*</span></label>
+                    <select class="form-control form-control-sm" name="tipo_evento" id="tipo_evento">
+                        <option value="0">Visita</option>
+                        <option value="1">Paquete</option>
+                        <option value="2">Minuta</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-12 col-sm-6 col-md-6">
                     <label for="personaPorteriaEventoLabel">Persona / otros</label>
                     <select name="persona_porteria_evento" id="persona_porteria_evento" class="form-control form-control-sm">
                     </select>

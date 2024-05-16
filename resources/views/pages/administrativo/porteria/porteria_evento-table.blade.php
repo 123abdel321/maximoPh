@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <th style="border-radius: 15px 0px 0px 0px !important;">Img</th>
+            <th>Tipo</th>
             <th>Inmueble</th>
             <th>Persona</th>
             <th>Fecha/Hora ingreso</th>

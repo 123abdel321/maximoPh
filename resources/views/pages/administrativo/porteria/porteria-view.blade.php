@@ -70,7 +70,7 @@
     <div class="row">
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
-            <div class="col-12 col-md-4 col-sm-4">
+            <div class="col-12 col-md-8 col-sm-8">
                 @can('porteria create')
                     <button type="button" class="btn btn-primary btn-sm" id="generatePorteriaNueva">
                         Agregar en porteria
@@ -80,10 +80,17 @@
                     <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria">
                         Agregar evento
                     </button>
+                    <button type="button" class="btn btn-success btn-sm" id="verEventoPorteriaHoy" style="width: 10px; height: 34px;">
+                        <label style="margin-left: -12px; color: white;">Hoy</label>
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="quitarEventoPorteriaHoy" style="width: 10px; height: 34px; display: none;">
+                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
+                    </button>
+                    
                 @endcan
             </div>
-            <div class="col-12 col-md-8 col-sm-8">
-                <input type="text" id="searchInputPorteria" class="form-control form-control-sm search-table" onkeydown="searchPorteria(event)" placeholder="Buscar">
+            <div class="col-12 col-md-4 col-sm-4">
+                <input type="text" id="searchInputPorteria" class="form-control form-control-sm search-table" onkeydown="searchPorteria(event)" placeholder="Buscar Visitante, Mascotas, Residentes & Vehiculos">
             </div>
         </div>
 
@@ -120,7 +127,8 @@
 
         <div id="items-tabla-porteria" class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
-                
+                <p style="margin-bottom: 0px; text-align: -webkit-center; font-weight: 600; font-size: 20px">Eventos creados del día</p>
+
                 @include('pages.administrativo.porteria.porteria_evento-table')
 
             </div>
