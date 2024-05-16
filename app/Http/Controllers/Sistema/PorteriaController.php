@@ -58,9 +58,13 @@ class PorteriaController extends Controller
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
             } else if ($request->get("search")){
+                $usuarioSearch = $this->usuarioSearch($request->get("search"));
                 $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
-                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
+                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->when(count($usuarioSearch), function ($query) use($usuarioSearch) {
+                        $query->orWhereIn('id_usuario', $usuarioSearch);
+                    });
             }
 
             if ($request->get("hoy")) {
@@ -328,5 +332,23 @@ class PorteriaController extends Controller
             }
         }
         return $dias;
+    }
+
+    private function usuarioSearch($search)
+    {
+        $data = [];
+        $users = DB::connection('clientes')->table('users')->select('id')
+            ->where('firstname', 'LIKE', '%'.$search.'%')
+            ->orWhere('lastname', 'LIKE', '%'.$search.'%')
+            ->orWhere('email', 'LIKE', '%'.$search.'%')
+            ->get()->toArray();
+
+        if (count($users)) {
+            foreach ($users as $nit) {
+                $data[] = $nit->id;
+            }
+        }
+
+        return $data;        
     }
 }
