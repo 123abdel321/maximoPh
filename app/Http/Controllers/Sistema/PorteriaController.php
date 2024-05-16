@@ -52,11 +52,7 @@ class PorteriaController extends Controller
             $porteria = Porteria::with('archivos', 'propietario')
                 ->where('estado', true);
 
-            if ($usuarioEmpresa->id_rol == 3) {
-                $porteria->where('id_usuario', $request->user()->id);
-            }
-
-            if ($usuarioEmpresa->id_rol == 3 && $request->get("search")) {
+            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2 && $request->get("search")) {
                 $porteria->where('id_usuario', $request->user()->id)
                     ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
@@ -73,6 +69,10 @@ class PorteriaController extends Controller
 
                 $porteria->where('dias', 'LIKE', '%'.$diaHoy.'%')
                     ->orWhere('hoy', $fechaHoy->format('Y-m-d'));
+            }
+
+            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2) {
+                $porteria->where('id_usuario', $request->user()->id);
             }
 
             $porteria->skip($start)->take($rowperpage);
