@@ -168,6 +168,7 @@ class ImportadorRecibosController extends Controller
                                                 
                         $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                         $saldoNuevo = $extracto->saldo - $valorDisponible;
+                        $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
                         
                         ConReciboDetalles::create([
                             'id_recibo' => $recibo->id,
@@ -192,7 +193,7 @@ class ImportadorRecibosController extends Controller
                             "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
                             "id_centro_costos" => $cuentaPago->exige_centro_costos ? $recibo->id_centro_costos : null,
                             "concepto" => $cuentaPago->exige_concepto ? 'IMPORTADO DESDE RECIBOS' : null,
-                            "documento_referencia" => $cuentaPago->exige_documento_referencia ? $extracto->documento_referencia : null,
+                            "documento_referencia" => $cuentaPago->exige_documento_referencia ? $documentoReferencia : null,
                             "debito" => $saldoNuevo < 0 ? $extracto->saldo : $valorDisponible,
                             "credito" => $saldoNuevo < 0 ? $extracto->saldo : $valorDisponible,
                             "created_by" => request()->user()->id,
@@ -233,7 +234,7 @@ class ImportadorRecibosController extends Controller
                             "id_nit" => $cuentaAnticipo->exige_nit ? $recibo->id_nit : null,
                             "id_centro_costos" => $cuentaAnticipo->exige_centro_costos ? $recibo->id_centro_costos : null,
                             "concepto" => $cuentaAnticipo->exige_concepto ? 'ANTICIPO IMPORTADO DESDE RECIBOS' : null,
-                            "documento_referencia" => $cuentaAnticipo->exige_documento_referencia ? $extracto->documento_referencia : null,
+                            "documento_referencia" => $cuentaAnticipo->exige_documento_referencia ? $documentoReferencia : null,
                             "debito" => $valorDisponible,
                             "credito" => $valorDisponible,
                             "created_by" => request()->user()->id,
@@ -260,7 +261,7 @@ class ImportadorRecibosController extends Controller
                         'id_nit' => $formaPago->cuenta->exige_nit ? $recibo->id_nit : null,
                         'id_centro_costos' => null,
                         'concepto' => $formaPago->cuenta->exige_concepto ? 'PAGO IMPORTADO DESDE RECIBOS' : null,
-                        'documento_referencia' => $extracto->documento_referencia,
+                        'documento_referencia' => $documentoReferencia,
                         'debito' => $reciboImport->pago,
                         'credito' => $reciboImport->pago,
                         'created_by' => request()->user()->id,
