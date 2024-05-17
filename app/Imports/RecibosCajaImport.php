@@ -78,17 +78,23 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
             if ($row['valor']) {
                 if ($nit) {
+
                     $extracto = (new Extracto(
                         $nit->id,
                         [3,7],
                     ))->completo()->first();
-    
-                    $pagoTotal = $row['valor'];
-                    $saldoTotal = $extracto->saldo;
 
-                    if (($extracto->saldo - $pagoTotal) < 0) {
-                        $anticipo = $pagoTotal - $extracto->saldo;
+                    if ($extracto && $extracto->saldo) {
+                        $pagoTotal = $row['valor'];
+                        $saldoTotal = $extracto->saldo;
+    
+                        if (($extracto->saldo - $pagoTotal) < 0) {
+                            $anticipo = $pagoTotal - $extracto->saldo;
+                        }
+                    } else {
+                        $anticipo = $pagoTotal;
                     }
+    
                 }
             }
 
