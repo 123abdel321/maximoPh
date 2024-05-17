@@ -36,6 +36,10 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             $anticipo = 0;
             $fechaManual = $row['fecha_manual'] ? Date::excelToDateTimeObject($row['fecha_manual']): Carbon::now();
 
+            if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
+                continue;
+            }
+
             if ($row['inmueble']) {
                 $inmueble = Inmueble::with('zona')
                     ->where('nombre', $row['inmueble'])
