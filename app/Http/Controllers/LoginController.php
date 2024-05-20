@@ -133,6 +133,41 @@ class LoginController extends Controller
     	], 422);
     }
 
+    public function logout(Request $request)
+    {
+        $user =  User::find(Auth::user()->id);
+        $user->tokens()->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+		return response()->json([
+			'message' => 'Successfully logged out',
+			"success"=>true
+		]);
+
+        return response()->json([
+    		'success'=>	false,
+    		'data' => '',
+    		'message'=> 'logout true'
+    	], 200);
+    }
+
+    public function logoutApi (Request $request)
+    {
+        $user =  User::find(Auth::user()->id);
+        $user->tokens()->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+    		'success'=>	false,
+    		'data' => '',
+    		'message'=> 'logout true'
+    	], 200);
+    }
+
     private function encryptData($data)
     {
         $method = "AES-256-CBC";
@@ -151,20 +186,5 @@ class LoginController extends Controller
         $iv = '1234567891011121';
 
         return openssl_decrypt($data, $method, $key, $options, $iv);
-    }
-
-    public function logout(Request $request)
-    {
-        $user =  User::find(Auth::user()->id);
-        $user->tokens()->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return response()->json([
-    		'success'=>	false,
-    		'data' => '',
-    		'message'=> 'logout true'
-    	], 200);
     }
 }

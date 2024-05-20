@@ -12,6 +12,7 @@ use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\RecioController;
 use App\Http\Controllers\Portafolio\PlanCuentaController;
 //SISTEMA
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\EntornoController;
@@ -52,6 +53,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::group(['middleware' => ['clientconnection']], function() {
+        
+        // Route::controller(LoginController::class)->group(function () {
+        //     Route::post('logout', 'logout');
+        // });
         //CONCEPTO FACTURACION
         Route::controller(ConceptoFacturacionController::class)->group(function () {
             Route::get('concepto-facturacion', 'read');

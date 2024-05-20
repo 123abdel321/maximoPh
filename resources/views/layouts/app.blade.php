@@ -37,32 +37,24 @@
 
 <body class="{{ $class ?? '' }} " style="background-color: #060e26;">
 
-    @guest
-        @yield('content')
-    @endguest
-
     @auth
-        @if (in_array(request()->route()->getName(), ['sign-in-static', 'sign-up-static', 'login', 'register', 'recover-password', 'rtl', 'virtual-reality']))
-            @yield('content')
-        @else
-            @if (!in_array(request()->route()->getName(), ['profile', 'profile-static']))
-                <div class="min-height-100 bg-dark position-absolute w-100 fondo-sistema" onclick="closeMenu()">
-                    
-                </div>
-            @elseif (in_array(request()->route()->getName(), ['profile-static', 'profile']))
-                <div class="position-absolute w-100 min-height-300 top-0" style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg'); background-position-y: 50%;">
-                    <span class="mask bg-primary opacity-6"></span>
-                </div>
-            @endif
-            @include('layouts.navbars.auth.sidenav', ['menus', $menus])
-            @include('layouts.navbars.auth.topnav')
-            <div id="contenerdores-views" class="tab-content clearfix" onclick="closeMenu()">
-                <main class="tab-pane main-content border-radius-lg change-view active" style="margin-left: 5px;" id="containner-dashboard">
-                </main>
+        @if (!in_array(request()->route()->getName(), ['profile', 'profile-static']))
+            <div class="min-height-100 bg-dark position-absolute w-100 fondo-sistema" onclick="closeMenu()">
+                
             </div>
-            <br/>
-            @include('components.fixed-plugin')
+        @elseif (in_array(request()->route()->getName(), ['profile-static', 'profile']))
+            <div class="position-absolute w-100 min-height-300 top-0" style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg'); background-position-y: 50%;">
+                <span class="mask bg-primary opacity-6"></span>
+            </div>
         @endif
+        @include('layouts.navbars.auth.sidenav', ['menus', $menus])
+        @include('layouts.navbars.auth.topnav')
+        <div id="contenerdores-views" class="tab-content clearfix" onclick="closeMenu()">
+            <main class="tab-pane main-content border-radius-lg change-view active" style="margin-left: 5px;" id="containner-dashboard">
+            </main>
+        </div>
+        <br/>
+        @include('components.fixed-plugin')
     @endauth
 
     <!-- MODAL USUARIO ACCIÓN-->

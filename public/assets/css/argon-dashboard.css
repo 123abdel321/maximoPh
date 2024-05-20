@@ -4060,9 +4060,9 @@ textarea.form-control-lg {
   border-radius: 0.5rem;
 }
 .dropdown-menu[data-bs-popper] {
-  top: 100%;
+  /* top: 100%;
   left: 0;
-  margin-top: 1.625rem;
+  margin-top: 1.625rem; */
 }
 
 .dropdown-menu-start {
@@ -10699,7 +10699,7 @@ textarea.form-control-lg {
   }
 
   .me-sm-4 {
-    margin-right: 1.5rem !important;
+    margin-right: .5rem !important;
   }
 
   .me-sm-5 {

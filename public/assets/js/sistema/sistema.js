@@ -22,6 +22,7 @@ const itemMenuActive = localStorage.getItem("item_active_menu");
 
 let dateNow = new Date();
 let openStatusPqrsf = false;
+let dropDownPerfilOpen = false; 
 let dropDownNotificacionOpen = false;
 let channelPqrsf = false;
 let channelAdminPqrsf = false;
@@ -361,17 +362,47 @@ function leerNotificaciones(id) {
     });
 }
 
-function openNewItem(id, nombre, icon) {
+function showProfile() {
+    $("#dropdown-perfil").removeClass('show');
+    openNewItem('perfil', 'Perfil', 'fas fa-cogd', false);
+}
+
+function closeSessionProfile() {
+    $.ajax({
+        url: base_web + 'logout',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        localStorage.setItem("token_db_portafolio", '');
+        localStorage.setItem("auth_token", '');
+        localStorage.setItem("auth_token_erp", '');
+        localStorage.setItem("empresa_nombre", '');
+        localStorage.setItem("notificacion_code", '');
+        localStorage.setItem("fondo_sistema", '');
+        localStorage.setItem("empresa_logo", '');
+
+        window.location.href = '/login';
+    }).fail((res) => {
+    });
+}
+
+function openNewItem(id, nombre, icon, open = true) {
     if($('#containner-'+id).length == 0) {
         generateView(id, nombre, icon);
     }
     seleccionarView(id, nombre);
-    document.getElementById('sidenav-main-2').click();
+    if (open) document.getElementById('sidenav-main-2').click();
 }
 
 function closeMenu() {
     if (sidenav.classList.contains('side-nav-maximo-open')) {
         toggleSidenavMaximo();
+    }
+    if (dropDownNotificacionOpen) {
+        $("#dropdown-notificaciones").removeClass('show');
+        dropDownNotificacionOpen = false;
+        return;
     }
 }
 
@@ -1264,6 +1295,7 @@ function openDropDownNotificaciones(open = false) {
         if (dropDownNotificacionOpen) {
             $("#dropdown-notificaciones").removeClass('show');
             dropDownNotificacionOpen = false;
+            return;
         } else {
             $("#dropdown-notificaciones").addClass('show');
             dropDownNotificacionOpen = true;
