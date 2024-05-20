@@ -170,9 +170,9 @@
                     <div id="dropdown-perfil" class="dropdown-menu dropdown-menu-top-2" style="right: 50px;">
                         <label id="nombre_usuario_loggin" style="font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; width: 160px;">
                             @if (Auth::user()->firstname)
-                                {{ Auth::user()->firstname }} {{ Auth::user()->lastname }}
+                            &nbsp;&nbsp;&nbsp;&nbsp;{{ strtoupper(Auth::user()->firstname) }} {{ strtoupper(Auth::user()->lastname) }}
                             @else
-                                {{ Auth::user()->username }}
+                                {{ strtoupper(Auth::user()->username) }}
                             @endif
                         </label>
                         <div class="dropdown-divider" style="border-top: 1px solid #d8d8d8;"></div>
