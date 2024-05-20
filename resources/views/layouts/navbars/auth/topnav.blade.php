@@ -157,7 +157,7 @@
                         >
                         @if (!Auth::user()->avatar)
                             @if (Auth::user()->firstname && Auth::user()->lastname)
-                                {{ mb_substr(Auth::user()->firstname, 0, 1) }} {{ mb_substr(Auth::user()->lastname, 0, 1) }}
+                                {{ mb_substr(Auth::user()->firstname, 0, 1)mb_substr(Auth::user()->lastname, 0, 1) }}
                             @elseif (Auth::user()->firstname)
                                 {{ mb_substr(Auth::user()->firstname, 0, 2) }}
                             @else
