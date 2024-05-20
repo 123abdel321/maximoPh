@@ -34,6 +34,7 @@ class InmuebleController extends Controller
     {
         $data = [
             "editar_valor_admon_inmueble" => Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor,
+            "editar_coheficiente_admon_inmueble" => Entorno::where('nombre', 'editar_coheficiente_admon_inmueble')->first()->valor,
             "valor_total_presupuesto_year_actual" => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
             "numero_total_unidades" => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
             "area_total_m2" => Entorno::where('nombre', 'area_total_m2')->first()->valor,
@@ -210,13 +211,18 @@ class InmuebleController extends Controller
         try {
             DB::connection('max')->beginTransaction();
             $editar_valor_admon_inmueble =  Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor;
+            $editar_coheficiente_admon_inmueble =  Entorno::where('nombre', 'editar_coheficiente_admon_inmueble')->first()->valor;
 
             $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor;
             $valor_total_presupuesto_mes_actual = $valor_total_presupuesto_year_actual / 12;
             $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first()->valor;
             $valor_total_administracion = 0;
 
-            $coeficiente = $request->get('area') / $area_total_m2;
+            if ($editar_valor_admon_inmueble && $editar_coheficiente_admon_inmueble) {
+                $coeficiente = $request->get('coeficiente');
+            } else {
+                $coeficiente = $request->get('area') / $area_total_m2;
+            }
             
             if ($editar_valor_admon_inmueble) {
                 if ($request->get('valor_total_administracion') <= 0) {

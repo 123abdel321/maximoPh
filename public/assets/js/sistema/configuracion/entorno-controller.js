@@ -11,6 +11,7 @@ function entornoInit() {
         ];
 
         var checkEntorno = [
+            'editar_coheficiente_admon_inmueble',
             'editar_valor_admon_inmueble',
             'validacion_estricta'
         ];
@@ -45,6 +46,7 @@ $(document).on('click', '#updateEntorno', function () {
         'porcentaje_intereses_mora': stringToNumberFloat($('#porcentaje_intereses_mora').val()),
         'periodo_facturacion': $('#periodo_facturacion').val(),
         'editar_valor_admon_inmueble': $("input[type='checkbox']#editar_valor_admon_inmueble").is(':checked') ? '1' : '0',
+        'editar_coheficiente_admon_inmueble': $("input[type='checkbox']#editar_coheficiente_admon_inmueble").is(':checked') ? '1' : '0',
         'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '0',
     };
 

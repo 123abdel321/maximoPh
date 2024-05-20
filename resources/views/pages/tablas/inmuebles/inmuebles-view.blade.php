@@ -1,3 +1,4 @@
+
 <style>
     .error {
         color: red;
@@ -153,6 +154,7 @@
     var eliminarInmueble = '<?php echo auth()->user()->can('inmueble delete'); ?>';
     var area_total_m2 = JSON.parse('<?php echo $area_total_m2; ?>');
     var editar_valor_admon_inmueble = JSON.parse('<?php echo $editar_valor_admon_inmueble; ?>');
+    var editar_coheficiente_admon_inmueble = JSON.parse('<?php echo $editar_coheficiente_admon_inmueble; ?>');
     var valor_total_presupuesto_year_actual = JSON.parse('<?php echo $valor_total_presupuesto_year_actual; ?>');
     var numero_total_unidades = JSON.parse('<?php echo $numero_total_unidades; ?>');
 </script>

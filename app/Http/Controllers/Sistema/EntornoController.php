@@ -45,6 +45,7 @@ class EntornoController extends Controller
                 'porcentaje_descuento_pronto_pago',
                 'porcentaje_intereses_mora',
                 'editar_valor_admon_inmueble',
+                'editar_coheficiente_admon_inmueble',
                 'periodo_facturacion'
             ];
 

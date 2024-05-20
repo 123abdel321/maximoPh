@@ -402,6 +402,12 @@ function inmuebleInit() {
         document.getElementById("valor_total_administracion_inmueble").setAttribute("disabled", true);
     }
 
+    if (editar_coheficiente_admon_inmueble) {
+        document.getElementById("coeficiente_inmueble").removeAttribute("disabled");
+    } else {
+        document.getElementById("coeficiente_inmueble").setAttribute("disabled", true);
+    }
+
     $comboInmuebleNit = $('#id_nit_inmueble_nit').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#inmuebleNitFormModal'),
@@ -524,7 +530,7 @@ $(document).on('click', '#saveInmueble', function () {
         id_concepto_facturacion: $("#id_concepto_facturacion_inmueble").val(),
         nombre: $("#nombre_inmueble").val(),
         area: stringToNumberFloat($("#area_inmueble").val()),
-        coeficiente: $("#coeficiente_inmueble").val(),
+        coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
     }
 
@@ -639,7 +645,7 @@ $(document).on('click', '#updateInmueble', function () {
         id_concepto_facturacion: $("#id_concepto_facturacion_inmueble").val(),
         nombre: $("#nombre_inmueble").val(),
         area: stringToNumberFloat($("#area_inmueble").val()),
-        coeficiente: $("#coeficiente_inmueble").val(),
+        coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
     }
 
