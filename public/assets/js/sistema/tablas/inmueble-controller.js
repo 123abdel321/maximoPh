@@ -83,7 +83,7 @@ function inmuebleInit() {
             {
                 data: 'coeficiente',
                 render: function (row, type, data){
-                    return parseFloat(data.coeficiente * 100).toFixed(2);
+                    return parseFloat(data.coeficiente).toFixed(2);
                 }, className: 'dt-body-right'
             },
             // {"data":'valor_total_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
