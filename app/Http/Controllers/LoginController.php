@@ -250,6 +250,9 @@ class LoginController extends Controller
 
             $notificacionCode =  null;
             $notificacionCode = $empresaSelect->token_db_maximo.'_'.$user->id;
+            $user->id_empresa = $request->get('id_empresa');
+            $user->has_empresa = $empresaSelect->token_db_maximo;
+            $user->save();
 
             DB::connection('clientes')->commit();
 
