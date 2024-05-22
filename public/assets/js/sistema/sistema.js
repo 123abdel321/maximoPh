@@ -846,20 +846,6 @@ $(document).on('click', '#descargarPlantilla', function () {
     
 });
 
-btnLogout.addEventListener('click', event => {
-
-    event.preventDefault();
-    $.ajax({
-        url: base_web + 'logout',
-        method: 'POST',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        window.location.href = '/';
-    }).fail((err) => {
-    });
-});
-
 function numberWithCommas(x) {
     x = x.toString();
     var pattern = /(-?\d+)(\d{3})/;

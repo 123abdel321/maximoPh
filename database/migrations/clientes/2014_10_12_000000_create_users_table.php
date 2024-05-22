@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->integer('id', true);
+            $table->integer('rol_maximo');
             $table->string('username');
             $table->string('firstname')->nullable();
             $table->string('lastname')->nullable();

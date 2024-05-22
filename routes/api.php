@@ -54,9 +54,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::group(['middleware' => ['clientconnection']], function() {
         
-        // Route::controller(LoginController::class)->group(function () {
-        //     Route::post('logout', 'logout');
-        // });
+        Route::controller(LoginController::class)->group(function () {
+            Route::post('select-empresa', 'selectEmpresa');
+        });
         //CONCEPTO FACTURACION
         Route::controller(ConceptoFacturacionController::class)->group(function () {
             Route::get('concepto-facturacion', 'read');

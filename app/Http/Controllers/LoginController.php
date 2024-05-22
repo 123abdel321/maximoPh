@@ -2,26 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
+use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
 use Spatie\Permission\Models\Permission;
 
 class LoginController extends Controller
 {
-    /**
-     * Display login page.
-     *
-     * @return Renderable
-     */
+    protected $messages = null;
+
+    public function __construct()
+	{
+		$this->messages = [
+            'required' => 'El campo :attribute es requerido.',
+            'exists' => 'El :attribute es inválido.',
+            'numeric' => 'El campo :attribute debe ser un valor numérico.',
+            'string' => 'El campo :attribute debe ser texto',
+            'array' => 'El campo :attribute debe ser un arreglo.',
+            'date' => 'El campo :attribute debe ser una fecha válida.',
+        ];
+	}
+
     public function show()
     {
         return view('auth.login');
@@ -166,6 +178,104 @@ class LoginController extends Controller
     		'data' => '',
     		'message'=> 'logout true'
     	], 200);
+    }
+
+    public function selectEmpresa (Request $request)
+    {
+
+        $rules = [
+            'id_empresa' => 'required|exists:clientes.empresas,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            DB::connection('clientes')->beginTransaction();
+
+            $user =  User::find($request->user()['id']);
+            $empresaSelect = Empresa::where('id', $request->get('id_empresa'))->first();
+
+            $usuarioEmpresa = UsuarioEmpresa::where('id_empresa', $request->get('id_empresa'))
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
+            if (!$usuarioEmpresa && request()->user()->rol_maximo == 1) {
+
+                $rolDios = RolesGenerales::where('nombre', 'DIOS')->first();
+                
+                $usuarioEmpresa = UsuarioEmpresa::create([
+                    'id_usuario' => $request->user()['id'],
+                    'id_empresa' => $request->get('id_empresa'),
+                    'id_rol' => 1,
+                    'id_nit' => '',
+                    'estado' => 1,
+                ]);
+
+                $usuarioPermisosEmpresa = UsuarioPermisos::create([
+                    'id_user' => $request->user()['id'],
+                    'id_empresa' => $request->get('id_empresa'),
+                    'id_rol' => 1,
+                    'ids_permission' => $rolDios->ids_permission
+                ]);
+                $permisosNombre = Permission::whereIn('id', explode(',', $usuarioPermisosEmpresa->rol->ids_permission))->get();
+                $nombrePermisos = [];
+                foreach ($permisosNombre as $permisoNombre) {
+                    $nombrePermisos[] = $permisoNombre->name;
+                }
+
+                $user->syncPermissions($nombrePermisos);
+            } else {
+                $usuarioPermisosEmpresa = UsuarioPermisos::where('id_user', $user->id)
+                    ->where('id_empresa', $empresaSelect->id)
+                    ->with('rol')
+                    ->first();
+
+                $permisosNombre = Permission::whereIn('id', explode(',', $usuarioPermisosEmpresa->rol->ids_permission))->get();
+                $nombrePermisos = [];
+                foreach ($permisosNombre as $permisoNombre) {
+                    $nombrePermisos[] = $permisoNombre->name;
+                }
+
+                $user->syncPermissions($nombrePermisos);
+            }
+
+            $notificacionCode =  null;
+            $notificacionCode = $empresaSelect->token_db_maximo.'_'.$user->id;
+
+            DB::connection('clientes')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'token_api_portafolio' => $empresaSelect->token_api_portafolio,
+                'token_type' => 'Bearer',
+                'empresa' => $empresaSelect,
+                'token_db_portafolio' => base64_encode($empresaSelect->token_db_portafolio),
+                'notificacion_code' => $notificacionCode,
+                'fondo_sistema' => $user->fondo_sistema,
+                'message'=> 'Usuario logeado con exito!'
+            ], 200);
+            
+        } catch (Exception $e) {
+            DB::connection('clientes')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+
+        
+
+        //     $empresaSelect = Empresa::where('id', $idEmpresa)->first();
     }
 
     private function encryptData($data)

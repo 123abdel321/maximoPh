@@ -47,15 +47,84 @@ function instalacionempresaInit() {
                 }
                 return '';
             }},
+            {"data": function (row, type, set){  
+                if (row.usuario) {
+                    return row.usuario.email;
+                }
+                return '';
+            }},
             {"data":'valor_suscripcion_mensual', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {
                 "data": function (row, type, set){
                     var html = '<span id="editempresa_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-empresa" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    html+= '<span id="selectempresa_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info select-empresa" style="margin-bottom: 0rem !important; min-width: 50px;">Seleccionar</span>&nbsp;';
                     return html;
                 }
             },
         ]
     });
+
+    if (empresas_table) {
+        empresas_table.on('click', '.edit-empresa', function() {
+
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, empresas_table);
+            console.log('data: ',data);
+            // $("#empresaFormModal").modal('show');
+
+            // $("#form-empresa-rut").hide();
+            // $("#form-empresa-create").show();
+        });
+
+        empresas_table.on('click', '.select-empresa', function() {
+
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, empresas_table);
+            console.log('data selected: ',data);
+            
+            $.ajax({
+                url: base_url + 'select-empresa',
+                method: 'POST',
+                data: JSON.stringify({
+                    id_empresa: data.id
+                }),
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                if(res.success){
+                    localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
+                    localStorage.setItem("auth_token_erp", res.token_api_portafolio);
+                    localStorage.setItem("empresa_nombre", res.empresa.razon_social);
+                    localStorage.setItem("notificacion_code", res.notificacion_code);
+                    localStorage.setItem("fondo_sistema", res.fondo_sistema);
+                    localStorage.setItem("empresa_logo", res.empresa.logo);                    
+
+                    var itemMenuActiveIn = localStorage.getItem("item_active_menu");
+                    if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
+                    } else {
+                        localStorage.setItem("item_active_menu", 'contabilidad');
+                    }
+
+                    agregarToast('exito', 'Empresa seleccionada', 'Empresa seleccionada con exito!', true);
+                    location.reload();
+                }
+            }).fail((err) => {
+                var errorsMsg = "";
+                var mensaje = err.responseJSON.message;
+                if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+                    for (field in mensaje) {
+                        var errores = mensaje[field];
+                        for (campo in errores) {
+                            errorsMsg += "- "+errores[campo]+" <br>";
+                        }
+                    };
+                } else {
+                    errorsMsg = mensaje
+                }
+                agregarToast('error', 'Creación errada', errorsMsg);
+            });
+        });
+    }
 
     empresas_table.ajax.reload();
 }
