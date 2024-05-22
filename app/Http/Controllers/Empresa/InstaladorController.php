@@ -45,6 +45,9 @@ class InstaladorController extends Controller
     public function generate (Request $request)
     {
         try {
+            $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', request()->user()->id)
+                ->get();
+                
             $draw = $request->get('draw');
             $start = $request->get("start");
             $rowperpage = $request->get("length");
@@ -61,6 +64,16 @@ class InstaladorController extends Controller
 
             $empresas = Empresa::orderBy($columnName,$columnSortOrder)
                 ->with('usuario');
+
+            if (request()->user()->rol_maximo != 1) {
+                $idEmpresas = [];
+                
+                foreach ($usuarioEmpresa as $key => $empresa) {
+                    array_push($idEmpresas, $empresa->id_empresa);
+                }
+                
+                $empresas->whereIn('id', $idEmpresas);
+            }
 
             $empresasTotals = $empresas->get();
 
