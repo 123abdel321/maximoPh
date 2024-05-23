@@ -291,6 +291,9 @@ class LoginController extends Controller
             $empresaMaximo = Empresa::find($request->user()['id_empresa']);
             $userPortafolio =  UserERP::where('email', $userMaximo->email)->first();
 
+            copyDBConnection('cliporta', 'cliporta');
+            setDBInConnection('cliporta', env("CLIPORTA_DB_DATABASE", "adminclientes_test"));
+
             if ($userMaximo && $userPortafolio) {
                 if (($userMaximo->rol_maximo == 1 && $userPortafolio->rol_portafolio != 1) || ($userMaximo->rol_maximo != 1 && $userPortafolio->rol_portafolio == 1)) {
                     logger()->critical('Error de rol Dios, el usuario: '. $userMaximo->email.' ('.$userMaximo->id.') no coincide en los servidores');
