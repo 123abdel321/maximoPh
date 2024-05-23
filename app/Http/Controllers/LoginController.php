@@ -13,6 +13,9 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
+use App\Models\Portafolio\UserERP;
+use App\Models\Portafolio\EmpresaERP;
+use App\Models\Portafolio\UsuarioEmpresaERP;
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
@@ -281,23 +284,74 @@ class LoginController extends Controller
         //     $empresaSelect = Empresa::where('id', $idEmpresa)->first();
     }
 
-    private function encryptData($data)
+    public function loginPortafolioERP (Request $request)
     {
-        $method = "AES-256-CBC";
-        $key = "encryptionKey123";
-        $options = 0;
-        $iv = '1234567891011121';
+        try {
+            $userMaximo =  User::find($request->user()['id']);
+            $empresaMaximo = Empresa::find($request->user()['id_empresa']);
+            $userPortafolio =  UserERP::where('email', $userMaximo->email)->first();
 
-        return openssl_encrypt($data, $method, $key, $options, $iv);
+            if ($userMaximo && $userPortafolio) {
+                if (($userMaximo->rol_maximo == 1 && $userPortafolio->rol_portafolio != 1) || ($userMaximo->rol_maximo != 1 && $userPortafolio->rol_portafolio == 1)) {
+                    logger()->critical('Error de rol Dios, el usuario: '. $userMaximo->email.' ('.$userMaximo->id.') no coincide en los servidores');
+                    return response()->json([
+                        "success"=>false,
+                        "message"=>'Error al iniciar sesion en portafolio ERP'
+                    ], 422);
+                }
+                $empresaERP = EmpresaERP::where('token_db', $empresaMaximo->token_db_portafolio)->first();
+                $userEmpresaERP = UsuarioEmpresaERP::where('id_usuario', $userPortafolio->id)
+                    ->where('id_empresa', $empresaERP->id)
+                    ->first();
+
+                if ($userMaximo->rol_maximo == 1 && $userPortafolio->rol_portafolio == 1 && !$userEmpresaERP) {
+                    logger()->notice('El usuario: '. $userMaximo->email.' ('.$userMaximo->id.') Se agrego permiso de Dios.');
+                    $userEmpresaERP = UsuarioEmpresaERP::create([
+                        'id_empresa' => $empresaERP->id,
+                        'id_usuario' => $userPortafolio->id,
+                        'id_rol' => 1,
+                        'estado' => 1,
+                    ]);
+                } else if ($userMaximo->rol_maximo != 1 && !$userEmpresaERP) {
+                    logger()->notice('El usuario: '. $userMaximo->email.' ('.$userMaximo->id.') Se agrego permiso de Administrador.');
+                    $userEmpresaERP = UsuarioEmpresaERP::create([
+                        'id_empresa' => $empresaERP->id,
+                        'id_usuario' => $userPortafolio->id,
+                        'id_rol' => 2,
+                        'estado' => 1,
+                    ]);
+
+                }
+
+                $userPortafolio->id_empresa = $empresaERP->id;
+                $userPortafolio->has_empresa = $empresaERP->token_db;
+                $userPortafolio->about = $this->generateRandomString(10);
+                $userPortafolio->save();
+            }
+
+            return response()->json([
+                "success"=>false,
+                'data' => 'login-direct?email='.$userPortafolio->email.'&code_login='.base64_encode($userPortafolio->about),
+                "message"=>'Url generada con exito'
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::connection('clientes')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
     }
 
-    private function decryptData($data)
-    {
-        $method = "AES-256-CBC";
-        $key = "encryptionKey123";
-        $options = 0;
-        $iv = '1234567891011121';
-
-        return openssl_decrypt($data, $method, $key, $options, $iv);
+    private function generateRandomString($length = 8) {
+        $characters = '0123456789abcdefghijklmnopqrs092u3tuvwxyzaskdhfhf9882323ABCDEFGHIJKLMNksadf9044OPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 }

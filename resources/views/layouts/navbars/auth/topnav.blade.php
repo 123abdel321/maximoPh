@@ -167,7 +167,7 @@
                     </div>
                     
                     
-                    <div id="dropdown-perfil" class="dropdown-menu dropdown-menu-top-2" style="right: 50px;">
+                    <div id="dropdown-perfil" class="dropdown-menu dropdown-menu-top-2" style="right: 50px; margin-top: 3%;">
                         <label id="nombre_usuario_loggin" style="font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; width: 160px;">
                             @if (Auth::user()->firstname)
                             &nbsp;&nbsp;&nbsp;&nbsp;{{ strtoupper(Auth::user()->firstname) }} {{ strtoupper(Auth::user()->lastname) }}
@@ -176,14 +176,9 @@
                             @endif
                         </label>
                         <div class="dropdown-divider" style="border-top: 1px solid #d8d8d8;"></div>
-                        <a class="dropdown-item" href="javascript:void(0)" onclick="showProfile()">Perfil</a>
-                        <!-- <form role="form" method="post" action="{{ route('logout') }}" id="logout-form">
-                            @csrf
-                            <a id="sessionLogout" class="nav-link text-white font-weight-bold px-0" style="cursor: pointer;">
-                                <i class="fa fa-sign-out" aria-hidden="true"></i>
-                            </a>
-                        </form> -->
-                        <a href="javascript:void(0)" class="dropdown-item" onclick="closeSessionProfile()">Cerrar sesión</a>
+                        <a class="dropdown-item" href="javascript:void(0)" onclick="showProfile()"><i class="fas fa-user-circle"></i>&nbsp;&nbsp;Perfil</a>
+                        <a href="javascript:void(0)" class="dropdown-item login-portafolioerp" onclick="openPortafolioERP()"><img src="/img/logo_contabilidad.png" style="width: 15px; margin-left: -1px;">&nbsp;&nbsp;Portafolio ERP</a>
+                        <a href="javascript:void(0)" class="dropdown-item" onclick="closeSessionProfile()"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Cerrar sesión</a>
                     </div>
                     <!-- <div class="dropdown">
                         <ul class="dropdown-menu">

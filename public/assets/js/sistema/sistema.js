@@ -387,6 +387,19 @@ function closeSessionProfile() {
     });
 }
 
+function openPortafolioERP() {
+    $.ajax({
+        url: base_url + 'login-portafolioerp',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        console.log('res: ',res);
+        window.open(base_web_erp + res.data, '_blank');
+    }).fail((res) => {
+    });
+}
+
 function openNewItem(id, nombre, icon, open = true) {
     if($('#containner-'+id).length == 0) {
         generateView(id, nombre, icon);

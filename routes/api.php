@@ -56,6 +56,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         
         Route::controller(LoginController::class)->group(function () {
             Route::post('select-empresa', 'selectEmpresa');
+            Route::post('login-portafolioerp', 'loginPortafolioERP');
         });
         //CONCEPTO FACTURACION
         Route::controller(ConceptoFacturacionController::class)->group(function () {

@@ -1063,3 +1063,11 @@ div.dataTables_processing {
 .reloj{
 	font-size: 30px;
 }
+
+.login-portafolioerp {
+    filter: grayscale(0.8);
+}
+
+.login-portafolioerp:hover {
+    filter: grayscale(0);
+}

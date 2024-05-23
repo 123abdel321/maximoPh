@@ -64,6 +64,27 @@ return [
             ]) : [],
 		],
 
+        'cliporta' => [
+            'driver' => 'mysql',
+            'url' => env('CLIPORTA_DB_URL'),
+            'host' => env('CLIPORTA_DB_HOST', '127.0.0.1'),
+            'port' => env('CLIPORTA_DB_PORT', '3306'),
+            'database' => env('CLIPORTA_DB_DATABASE', 'forge'),
+            'username' => env('CLIPORTA_DB_USERNAME', 'forge'),
+            'password' => env('CLIPORTA_DB_PASSWORD', ''),
+            'unix_socket' => env('CLIPORTA_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::ATTR_TIMEOUT => 120,
+            ]) : [],
+		],
+
         'max' => [
             'driver' => 'mysql',
             'url' => env('MAX_DATABASE_URL'),
