@@ -278,10 +278,6 @@ class LoginController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
-
-        
-
-        //     $empresaSelect = Empresa::where('id', $idEmpresa)->first();
     }
 
     public function loginPortafolioERP (Request $request)
@@ -308,7 +304,7 @@ class LoginController extends Controller
                     ->first();
 
                 if ($userMaximo->rol_maximo == 1 && $userPortafolio->rol_portafolio == 1 && !$userEmpresaERP) {
-                    logger()->notice('El usuario: '. $userMaximo->email.' ('.$userMaximo->id.') Se agrego permiso de Dios.');
+                    logger()->notice('El usuario: '. $userMaximo->email.' ('.$userMaximo->id.') Se agrego permiso de Dios. '.'En la empresa: '.$empresaERP->razon_social);
                     $userEmpresaERP = UsuarioEmpresaERP::create([
                         'id_empresa' => $empresaERP->id,
                         'id_usuario' => $userPortafolio->id,
@@ -316,7 +312,7 @@ class LoginController extends Controller
                         'estado' => 1,
                     ]);
                 } else if ($userMaximo->rol_maximo != 1 && !$userEmpresaERP) {
-                    logger()->notice('El usuario: '. $userMaximo->email.' ('.$userMaximo->id.') Se agrego permiso de Administrador.');
+                    logger()->notice('El usuario: '. $userMaximo->email.' ('.$userMaximo->id.') Se agrego permiso de Administrador. '.'En la empresa: '.$empresaERP->razon_social);
                     $userEmpresaERP = UsuarioEmpresaERP::create([
                         'id_empresa' => $empresaERP->id,
                         'id_usuario' => $userPortafolio->id,
