@@ -6,6 +6,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
+use App\Helpers\Printers\FacturacionPdf;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\FacturacionERP;
@@ -21,6 +22,7 @@ use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\CuotasMultas;
 use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Sistema\ConceptoFacturacion;
+
 
 class FacturacionController extends Controller
 {
@@ -874,6 +876,138 @@ class FacturacionController extends Controller
         ], 200);
     }
 
+    public function indexPdf(Request $request)
+    {
+        $periodo = Facturacion::select(
+            \DB::raw("DATE_FORMAT(fecha_manual, '%Y%m%d') AS id"),
+            \DB::raw("fecha_manual as text")
+        )->groupBy('fecha_manual')
+        ->orderBy('fecha_manual', 'DESC')
+        ->first();
+
+        $data = [
+            'periodo_facturaciones' => $periodo
+        ];
+
+        return view('pages.informes.facturaciones.facturaciones-view', $data);
+    }
+
+    public function readPdf(Request $request)
+    {
+        try {
+            $draw = $request->get('draw');
+            $start = $request->get("start");
+            $rowperpage = $request->get("length");
+
+            $columnIndex_arr = $request->get('order');
+            $columnName_arr = $request->get('columns');
+            $order_arr = $request->get('order');
+            $search = $request->get('search');
+
+            $columnIndex = $columnIndex_arr[0]['column']; // Column index
+            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+
+            $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+            
+            $query = $this->carteraDocumentosQuery($request);
+            $query->unionAll($this->carteraAnteriorQuery($request));
+
+            $facturaciones = DB::connection('sam')
+                ->table(DB::raw("({$query->toSql()}) AS cartera"))
+                ->mergeBindings($query)
+                ->select(
+                    'id_nit',
+                    'numero_documento',
+                    'nombre_nit',
+                    'razon_social',
+                    'id_cuenta',
+                    'cuenta',
+                    'naturaleza_cuenta',
+                    'auxiliar',
+                    'nombre_cuenta',
+                    'documento_referencia',
+                    'id_centro_costos',
+                    'codigo_cecos',
+                    'nombre_cecos',
+                    'id_comprobante',
+                    'codigo_comprobante',
+                    'nombre_comprobante',
+                    'consecutivo',
+                    'concepto',
+                    'fecha_manual',
+                    'created_at',
+                    'fecha_creacion',
+                    'fecha_edicion',
+                    'created_by',
+                    'updated_by',
+                    'anulado',
+                    'plazo',
+                    DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
+                    DB::raw('SUM(debito) AS debito'),
+                    DB::raw('SUM(credito) AS credito'),
+                    DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+                    DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
+                    DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
+                    DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
+                    DB::raw('SUM(total_columnas) AS total_columnas')
+                )
+                ->groupByRaw('id_nit')
+                ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
+                ->havingRaw('saldo_final != 0');
+
+            $facturacionTotals = $facturaciones->get();
+
+            $facturacionPaginate = $facturaciones->skip($start)
+                ->take($rowperpage);
+
+            return response()->json([
+                'success'=>	true,
+                'draw' => $draw,
+                'iTotalRecords' => $facturacionTotals->count(),
+                'iTotalDisplayRecords' => $facturacionTotals->count(),
+                'data' => $facturacionPaginate->get(),
+                'perPage' => $rowperpage,
+                'message'=> 'Facturas generadas con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function showPdf(Request $request)
+    {
+        $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+        $data = (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))->buildPdf()->getData();
+        // // dd($data);
+
+        // return view('pdf.facturacion.facturaciones', $data);
+        return (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))
+            ->buildPdf()
+            ->showPdf();
+    }
+
+    public function comboPeriodos (Request $request)
+    {
+        $periodo = Facturacion::select(
+                \DB::raw("DATE_FORMAT(fecha_manual, '%Y%m%d') AS id"),
+                \DB::raw("fecha_manual as text")
+            )->groupBy('fecha_manual')
+            ->orderBy('fecha_manual', 'DESC');
+
+        if ($request->get("search")) {
+            $periodo->where('fecha_manual', 'like', '%' .$request->get("search"). '%');
+        }
+
+        return $periodo->paginate(40);
+    }
+
+
     private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura)
     {
         $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
@@ -1309,6 +1443,121 @@ class FacturacionController extends Controller
 
             $facturaEliminar->delete();
         }
+    }
+
+    private function carteraDocumentosQuery($request)
+    {
+        $documentosQuery = DB::connection('sam')->table('documentos_generals AS DG')
+            ->select(
+                'N.id AS id_nit',
+                'N.numero_documento',
+                DB::raw("(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, primer_apellido)
+                    ELSE NULL
+                END) AS nombre_nit"),
+                "N.razon_social",
+                "N.plazo",
+                "PC.id AS id_cuenta",
+                "PC.cuenta",
+                "PC.naturaleza_cuenta",
+                "PC.auxiliar",
+                "PC.nombre AS nombre_cuenta",
+                "DG.documento_referencia",
+                "DG.id_centro_costos",
+                "CC.codigo AS codigo_cecos",
+                "CC.nombre AS nombre_cecos",
+                "CO.id AS id_comprobante",
+                "CO.codigo AS codigo_comprobante",
+                "CO.nombre AS nombre_comprobante",
+                "DG.consecutivo",
+                "DG.concepto",
+                "DG.fecha_manual",
+                "DG.created_at",
+                DB::raw("DATE_FORMAT(DG.created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                DB::raw("DATE_FORMAT(DG.updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                "DG.created_by",
+                "DG.updated_by",
+                "DG.anulado",
+                DB::raw("0 AS saldo_anterior"),
+                DB::raw("DG.debito AS debito"),
+                DB::raw("DG.credito AS credito"),
+                DB::raw("DG.debito - DG.credito AS saldo_final"),
+                DB::raw("1 AS total_columnas")
+            )
+            ->leftJoin('nits AS N', 'DG.id_nit', 'N.id')
+            ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
+            ->leftJoin('plan_cuentas_tipos AS PCT', 'PC.id', 'PCT.id_cuenta')
+            ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
+            ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
+            ->where('anulado', 0)
+            ->whereIn('PCT.id_tipo_cuenta', [3,7])
+            ->when($request->get('periodo'), function ($query) use($request) {
+				$query->where('DG.fecha_manual', '>=', $request->get('periodo'));
+			})
+            ->when($request->get('id_nit'), function ($query) use($request) {
+				$query->where('DG.id_nit', '=', $request->get('id_nit'));
+			});
+            // ->when $;
+
+        return $documentosQuery;
+    }
+
+    private function carteraAnteriorQuery($request)
+    {
+        $anterioresQuery = DB::connection('sam')->table('documentos_generals AS DG')
+            ->select(
+                'N.id AS id_nit',
+                'N.numero_documento',
+                DB::raw("(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, primer_apellido)
+                    ELSE NULL
+                END) AS nombre_nit"),
+                "N.razon_social",
+                "N.plazo",
+                "PC.id AS id_cuenta",
+                "PC.cuenta",
+                "PC.naturaleza_cuenta",
+                "PC.auxiliar",
+                "PC.nombre AS nombre_cuenta",
+                "DG.documento_referencia",
+                "DG.id_centro_costos",
+                "CC.codigo AS codigo_cecos",
+                "CC.nombre AS nombre_cecos",
+                "CO.id AS id_comprobante",
+                "CO.codigo AS codigo_comprobante",
+                "CO.nombre AS nombre_comprobante",
+                "DG.consecutivo",
+                "DG.concepto",
+                "DG.fecha_manual",
+                "DG.created_at",
+                DB::raw("DATE_FORMAT(DG.created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                DB::raw("DATE_FORMAT(DG.updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                "DG.created_by",
+                "DG.updated_by",
+                "DG.anulado",
+                DB::raw("debito - credito AS saldo_anterior"),
+                DB::raw("0 AS debito"),
+                DB::raw("0 AS credito"),
+                DB::raw("0 AS saldo_final"),
+                DB::raw("1 AS total_columnas")
+            )
+            ->leftJoin('nits AS N', 'DG.id_nit', 'N.id')
+            ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
+            ->leftJoin('plan_cuentas_tipos AS PCT', 'PC.id', 'PCT.id_cuenta')
+            ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
+            ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
+            ->where('anulado', 0)
+            ->whereIn('PCT.id_tipo_cuenta', [3,7])
+            ->when($request->get('periodo'), function ($query) use($request) {
+				$query->where('DG.fecha_manual', '<', $request->get('periodo'));
+			})
+            ->when($request->get('id_nit'), function ($query) use($request) {
+				$query->where('DG.id_nit', '=', $request->get('id_nit'));
+			});
+
+        return $anterioresQuery;
     }
 
 }

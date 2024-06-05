@@ -93,11 +93,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //FACTURACION
         Route::controller(FacturacionController::class)->group(function () {
             Route::get('facturacion', 'read');
+            Route::get('facturaciones', 'readPdf');
             Route::post('facturacion', 'generar');
             Route::get('facturacion-preview', 'totales');
             Route::get('facturacion-proceso', 'readDetalle');
             Route::post('facturacion-confirmar', 'confirmar');
             Route::post('facturacion-individual', 'generarIndividual');
+            Route::get('periodo-facturacion-combo', 'comboPeriodos');
         });
         //CUOTAS EXTRA & MULTAS
         Route::controller(CuotasMultasController::class)->group(function () {

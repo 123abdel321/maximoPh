@@ -166,8 +166,7 @@
                         @endif
                     </div>
                     
-                    
-                    <div id="dropdown-perfil" class="dropdown-menu dropdown-menu-top-2" style="right: 50px; margin-top: 3%;">
+                    <div id="dropdown-perfil" class="dropdown-menu dropdown-menu-top-2" style="right: 50px; margin-top: 1%;">
                         <label id="nombre_usuario_loggin" style="font-weight: 500; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; width: 160px;">
                             @if (Auth::user()->firstname)
                             &nbsp;&nbsp;&nbsp;&nbsp;{{ strtoupper(Auth::user()->firstname) }} {{ strtoupper(Auth::user()->lastname) }}

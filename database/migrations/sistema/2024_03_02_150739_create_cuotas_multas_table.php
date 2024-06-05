@@ -17,8 +17,8 @@ return new class extends Migration
             $table->integer('id_inmueble');
             $table->integer('id_concepto_facturacion');
             $table->integer('tipo_concepto')->default(0)->nullable();
-            $table->date('fecha_inicio')->nullable();
-            $table->date('fecha_fin')->nullable();
+            $table->string('fecha_inicio', 10)->nullable();
+            $table->string('fecha_fin', 10)->nullable();
             $table->decimal('valor_total', 15)->nullable();
             $table->decimal('valor_coeficiente', 15)->nullable();
             $table->string('observacion', 255)->nullable();

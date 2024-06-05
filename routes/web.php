@@ -57,6 +57,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/recibo', [ReciboController::class, 'index']);
 		Route::get('/pagotransferencia', [ReciboController::class, 'indexPagos']);
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
+		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);
+		Route::get('/facturacion-pdf', [FacturacionController::class, 'index']);
+		Route::get('/facturacion-show-pdf', [FacturacionController::class, 'showPdf']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
 		Route::get('/porteria', [PorteriaController::class, 'index']);
