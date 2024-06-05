@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Sistema;
 
 use DB;
+use Config;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
@@ -182,7 +183,8 @@ class FacturacionController extends Controller
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
-            $cuotasMultasFacturar = $this->extrasNitFacturar($request->get('id'), $periodo_facturacion);
+            $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
+            $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
             
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
@@ -205,6 +207,22 @@ class FacturacionController extends Controller
             $valoresAdmon = 0;
             $totalInmuebles = 0;
             $valoresIntereses = 0;
+
+            //RECORREMOS CUOTAS Y MULTAS CXP
+            foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
+                if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
+                    $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->items+= 1;
+                    $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->valor_causado+= $cuotaMultaFactura->valor_total;
+                } else {
+                    $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion] = (object)[
+                        'items' => 1,
+                        'id_concepto_facturacion' => $cuotaMultaFactura->id_concepto_facturacion,
+                        'valor_causado' => $cuotaMultaFactura->valor_total
+                    ];
+                }
+                $valoresExtra+= $cuotaMultaFactura->valor_total;
+                $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
+            }
 
             $anticiposNit = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
             $anticiposDisponibles = $anticiposNit;
@@ -232,8 +250,8 @@ class FacturacionController extends Controller
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                 }
             }
-            //RECORREMOS CUOTAS Y MULTAS
-            foreach ($cuotasMultasFacturar as $cuotaMultaFactura) {
+            //RECORREMOS CUOTAS Y MULTAS CXC
+            foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
                     $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->items+= 1;
                     $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->valor_causado+= $cuotaMultaFactura->valor_total;
@@ -286,7 +304,7 @@ class FacturacionController extends Controller
             $factura->saldo_base = $this->saldoBase;
             $factura->valor_anticipos = $anticiposNit - $anticiposDisponibles;
             $factura->valor_cuotas_multas = $valoresExtra;
-            $factura->count_cuotas_multas = count($cuotasMultasFacturar);
+            $factura->count_cuotas_multas = count($cuotasMultasFacturarCxC);
             $factura->mensajes = json_encode($dataGeneral);
             $factura->save();
 
@@ -1396,30 +1414,74 @@ class FacturacionController extends Controller
             ->get()->toArray();
     }
 
-    private function extrasNitFacturar($id_nit, $periodo_facturacion)
+    private function extrasNitFacturarCxC($id_nit, $periodo_facturacion)
     {
         $fecha_facturar = date('Y-m', strtotime($periodo_facturacion));
-        return DB::connection('max')->table('cuotas_multas')->select(
-                'cuotas_multas.id_nit',
-                'cuotas_multas.id_inmueble',
-                'cuotas_multas.valor_total',
-                'cuotas_multas.observacion',
-                'cuotas_multas.id_concepto_facturacion',
-                'INM.nombre',
-                'CFA.nombre_concepto',
-                'CFA.id_cuenta_cobrar',
-                'CFA.id_cuenta_ingreso',
-                'CFA.id_cuenta_interes',
-                'CFA.intereses',
-                'ZO.id_centro_costos'
-            )
-            ->leftJoin('inmuebles AS INM', 'cuotas_multas.id_inmueble', 'INM.id')
-            ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
-            ->leftJoin('concepto_facturacions AS CFA', 'cuotas_multas.id_concepto_facturacion', 'CFA.id')
+        $dbERP = Config::get('database.connections.sam.database');
+        $data = CuotasMultas::with('nit', 'concepto.cuenta_ingreso.tipos_cuenta', 'inmueble.zona')
             ->where('id_nit', $id_nit)
             ->where("fecha_inicio", '<=', $fecha_facturar)
             ->where("fecha_fin", '>=', $fecha_facturar)
             ->get()->toArray();
+
+        $dataArray = [];
+
+        foreach ($data as $extraCxC) {
+            $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
+            if ($tipoCuenta == 3 || $tipoCuenta == 7) {
+                array_push($dataArray, (object)[
+                    'id_nit' => $extraCxC['id_nit'],
+                    'id_inmueble' => $extraCxC['id_inmueble'],
+                    'valor_total' => $extraCxC['valor_total'],
+                    'observacion' => $extraCxC['observacion'],
+                    'id_concepto_facturacion' => $extraCxC['id_nit'],
+                    'nombre' => $extraCxC['inmueble']['nombre'],
+                    'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
+                    'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
+                    'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
+                    'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
+                    'intereses' => $extraCxC['concepto']['intereses'],
+                    'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
+                ]);
+            }
+        }
+
+        return $dataArray;
+    }
+
+    private function extrasNitFacturarCxP($id_nit, $periodo_facturacion)
+    {
+        $fecha_facturar = date('Y-m', strtotime($periodo_facturacion));
+        $dbERP = Config::get('database.connections.sam.database');
+        $data = CuotasMultas::with('nit', 'concepto.cuenta_ingreso.tipos_cuenta', 'inmueble.zona')
+            ->where('id_nit', $id_nit)
+            ->where("fecha_inicio", '<=', $fecha_facturar)
+            ->where("fecha_fin", '>=', $fecha_facturar)
+            ->get()->toArray();
+
+        $dataArray = [];
+
+        foreach ($data as $extraCxC) {
+            $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
+            if ($tipoCuenta == 4 || $tipoCuenta == 8) {
+                array_push($dataArray, (object)[
+                    'id_nit' => $extraCxC['id_nit'],
+                    'id_inmueble' => $extraCxC['id_inmueble'],
+                    'valor_total' => $extraCxC['valor_total'],
+                    'observacion' => $extraCxC['observacion'],
+                    'id_concepto_facturacion' => $extraCxC['id_nit'],
+                    'nombre' => $extraCxC['inmueble']['nombre'],
+                    'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
+                    'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
+                    'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
+                    'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
+                    'intereses' => $extraCxC['concepto']['intereses'],
+                    'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
+                ]);
+            }
+        }
+
+        return $dataArray;
     }
 
     private function eliminarFactura($id_nit, $fecha_manual)

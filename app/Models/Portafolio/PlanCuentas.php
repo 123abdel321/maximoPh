@@ -42,6 +42,6 @@ class PlanCuentas extends Model
     
     public function tipos_cuenta()
     {
-        return $this->hasMany(PlanCuentasTipo::class, "id_cuenta");
+        return $this->hasOne(PlanCuentasTipo::class, "id_cuenta");
     }
 }
