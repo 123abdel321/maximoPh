@@ -1428,7 +1428,7 @@ class FacturacionController extends Controller
 
         foreach ($data as $extraCxC) {
             $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
-            if (array_key_exists('tipos_cuenta', $tipoCuenta) && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
+            if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
             } else {
                 $tipoCuenta = 3;
@@ -1468,7 +1468,7 @@ class FacturacionController extends Controller
 
         foreach ($data as $extraCxP) {
             $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso'];
-            if (array_key_exists('tipos_cuenta', $tipoCuenta) && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
+            if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
                 if ($tipoCuenta == 4 || $tipoCuenta == 8) {
                     array_push($dataArray, (object)[
