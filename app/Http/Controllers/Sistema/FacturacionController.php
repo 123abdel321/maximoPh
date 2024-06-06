@@ -1426,25 +1426,28 @@ class FacturacionController extends Controller
 
         $dataArray = [];
 
-        if (count($data)) {
-            foreach ($data as $extraCxC) {
+        foreach ($data as $extraCxC) {
+            $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
+            if (array_key_exists('tipos_cuenta', $tipoCuenta) && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
-                if ($tipoCuenta == 3 || $tipoCuenta == 7) {
-                    array_push($dataArray, (object)[
-                        'id_nit' => $extraCxC['id_nit'],
-                        'id_inmueble' => $extraCxC['id_inmueble'],
-                        'valor_total' => $extraCxC['valor_total'],
-                        'observacion' => $extraCxC['observacion'],
-                        'id_concepto_facturacion' => $extraCxC['id_nit'],
-                        'nombre' => $extraCxC['inmueble']['nombre'],
-                        'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
-                        'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
-                        'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
-                        'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
-                        'intereses' => $extraCxC['concepto']['intereses'],
-                        'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
-                    ]);
-                }
+            } else {
+                $tipoCuenta = 3;
+            }
+            if ($tipoCuenta != 4 && $tipoCuenta == 8) {
+                array_push($dataArray, (object)[
+                    'id_nit' => $extraCxC['id_nit'],
+                    'id_inmueble' => $extraCxC['id_inmueble'],
+                    'valor_total' => $extraCxC['valor_total'],
+                    'observacion' => $extraCxC['observacion'],
+                    'id_concepto_facturacion' => $extraCxC['id_nit'],
+                    'nombre' => $extraCxC['inmueble']['nombre'],
+                    'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
+                    'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
+                    'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
+                    'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
+                    'intereses' => $extraCxC['concepto']['intereses'],
+                    'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
+                ]);
             }
         }
 
@@ -1463,23 +1466,24 @@ class FacturacionController extends Controller
 
         $dataArray = [];
 
-        if (count($data)) {
-            foreach ($data as $extraCxC) {
-                $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
+        foreach ($data as $extraCxP) {
+            $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso'];
+            if (array_key_exists('tipos_cuenta', $tipoCuenta) && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
+                $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
                 if ($tipoCuenta == 4 || $tipoCuenta == 8) {
                     array_push($dataArray, (object)[
-                        'id_nit' => $extraCxC['id_nit'],
-                        'id_inmueble' => $extraCxC['id_inmueble'],
-                        'valor_total' => $extraCxC['valor_total'],
-                        'observacion' => $extraCxC['observacion'],
-                        'id_concepto_facturacion' => $extraCxC['id_nit'],
-                        'nombre' => $extraCxC['inmueble']['nombre'],
-                        'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
-                        'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
-                        'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
-                        'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
-                        'intereses' => $extraCxC['concepto']['intereses'],
-                        'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
+                        'id_nit' => $extraCxP['id_nit'],
+                        'id_inmueble' => $extraCxP['id_inmueble'],
+                        'valor_total' => $extraCxP['valor_total'],
+                        'observacion' => $extraCxP['observacion'],
+                        'id_concepto_facturacion' => $extraCxP['id_nit'],
+                        'nombre' => $extraCxP['inmueble']['nombre'],
+                        'nombre_concepto' => $extraCxP['concepto']['nombre_concepto'],
+                        'id_cuenta_cobrar' => $extraCxP['concepto']['id_cuenta_cobrar'],
+                        'id_cuenta_ingreso' => $extraCxP['concepto']['id_cuenta_ingreso'],
+                        'id_cuenta_interes' => $extraCxP['concepto']['id_cuenta_interes'],
+                        'intereses' => $extraCxP['concepto']['intereses'],
+                        'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
                     ]);
                 }
             }
