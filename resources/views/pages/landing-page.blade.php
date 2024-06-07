@@ -1202,7 +1202,8 @@
                             src="img/logo_contabilidad.png">
                         <img alt="" aria-hidden="true" width="860" height="544"
                             class="events-none d-sm-none width-full height-auto mb-n3"
-                            src="https://github.githubassets.com/assets/hero-mobile-7163f4f5de41.webp">
+                            style="opacity: .5; margin-top: 40px;"
+                            src="img/logo_contabilidad.png">
                     </div>
 
                     <div class="px-3 home-campaign-hero">
@@ -1770,7 +1771,7 @@
 						</div>
 						
 
-						<div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
+						<div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate" style="margin-left: 15px !important;">
 							<div class="home-campaign-git-line mt-n3 mt-md-n4 mb-n8 rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 160px; background: linear-gradient(transparent, #F778BA 40%);">
 							</div>
 						</div>
