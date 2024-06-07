@@ -2,9 +2,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+        <meta name="description" content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable">
+        <meta name="author" content="Abdel Andres Cartagena Castro">
         <meta name="generator" content="Hugo 0.84.0">
+        <meta name="keywords" content="Propiedades horizontales, Admin PH, Administrador Ph, Software Contable & Administrativo, Software Contable y Administrativo, Software Propiedades Horizontales, Software PH, Software MaximoPH"/>
         <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
         <link rel="icon" type="image/png" href="/img/logo_base.png">
         <title>
