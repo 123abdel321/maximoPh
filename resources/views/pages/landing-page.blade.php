@@ -1771,7 +1771,7 @@
 						</div>
 						
 
-						<div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate" style="margin-left: 15px !important;">
+						<div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
 							<div class="home-campaign-git-line mt-n3 mt-md-n4 mb-n8 rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 160px; background: linear-gradient(transparent, #F778BA 40%);">
 							</div>
 						</div>
