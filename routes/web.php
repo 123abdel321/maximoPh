@@ -33,7 +33,7 @@ use App\Http\Controllers\Empresa\UsuariosController;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
 Route::get('/', function () {
-	return redirect('/home');
+	return view('pages.landing-page');
 });
 
 Auth::routes();
