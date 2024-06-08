@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('concepto_facturacions', function (Blueprint $table) {
             $table->id();
+            $table->string('codigo', 50);
             $table->string('nombre_concepto', 200);
             $table->integer('id_cuenta_ingreso')->nullable();
             $table->integer('id_cuenta_interes')->nullable();

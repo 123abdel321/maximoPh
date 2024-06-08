@@ -27,6 +27,7 @@ function conceptofacturacionInit() {
             url: base_url + 'concepto-facturacion',
         },
         columns: [
+            {"data":'codigo'},
             {"data":'nombre_concepto'},
             {"data": function (row, type, set){  
                 if (row.cuenta_ingreso) {
@@ -142,6 +143,7 @@ function conceptofacturacionInit() {
             }
 
             $("#id_concepto_facturacion_up").val(data.id);
+            $("#codigo_concepto_facturacion").val(data.codigo),
             $("#nombre_concepto_facturacion").val(data.nombre_concepto);
             $("#valor_concepto_facturacion").val(new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(data.valor));
 
@@ -317,6 +319,7 @@ function clearFormConceptoFacturacion(){
     $("#saveConceptoFacturacionLoading").hide();
 
     $("#id_concepto_facturacion_up").val('');
+    $("#codigo_concepto_facturacion").val(''),
     $("#nombre_concepto_facturacion").val('');
     $("#intereses_concepto_facturacion").val('');
     $("#valor_concepto_facturacion").val(0);
@@ -341,6 +344,7 @@ $(document).on('click', '#saveConceptoFacturacion', function () {
     $("#saveConceptoFacturacion").hide();
 
     let data = {
+        codigo_concepto: $("#codigo_concepto_facturacion").val(),
         nombre_concepto: $("#nombre_concepto_facturacion").val(),
         id_cuenta_ingreso: $("#id_cuenta_ingreso_concepto_facturacion").val(),
         id_cuenta_interes: $("#id_cuenta_interes_concepto_facturacion").val(),
@@ -400,6 +404,7 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
 
     let data = {
         id: $("#id_concepto_facturacion_up").val(),
+        codigo_concepto: $("#codigo_concepto_facturacion").val(),
         nombre_concepto: $("#nombre_concepto_facturacion").val(),
         id_cuenta_ingreso: $("#id_cuenta_ingreso_concepto_facturacion").val(),
         id_cuenta_interes: $("#id_cuenta_interes_concepto_facturacion").val(),

@@ -14,6 +14,7 @@ class ConceptoFacturacion extends Model
     protected $table = "concepto_facturacions";
 
     protected $fillable = [
+        'codigo',
         'nombre_concepto',
         'id_cuenta_ingreso',
         'id_cuenta_interes',

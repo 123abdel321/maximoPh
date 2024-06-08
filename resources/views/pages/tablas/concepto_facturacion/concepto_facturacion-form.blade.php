@@ -14,6 +14,11 @@
                         <input type="text" class="form-control" name="id_concepto_facturacion_up" id="id_concepto_facturacion_up" style="display: none;">
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
+                            <label for="example-text-input" class="form-control-label">Codigo <span style="color: red">*</span></label>
+                            <input type="text" class="form-control form-control-sm" name="codigo_concepto_facturacion" id="codigo_concepto_facturacion" required>
+                        </div>
+
+                        <div class="form-group col-12 col-sm-6 col-md-6">
                             <label for="example-text-input" class="form-control-label">Nombre <span style="color: red">*</span></label>
                             <input type="text" class="form-control form-control-sm" name="nombre_concepto_facturacion" id="nombre_concepto_facturacion" required>
                         </div>
