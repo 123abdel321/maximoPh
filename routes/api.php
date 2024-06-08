@@ -26,6 +26,7 @@ use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\NotificacionesController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //IMPORTADOR
+use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
 /*
@@ -165,11 +166,17 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('usuarios', 'update');
             Route::get('usuarios/combo', 'combo');
         });
-        //IMPORTADOR
+        //IMPORTADOR PAGOS
         Route::controller(ImportadorRecibosController::class)->group(function () {
             Route::get('recibos-cache-import', 'generate');
             Route::post('recibos-cargar-import', 'cargar');
             Route::get('recibos-totales-import', 'totales');
+        });
+        //IMPORTADOR CUOTAS & MULTAS
+        Route::controller(ImportadorCuotasMultas::class)->group(function () {
+            Route::get('cuotas-cache-import', 'generate');
+            Route::post('cuotas-cargar-import', 'cargar');
+            Route::get('cuotas-totales-import', 'totales');
         });
         //EMPRESA
         Route::controller(InstaladorController::class)->group(function () {

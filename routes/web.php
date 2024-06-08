@@ -30,6 +30,7 @@ use App\Http\Controllers\Empresa\PerfilController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Empresa\UsuariosController;
 //IMPORTADOR
+use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
 Route::get('/', function () {
@@ -78,10 +79,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/pqrsf', [PqrsfController::class, 'index']);
 		Route::post('/pqrsf', [PqrsfController::class, 'create']);
 		Route::post('/pqrsf-mensaje/{id}', [PqrsfController::class, 'createMensaje']);
-		//IMPORTADOR
+		//IMPORTADOR PAGOS
 		Route::get('/importrecibos', [ImportadorRecibosController::class, 'index']);
 		Route::get('/importrecibos-exportar', [ImportadorRecibosController::class, 'exportar']);
 		Route::post('/importrecibos-importar', [ImportadorRecibosController::class, 'importar']);
+		//IMPORTADOR CUOTAS EXTRAS
+		Route::get('/importcuotas', [ImportadorCuotasMultas::class, 'index']);
+		Route::get('/importcuotas-exportar', [ImportadorCuotasMultas::class, 'exportar']);
+		Route::post('/importcuotas-importar', [ImportadorCuotasMultas::class, 'importar']);
 		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);
 		Route::get('/usuarios', [UsuariosController::class, 'index']);
