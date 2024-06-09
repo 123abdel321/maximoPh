@@ -26,7 +26,7 @@ class CutasExtrasImport implements ToCollection, WithHeadingRow, WithProgressBar
     {
         $columna = 2;
         foreach ($rows as $row) {
-            // dd($row);
+            dd($row);
             $estado = 0;
             $observacion = '';
 
@@ -88,12 +88,12 @@ class CutasExtrasImport implements ToCollection, WithHeadingRow, WithProgressBar
                     $observacion.= 'El numero de documento: '.$row['cedula_nit'].', no coincide con el propietario!<br>';
                 }
             }
-
+            
             CuotasMultasImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
                 'id_nit' => $nit ? $nit->id : null,
-                'fecha_inicio' => $fechaInicio,
-                'fecha_fin' => $fechaFin,
+                'fecha_inicio' => Carbon::parse($fechaInicio)->format('Y-m'),
+                'fecha_fin' => Carbon::parse($fechaFin)->format('Y-m'),
                 'id_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->id : '',
                 'numero_documento' => $row['cedula_nit'],
                 'nombre_inmueble' => $inmueble ? $inmueble->nombre : '',
