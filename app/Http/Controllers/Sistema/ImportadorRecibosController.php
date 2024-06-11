@@ -134,7 +134,7 @@ class ImportadorRecibosController extends Controller
             ->get();
 
         try {
-            DB::connection('sam')->beginTransaction();
+            DB::connection('max')->beginTransaction();
 
             $this->id_comprobante = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
             $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor;
@@ -274,7 +274,7 @@ class ImportadorRecibosController extends Controller
 
                     if (!$documentoGeneral->save()) {
 
-                        DB::connection('sam')->rollback();
+                        DB::connection('max')->rollback();
                         return response()->json([
                             'success'=>	false,
                             'data' => [],
@@ -286,7 +286,7 @@ class ImportadorRecibosController extends Controller
 
             ConRecibosImport::whereIn('estado', [0])->delete();
 
-            DB::connection('sam')->commit();
+            DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
@@ -295,7 +295,7 @@ class ImportadorRecibosController extends Controller
             ]);
 
         } catch (Exception $e) {
-            DB::connection('sam')->rollback();
+            DB::connection('max')->rollback();
             return response()->json([
                 "success"=>false,
                 'data' => [],

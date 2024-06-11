@@ -128,7 +128,7 @@ class InmuebleNitController extends Controller
             DB::connection('max')->beginTransaction();
             DB::connection('clientes')->beginTransaction();
 
-            $inmueble = Inmueble::find($request->get('id_inmueble'));
+            $inmueble = Inmueble::with('zona')->find($request->get('id_inmueble'));
             $total = $inmueble->valor_total_administracion * ($request->get('porcentaje_administracion') / 100);
 
             $inmuebleNit = InmuebleNit::create([
@@ -145,6 +145,9 @@ class InmuebleNitController extends Controller
             ]);
 
             $nit = Nits::find($request->get('id_nit'));
+            $this->actualizarNombreApartamentos($nit);
+            $nit->save();
+
             $empresa = Empresa::find(request()->user()->id_empresa);
             //CREAR USUARIOS
 
@@ -280,10 +283,12 @@ class InmuebleNitController extends Controller
             DB::connection('max')->beginTransaction();
             DB::connection('clientes')->beginTransaction();
 
-            $inmueble = Inmueble::find($request->get('id_inmueble'));
+            $inmueble = Inmueble::with('zona')->find($request->get('id_inmueble'));
             $total = $inmueble->valor_total_administracion * ($request->get('porcentaje_administracion') / 100);
             $nitOld = InmuebleNit::find($request->get('id'));
+
             $nit = Nits::find($request->get('id_nit'));
+            $this->actualizarNombreApartamentos($nit);
             $empresa = Empresa::find(request()->user()->id_empresa);
 
             //CREAR USUARIOS
@@ -431,5 +436,20 @@ class InmuebleNitController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
-    }    
+    }
+
+    private function actualizarNombreApartamentos(Nits $nit)
+    {
+        $inmueblesNits = InmuebleNit::with('inmueble.zona')->where('id_nit', $nit->id)->get();
+
+        $apartamentos = '';
+
+        if (count($inmueblesNits)) {
+            foreach ($inmueblesNits as $key => $inmuebleNit) {
+                $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
+            }
+        }
+        $nit->apartamentos = rtrim($apartamentos, ", ");
+        $nit->save();
+    }
 }

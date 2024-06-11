@@ -36,6 +36,7 @@ class Nits extends Model
 		'razon_social',
 		'nombre_comercial',
 		'direccion',
+		'apartamentos',
 		'email',
 		'email_recepcion_factura_electronica',
 		'telefono_1',
