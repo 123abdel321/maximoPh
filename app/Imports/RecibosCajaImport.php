@@ -92,7 +92,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                             $anticipo = $pagoTotal - $extracto->saldo;
                         }
                     } else {
-                        $anticipo = $pagoTotal;
+                        $anticipo = $row['valor'];
                     }
     
                 }
