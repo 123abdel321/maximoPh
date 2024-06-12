@@ -126,8 +126,6 @@ class ImportadorCuotasMultas extends Controller
             ->get();
 
         try {
-            DB::connection('max')->beginTransaction();
-
             //RECORREMOS CUOTAS EXTRAS & MULTAS
             foreach ($cuotasMultas as $cuota) {
                 CuotasMultas::create([
@@ -145,8 +143,6 @@ class ImportadorCuotasMultas extends Controller
             }
 
             CuotasMultasImport::truncate();
-
-            DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
