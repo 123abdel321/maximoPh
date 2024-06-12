@@ -15,6 +15,7 @@ use App\Http\Controllers\Portafolio\ReciboController;
 //TABLAS
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\InmuebleController;
+use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //OPERACIONES
 use App\Http\Controllers\Sistema\FacturacionController;
@@ -46,6 +47,9 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
 	Route::group(['middleware' => ['clientconnectionweb']], function () {
+
+		Route::get('/actualizar-nits-apartamentos', [InmuebleNitController::class, 'fast']);
+
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
