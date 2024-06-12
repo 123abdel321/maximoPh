@@ -85,7 +85,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     ))->completo()->first();
 
                     if ($extracto && $extracto->saldo) {
-                        $pagoTotal = $row['valor'];
+                        $pagoTotal = floatval($row['valor']);
                         $saldoTotal = $extracto->saldo;
     
                         if (($extracto->saldo - $pagoTotal) < 0) {
@@ -109,7 +109,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'nombre_nit' => $nit ? $nit->nombre_completo : '',
                 'pago' => $row['valor'],
                 'saldo' => $saldoTotal,
-                'saldo_nuevo' => $anticipo ? 0 : $saldoTotal - $row['valor'],
+                'saldo_nuevo' => $anticipo ? 0 : $saldoTotal - floatval($row['valor']),
                 'anticipos' => $anticipo,
                 'observacion' => $estado ? $observacion : 'Listo para importar',
                 'estado' => $estado,
