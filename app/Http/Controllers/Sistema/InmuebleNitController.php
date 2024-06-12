@@ -453,23 +453,23 @@ class InmuebleNitController extends Controller
         $nit->save();
     }
 
-    public function fast() 
-    {
-        $nits = Nits::get();
+    // public function fast() 
+    // {
+    //     $nits = Nits::get();
 
-        foreach ($nits as $nit) {
-            $inmueblesNits = InmuebleNit::with('inmueble.zona')->where('id_nit', $nit->id)->get();
-            $apartamentos = '';
+    //     foreach ($nits as $nit) {
+    //         $inmueblesNits = InmuebleNit::with('inmueble.zona')->where('id_nit', $nit->id)->get();
+    //         $apartamentos = '';
 
-            if (count($inmueblesNits)) {
-                foreach ($inmueblesNits as $key => $inmuebleNit) {
-                    $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
-                }
-            }
-            $nit->apartamentos = rtrim($apartamentos, ", ");
-            $nit->save();
-        }
+    //         if (count($inmueblesNits)) {
+    //             foreach ($inmueblesNits as $key => $inmuebleNit) {
+    //                 $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
+    //             }
+    //         }
+    //         $nit->apartamentos = rtrim($apartamentos, ", ");
+    //         $nit->save();
+    //     }
 
-        return 'actualizado';
-    }
+    //     return 'actualizado';
+    // }
 }

@@ -48,7 +48,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 	Route::group(['middleware' => ['clientconnectionweb']], function () {
 
-		Route::get('/actualizar-nits-apartamentos', [InmuebleNitController::class, 'fast']);
+		// Route::get('/actualizar-nits-apartamentos', [InmuebleNitController::class, 'fast']);
 
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
