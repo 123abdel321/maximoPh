@@ -85,8 +85,8 @@ $("#form-importador-cuotasExtras").submit(function(event) {
     xhr.onload = function(res) {
         var responseData = JSON.parse(res.currentTarget.response);
         var errorsMsg = '';
-        $('#cargarPlantillaCuotasExtras').hide();
-        $('#cargarPlantillaCuotasExtrasLoagind').show();
+        $('#cargarPlantillaCuotasExtras').show();
+        $('#cargarPlantillaCuotasExtrasLoagind').hide();
 
         if (responseData.success) {
             import_cuotas_extras_table.ajax.reload(function(res) {
@@ -100,8 +100,8 @@ $("#form-importador-cuotasExtras").submit(function(event) {
         }
     };
     xhr.onerror = function (res) {
-        $('#cargarPlantillaCuotasExtras').hide();
-        $('#cargarPlantillaCuotasExtrasLoagind').show();
+        $('#cargarPlantillaCuotasExtras').show();
+        $('#cargarPlantillaCuotasExtrasLoagind').hide();
     };
     return false;
 });
