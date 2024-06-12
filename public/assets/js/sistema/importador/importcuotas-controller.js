@@ -52,7 +52,38 @@ function importcuotasInit() {
     import_cuotas_extras_table.ajax.reload(function(res) {
         if (res.success && res.data.length) {
             $('#actualizarPlantillaCuotasExtras').show();
+            totalesCuotasMultasImport();
         }
+    });
+}
+
+function totalesCuotasMultasImport() {
+    $.ajax({
+        url: base_url + 'cuotas-totales-import',
+        method: 'GET',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+
+        if (res.data.errores + res.data.buenos > 0) {
+            $('#totales_import_cuuotas_multas').show();
+        } else {
+            $('#totales_import_cuuotas_multas').hide();
+        }
+        if (res.data.errores <= 0 &&  res.data.buenos > 0) {
+            $('#actualizarPlantillaRecibos').show();
+        }
+
+        var countA = new CountUp('errores_cuotas_multas_import', 0, res.data.errores);
+            countA.start();
+
+        var countB = new CountUp('buenos_cuotas_multas_import', 0, res.data.buenos);
+            countB.start();
+
+        var countC = new CountUp('pagos_cuotas_multas_import', 0, res.data.valores);
+            countC.start();
+
+    }).fail((err) => {
     });
 }
 
@@ -92,6 +123,7 @@ $("#form-importador-cuotasExtras").submit(function(event) {
             import_cuotas_extras_table.ajax.reload(function(res) {
                 if (res.success && res.data.length) {
                     $('#actualizarPlantillaCuotasExtras').show();
+                    totalesCuotasMultasImport();
                 }
             });
             agregarToast('exito', 'Datos cargados', 'Cuotas & multas cargados con exito!', true);
@@ -125,6 +157,7 @@ btnImportCuotasMultas.addEventListener('click', event => {
         import_cuotas_extras_table.ajax.reload(function(res) {
             if (res.success && res.data.length) {
                 $('#actualizarPlantillaCuotasExtras').show();
+                totalesCuotasMultasImport();
             }
         });
         agregarToast('exito', 'Cuotas extras importadas', 'Recibos importadas con exito!', true);
@@ -134,6 +167,7 @@ btnImportCuotasMultas.addEventListener('click', event => {
         import_cuotas_extras_table.ajax.reload(function(res) {
             if (res.success && res.data.length) {
                 $('#actualizarPlantillaCuotasExtras').show();
+                totalesCuotasMultasImport();
             }
         });
         agregarToast('error', 'Importación de Cuotas extras errado', '');

@@ -59,7 +59,6 @@ function totalesRecibosImport() {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-        console.log('res:', res);
 
         if (res.data.errores + res.data.buenos > 0) {
             $('#totales_import_recibos').show();

@@ -164,14 +164,12 @@ class ImportadorCuotasMultas extends Controller
     {
         $recibosErrores = CuotasMultasImport::where('estado', 1)->count();
         $recibosBuenos = CuotasMultasImport::where('estado', 0)->count();
-        $recibosPagos = CuotasMultasImport::where('estado', 0)->sum('pago');
-        $recibosAnticipos = CuotasMultasImport::where('estado', 0)->sum('anticipos');
+        $recibosPagos = CuotasMultasImport::where('estado', 0)->sum('valor_total');
 
         $data = [
             'errores' => $recibosErrores,
             'buenos' => $recibosBuenos,
-            'pagos' => $recibosPagos,
-            'anticipos' => $recibosAnticipos
+            'valores' => $recibosPagos,
         ];
 
         return response()->json([

@@ -19,11 +19,11 @@
             </div>
         </div>
 
-        <!-- <div id="totales_import_recibos" style="content-visibility: auto; overflow: auto; display: none; margin-top: -5px;">
+        <div id="totales_import_cuuotas_multas" style="content-visibility: auto; overflow: auto; display: none; margin-top: -5px;">
             <div class="row">
-
+            @include('pages.importador.cuotas_multas.cuotas_multas-totales')
             </div>
-        </div> -->
+        </div>
 
         <div id="card-import-producto-precios" class="card mb-4" style="content-visibility: auto; overflow: auto; border-radius: 20px;">
             @include('pages.importador.cuotas_multas.cuotas_multas-table')
