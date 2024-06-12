@@ -26,19 +26,18 @@ class CutasExtrasImport implements ToCollection, WithHeadingRow, WithProgressBar
     {
         $columna = 2;
         foreach ($rows as $row) {
-            dd($row);
             $estado = 0;
             $observacion = '';
+
+            if (!$row['cod_concepto'] && !$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
+                continue;
+            }
 
             $nit = null;
             $inmueble = null;
             $conceptoFacturacion = null;
             $fechaFin = $row['fecha_fin'] ? Date::excelToDateTimeObject($row['fecha_fin']) : '';
             $fechaInicio = $row['fecha_inicio'] ? Date::excelToDateTimeObject($row['fecha_inicio']) : Carbon::now();
-
-            if (!$row['cod_concepto'] && !$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
-                continue;
-            }
 
             if ($row['cod_concepto']) {
                 $concepto = ConceptoFacturacion::where('codigo', $row['cod_concepto'])->first();
