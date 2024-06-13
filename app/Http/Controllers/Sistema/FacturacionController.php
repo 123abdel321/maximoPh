@@ -266,6 +266,7 @@ class FacturacionController extends Controller
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
                 }
             }
+
             //COBRAR INTERESES
             $valoresIntereses+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa, $periodo_facturacion);
 
@@ -950,6 +951,7 @@ class FacturacionController extends Controller
     
     private function generarFacturaInmuebleIntereses(Facturacion $factura, $inmuebleFactura, $id_empresa, $periodo_facturacion)
     {
+        
         $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
         $id_cuenta_ingreso_intereses = Entorno::where('nombre', 'id_cuenta_ingreso_intereses')->first()->valor;
         
@@ -972,13 +974,13 @@ class FacturacionController extends Controller
         }
 
         $extractos = $response['response']->data;
-
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return;
         //AGRUPAMOS 
         $extractosAgrupados = [];
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
+            
             if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
             $this->countIntereses++;
             if (array_key_exists($extracto->id_cuenta, $extractosAgrupados)) {
@@ -1456,7 +1458,7 @@ class FacturacionController extends Controller
 
     private function cobrarIntereses ($id_cuenta)
     {
-        $existecuenta = ConceptoFacturacion::where('id_cuenta_interes', $id_cuenta)
+        $existecuenta = ConceptoFacturacion::where('id_cuenta_cobrar', $id_cuenta)
             ->where('intereses', 1)
             ->first();
 
