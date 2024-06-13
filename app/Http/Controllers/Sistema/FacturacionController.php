@@ -1605,7 +1605,8 @@ class FacturacionController extends Controller
 
     private function cobrarIntereses ($id_cuenta)
     {
-        $existecuenta = ConceptoFacturacion::where('id_cuenta_interes', $id_cuenta);
+        $existecuenta = ConceptoFacturacion::where('id_cuenta_interes', $id_cuenta)
+            ->where('intereses', 1);
 
         return $existecuenta ? true : false;
     }
