@@ -207,7 +207,7 @@ class FacturacionController extends Controller
             $valoresAdmon = 0;
             $totalInmuebles = 0;
             $valoresIntereses = 0;
-
+            
             //RECORREMOS CUOTAS Y MULTAS CXP
             foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
@@ -246,6 +246,7 @@ class FacturacionController extends Controller
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                 }
             }
+            
             //RECORREMOS CUOTAS Y MULTAS CXC
             foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
@@ -308,158 +309,6 @@ class FacturacionController extends Controller
                 "success"=>true,
                 'data' => $factura,
                 "message"=>'Facturación confirmada con exito'
-            ], 200);
-
-        } catch (Exception $e) {
-            DB::connection('max')->rollback();
-            return response()->json([
-                "success"=>false,
-                'data' => [],
-                "message"=>$e->getMessage()
-            ], 422);
-        }
-    }
-
-    public function generarIndividual1 (Request $request)
-    {
-        try {
-            DB::connection('max')->beginTransaction();
-
-            $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
-            $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-            $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-            $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-            $this->countIntereses = 0;
-
-            $inmueblesFacturar = DB::connection('max')->table('inmueble_nits')->select(
-                    'inmueble_nits.id_nit',
-                    'inmueble_nits.id_inmueble',
-                    'inmueble_nits.valor_total',
-                    'INM.nombre',
-                    'INM.id_concepto_facturacion',
-                    'CFA.nombre_concepto',
-                    'CFA.id_cuenta_cobrar',
-                    'CFA.id_cuenta_ingreso',
-                    'CFA.id_cuenta_interes',
-                    'CFA.intereses',
-                    'ZO.id_centro_costos'
-                )
-                ->leftJoin('inmuebles AS INM', 'inmueble_nits.id_inmueble', 'INM.id')
-                ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
-                ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
-                ->where('inmueble_nits.id_nit', $request->get('id'))
-                ->get()->toArray();
-
-            $cuotasMultasFacturar = CuotasMultas::with('inmueble.zona', 'concepto')//CUOTAS Y MULTAS DEL NIT
-                ->where('id_nit', $request->get('id'))
-                ->orWhereBetween("fecha_inicio", [$inicioMes.'-01', $finMes])
-                ->orWhereBetween("fecha_fin", [$inicioMes.'-01', $finMes])
-                ->get();
-
-            $facturaEliminar = Facturacion::where('id_nit', $request->get('id'))
-                ->where('fecha_manual', $finMes)
-                ->first();
-            
-            if ($facturaEliminar) {
-                $reponse = (new EliminarFactura(
-                    $facturaEliminar->token_factura
-                ))->send(request()->user()->id_empresa);
-                
-                if ($reponse['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                    DB::connection('max')->rollback();
-                    return response()->json([
-                        "success"=>true,
-                        "message"=>'Error al eliminar factura: '.$facturaEliminar->token_factura
-                    ], 422);
-                }
-
-                $facturaEliminar->delete();
-            }
-
-            $factura = Facturacion::create([//CABEZA DE FACTURA
-                'id_comprobante' => $id_comprobante_ventas,
-                'id_nit' => $request->get('id'),
-                'fecha_manual' => $finMes,
-                'token_factura' => $this->generateTokenDocumento(),
-                'valor' => 0,
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id,
-            ]);
-
-            $valoresExtra = 0;
-            $valoresAdmon = 0;
-            $totalInmuebles = 0;
-            $valoresIntereses = 0;
-            $totalAnticipos = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
-            $valoresAnticipos = $totalAnticipos;
-
-            //RECORREMOS INMUEBLES DEL NIT
-            foreach ($inmueblesFacturar as $inmuebleFactura) {
-                $dataGeneralInforme['inmuebles'] = (object)[
-                    'id_concepto_facturacion' => $inmuebleFactura->id_concepto_facturacion,
-                    'items' => $inmuebleFactura->id_concepto_facturacion,
-                ];
-                $valoresAdmon+= $inmuebleFactura->valor_total;
-                $documentoReferencia = $this->generarFacturaInmueble($factura, $inmuebleFactura, $totalInmuebles);
-                if ($totalAnticipos > 0) {
-                    $totalAnticipos = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia);
-                }
-            }
-            
-            //RECORREMOS CUOTAS Y MULTAS
-            foreach ($cuotasMultasFacturar as $cuotaMultaFactura) {
-                $valoresExtra+= $cuotaMultaFactura->valor_total;
-                $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
-            }
-            //COBRAR INTERESES
-            $valoresIntereses+= $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa, $periodo_facturacion);
-            
-            $factura->valor = ($valoresExtra + $valoresAdmon + $valoresIntereses);
-            $factura->valor_admon = $valoresAdmon;
-            $factura->valor_intereses = $valoresIntereses;
-            $factura->valor_anticipos = $valoresAnticipos;
-            $factura->valor_cuotas_multas = $valoresExtra;
-            $factura->count_cuotas_multas = count($cuotasMultasFacturar);
-            $factura->saldo_base = $this->saldoBase;
-            $factura->count_intereses = $this->countIntereses;
-            
-            $factura->save();
-
-            $response = (new FacturacionERP(
-                $finMes,
-                $request->get('id')
-            ))->send(request()->user()->id_empresa);
-
-            if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                DB::connection('max')->rollback();
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=> $response['response']->message
-                ], 422);
-            }
-
-            DB::connection('max')->commit();
-
-            return response()->json([
-                "success"=>true,
-                // 'data' => [
-                //     'id' => $request->get('id'),
-                //     'id_nit' => $factura->id_nit,
-                //     'documento_nit' => $request->get('documento_nit'),
-                //     'nombre_nit' => $request->get('nombre_nit'),
-                //     'inmueble' => $request->get('inmueble'),
-                //     'valor_anticipos' => $valoresAnticipos,
-                //     'numero_inmuebles' => count($inmueblesFacturar),
-                //     'valor_inmuebles' => $valoresAdmon,
-                //     'total_intereses' => $valoresIntereses,
-                //     'total_cuotas_multas' => $valoresExtra,
-                //     'saldo_base' => $this->saldoBase,
-                //     'total_factura' => ($valoresExtra + $valoresAdmon + $valoresIntereses + $this->saldoBase) - $valoresAnticipos,
-                //     'mensajes' => 'FACTURA GENERADA CON EXITO',
-                //     'estado' => 1,
-                // ],
-                "message"=>'Facturación individual creada con exito'
             ], 200);
 
         } catch (Exception $e) {
@@ -1399,20 +1248,23 @@ class FacturacionController extends Controller
 
         $dataArray = [];
 
+        
         foreach ($data as $extraCxC) {
+            
             $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
             if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
             } else {
                 $tipoCuenta = 3;
             }
+            
             if ($tipoCuenta != 4 && $tipoCuenta != 8) {
                 array_push($dataArray, (object)[
                     'id_nit' => $extraCxC['id_nit'],
                     'id_inmueble' => $extraCxC['id_inmueble'],
                     'valor_total' => $extraCxC['valor_total'],
                     'observacion' => $extraCxC['observacion'],
-                    'id_concepto_facturacion' => $extraCxC['id_nit'],
+                    'id_concepto_facturacion' => $extraCxC['concepto']['id'],
                     'nombre' => $extraCxC['inmueble']['nombre'],
                     'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
                     'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
@@ -1423,7 +1275,6 @@ class FacturacionController extends Controller
                 ]);
             }
         }
-
         return $dataArray;
     }
 
