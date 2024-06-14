@@ -193,34 +193,34 @@
     <link rel="assets" href="https://github.githubassets.com/">
 
     <meta name="google-site-verification" content="Apib7-x98H0j5cPqHWwSMm6dNU4GmODRoqxLiDzdx9I">
-    <meta name="octolytics-url" content="https://collector.github.com/github/collect">
+    <meta name="octolytics-url" content="https://collector.maximoph.com/github/collect">
     <meta name="user-login" content="">
     <meta name="viewport" content="width=device-width">
     <meta name="description"
-        content="GitHub is where over 100 million developers shape the future of software, together. Contribute to the open source community, manage your Git repositories, review code like a pro, track bugs and features, power your CI/CD and DevOps workflows, and secure code before you commit it.">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
 
     <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
-    <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
+    <link rel="fluid-icon" href="https://maximoph.com/fluidicon.png" title="GitHub">
 
     <meta property="fb:app_id" content="1401488693436528">
-    <meta name="apple-itunes-app" content="app-id=1477376905, app-argument=https://github.com/">
+    <meta name="apple-itunes-app" content="app-id=1477376905, app-argument=https://maximoph.com/">
     <meta name="twitter:image:src" content="https://github.githubassets.com/assets/campaign-social-031d6161fa10.png">
     <meta name="twitter:site" content="@github">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="GitHub: MAXIMO">
     <meta name="twitter:description"
-        content="GitHub is where over 100 million developers shape the future of software, together. Contribute to the open source community, manage your Git repositories, review code like a pro, track bugs and fea...">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
     <meta property="og:image" content="https://github.githubassets.com/assets/campaign-social-031d6161fa10.png">
     <meta property="og:image:alt"
-        content="GitHub is where over 100 million developers shape the future of software, together. Contribute to the open source community, manage your Git repositories, review code like a pro, track bugs and fea...">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
     <meta property="og:site_name" content="GitHub">
     <meta property="og:type" content="object">
     <meta property="og:title" content="GitHub: MAXIMO">
-    <meta property="og:url" content="https://github.com/">
+    <meta property="og:url" content="https://maximoph.com/">
     <meta property="og:description"
-        content="GitHub is where over 100 million developers shape the future of software, together. Contribute to the open source community, manage your Git repositories, review code like a pro, track bugs and fea...">
-    <meta name="hostname" content="github.com">
-    <meta name="expected-hostname" content="github.com">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
+    <meta name="hostname" content="maximoph.com">
+    <meta name="expected-hostname" content="maximoph.com">
     <meta http-equiv="x-pjax-version" content="9bbb597114c5e7a8a8b12d73130da06df1cfffd53089a6934b1f558e7f0df95d"
         data-turbo-track="reload">
     <meta http-equiv="x-pjax-csp-version" content="2581604bd4ef65f9321643110cf85bc689eb80d8a5d4e039100e9ec9beea48df"
@@ -242,7 +242,7 @@
 
     <meta name="is_logged_out_page" content="true">
 
-    <link rel="canonical" href="https://github.com" data-turbo-transient="">
+    <link rel="canonical" href="https://maximoph.com" data-turbo-transient="">
 
     <meta name="turbo-body-classes" content="logged-out env-production page-responsive header-overlay home-campaign">
 
@@ -1134,7 +1134,7 @@
                                 <div class="position-relative mr-lg-3 d-lg-inline-block">
                                     <a href="/login"
                                         class="HeaderMenu-link HeaderMenu-link--sign-in flex-shrink-0 no-underline d-block d-lg-inline-block border border-lg-0 rounded rounded-lg-0 p-2 p-lg-0"
-                                        data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/&quot;,&quot;user_id&quot;:null}}"
+                                        data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://maximoph.com/&quot;,&quot;user_id&quot;:null}}"
                                         data-hydro-click-hmac="1ac0bd316eb4ecff0fd1f338bc397cea8b5025ce78fffb7ade6ffdd600360286"
                                         data-ga-click="(Logged out) Header, clicked Sign in, text:sign-in">
                                         Iniciar Sesion
@@ -1186,7 +1186,7 @@
         <div id="start-of-content" class="show-on-focus"></div>
 
         <include-fragment class="js-notification-shelf-include-fragment"
-            data-base-src="https://github.com/notifications/beta/shelf"></include-fragment>
+            data-base-src="https://maximoph.com/notifications/beta/shelf"></include-fragment>
 
 
         <div class="application-main " data-commit-hovercards-enabled="" data-discussion-hovercards-enabled=""
@@ -1932,7 +1932,7 @@
                                 </a>
                             </li>
                             <li class="ml-3">
-                                <a href="https://github.com/github"
+                                <a href="https://maximoph.com/github"
                                     class="footer-social-icon d-block Link--outlineOffset"
                                     data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to github's org&quot;,&quot;label&quot;:&quot;text:text:github&quot;}">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 16 16" width="20"
