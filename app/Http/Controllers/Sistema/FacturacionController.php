@@ -232,26 +232,6 @@ class FacturacionController extends Controller
                     'saldo' => floatval($cuotaMultaFactura->valor_total)
                 ];
             }
-            
-            //RECORREMOS INMUEBLES DEL NIT
-            foreach ($inmueblesFacturar as $inmuebleFactura) {
-                if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
-                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->items+= 1;
-                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->valor_causado+= $inmuebleFactura->valor_total;
-                    
-                } else {
-                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion] = (object)[
-                        'items' => 1,
-                        'id_concepto_facturacion' => $inmuebleFactura->id_concepto_facturacion,
-                        'valor_causado' => $inmuebleFactura->valor_total
-                    ];
-                }
-                $valoresAdmon+= $inmuebleFactura->valor_total;
-                $documentoReferencia = $this->generarFacturaInmueble($factura, $inmuebleFactura, $totalInmuebles);
-                if ($anticiposDisponibles > 0) {
-                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
-                }
-            }
 
             //RECORREMOS CUOTAS Y MULTAS CXC
             foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
@@ -270,6 +250,26 @@ class FacturacionController extends Controller
                 $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
                 if ($anticiposDisponibles > 0) {
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
+                }
+            }
+
+            //RECORREMOS INMUEBLES DEL NIT
+            foreach ($inmueblesFacturar as $inmuebleFactura) {
+                if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
+                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->items+= 1;
+                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->valor_causado+= $inmuebleFactura->valor_total;
+                    
+                } else {
+                    $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion] = (object)[
+                        'items' => 1,
+                        'id_concepto_facturacion' => $inmuebleFactura->id_concepto_facturacion,
+                        'valor_causado' => $inmuebleFactura->valor_total
+                    ];
+                }
+                $valoresAdmon+= $inmuebleFactura->valor_total;
+                $documentoReferencia = $this->generarFacturaInmueble($factura, $inmuebleFactura, $totalInmuebles);
+                if ($anticiposDisponibles > 0) {
+                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                 }
             }
 
