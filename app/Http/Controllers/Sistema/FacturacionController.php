@@ -207,7 +207,10 @@ class FacturacionController extends Controller
             $valoresAdmon = 0;
             $totalInmuebles = 0;
             $valoresIntereses = 0;
-            
+
+            $anticiposNit = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
+            $anticiposDisponibles = $anticiposNit;
+
             //RECORREMOS CUOTAS Y MULTAS CXP
             foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
@@ -221,12 +224,15 @@ class FacturacionController extends Controller
                     ];
                 }
                 $valoresExtra+= $cuotaMultaFactura->valor_total;
-                $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
+                $anticiposDisponibles+= $cuotaMultaFactura->valor_total;
+                
+                $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
+                $this->facturas[] = (object)[
+                    'documento_referencia' => $documentoReferencia,
+                    'saldo' => floatval($cuotaMultaFactura->valor_total)
+                ];
             }
-
-            $anticiposNit = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
-            $anticiposDisponibles = $anticiposNit;
-
+            
             //RECORREMOS INMUEBLES DEL NIT
             foreach ($inmueblesFacturar as $inmuebleFactura) {
                 if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
@@ -246,7 +252,7 @@ class FacturacionController extends Controller
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                 }
             }
-            
+
             //RECORREMOS CUOTAS Y MULTAS CXC
             foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
@@ -871,6 +877,7 @@ class FacturacionController extends Controller
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
+        return $inicioMes;
     }
 
     private function generarFacturaInmueble(Facturacion $factura, $inmuebleFactura, $totalInmuebles)
@@ -1302,7 +1309,7 @@ class FacturacionController extends Controller
                         'id_inmueble' => $extraCxP['id_inmueble'],
                         'valor_total' => $extraCxP['valor_total'],
                         'observacion' => $extraCxP['observacion'],
-                        'id_concepto_facturacion' => $extraCxP['id_nit'],
+                        'id_concepto_facturacion' => $extraCxP['concepto']['id'],
                         'nombre' => $extraCxP['inmueble']['nombre'],
                         'nombre_concepto' => $extraCxP['concepto']['nombre_concepto'],
                         'id_cuenta_cobrar' => $extraCxP['concepto']['id_cuenta_cobrar'],
