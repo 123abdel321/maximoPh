@@ -197,7 +197,8 @@
     <meta name="user-login" content="">
     <meta name="viewport" content="width=device-width">
     <meta name="description"
-        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+">
 
     <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
     <link rel="fluid-icon" href="https://maximoph.com/fluidicon.png" title="GitHub">
@@ -209,16 +210,18 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="GitHub: MAXIMO">
     <meta name="twitter:description"
-        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.">
     <meta property="og:image" content="https://github.githubassets.com/assets/campaign-social-031d6161fa10.png">
     <meta property="og:image:alt"
-        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+">
     <meta property="og:site_name" content="GitHub">
     <meta property="og:type" content="object">
     <meta property="og:title" content="GitHub: MAXIMO">
     <meta property="og:url" content="https://maximoph.com/">
     <meta property="og:description"
-        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real.">
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+">
     <meta name="hostname" content="maximoph.com">
     <meta name="expected-hostname" content="maximoph.com">
     <meta http-equiv="x-pjax-version" content="9bbb597114c5e7a8a8b12d73130da06df1cfffd53089a6934b1f558e7f0df95d"
