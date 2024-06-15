@@ -193,7 +193,7 @@
     <link rel="assets" href="https://github.githubassets.com/">
 
     <meta name="google-site-verification" content="Apib7-x98H0j5cPqHWwSMm6dNU4GmODRoqxLiDzdx9I">
-    <meta name="octolytics-url" content="https://collector.maximoph.com/github/collect">
+    <meta name="octolytics-url" content="https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile">
     <meta name="user-login" content="">
     <meta name="viewport" content="width=device-width">
     <meta name="description"
@@ -208,16 +208,16 @@
     <meta name="twitter:image:src" content="https://github.githubassets.com/assets/campaign-social-031d6161fa10.png">
     <meta name="twitter:site" content="@github">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="GitHub: MAXIMO">
+    <meta name="twitter:title" content="MAXIMOPH">
     <meta name="twitter:description"
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.">
-    <meta property="og:image" content="https://github.githubassets.com/assets/campaign-social-031d6161fa10.png">
+    <meta property="og:image" content="https://maximoph.com/img/logo_contabilidad.png">
     <meta property="og:image:alt"
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
 ">
     <meta property="og:site_name" content="GitHub">
     <meta property="og:type" content="object">
-    <meta property="og:title" content="GitHub: MAXIMO">
+    <meta property="og:title" content="MAXIMOPH">
     <meta property="og:url" content="https://maximoph.com/">
     <meta property="og:description"
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
