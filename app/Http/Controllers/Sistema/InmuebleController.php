@@ -73,15 +73,19 @@ class InmuebleController extends Controller
                     'created_by',
                     'updated_by'
                 );
-
+            
             if ($request->get('search')) {
                 $nitSsearch = $this->nitsSearch($request->get('search'));
+                
                 $inmueble->where('nombre', 'LIKE', '%'.$request->get('search').'%')
                     ->orWhere('area', 'LIKE', '%'.$request->get('search').'%')
                     ->orWhere('coeficiente', 'LIKE', '%'.$request->get('search').'%')
-                    ->orWhereHas('personas',  function ($query) use($nitSsearch) {
-                        $query->whereIn('id_nit', $nitSsearch);
+                    ->when(count($nitSsearch) > 0 ? true : false, function ($query) use($nitSsearch) {
+                        $query->orWhereHas('personas',  function ($query) use($nitSsearch) {
+                            $query->whereIn('id_nit', $nitSsearch);
+                        });
                     });
+                    
             }
 
             $inmuebleTotals = $inmueble->get();
