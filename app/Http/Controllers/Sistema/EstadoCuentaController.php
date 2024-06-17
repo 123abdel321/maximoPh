@@ -48,11 +48,24 @@ class EstadoCuentaController extends Controller
                 [3,7],
             ))->send(request()->user()->id_empresa);
 
+            $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
+                $nit->id,
+                [4,8],
+            ))->send(request()->user()->id_empresa);
+
             if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
                 return response()->json([
                     "success"=>false,
                     'data' => [],
                     "message"=> $response['message']
+                ], 422);
+            }
+
+            if ($responseCXP['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=> $responseCXP['message']
                 ], 422);
             }
 
@@ -66,6 +79,7 @@ class EstadoCuentaController extends Controller
                             'concepto' => 'SIN CUENTAS POR PAGAR',
                             'fecha_manual' => '',
                             'documento_referencia' => '',
+                            'tipo_cuenta' => '',
                             'total_facturas' => '',
                             'total_abono' => '',
                             'saldo' => '0',
@@ -86,7 +100,16 @@ class EstadoCuentaController extends Controller
                 $count_facturas++;
                 $total_facturas+= $data->total_facturas;
                 $total_abono+= $data->total_abono;
+                $data->tipo_cuenta = 'cxc';
                 $saldo+= $data->saldo;
+                array_push($extractos, $data);
+            }
+
+            $responseCXP = $responseCXP['response']->data;
+
+            foreach ($responseCXP as $data) {
+                $data = (object)$data;
+                $data->tipo_cuenta = 'cxp';
                 array_push($extractos, $data);
             }
 
@@ -95,6 +118,7 @@ class EstadoCuentaController extends Controller
                 'fecha_manual' => '',
                 'documento_referencia' => $count_facturas,
                 'total_facturas' => $total_facturas,
+                'tipo_cuenta' => '',
                 'total_abono' => $total_abono,
                 'saldo' => $saldo,
             ]);
@@ -120,6 +144,7 @@ class EstadoCuentaController extends Controller
         try {
             $data = [
                 'total_cuentas_pagar' => 0,
+                'total_cuentas_cobrar' => 0,
                 'total_cuentas_cobro' => 0,
                 'total_pagos' => 0
             ];
@@ -139,7 +164,13 @@ class EstadoCuentaController extends Controller
                 [3,7],
             ))->send(request()->user()->id_empresa);
 
+            $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
+                $nit->id,
+                [4,8],
+            ))->send(request()->user()->id_empresa);
+
             $extractos = $response['response']->data;
+            $cuentasXP = $responseCXP['response']->data;
 
             if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
                 return response()->json([
@@ -149,9 +180,22 @@ class EstadoCuentaController extends Controller
                 ], 422);
             }
 
+            if ($responseCXP['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=> $responseCXP['message']
+                ], 422);
+            }
+
             foreach ($extractos as $extracto) {
                 $extracto = (object)$extracto;
                 $data['total_cuentas_pagar']+= $extracto->saldo;
+            }
+
+            foreach ($cuentasXP as $extracto) {
+                $extracto = (object)$extracto;
+                $data['total_cuentas_cobrar']+= $extracto->saldo;
             }
 
             $data['total_pagos'] = ConRecibos::where('id_nit', $nit->id)->count();

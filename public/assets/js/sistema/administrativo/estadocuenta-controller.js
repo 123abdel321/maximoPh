@@ -37,6 +37,10 @@ function estadocuentaInit() {
             {"data":'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'}
         ],
         'rowCallback': function(row, data, index){
+            if (data.tipo_cuenta == 'cxp') {
+                $('td', row).css('background-color', '#acf3ff');
+                return;
+            }
             if (data.concepto == 'SIN CUENTAS POR PAGAR') {
                 $('td', row).css('background-color', 'rgb(11 177 158)');
                 $('td', row).css('font-weight', 'bold');
@@ -575,6 +579,17 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
                 }
             }
 
+            $('#total_estado_cuentaxp').hide();
+            $('#divider_total_estado_cuenta').hide();
+
+            if (res.data.total_cuentas_cobrar) {
+                $('#total_estado_cuentaxp').show();
+                $('#divider_total_estado_cuenta').show();
+
+                var countC = new CountUp('total_estado_cuentaxp', 0, res.data.total_cuentas_cobrar);
+                    countC.start();
+            }
+
             var countA = new CountUp('total_estado_cuenta', 0, res.data.total_cuentas_pagar);
                 countA.start();
 
@@ -618,4 +633,10 @@ $("input[data-type='currency']").on({
     blur: function() {
         formatCurrency($(this), "blur");
     }
+});
+
+$(document).on('click', '#reloadEstadoCuenta', function () {
+    showViewEstadoCuenta(1);
+    getTotalesEstadoCuenta();
+    cuotas_multas_table.ajax.reload();
 });

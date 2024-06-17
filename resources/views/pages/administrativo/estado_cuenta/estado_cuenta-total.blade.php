@@ -8,6 +8,12 @@
                                 <h5 id="total_estado_cuenta" class="font-weight-bolder">
                                     0
                                 </h5>
+                                <h5 style="display: none;" id="divider_total_estado_cuenta">
+                                    &nbsp;-&nbsp;
+                                </h5>
+                                <h5 style="display: none; color: #40b900" id="total_estado_cuentaxp" class="font-weight-bolder">
+                                    0
+                                </h5>
                             </div>
                             <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
                                 <i class="fas fa-money-check-alt text-lg opacity-10" style="top: 5px !important; font-size: 14px !important;" aria-hidden="true"></i>

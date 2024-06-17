@@ -20,13 +20,6 @@
 
     <meta charset="utf-8">
 
-    <link rel="dns-prefetch" href="https://github.githubassets.com">
-    <link rel="dns-prefetch" href="https://avatars.githubusercontent.com">
-    <link rel="dns-prefetch" href="https://github-cloud.s3.amazonaws.com">
-    <link rel="dns-prefetch" href="https://user-images.githubusercontent.com/">
-    <link rel="preconnect" href="https://github.githubassets.com" crossorigin="">
-    <link rel="preconnect" href="https://avatars.githubusercontent.com">
-
     <link crossorigin="anonymous" media="all" rel="stylesheet"
         href="https://github.githubassets.com/assets/light-f552bab6ce72.css">
     <link crossorigin="anonymous" media="all" rel="stylesheet"
@@ -175,7 +168,7 @@
 
     <meta name="route-pattern" content="/" data-turbo-transient="">
     <meta name="route-controller" content="dashboard" data-turbo-transient="">
-    <meta name="route-action" content="index" data-turbo-transient="">
+    <meta name="route-action" content="home" data-turbo-transient="">
     <meta name="current-catalog-service-hash"
         content="40dc28bd654b20f337468a532ff456ed5863889cfbb4e982b793597321d48d3f">
     <meta name="request-id" content="D301:2C9BB4:2F29F0F:414A209:6662D83B" data-pjax-transient="true">
@@ -190,10 +183,6 @@
     <meta name="github-keyboard-shortcuts" content="dashboards,copilot" data-turbo-transient="true">
     <meta name="selected-link" value="/" data-turbo-transient="">
 
-    <link rel="assets" href="https://github.githubassets.com/">
-
-    <meta name="google-site-verification" content="Apib7-x98H0j5cPqHWwSMm6dNU4GmODRoqxLiDzdx9I">
-    <meta name="octolytics-url" content="https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile">
     <meta name="user-login" content="">
     <meta name="viewport" content="width=device-width">
     <meta name="description"
@@ -201,12 +190,11 @@
 ">
 
     <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
-    <link rel="fluid-icon" href="https://maximoph.com/fluidicon.png" title="GitHub">
 
     <meta property="fb:app_id" content="1401488693436528">
-    <meta name="apple-itunes-app" content="app-id=1477376905, app-argument=https://maximoph.com/">
-    <meta name="twitter:image:src" content="https://github.githubassets.com/assets/campaign-social-031d6161fa10.png">
-    <meta name="twitter:site" content="@github">
+    <meta name="apple-itunes-app" content="app-id=64568685, app-argument=https://maximoph.com/">
+    <meta name="twitter:image:src" content="https://maximoph.com/img/logo_contabilidad.png">
+    <meta name="twitter:site" content="@MaximoPH">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="MAXIMOPH">
     <meta name="twitter:description"
@@ -249,7 +237,7 @@
 
     <meta name="turbo-body-classes" content="logged-out env-production page-responsive header-overlay home-campaign">
 
-    <link rel="mask-icon" href="https://github.githubassets.com/assets/pinned-octocat-093da3e6fa40.svg" color="#000000">
+    <link rel="mask-icon" href="https://maximoph.com/img/logo_contabilidad.png" color="#000000">
     <link rel="alternate icon" class="js-site-favicon" type="image/png" href="/img/logo_base.png">
     <link rel="icon" class="js-site-favicon" type="image/png" href="/img/logo_base.png">
 
@@ -1150,40 +1138,6 @@
                 </div>
             </header>
 
-            <div hidden="hidden" data-view-component="true"
-                class="js-stale-session-flash stale-session-flash flash flash-warn flash-full mb-3">
-
-                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"
-                    data-view-component="true" class="octicon octicon-alert">
-                    <path
-                        d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z">
-                    </path>
-                </svg>
-                <span class="js-stale-session-flash-signed-in" hidden="">You signed in with another tab or window. <a
-                        class="Link--inTextBlock" href="">Reload</a> to refresh your session.</span>
-                <span class="js-stale-session-flash-signed-out" hidden="">You signed out in another tab or window. <a
-                        class="Link--inTextBlock" href="">Reload</a> to refresh your session.</span>
-                <span class="js-stale-session-flash-switched" hidden="">You switched accounts on another tab or window.
-                    <a class="Link--inTextBlock" href="">Reload</a> to refresh your session.</span>
-
-                <button id="icon-button-b1c0c84a-5fd5-4160-a16d-74e46d460d70"
-                    aria-labelledby="tooltip-75359fe8-df5d-4d88-877d-4594658a7a8c" type="button"
-                    data-view-component="true"
-                    class="Button Button--iconOnly Button--invisible Button--medium flash-close js-flash-close"> <svg
-                        aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16"
-                        data-view-component="true" class="octicon octicon-x Button-visual">
-                        <path
-                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z">
-                        </path>
-                    </svg>
-                </button>
-                <tool-tip id="tooltip-75359fe8-df5d-4d88-877d-4594658a7a8c"
-                    for="icon-button-b1c0c84a-5fd5-4160-a16d-74e46d460d70" popover="manual" data-direction="s"
-                    data-type="label" data-view-component="true" class="sr-only position-absolute" aria-hidden="true"
-                    role="tooltip">Dismiss alert
-				</tool-tip>
-
-            </div>
         </div>
 
         <div id="start-of-content" class="show-on-focus"></div>
