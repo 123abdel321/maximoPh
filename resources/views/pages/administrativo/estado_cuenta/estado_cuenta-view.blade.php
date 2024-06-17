@@ -22,6 +22,9 @@
                 <button type="button" class="btn btn-dark btn-sm" id="generateComprobanteEstadoCuentaDisabled" style="box-shadow: none; color: white;" disabled>
                     <i class="fas fa-file-invoice-dollar" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Adjuntar comprobante
                 </button>
+                <button type="button" class="btn btn-light btn-sm" id="reloadEstadoCuenta" style="padding: 8px;">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
             </div>
         </div>
 
