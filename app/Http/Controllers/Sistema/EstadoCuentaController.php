@@ -91,7 +91,7 @@ class EstadoCuentaController extends Controller
             }
 
             if (!count($response)) {
-                $dataNone = (object)[
+                $dataNone = [(object)[
                     'concepto' => 'SIN CUENTAS POR PAGAR',
                     'fecha_manual' => '',
                     'documento_referencia' => '',
@@ -99,7 +99,7 @@ class EstadoCuentaController extends Controller
                     'total_facturas' => '',
                     'total_abono' => '',
                     'saldo' => '0',
-                ];
+                ]];
 
                 if ($cuentasXPData) array_push($dataNone, $cuentasXPData);
 
