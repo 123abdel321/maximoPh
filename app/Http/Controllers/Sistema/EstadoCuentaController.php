@@ -70,21 +70,42 @@ class EstadoCuentaController extends Controller
             }
 
             $response = $response['response']->data;
+            $responseCXP = $responseCXP['response']->data;
+
+            $cuentasXPData = null;
+            if (count($responseCXP)) {
+                $totalValor = 0;
+                foreach ($responseCXP as $data) {
+                    $data = (object)$data;
+                    $totalValor+= $data->saldo;
+                }
+                $cuentasXPData = (object)[
+                    'concepto' => 'SALDO A FAVOR',
+                    'fecha_manual' => '',
+                    'documento_referencia' => '',
+                    'tipo_cuenta' => 'cxp',
+                    'total_facturas' => '',
+                    'total_abono' => '',
+                    'saldo' => $totalValor,
+                ];
+            }
 
             if (!count($response)) {
+                $dataNone = (object)[
+                    'concepto' => 'SIN CUENTAS POR PAGAR',
+                    'fecha_manual' => '',
+                    'documento_referencia' => '',
+                    'tipo_cuenta' => '',
+                    'total_facturas' => '',
+                    'total_abono' => '',
+                    'saldo' => '0',
+                ];
+
+                if ($cuentasXPData) array_push($dataNone, $cuentasXPData);
+
                 return response()->json([
                     'success'=>	true,
-                    'data' => [
-                        (object)[
-                            'concepto' => 'SIN CUENTAS POR PAGAR',
-                            'fecha_manual' => '',
-                            'documento_referencia' => '',
-                            'tipo_cuenta' => '',
-                            'total_facturas' => '',
-                            'total_abono' => '',
-                            'saldo' => '0',
-                        ]
-                    ],
+                    'data' => $dataNone,
                     'message'=> 'Estado de cuenta generado con exito!'
                 ]);
             }
@@ -105,13 +126,7 @@ class EstadoCuentaController extends Controller
                 array_push($extractos, $data);
             }
 
-            $responseCXP = $responseCXP['response']->data;
-
-            foreach ($responseCXP as $data) {
-                $data = (object)$data;
-                $data->tipo_cuenta = 'cxp';
-                array_push($extractos, $data);
-            }
+            if ($cuentasXPData) array_push($extractos, $cuentasXPData);
 
             array_push($extractos, (object)[
                 'concepto' => 'TOTALES',

@@ -24,7 +24,7 @@
                         <select class="form-control form-control-sm" id="tipo_inmueble_nit">
                             <option value="0">PROPIETARIO</option>
                             <option value="1">RESIDENTE</option>
-                            <option value="2">PROPIETARIO & RESIDENTE</option>
+                            <option value="2">INMOBILIARIA</option>
                         </select>
                     </div>
 

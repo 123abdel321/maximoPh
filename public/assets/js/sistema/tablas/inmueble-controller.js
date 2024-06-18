@@ -163,7 +163,7 @@ function inmuebleInit() {
                 }
 
                 if (row.tipo == 2) {
-                    return 'PROPIETARIO & RESIDENTE';
+                    return 'INMOBILIARIA';
                 }
 
                 return '';
