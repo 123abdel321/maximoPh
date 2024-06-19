@@ -159,7 +159,7 @@ function inmuebleInit() {
                 }
 
                 if (row.tipo == 1) {
-                    return 'RESIDENTE';
+                    return 'INQUILINO';
                 }
 
                 if (row.tipo == 2) {

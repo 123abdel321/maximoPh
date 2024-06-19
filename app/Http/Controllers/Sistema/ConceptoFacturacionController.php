@@ -88,6 +88,7 @@ class ConceptoFacturacionController extends Controller
     public function create (Request $request)
     {
         $rules = [
+            'codigo_concepto' => 'required|min:1|max:200|unique:max.concepto_facturacions,nombre_concepto',
             'nombre_concepto' => 'required|min:1|max:200|unique:max.concepto_facturacions,nombre_concepto',
             'id_cuenta_ingreso' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_interes' => 'nullable|exists:sam.plan_cuentas,id',
@@ -111,6 +112,7 @@ class ConceptoFacturacionController extends Controller
             DB::connection('max')->beginTransaction();
 
             $conceptoFacturacion = ConceptoFacturacion::create([
+                'codigo' => $request->get('codigo_concepto'),
                 'nombre_concepto' => $request->get('nombre_concepto'),
                 'id_cuenta_ingreso' => $request->get('id_cuenta_ingreso'),
                 'id_cuenta_interes' => $request->get('id_cuenta_interes'),
@@ -178,6 +180,7 @@ class ConceptoFacturacionController extends Controller
 
             $conceptoFacturacion = ConceptoFacturacion::where('id', $request->get('id'))
                 ->update([
+                    'codigo' => $request->get('codigo_concepto'),
                     'nombre_concepto' => $request->get('nombre_concepto'),
                     'id_cuenta_ingreso' => $request->get('id_cuenta_ingreso'),
                     'id_cuenta_interes' => $request->get('id_cuenta_interes'),

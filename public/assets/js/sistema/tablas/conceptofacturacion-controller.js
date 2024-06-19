@@ -252,6 +252,8 @@ function conceptofacturacionInit() {
         theme: 'bootstrap-5',
         dropdownParent: $('#conceptoFacturacionFormModal'),
         delay: 250,
+        allowClear: true,
+        placeholder: "Seleccione un concepto",
         ajax: {
             url: 'api/plan-cuenta/combo-cuenta',
             headers: headers,
@@ -276,6 +278,8 @@ function conceptofacturacionInit() {
         theme: 'bootstrap-5',
         dropdownParent: $('#conceptoFacturacionFormModal'),
         delay: 250,
+        allowClear: true,
+        placeholder: "Seleccione un concepto",
         ajax: {
             url: 'api/plan-cuenta/combo-cuenta',
             headers: headers,
