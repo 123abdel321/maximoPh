@@ -31,6 +31,7 @@ use App\Http\Controllers\Empresa\PerfilController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Empresa\UsuariosController;
 //IMPORTADOR
+use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
@@ -91,6 +92,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/importcuotas', [ImportadorCuotasMultas::class, 'index']);
 		Route::get('/importcuotas-exportar', [ImportadorCuotasMultas::class, 'exportar']);
 		Route::post('/importcuotas-importar', [ImportadorCuotasMultas::class, 'importar']);
+		//IMPORTAR INMUEBLES
+		Route::get('/importinmuebles', [ImportadorInmuebles::class, 'index']);
+		Route::get('/importinmuebles-exportar', [ImportadorInmuebles::class, 'exportar']);
+		Route::post('/importinmuebles-importar', [ImportadorInmuebles::class, 'importar']);
 		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);
 		Route::get('/usuarios', [UsuariosController::class, 'index']);

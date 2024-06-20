@@ -26,6 +26,7 @@ use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\NotificacionesController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 //IMPORTADOR
+use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
@@ -177,6 +178,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('cuotas-cache-import', 'generate');
             Route::post('cuotas-cargar-import', 'cargar');
             Route::get('cuotas-totales-import', 'totales');
+        });
+        //IMPORTADOR DE INMUEBLES
+        Route::controller(ImportadorInmuebles::class)->group(function () {
+            Route::get('inmuebles-cache-import', 'generate');
+            Route::post('inmuebles-cargar-import', 'cargar');
+            Route::get('inmuebles-totales-import', 'totales');
         });
         //EMPRESA
         Route::controller(InstaladorController::class)->group(function () {

@@ -237,6 +237,26 @@ class EntornosTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            22 => 
+            array (
+                'id' => 25,
+                'nombre' => 'id_cuenta_ingreso_intereses',
+                'valor' => '2812',
+                'created_by' => NULL,
+                'updated_by' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
+            23 => 
+            array (
+                'id' => 26,
+                'nombre' => 'editar_coheficiente_admon_inmueble',
+                'valor' => '0',
+                'created_by' => NULL,
+                'updated_by' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
         
         
