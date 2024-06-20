@@ -70,8 +70,8 @@ class CuotasMultasController extends Controller
                     'created_by',
                     'updated_by'
                 )
-                ->whereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-                // ->where("fecha_fin", '<=', $request->get('fecha_hasta'))
+                ->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
+                ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
                 ->when($request->get('id_concepto'), function ($query) use($request) {
                     $query->where('id_concepto_facturacion', $request->get('id_concepto'));
                 })
@@ -348,9 +348,8 @@ class CuotasMultasController extends Controller
         $cuotasMultas = CuotasMultas::select(
                 DB::raw("SUM(valor_total) AS valor_total")
             )
-            ->when($filtro1, function ($query) use($request) {
-                $query->whereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')]);
-            })
+            ->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
+            ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
             ->when($request->get('id_nit'), function ($query) use($request) {
                 $query->where('id_nit', $request->get('id_nit'));
             })
