@@ -33,9 +33,22 @@
     <!-- ANIMATE CSS -->
     <link rel="stylesheet" href="assets/css/sistema/animate.min.css" rel="stylesheet" />
 
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
+    <!-- End Google Tag Manager -->
+
 </head>
 
-<body class="{{ $class ?? '' }} " style="background-color: #060e26;">
+<body class="{{ $class ?? '' }}" style="background-color: #060e26;">
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NPDX42D8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     @auth
         @if (!in_array(request()->route()->getName(), ['profile', 'profile-static']))

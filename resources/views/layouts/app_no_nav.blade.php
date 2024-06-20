@@ -595,9 +595,22 @@
         }
 
     </style>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
+    <!-- End Google Tag Manager -->
 </head>
 
 <body class="{{ $class ?? '' }} ">
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NPDX42D8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     @guest
         @yield('content')
@@ -629,6 +642,7 @@
 
     <script>
         //LOCAL
+        
         // const base_url = 'http://127.0.0.1:8090/api/';
         // const base_web = 'http://127.0.0.1:8090/';
         //DEV
@@ -673,7 +687,8 @@
                     localStorage.setItem("empresa_nombre", res.empresa.razon_social);
                     localStorage.setItem("notificacion_code", res.notificacion_code);
                     localStorage.setItem("fondo_sistema", res.fondo_sistema);
-                    localStorage.setItem("empresa_logo", res.empresa.logo);
+                    localStorage.setItem("empresa_logo", res.empresa.logo);                    
+
                     var itemMenuActiveIn = localStorage.getItem("item_active_menu");
                     if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
                     } else {
