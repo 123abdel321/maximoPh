@@ -112,12 +112,12 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
                 $valor_admon = $row['valor_admon'];
             }
 
-            if ($row['aumento']) {
+            if ($row['aumento'] && $inmueble) {
                 $valor_admon = $inmueble->valor_total_administracion + ($inmueble->valor_total_administracion * ($row['aumento'] / 100));
                 $observacionBuena.= 'Actualización de valor! <br>';
             }
 
-            if ($row['valor_aumento']) {
+            if ($row['valor_aumento'] && $inmueble) {
                 $valor_admon = $inmueble->valor_total_administracion + $row['valor_aumento'];
                 $observacionBuena.= 'Actualización de valor! <br>';
             }
