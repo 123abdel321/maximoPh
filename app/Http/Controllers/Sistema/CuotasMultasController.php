@@ -354,7 +354,9 @@ class CuotasMultasController extends Controller
             ->when($request->get('id_nit'), function ($query) use($request) {
                 $query->where('id_nit', $request->get('id_nit'));
             })
-            ;
+            ->when($request->get('id_concepto'), function ($query) use($request) {
+                $query->where('id_concepto_facturacion', $request->get('id_concepto'));
+            });
 
         if ($request->get('search')) {
             $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
