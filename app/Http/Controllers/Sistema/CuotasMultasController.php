@@ -445,7 +445,7 @@ class CuotasMultasController extends Controller
         }
 
         if ($request->get('id_concepto')) {
-            $cuotasMultas->where('id_concepto', $request->get('id_concepto'));
+            $cuotasMultas->where('id_concepto_facturacion', $request->get('id_concepto'));
         }
 
         $cuotasMultas = $cuotasMultas->first();
