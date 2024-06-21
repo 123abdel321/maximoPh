@@ -25,7 +25,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
     {
         $columna = 2;
         foreach ($rows as $row) {
-            
+            // dd($row);
             $estado = 0;
             $observacion = '';
 
@@ -34,11 +34,12 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             $inmuebleNit = null;
             $saldoTotal = 0;
             $anticipo = 0;
-            $fechaManual = $row['fecha_manual'] ? Date::excelToDateTimeObject($row['fecha_manual']): Carbon::now();
-
+            
             if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
                 continue;
             }
+
+            $fechaManual = $row['fecha_manual'] ? Date::excelToDateTimeObject($row['fecha_manual']): Carbon::now();
 
             if ($row['inmueble']) {
                 $inmueble = Inmueble::with('zona')
