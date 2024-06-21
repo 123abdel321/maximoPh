@@ -110,7 +110,7 @@ class ImportadorInmuebles extends Controller
     {
         return response()->json([
             'success'=>	true,
-            'url' => 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/import/importador_cuotas_multas.xlsx',
+            'url' => 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/import/importador_inmuebles.xlsx',
             'message'=> 'Url generada con exito'
         ]);
     }
