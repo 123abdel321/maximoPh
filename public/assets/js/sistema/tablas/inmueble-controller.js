@@ -48,7 +48,10 @@ function inmuebleInit() {
                 render: function (row, type, data){
                     if (data.personas && data.personas.length) {
                         var persona = data.personas[0].nit;
-                        return persona.primer_nombre+' '+persona.otros_nombres+' '+persona.primer_apellido;
+                        if (persona.otros_nombres) {
+                            return persona.primer_nombre+' '+persona.otros_nombres+' '+persona.primer_apellido;
+                        }
+                        return persona.primer_nombre+' '+persona.primer_apellido;
                     }
                     return '';
                 }
