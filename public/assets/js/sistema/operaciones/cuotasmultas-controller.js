@@ -468,7 +468,6 @@ function cuotasmultasInit() {
 
     $("#nivel_cuotas_multas1").on('change', function(){
         updateColumns();
-        console.log('here');
         cuotas_multas_table.ajax.reload(function () {
             getTotalesCuotasMultas();
         });
@@ -476,7 +475,6 @@ function cuotasmultasInit() {
 
     $("#nivel_cuotas_multas2").on('change', function(){
         updateColumns();
-        console.log('here');
         cuotas_multas_table.ajax.reload(function () {
             getTotalesCuotasMultas();
         });
@@ -486,6 +484,13 @@ function cuotasmultasInit() {
     cuotas_multas_table.ajax.reload(function () {
         getTotalesCuotasMultas();
     });
+
+    $("#periodo_cuotas_multas").on('change', function(){
+        cuotas_multas_table.ajax.reload(function () {
+            getTotalesCuotasMultas();
+        });
+    });
+    
 }
 
 function updateColumns () {
@@ -785,6 +790,20 @@ $(document).on('change', '#id_nit_filter_cuotas_multas', function () {
 });
 
 $(document).on('click', '#reloadCuotasMultas', function () {
+    console.log('reloadCuotasMultas');
+    $("#reloadCuotasMultasIconNormal").hide();
+    $("#reloadCuotasMultasIconLoading").show();
+    cuotas_multas_table.ajax.reload(function () {
+        getTotalesCuotasMultas();
+        setTimeout(function(){
+            $("#reloadCuotasMultasIconNormal").show();
+            $("#reloadCuotasMultasIconLoading").hide();
+        },500);
+    });
+});
+
+
+$(document).on('click', '#deleteCuotasMultas', function () {
     console.log('reloadCuotasMultas');
     $("#reloadCuotasMultasIconNormal").hide();
     $("#reloadCuotasMultasIconLoading").show();
