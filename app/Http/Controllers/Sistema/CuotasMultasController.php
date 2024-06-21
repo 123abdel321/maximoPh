@@ -415,9 +415,8 @@ class CuotasMultasController extends Controller
         $cuotasMultas = CuotasMultas::select(
                 DB::raw("SUM(valor_total) AS valor_total")
             )
-            ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
-            ->where("fecha_fin", "<=", $request->get('fecha_periodo'))
-            ;
+            ->where("fecha_inicio", "<=", $request->get('fecha_periodo'))
+            ->where("fecha_fin", ">=", $request->get('fecha_periodo'));
 
         if ($request->get('search')) {
             $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
