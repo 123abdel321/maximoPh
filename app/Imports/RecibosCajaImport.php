@@ -25,7 +25,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
     {
         $columna = 2;
         foreach ($rows as $row) {
-            // dd($row);
             $estado = 0;
             $observacion = '';
 
@@ -39,12 +38,20 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 continue;
             }
 
-            $fechaManual = $row['fecha_manual'] ? Date::excelToDateTimeObject($row['fecha_manual']): Carbon::now();
+            $fechaManual = Carbon::now();
+
+            if ($row['fecha_manual'] && str_contains($row['fecha_manual'], '/')) {
+                $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
+            } else if ($row['fecha_manual']) {
+                $fechaManual = Date::excelToDateTimeObject($row['fecha_manual']);
+            }
+
 
             if ($row['inmueble']) {
                 $inmueble = Inmueble::with('zona')
-                    ->where('nombre', $row['inmueble'])
+                    ->where('nombre', (string)$row['inmueble'])
                     ->first();
+                    
                 if ($inmueble) {
                     $inmuebleNit = InmuebleNit::with('nit')
                         ->where('id_inmueble', $inmueble->id)
@@ -54,11 +61,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                         $nit = $inmuebleNit->nit;
                     } else {
                         $estado = 1;
-                        $observacion.= 'El inmueble: '.$row['inmueble'].', no tiene propietario!<br>'; 
+                        $observacion.= 'El inmueble: '.(string)$row['inmueble'].', no tiene propietario!<br>'; 
                     }
                 } else {
                     $estado = 1;
-                    $observacion.= 'El inmueble: '.$row['inmueble'].', no fue encontrado!<br>';
+                    $observacion.= 'El inmueble: '.(string)$row['inmueble'].', no fue encontrado!<br>';
                 }
             }
 
@@ -103,7 +110,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
                 'id_nit' => $nit ? $nit->id : null,
                 'fecha_manual' => $fechaManual,
-                'codigo' => $row['inmueble'],
+                'codigo' => (string)$row['inmueble'],
                 'numero_documento' => $row['cedula_nit'],
                 'nombre_inmueble' => $inmueble ? $inmueble->nombre : '',
                 'nombre_zona' => $inmueble ? $inmueble->zona->nombre : '',
