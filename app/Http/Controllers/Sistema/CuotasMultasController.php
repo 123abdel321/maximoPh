@@ -65,21 +65,6 @@ class CuotasMultasController extends Controller
                     'updated_by'
                 );
 
-            // if ($request->get('search')) {
-            //     $nitSsearch = $this->nitsSearch($request->get('search'));
-            //     $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-            //     $cuotasMultas->whereIn('id_nit', $nitSsearch)
-            //         ->orWhereHas('concepto',  function ($query) use($request) {
-            //             $query->where('nombre_concepto', 'LIKE', '%'.$request->get('search').'%');
-            //         })
-            //         ->orWhereHas('inmueble',  function ($query) use($request) {
-            //             $query->where('nombre', 'LIKE', '%'.$request->get('search').'%')
-            //                 ->orWhereHas('zona',  function ($q) use($request) {
-            //                     $q->where('nombre', 'LIKE', '%'.$request->get('search').'%');
-            //                 });
-            //         });
-            // }
-
             $cuotasMultasTotals = $cuotasMultas->get();
 
             $cuotasMultasPaginate = $cuotasMultas->skip($start)
@@ -149,7 +134,7 @@ class CuotasMultasController extends Controller
         if ($request->get('nivel') == 2) {
             $detalleCuotas = DB::connection('max')->table('cuotas_multas AS CM')
                 ->select(
-                    "*",
+                    "*"
                 )
                 ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
                 ->where("fecha_fin", "<=", $request->get('fecha_periodo'))

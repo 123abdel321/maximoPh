@@ -570,15 +570,13 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
         if (res.success) {
             totalCuentasPagar = res.data.total_cuentas_pagar;
             
-            if (res.data.total_cuentas_pagar) {
-                if (showButtonPay) {
-                    $('#generatePagoEstadoCuenta').show();
-                    $('#generatePagoEstadoCuentaDisabled').hide();
-                    $('#generateComprobanteEstadoCuenta').show();
-                    $('#generateComprobanteEstadoCuentaDisabled').hide();
-                }
+            if (showButtonPay) {
+                $('#generatePagoEstadoCuenta').show();
+                $('#generatePagoEstadoCuentaDisabled').hide();
+                $('#generateComprobanteEstadoCuenta').show();
+                $('#generateComprobanteEstadoCuentaDisabled').hide();
             }
-
+            
             $('#total_estado_cuentaxp').hide();
             $('#divider_total_estado_cuenta').hide();
 

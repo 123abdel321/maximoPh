@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Sistema;
 
 use DB;
 use Carbon\Carbon;
+use App\Helpers\Extracto;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Helpers\PortafolioERP\Extracto;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Portafolio\Nits;
@@ -45,39 +45,20 @@ class EstadoCuentaController extends Controller
 
             $response = (new Extracto(//TRAER CUENTAS POR COBRAR
                 $nit->id,
-                [3,7],
-            ))->send(request()->user()->id_empresa);
+                [3,7]
+            ))->actual()->get();
 
             $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
                 $nit->id,
-                [4,8],
-            ))->send(request()->user()->id_empresa);
-
-            if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=> $response['message']
-                ], 422);
-            }
-
-            if ($responseCXP['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=> $responseCXP['message']
-                ], 422);
-            }
-
-            $response = $response['response']->data;
-            $responseCXP = $responseCXP['response']->data;
+                [4,8]
+            ))->actual()->get();
 
             $cuentasXPData = null;
             if (count($responseCXP)) {
                 $totalValor = 0;
                 foreach ($responseCXP as $data) {
                     $data = (object)$data;
-                    $totalValor+= $data->saldo;
+                    $totalValor+= ($data->debito - $data->credito);
                 }
                 $cuentasXPData = (object)[
                     'concepto' => 'SALDO A FAVOR',
@@ -86,7 +67,7 @@ class EstadoCuentaController extends Controller
                     'tipo_cuenta' => 'cxp',
                     'total_facturas' => '',
                     'total_abono' => '',
-                    'saldo' => $totalValor,
+                    'saldo' => $totalValor * -1,
                 ];
             }
 
@@ -174,47 +155,29 @@ class EstadoCuentaController extends Controller
                 ], 422);
             }
     
-            $response = (new Extracto(//TRAER CUENTAS POR COBRAR
+            $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
                 $nit->id,
-                [3,7],
-            ))->send(request()->user()->id_empresa);
+                [3,7]
+            ))->actual()->get();
 
-            $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
+            $cuentasXP = (new Extracto(//TRAER CUENTAS POR PAGAR
                 $nit->id,
-                [4,8],
-            ))->send(request()->user()->id_empresa);
-
-            $extractos = $response['response']->data;
-            $cuentasXP = $responseCXP['response']->data;
-
-            if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=> $response['message']
-                ], 422);
-            }
-
-            if ($responseCXP['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=> $responseCXP['message']
-                ], 422);
-            }
+                [4,8]
+            ))->actual()->get();
 
             foreach ($extractos as $extracto) {
                 $extracto = (object)$extracto;
                 $data['total_cuentas_pagar']+= $extracto->saldo;
             }
 
-            foreach ($cuentasXP as $extracto) {
-                $extracto = (object)$extracto;
-                $data['total_cuentas_cobrar']+= $extracto->saldo;
+            foreach ($cuentasXP as $cxp) {
+                $cxp = (object)$cxp;
+                $data['total_cuentas_cobrar']+= ($cxp->debito - $cxp->credito);
             }
 
             $data['total_pagos'] = ConRecibos::where('id_nit', $nit->id)->count();
             $data['total_cuentas_cobro'] = Facturacion::where('id_nit', $nit->id)->count();
+            $data['total_cuentas_cobrar'] = $data['total_cuentas_cobrar'] * -1;
     
             return response()->json([
                 'success'=>	true,
