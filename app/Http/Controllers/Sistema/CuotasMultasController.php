@@ -100,8 +100,8 @@ class CuotasMultasController extends Controller
                 DB::raw('SUM(valor_total) AS valor_total'),
                 DB::raw('COUNT(id) AS total_count'),
             )
-            ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
-            ->where("fecha_fin", "<=", $request->get('fecha_periodo'))
+            ->where("fecha_inicio", "<=", $request->get('fecha_periodo'))
+            ->where("fecha_fin", ">=", $request->get('fecha_periodo'))
             ->when($request->get('id_concepto'), function ($query) use($request) {
                 $query->where('id_concepto_facturacion', $request->get('id_concepto'));
             })
@@ -138,8 +138,8 @@ class CuotasMultasController extends Controller
                 ->select(
                     "*"
                 )
-                ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
-                ->where("fecha_fin", "<=", $request->get('fecha_periodo'))
+                ->where("fecha_inicio", "<=", $request->get('fecha_periodo'))
+                ->where("fecha_fin", ">=", $request->get('fecha_periodo'))
                 ->when($request->get('id_concepto'), function ($query) use($request) {
                     $query->where('id_concepto_facturacion', $request->get('id_concepto'));
                 })
