@@ -465,7 +465,18 @@ class CuotasMultasController extends Controller
     public function comboConcepto (Request $request)
     {
         $concepto = CuotasMultas::select(
-                '*'
+                DB::raw('id_concepto_facturacion AS id'),
+                'id_nit',
+                'id_inmueble',
+                'id_concepto_facturacion',
+                'tipo_concepto',
+                'fecha_inicio',
+                'fecha_fin',
+                'valor_total',
+                'valor_coeficiente',
+                'observacion',
+                'created_by',
+                'updated_by'
             )
             ->with('concepto')
             ->groupBy('id_concepto_facturacion');
