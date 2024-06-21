@@ -127,6 +127,8 @@ class CuotasMultasController extends Controller
                     'totales' => $request->get('nivel') == 2 ? '1' : '0',
                     'created_by' => '',
                     'updated_by' => '',
+                    'created_at' => '',
+                    'updated_at' => '',
                 ];
             });
         }
@@ -144,12 +146,12 @@ class CuotasMultasController extends Controller
                 ->when($request->get('id_nit'), function ($query) use($request) {
                     $query->where('id_nit', $request->get('id_nit'));
                 })
-                ->groupByRaw('id_concepto_facturacion, id_nit, id')
+                ->groupByRaw('id')
                 ->get();
 
             if (count($detalleCuotas)) {
                 $detalleCuotas->each(function ($documento) {
-                    $this->dataCuotasMultas[$documento->id_concepto_facturacion.'-A'.$documento->id_nit] = [
+                    $this->dataCuotasMultas[$documento->id_concepto_facturacion.'-A'.$documento->id] = [
                         'id_nit' => $documento->id_nit,
                         'id_inmueble' => $documento->id_inmueble,
                         'id_cuotas_multas' => $documento->id,
@@ -161,6 +163,8 @@ class CuotasMultasController extends Controller
                         'valor_coeficiente' => $documento->valor_coeficiente,
                         'observacion' => $documento->observacion,
                         'totales' => '0',
+                        'created_at' => $documento->created_at,
+                        'updated_at' => $documento->updated_at,
                         'created_by' => $documento->created_by,
                         'updated_by' => $documento->updated_by,
                     ];
