@@ -13,10 +13,12 @@ use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\CuotasMultas;
+use App\Models\Sistema\CuotasMultasTemporal;
 
 class CuotasMultasController extends Controller
 {
     protected $messages = null;
+    protected $dataCuotasMultas = [];
 
     public function __construct()
 	{
@@ -51,17 +53,9 @@ class CuotasMultasController extends Controller
             $columnName = $columnName_arr[$columnIndex]['data']; // Column name
             $columnSortOrder = $order_arr[0]['dir']; // asc or desc
 
-            $filtro1 = $request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
-            
-            if (!$filtro1) {
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=>'La fecha desde y fecha hasta son requeridos'
-                ], 422);
-            }
+            $this->generarTemporarCuotasMultas($request);
 
-            $cuotasMultas = CuotasMultas::orderBy($columnName,$columnSortOrder)
+            $cuotasMultas = CuotasMultasTemporal::orderBy($columnName,$columnSortOrder)
                 ->with('concepto', 'nit', 'inmueble', 'inmueble.concepto', 'inmueble.personas', 'inmueble.zona')
                 ->select(
                     '*',
@@ -69,30 +63,22 @@ class CuotasMultasController extends Controller
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
                     'created_by',
                     'updated_by'
-                )
-                ->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-                ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-                ->when($request->get('id_concepto'), function ($query) use($request) {
-                    $query->where('id_concepto_facturacion', $request->get('id_concepto'));
-                })
-                ->when($request->get('id_nit'), function ($query) use($request) {
-                    $query->where('id_nit', $request->get('id_nit'));
-                });
+                );
 
-            if ($request->get('search')) {
-                $nitSsearch = $this->nitsSearch($request->get('search'));
-                $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-                $cuotasMultas->whereIn('id_nit', $nitSsearch)
-                    ->orWhereHas('concepto',  function ($query) use($request) {
-                        $query->where('nombre_concepto', 'LIKE', '%'.$request->get('search').'%');
-                    })
-                    ->orWhereHas('inmueble',  function ($query) use($request) {
-                        $query->where('nombre', 'LIKE', '%'.$request->get('search').'%')
-                            ->orWhereHas('zona',  function ($q) use($request) {
-                                $q->where('nombre', 'LIKE', '%'.$request->get('search').'%');
-                            });
-                    });
-            }
+            // if ($request->get('search')) {
+            //     $nitSsearch = $this->nitsSearch($request->get('search'));
+            //     $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+            //     $cuotasMultas->whereIn('id_nit', $nitSsearch)
+            //         ->orWhereHas('concepto',  function ($query) use($request) {
+            //             $query->where('nombre_concepto', 'LIKE', '%'.$request->get('search').'%');
+            //         })
+            //         ->orWhereHas('inmueble',  function ($query) use($request) {
+            //             $query->where('nombre', 'LIKE', '%'.$request->get('search').'%')
+            //                 ->orWhereHas('zona',  function ($q) use($request) {
+            //                     $q->where('nombre', 'LIKE', '%'.$request->get('search').'%');
+            //                 });
+            //         });
+            // }
 
             $cuotasMultasTotals = $cuotasMultas->get();
 
@@ -116,6 +102,98 @@ class CuotasMultasController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
+    }
+
+    private function generarTemporarCuotasMultas ($request)
+    {
+        CuotasMultasTemporal::truncate();
+        
+        $totalesCuotas = DB::connection('max')->table('cuotas_multas AS CM')
+            ->select(
+                "*",
+                DB::raw('1 AS totales'),
+                DB::raw('SUM(valor_total) AS valor_total'),
+                DB::raw('COUNT(id) AS total_count'),
+            )
+            ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
+            ->where("fecha_fin", "<=", $request->get('fecha_periodo'))
+            ->when($request->get('id_concepto'), function ($query) use($request) {
+                $query->where('id_concepto_facturacion', $request->get('id_concepto'));
+            })
+            ->when($request->get('id_nit'), function ($query) use($request) {
+                $query->where('id_nit', $request->get('id_nit'));
+            })
+            ->groupByRaw('id_concepto_facturacion')
+            ->get();
+        
+        if (count($totalesCuotas)) {
+            $totalesCuotas->each(function ($documento) use ($request) {
+                $this->dataCuotasMultas[$documento->id_concepto_facturacion] = [
+                    'id_nit' => '',
+                    'id_inmueble' => '',
+                    'id_cuotas_multas' => '',
+                    'id_concepto_facturacion' => $documento->id_concepto_facturacion,
+                    'tipo_concepto' => '',
+                    'fecha_inicio' => '',
+                    'fecha_fin' => '',
+                    'valor_total' => $documento->valor_total,
+                    'valor_coeficiente' => '',
+                    'observacion' => $documento->total_count,
+                    'totales' => $request->get('nivel') == 2 ? '1' : '0',
+                    'created_by' => '',
+                    'updated_by' => '',
+                ];
+            });
+        }
+
+        if ($request->get('nivel') == 2) {
+            $detalleCuotas = DB::connection('max')->table('cuotas_multas AS CM')
+                ->select(
+                    "*",
+                )
+                ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
+                ->where("fecha_fin", "<=", $request->get('fecha_periodo'))
+                ->when($request->get('id_concepto'), function ($query) use($request) {
+                    $query->where('id_concepto_facturacion', $request->get('id_concepto'));
+                })
+                ->when($request->get('id_nit'), function ($query) use($request) {
+                    $query->where('id_nit', $request->get('id_nit'));
+                })
+                ->groupByRaw('id_concepto_facturacion, id_nit, id')
+                ->get();
+
+            if (count($detalleCuotas)) {
+                $detalleCuotas->each(function ($documento) {
+                    $this->dataCuotasMultas[$documento->id_concepto_facturacion.'-A'.$documento->id_nit] = [
+                        'id_nit' => $documento->id_nit,
+                        'id_inmueble' => $documento->id_inmueble,
+                        'id_cuotas_multas' => $documento->id,
+                        'id_concepto_facturacion' => $documento->id_concepto_facturacion,
+                        'tipo_concepto' => $documento->tipo_concepto,
+                        'fecha_inicio' => $documento->fecha_inicio,
+                        'fecha_fin' => $documento->fecha_fin,
+                        'valor_total' => $documento->valor_total,
+                        'valor_coeficiente' => $documento->valor_coeficiente,
+                        'observacion' => $documento->observacion,
+                        'totales' => '0',
+                        'created_by' => $documento->created_by,
+                        'updated_by' => $documento->updated_by,
+                    ];
+                });
+            }
+        }
+
+        if (count($this->dataCuotasMultas)) {
+            ksort($this->dataCuotasMultas, SORT_STRING | SORT_FLAG_CASE);
+        }
+
+        
+        foreach (array_chunk($this->dataCuotasMultas,233) as $dataCuotasMultas){
+            DB::connection('max')
+                ->table('cuotas_multas_temporals')
+                ->insert(array_values($dataCuotasMultas));
+        }
+
     }
 
     public function create (Request $request)
@@ -348,14 +426,9 @@ class CuotasMultasController extends Controller
         $cuotasMultas = CuotasMultas::select(
                 DB::raw("SUM(valor_total) AS valor_total")
             )
-            ->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-            ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
-            ->when($request->get('id_nit'), function ($query) use($request) {
-                $query->where('id_nit', $request->get('id_nit'));
-            })
-            ->when($request->get('id_concepto'), function ($query) use($request) {
-                $query->where('id_concepto_facturacion', $request->get('id_concepto'));
-            });
+            ->where("fecha_inicio", ">=", $request->get('fecha_periodo'))
+            ->where("fecha_fin", "<=", $request->get('fecha_periodo'))
+            ;
 
         if ($request->get('search')) {
             $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
@@ -380,6 +453,16 @@ class CuotasMultasController extends Controller
             });
         }
 
+        if ($request->get('id_nit')) {
+            $cuotasMultas->where('id_nit', $request->get('id_nit'))
+                ->orWhereBetween("fecha_inicio", [$request->get('fecha_desde'), $request->get('fecha_hasta')])
+                ->orWhereBetween("fecha_fin", [$request->get('fecha_desde'), $request->get('fecha_hasta')]);
+        }
+
+        if ($request->get('id_concepto')) {
+            $cuotasMultas->where('id_concepto', $request->get('id_concepto'));
+        }
+
         $cuotasMultas = $cuotasMultas->first();
         $data = [
             'total' => $cuotasMultas->valor_total
@@ -389,6 +472,23 @@ class CuotasMultasController extends Controller
             'success'=>	true,
             'data' => $data
         ]);
+    }
+
+    public function comboConcepto (Request $request)
+    {
+        $concepto = CuotasMultas::select(
+                '*'
+            )
+            ->with('concepto')
+            ->groupBy('id_concepto_facturacion');
+
+        if ($request->get("search")) {
+            $concepto->orWhereHas('concepto',  function ($query) use($request) {
+                $query->where('nombre_concepto', 'LIKE', '%'.$request->get('search').'%');
+            });
+        }
+
+        return $concepto->paginate(40);
     }
 
     private function nitsSearch($search)

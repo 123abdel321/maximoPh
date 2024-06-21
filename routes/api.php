@@ -110,6 +110,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('cuotasmultas', 'update');
             Route::delete('cuotasmultas', 'delete');
             Route::get('cuotasmultas-total', 'totales');
+            Route::get('cuotasmultas-concepto', 'comboConcepto');
         });
         Route::controller(ReciboController::class)->group(function () {
             Route::get('recibo', 'read');

@@ -1,12 +1,7 @@
 <div class="row" style="padding: 4px;">
     <div class="form-group col-12 col-sm-6 col-md-3" >
-        <label for="example-text-input" class="form-control-label">Fecha desde</label>
-        <input type="month" class="form-control form-control-sm" name="fecha_desde_cuotas_multas" id="fecha_desde_cuotas_multas">
-    </div>
-
-    <div class="form-group col-12 col-sm-6 col-md-3" >
-        <label for="example-text-input" class="form-control-label">Fecha hasta</label>
-        <input type="month" class="form-control form-control-sm" name="fecha_hasta_cuotas_multas" id="fecha_hasta_cuotas_multas">
+        <label for="example-text-input" class="form-control-label">Periodo</label>
+        <input type="month" class="form-control form-control-sm" name="periodo_cuotas_multas" id="periodo_cuotas_multas">
     </div>
 
     <div class="form-group col-12 col-sm-6 col-md-3" >
@@ -20,6 +15,23 @@
         <select name="id_nit_filter_cuotas_multas" id="id_nit_filter_cuotas_multas" class="form-control form-control-sm">
         </select>
     </div>
+
+    <div class="form-group col-12 col-sm-3 col-md-2 row" style="margin-bottom: 0.1rem !important;">
+        <label for="example-text-input" class="form-control-label">Niveles</label>
+        <div class="form-check col-12 col-md-12 col-sm-12" style="min-height: 0px; margin-bottom: 0px; margin-top: -2px; margin-left: 5px;">
+            <input class="form-check-input" type="radio" name="nivel_cuotas_multas" id="nivel_cuotas_multas1" style="font-size: 11px;">
+            <label class="form-check-label" for="nivel_cuotas_multas1" style="font-size: 11px;">
+                Grupos
+            </label>
+        </div>
+        <div class="form-check col-12 col-md-12 col-sm-12" style="min-height: 0px; margin-bottom: 0px; margin-top: -2px; margin-left: 5px;">
+            <input class="form-check-input" type="radio" name="nivel_cuotas_multas" id="nivel_cuotas_multas2" style="font-size: 11px;" checked>
+            <label class="form-check-label" for="nivel_cuotas_multas2" style="font-size: 11px;">
+                Detalle
+            </label>
+        </div>
+    </div>
+
 </div>
 
 <table id="cuotaMultaTable" class="table table-bordered display responsive" width="100%">

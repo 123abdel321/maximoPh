@@ -10,8 +10,7 @@ var $comboConceptoTipoFacturacionCuotasMuldas = null;
 
 function cuotasmultasInit() {
 
-    $('#fecha_desde_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
-    $('#fecha_hasta_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
+    $('#periodo_cuotas_multas').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2));
 
     cuotas_multas_table = $('#cuotaMultaTable').DataTable({
         pageLength: 100,
@@ -29,23 +28,37 @@ function cuotasmultasInit() {
             left: 0,
             right : 1,
         },
+        'rowCallback': function(row, data, index){
+            if (data.totales) {
+                $('td', row).css('background-color', 'rgb(40 133 149)');
+                $('td', row).css('font-weight', 'bold');
+                $('td', row).css('color', 'white');
+                return;
+            }
+        },
         ajax:  {
             type: "GET",
             headers: headers,
             url: base_url + 'cuotasmultas',
             data: function ( d ) {
-                d.search = searchValue;
-                d.fecha_desde = $('#fecha_desde_cuotas_multas').val();
-                d.fecha_hasta = $('#fecha_hasta_cuotas_multas').val();
+                d.nivel = getNivelCuotasMultas();
+                d.fecha_periodo = $('#periodo_cuotas_multas').val();
                 d.id_concepto = $('#id_concepto_filter_cuotas_multas').val();
                 d.id_nit = $('#id_nit_filter_cuotas_multas').val();
+
             }
         },
         columns: [
             {"data":'id', visible: false},
             {"data": function (row, type, set){  
-                if (row.concepto) {
-                    return row.concepto.nombre_concepto;
+                if (getNivelCuotasMultas() == 1 && row.concepto) {
+                    return row.concepto.nombre_concepto+' ('+row.observacion+')';
+                }
+                if (getNivelCuotasMultas() == 2 && row.concepto && row.totales == 1) {
+                    return row.concepto.nombre_concepto+' ('+row.observacion+')';
+                }
+                if (row.concepto ) {
+                    return row.concepto.nombre_concepto
                 }
                 return '';
             }},
@@ -104,9 +117,12 @@ function cuotasmultasInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (editarCuotaMulta) html+= '<span id="editcuotamulta_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-cuota-multa" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                    if (eliminarCuotaMulta) html+= '<span id="deletecuotamulta_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-cuota-multa" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
-                    return html;
+                    if (getNivelCuotasMultas() == 2 && row.totales == 0) {
+                        if (editarCuotaMulta) html+= '<span id="editcuotamulta_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-cuota-multa" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                        if (eliminarCuotaMulta) html+= '<span id="deletecuotamulta_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-cuota-multa" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                        return html;
+                    }
+                    return '';
                 }
             },
         ]
@@ -158,7 +174,7 @@ function cuotasmultasInit() {
 
             var valor = parseFloat(data.tipo_concepto ? data.valor_total : data.valor_coeficiente);
 
-            $('#id_cuota_multa_up').val(data.id);
+            $('#id_cuota_multa_up').val(data.id_cuotas_multas);
             $('#input_masivo_cuotas_multas').hide();
             $('#tipo_concepto_cuotas_multas').val(data.tipo_concepto);
             $('#fecha_inicio_cuotas_multas').val(data.fecha_inicio);
@@ -172,6 +188,7 @@ function cuotasmultasInit() {
         cuotas_multas_table.on('click', '.drop-cuota-multa', function() {
             var trCuotaMulta = $(this).closest('tr');
             var id = this.id.split('_')[1];
+            var data = getDataById(id, cuotas_multas_table);
 
             Swal.fire({
                 title: 'Eliminar cuota / multa ?',
@@ -188,12 +205,14 @@ function cuotasmultasInit() {
                     $.ajax({
                         url: base_url + 'cuotasmultas',
                         method: 'DELETE',
-                        data: JSON.stringify({id: id}),
+                        data: JSON.stringify({id: data.id_cuotas_multas}),
                         headers: headers,
                         dataType: 'json',
                     }).done((res) => {
                         if(res.success){
-                            cuotas_multas_table.row(trCuotaMulta).remove().draw();
+                            cuotas_multas_table.ajax.reload(function () {
+                                getTotalesCuotasMultas();
+                            });
                             agregarToast('exito', 'Eliminación exitosa', 'Cuota / multa eliminada con exito!', true );
                         } else {
                             agregarToast('error', 'Eliminación errada', res.message);
@@ -245,6 +264,7 @@ function cuotasmultasInit() {
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una persona",
+        allowClear: true,
         language: {
             noResults: function() {
                 return "No hay resultado";        
@@ -422,25 +442,14 @@ function cuotasmultasInit() {
         delay: 250,
         allowClear: true,
         placeholder: "Seleccione un concepto",
-        language: {
-            noResults: function() {
-                return "No hay resultado";        
-            },
-            searching: function() {
-                return "Buscando..";
-            },
-            inputTooShort: function () {
-                return "Por favor introduce 1 o más caracteres";
-            }
-        },
         ajax: {
-            url: 'api/concepto-facturacion-combo',
+            url: 'api/cuotasmultas-concepto',
             headers: headers,
             dataType: 'json',
             data: function (params) {
                 var query = {
                     search: params.term,
-                    tipo_concepto: 1
+                    fecha_periodo: $('#periodo_cuotas_multas').val()
                 }
                 return query;
             },
@@ -449,13 +458,83 @@ function cuotasmultasInit() {
                     results: data.data
                 };
             }
-        }
+
+        },
+        templateResult: formatConceptoCuotasMultas,
+        templateSelection: formatSelectConceptoCuotasMultas
+    });
+
+    updateColumns();
+
+    $("#nivel_cuotas_multas1").on('change', function(){
+        updateColumns();
+        console.log('here');
+        cuotas_multas_table.ajax.reload(function () {
+            getTotalesCuotasMultas();
+        });
+    });
+
+    $("#nivel_cuotas_multas2").on('change', function(){
+        updateColumns();
+        console.log('here');
+        cuotas_multas_table.ajax.reload(function () {
+            getTotalesCuotasMultas();
+        });
     });
 
     $('.water').hide();
     cuotas_multas_table.ajax.reload(function () {
         getTotalesCuotasMultas();
     });
+}
+
+function updateColumns () {
+    if (getNivelCuotasMultas() == 1) {
+        cuotas_multas_table.column(2).visible(false);
+        cuotas_multas_table.column(3).visible(false);
+        cuotas_multas_table.column(4).visible(false);
+        cuotas_multas_table.column(5).visible(false);
+        cuotas_multas_table.column(7).visible(false);
+        cuotas_multas_table.column(8).visible(false);
+        cuotas_multas_table.column(9).visible(false);
+        cuotas_multas_table.column(10).visible(false);
+        cuotas_multas_table.column(11).visible(false);
+        cuotas_multas_table.column(12).visible(false);
+        cuotas_multas_table.column(13).visible(false);
+        cuotas_multas_table.column(14).visible(false);
+    } else {
+        cuotas_multas_table.column(2).visible(true);
+        cuotas_multas_table.column(3).visible(true);
+        cuotas_multas_table.column(4).visible(true);
+        cuotas_multas_table.column(5).visible(true);
+        cuotas_multas_table.column(7).visible(true);
+        cuotas_multas_table.column(8).visible(true);
+        cuotas_multas_table.column(9).visible(true);
+        cuotas_multas_table.column(10).visible(true);
+        cuotas_multas_table.column(11).visible(true);
+        cuotas_multas_table.column(12).visible(true);
+        cuotas_multas_table.column(13).visible(true);
+        cuotas_multas_table.column(14).visible(true);
+    }
+}
+
+function getNivelCuotasMultas() {
+    if($("input[type='radio']#nivel_cuotas_multas1").is(':checked')) return 1;
+    if($("input[type='radio']#nivel_cuotas_multas2").is(':checked')) return 2;
+
+    return false;
+}
+
+function formatConceptoCuotasMultas (concepto) {
+    
+    if (concepto.loading) return concepto.text;
+
+    return concepto.concepto.nombre_concepto;
+}
+
+function formatSelectConceptoCuotasMultas (concepto) {
+
+    return concepto && concepto.concepto ? concepto.concepto.nombre_concepto : '' || concepto.text;
 }
 
 function formatInmuebleSelection (inmueble) {
@@ -583,7 +662,9 @@ $(document).on('click', '#updateCuotaMulta', function () {
             $("#saveCuotaMulta").show();
             $("#saveCuotaMultaLoading").hide();
             $("#cuotaMultasFormModal").modal('hide');
-            cuotas_multas_table.ajax.reload();
+            cuotas_multas_table.ajax.reload(function () {
+                getTotalesCuotasMultas();
+            });
             agregarToast('exito', 'Actualización exitosa', 'Cuota extra / multa actualizada con exito!', true);
         }
     }).fail((err) => {
@@ -737,11 +818,9 @@ function getTotalesCuotasMultas(){
         method: 'GET',
         headers: headers,
         data: {
-            fecha_desde: $('#fecha_desde_cuotas_multas').val(),
-            fecha_hasta: $('#fecha_hasta_cuotas_multas').val(),
+            fecha_periodo: $('#periodo_cuotas_multas').val(),
             id_concepto: $('#id_concepto_filter_cuotas_multas').val(),
             id_nit: $('#id_nit_filter_cuotas_multas').val(),
-            search: searchValue
         },
         dataType: 'json',
     }).done((res) => {
