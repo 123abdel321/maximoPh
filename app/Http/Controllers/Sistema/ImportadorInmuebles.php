@@ -117,7 +117,8 @@ class ImportadorInmuebles extends Controller
 
     public function cargar (Request $request)
     {
-        $inmueblesImport = InmueblesImport::where('estado', 0)
+        $inmueblesImport = InmueblesImport::with('inmueble.personas')
+            ->where('estado', 0)
             ->get();
 
         try {
@@ -146,20 +147,31 @@ class ImportadorInmuebles extends Controller
                         'updated_by' => request()->user()->id
                     ]);
                 }
-                
+                $inmueblesNitsExistentes = InmuebleNit::where('id_inmueble', $inmuebleIm->id_inmueble)->get();
                 //CREATE OR UPDATE PROPIETARIO
+                $porcentajeAdmin = $inmuebleIm->porcentaje_administracion ? $inmuebleIm->porcentaje_administracion : 100;
+                $valorAdmin = $inmuebleIm->valor_administracion;
                 if ($inmuebleIm->id_nit) {
                     InmuebleNit::where('id_inmueble', $inmueble->id)
                         ->where('id_nit', $inmuebleIm->id_nit)
                         ->updateOrCreate([
                             'id_nit' => $inmuebleIm->id_nit,
                             'id_inmueble' => $inmueble->id,
-                            'porcentaje_administracion' => $inmuebleIm->porcentaje_administracion,
-                            'valor_total' => $inmuebleIm->valor_administracion * ($inmuebleIm->porcentaje_administracion / 100),
+                            'porcentaje_administracion' => $porcentajeAdmin,
+                            'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
                             'tipo' => $inmuebleIm->tipo,
                             'created_by' => request()->user()->id,
                             'updated_by' => request()->user()->id
                         ]);
+                } else if (count($inmueblesNitsExistentes)) {
+                    foreach ($inmueblesNitsExistentes as $key => $inmuebleNit) {
+                        InmuebleNit::where('id', $inmuebleNit->id)
+                            ->update([
+                                'porcentaje_administracion' => $porcentajeAdmin,
+                                'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
+                                'updated_by' => request()->user()->id
+                            ]);
+                    }
                 }
             }
 

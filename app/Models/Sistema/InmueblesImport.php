@@ -39,5 +39,10 @@ class InmueblesImport extends Model
     {
         return $this->belongsTo(ConceptoFacturacion::class, 'id_concepto_facturacion');
     }
+
+    public function inmueble()
+    {
+        return $this->belongsTo(Inmueble::class, 'id_inmueble');
+    }
     
 }
