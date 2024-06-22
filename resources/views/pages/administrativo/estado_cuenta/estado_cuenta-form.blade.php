@@ -9,6 +9,8 @@
             </div>
             <div class="modal-body">
 
+                <img src="img/formas_pago.png" style="width: 100%;"/>
+
                 <form id="estadoCuentaPagoForm" style="margin-top: 10px;" class="row needs-invalidation" noinvalidate>
 
                     <input type="text" class="form-control" name="id_recibo_estado_cuenta_up" id="id_recibo_estado_cuenta_up" style="display: none;">
