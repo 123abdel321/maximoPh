@@ -1088,7 +1088,7 @@
                         <div class="flex-1">
                             <a href="/login"
                                 class="d-inline-block d-lg-none flex-order-1 f5 no-underline border color-border-default rounded-2 px-2 py-1 color-fg-inherit">
-                                Sign in
+                                Iniciar sesion
                             </a>
                         </div>
 
@@ -1227,6 +1227,7 @@
                                             <div class="d-flex flex-column flex-md-row flex-items-center">
                                                 <input type="hidden" name="source" value="form-home-signup">
                                                 <button
+                                                    onclick="reloadLogin()"
                                                     class="btn-mktg width-full width-md-auto mb-3 mb-md-0 rounded-md-left-0 home-campaign-signup-button btn-signup-mktg">
                                                     Iniciar Sesión
                                                 </button>
@@ -2036,6 +2037,10 @@
 	<script>
 		function openWhatSapp() {
             window.open("https://wa.me/3183899872?text=Hola,%20necesito%20más%20información%20sobre%20maximoph%2020listing`", "_blank");
+        }
+
+        function reloadLogin() {
+            window.location.href = '/login';
         }
 	</script>
 
