@@ -634,6 +634,8 @@ class FacturacionController extends Controller
             }
         }
 
+        $total_intereses = $this->roundNumber($total_intereses);
+
         $extrasConceptos[] = (object)[
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
