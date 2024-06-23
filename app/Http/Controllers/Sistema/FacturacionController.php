@@ -634,13 +634,11 @@ class FacturacionController extends Controller
             }
         }
 
-        $total_intereses = $this->roundNumber($total_intereses);
-
         $extrasConceptos[] = (object)[
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
             'items' => $count_intereses,
-            'valor_total' => round($total_intereses),
+            'valor_total' => $this->roundNumber($total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
             'diferencia'=> 0,
