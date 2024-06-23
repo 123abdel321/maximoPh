@@ -103,16 +103,22 @@ function cuotasmultasInit() {
             }, render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'observacion', className: 'dt-body-left'},
             {"data": function (row, type, set){  
-                var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
-                if(!row.created_by && !row.fecha_creacion) return '';
-                if(!row.created_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_creacion+'</div>';
-                return html;
+                if (row.totales == 0) {
+                    var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
+                    if(!row.created_by && !row.fecha_creacion) return '';
+                    if(!row.created_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_creacion+'</div>';
+                    return html;
+                }
+                return '';
             }},
             {"data": function (row, type, set){
-                var html = '<div class="button-user" onclick="showUser('+row.updated_by+',`'+row.fecha_edicion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_edicion+'</div>';
-                if(!row.updated_by && !row.fecha_edicion) return '';
-                if(!row.updated_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_edicion+'</div>';
-                return html;
+                if (row.totales == 0) {
+                    var html = '<div class="button-user" onclick="showUser('+row.updated_by+',`'+row.fecha_edicion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_edicion+'</div>';
+                    if(!row.updated_by && !row.fecha_edicion) return '';
+                    if(!row.updated_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_edicion+'</div>';
+                    return html;
+                }
+                return '';
             }},
             {
                 "data": function (row, type, set){
@@ -464,6 +470,149 @@ function cuotasmultasInit() {
         templateSelection: formatSelectConceptoCuotasMultas
     });
 
+    $('#id_concepto_tipo_facturacion_cuotas_multas_delete').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#cuotaMultasFormModal'),
+        delay: 250,
+        placeholder: "Seleccione un concepto",
+        dropdownParent: $('#cuotaMultasDeleteModal'),
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/concepto-facturacion-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 1
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_zona_cuotas_multas_delete').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una zona",
+        allowClear: true,
+        dropdownParent: $('#cuotaMultasDeleteModal'),
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_inmueble_cuotas_multas_delete').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un inmueble",
+        dropdownParent: $('#cuotaMultasDeleteModal'),
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        },
+        templateResult: formatInmuebleCombo,
+        templateSelection: formatInmuebleSelection
+    });
+
+    $('#id_nit_cuotas_multas_delete').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        dropdownParent: $('#cuotaMultasDeleteModal'),
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    id_nits: nitsInmuebles
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
     updateColumns();
 
     $("#nivel_cuotas_multas1").on('change', function(){
@@ -490,7 +639,6 @@ function cuotasmultasInit() {
             getTotalesCuotasMultas();
         });
     });
-    
 }
 
 function updateColumns () {
@@ -706,6 +854,67 @@ $(document).on('click', '#createCuotasMultas', function () {
         cuotasConceptosIndividual();
     }
     $("#cuotaMultasFormModal").modal('show');
+});
+
+$(document).on('click', '#deleteCuotasMultas', function () {
+    $("#cuotaMultasDeleteModal").modal('show');
+});
+
+$(document).on('click', '#deleteCuotaMultasMasivo', function () {
+    var conceptoFacturacion = $('#id_concepto_tipo_facturacion_cuotas_multas_delete').val();
+    var zona = $('#id_zona_cuotas_multas_delete').val();
+    var inmueble = $('#id_inmueble_cuotas_multas_delete').val();
+    var idNit = $('#id_nit_cuotas_multas_delete').val();
+    var periodo = $('#fecha_inicio_cuotas_multas_delete').val();
+
+    if (!conceptoFacturacion && !zona && !inmueble && !idNit && !periodo) {
+        agregarToast('error', 'Eliminación errada', 'Debe seleccionar alemenos una opción', true );
+    }
+
+    $("#deleteCuotaMultaLoading").show();
+    $("#deleteCuotaMultasMasivo").hide();
+
+    let data = {
+        id_concepto_facturacion: conceptoFacturacion,
+        id_zona: zona,
+        id_inmueble: inmueble,
+        id_nit: idNit,
+        periodo: periodo
+    }
+
+    $.ajax({
+        url: base_url + 'cuotasmultas-delete',
+        method: 'DELETE',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+
+            $("#deleteCuotaMultaLoading").hide();
+            $("#deleteCuotaMultasMasivo").show();
+
+            $("#cuotaMultasDeleteModal").modal('hide');
+            cuotas_multas_table.ajax.reload();
+            agregarToast('exito', 'Eliminacion exitosa', 'Cuota extra / multa eliminadas con exito!', true);
+        }
+    }).fail((err) => {
+        $("#deleteCuotaMultaLoading").hide();
+        $("#deleteCuotaMultasMasivo").show();
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Eliminacion errada', errorsMsg);
+    });
 });
 
 $(document).on('change', '#masivo_cuotas_multas', function () {

@@ -408,6 +408,47 @@ class CuotasMultasController extends Controller
         }
     }
 
+    public function deleteMasivo (Request $request)
+    {
+        try {
+            DB::connection('max')->beginTransaction();
+
+            CuotasMultas::when($request->get('id_concepto_facturacion'), function ($query) use ($request) {
+                    $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
+                }) 
+                ->when($request->get('id_zona'), function ($query) use ($request) {
+                    $query->where('id_zona', $request->get('id_zona'));
+                })
+                ->when($request->get('id_inmueble'), function ($query) use ($request) {
+                    $query->where('id_inmueble', $request->get('id_inmueble'));
+                })
+                ->when($request->get('id_nit'), function ($query) use ($request) {
+                    $query->where('id_nit', $request->get('id_nit'));
+                })
+                ->when($request->get('periodo'), function ($query) use ($request) {
+                    $query->where("fecha_inicio", '<=', $request->get('periodo'))
+                        ->where("fecha_fin", '>=', $request->get('periodo'));
+                })
+                ->delete();
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Cuota / multa eliminada con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     public function totales (Request $request)
     {
         $filtro1 = $request->get('fecha_desde') && $request->get('fecha_hasta') ? true : false;
