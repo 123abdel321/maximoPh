@@ -1435,7 +1435,7 @@ class FacturacionController extends Controller
 
     private function roundNumber($number)
     {
-        $redondeo = Entorno::where('nombre', 'redondeo_entorno')->first();
+        $redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
         if ($redondeo && $redondeo->valor) {
             return round($number / $redondeo->valor) * $redondeo->valor;
         }

@@ -257,6 +257,16 @@ class EntornosTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
+            24 => 
+            array (
+                'id' => 27,
+                'nombre' => 'redondeo_intereses',
+                'valor' => '',
+                'created_by' => NULL,
+                'updated_by' => NULL,
+                'created_at' => NULL,
+                'updated_at' => NULL,
+            ),
         ));
         
         
