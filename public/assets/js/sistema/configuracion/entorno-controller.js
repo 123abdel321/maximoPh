@@ -5,6 +5,7 @@ function entornoInit() {
 
         var numberEntorno = [
             'area_total_m2',
+            'redondeo_intereses',
             'numero_total_unidades',
             'valor_total_presupuesto_year_actual',
             'porcentaje_intereses_mora',
@@ -41,6 +42,7 @@ $(document).on('click', '#updateEntorno', function () {
 
     let data = {
         'area_total_m2': stringToNumberFloat($('#area_total_m2').val()),
+        'redondeo_intereses': $('#redondeo_intereses').val(),
         'numero_total_unidades': stringToNumberFloat($('#numero_total_unidades').val()),
         'valor_total_presupuesto_year_actual': stringToNumberFloat($('#valor_total_presupuesto_year_actual').val()),
         'porcentaje_intereses_mora': stringToNumberFloat($('#porcentaje_intereses_mora').val()),

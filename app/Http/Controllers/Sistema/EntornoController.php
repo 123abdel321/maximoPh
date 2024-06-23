@@ -46,12 +46,14 @@ class EntornoController extends Controller
                 'porcentaje_intereses_mora',
                 'editar_valor_admon_inmueble',
                 'editar_coheficiente_admon_inmueble',
-                'periodo_facturacion'
+                'periodo_facturacion',
+                'redondeo_intereses'
             ];
 
             foreach ($variablesEntorno as $variable) {
                 if ($request->has($variable)) {
-                    Entorno::where('nombre', $variable)->update([
+                    Entorno::where('nombre', $variable)->updateOrCreate([
+                        'nombre' => $variable,
                         'valor' => $request->get($variable)
                     ]);
                 }

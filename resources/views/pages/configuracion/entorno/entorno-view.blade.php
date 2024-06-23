@@ -52,6 +52,11 @@
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="porcentaje_intereses_mora" id="porcentaje_intereses_mora">
                             </div>
 
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Redondeo intereses</label>
+                                <input type="number" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
+                            </div>
+
                             <div class="form-check form-switch col-12 col-sm-6 col-md-4">
                                 <input class="form-check-input" type="checkbox" name="validacion_estricta" id="validacion_estricta" style="height: 20px;">
                                 <label class="form-check-label" for="validacion_estricta">
