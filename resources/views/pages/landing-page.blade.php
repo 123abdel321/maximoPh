@@ -197,8 +197,6 @@
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
 ">
 
-    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
-
     <meta property="fb:app_id" content="1401488693436528">
     <meta name="apple-itunes-app" content="app-id=64568685, app-argument=https://maximoph.com/">
     <meta name="twitter:image:src" content="https://maximoph.com/img/logo_contabilidad.png">
@@ -233,7 +231,6 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
-    <link rel="me" href="https://hachyderm.io/@github">
     <link crossorigin="anonymous" media="all" rel="stylesheet"
         href="https://github.githubassets.com/assets/home-f57bcc4383d0.css">
     <link rel="preload" href="https://github.githubassets.com/assets/mona-sans-d1bf285e9b9b.woff2" as="font"
@@ -251,8 +248,6 @@
 
     <meta name="theme-color" content="#1e2327">
     <meta name="color-scheme" content="light dark">
-
-    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
 
     <style id="ms-consent-banner-main-styles">
         .w8hcgFksdo30C8w-bygqu {
@@ -1278,39 +1273,6 @@
                                 <a class="sub-nav-mktg-link Link--primary no-underline py-1 py-lg-2 js-scrollnav-item"
                                     href="#collaboration">Contacto</a>
                             </div>
-
-                            <div class="sub-nav-mktg-ctas ml-lg-3">
-                                <a class="btn-mktg ml-lg-2 mt-2 mt-lg-0 d-block d-lg-inline-block btn-muted-mktg"
-                                    data-analytics-event="{&quot;category&quot;:&quot;Homepage&quot;,&quot;action&quot;:&quot;click to Start a free enterprise trial&quot;,&quot;label&quot;:&quot;ref_cta:Start a free enterprise trial;ref_loc:Homepage;&quot;}"
-                                    href="/organizations/enterprise_plan?ref_cta=Start+a+free+enterprise+trial&amp;ref_loc=homepage+sticky+nav&amp;ref_page=%2F">
-                                    Start a free enterprise trial
-
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="octicon arrow-symbol-mktg" width="16"
-                                        height="16" viewBox="0 0 16 16" fill="none">
-                                        <path fill="currentColor"
-                                            d="M7.28033 3.21967C6.98744 2.92678 6.51256 2.92678 6.21967 3.21967C5.92678 3.51256 5.92678 3.98744 6.21967 4.28033L7.28033 3.21967ZM11 8L11.5303 8.53033C11.8232 8.23744 11.8232 7.76256 11.5303 7.46967L11 8ZM6.21967 11.7197C5.92678 12.0126 5.92678 12.4874 6.21967 12.7803C6.51256 13.0732 6.98744 13.0732 7.28033 12.7803L6.21967 11.7197ZM6.21967 4.28033L10.4697 8.53033L11.5303 7.46967L7.28033 3.21967L6.21967 4.28033ZM10.4697 7.46967L6.21967 11.7197L7.28033 12.7803L11.5303 8.53033L10.4697 7.46967Z">
-                                        </path>
-                                        <path class="octicon-chevrow-stem" stroke="currentColor" d="M1.75 8H11"
-                                            stroke-width="1.5" stroke-linecap="round"></path>
-                                    </svg>
-
-                                </a>
-                                <a class="btn-mktg ml-lg-2 mt-2 mt-lg-0 d-block d-lg-inline-block"
-                                    data-analytics-event="{&quot;category&quot;:&quot;Homepage&quot;,&quot;action&quot;:&quot;click to Sign up for GitHub&quot;,&quot;label&quot;:&quot;ref_cta:Sign up for GitHub;ref_loc:Homepage;&quot;}"
-                                    href="/join?ref_cta=Sign+up+for+GitHub&amp;ref_loc=homepage+sticky+nav&amp;ref_page=%2F&amp;source=homepage-sticky-nav">
-                                    Sign up for GitHub
-
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="octicon arrow-symbol-mktg" width="16"
-                                        height="16" viewBox="0 0 16 16" fill="none">
-                                        <path fill="currentColor"
-                                            d="M7.28033 3.21967C6.98744 2.92678 6.51256 2.92678 6.21967 3.21967C5.92678 3.51256 5.92678 3.98744 6.21967 4.28033L7.28033 3.21967ZM11 8L11.5303 8.53033C11.8232 8.23744 11.8232 7.76256 11.5303 7.46967L11 8ZM6.21967 11.7197C5.92678 12.0126 5.92678 12.4874 6.21967 12.7803C6.51256 13.0732 6.98744 13.0732 7.28033 12.7803L6.21967 11.7197ZM6.21967 4.28033L10.4697 8.53033L11.5303 7.46967L7.28033 3.21967L6.21967 4.28033ZM10.4697 7.46967L6.21967 11.7197L7.28033 12.7803L11.5303 8.53033L10.4697 7.46967Z">
-                                        </path>
-                                        <path class="octicon-chevrow-stem" stroke="currentColor" d="M1.75 8H11"
-                                            stroke-width="1.5" stroke-linecap="round"></path>
-                                    </svg>
-
-                                </a>
-                            </div>
                         </div>
                     </div>
 
@@ -1375,7 +1337,7 @@
                                         </p>
                                         <div>
                                             <a class="link-mktg text-semibold color-fg-default py-1 f3-mktg"
-                                                href="/features/actions">
+                                                href="/">
                                                 Obtenga más información
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     class="octicon arrow-symbol-mktg" width="16" height="16"
