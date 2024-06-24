@@ -321,7 +321,8 @@ function saveRecibo() {
         var url = base_web_erp + 'recibos-print';
         url+= '?token_db='+localStorage.getItem("token_db_portafolio");
         url+= '&id='+res.impresion;
-
+        
+        guardandoRecibo = false
         if(res.impresion) {
             window.open(url, '_blank');
         }
@@ -494,7 +495,6 @@ function changeTotalAbonoRecibo(event) {
                 }
             });
         }
-
         
         mostrarValoresRecibos();
         
