@@ -355,136 +355,81 @@ class InmuebleController extends Controller
         return $inmuebles->paginate(40);
     }
 
-    public function totales ()
+    public function totales (Request $request)
     {
-        $totalInmuebles = Inmueble::count();
-        $areaM2Total = Inmueble::sum('area');
-        $coeficienteTotal = Inmueble::sum('coeficiente');
-        $valorRegistroPresupuesto = InmuebleNit::sum('valor_total');
-        $total_concepto_facturacion = $this->totalesConceptoFacturacion();
-        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-        $saldo_anterior = 0;
-        $count_saldo_anterior = 0;
-
-        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-
-        $total_extras_multas = $this->totalesExtrasMultas($inicioMes, $finMes);
-
-        $nitsFacturacion = InmuebleNit::groupBy('id_nit')
-            ->get();
-
-        $response = (new Extracto(//TRAER CUENTAS POR COBRAR
-            null,
-            [3,7],
-            null,
-            $periodo_facturacion
-        ))->send(request()->user()->id_empresa);
-
-        if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-            DB::connection('max')->rollback();
-            return response()->json([
-                "success"=>false,
-                'data' => [],
-                "message"=> $response['message']
-            ], 422);
+        $totalInmuebles = Inmueble::whereNotNull('id');
+        $search = $request->get('search');
+        $nitSsearch = $search ? $this->nitsSearch($search) : [];
+        if ($search) {
+            $totalInmuebles->where('nombre', 'LIKE', '%'.$search.'%')
+                ->orWhere('area', 'LIKE', '%'.$search.'%')
+                ->orWhere('coeficiente', 'LIKE', '%'.$search.'%')
+                ->orWhere('observaciones', 'LIKE', '%'.$search.'%')
+                ->orWhere('valor_total_administracion', 'LIKE', '%'.$search.'%')
+                ->when(count($nitSsearch) > 0 ? true : false, function ($query) use($nitSsearch) {
+                    $query->orWhereHas('personas',  function ($query) use($nitSsearch) {
+                        $query->whereIn('id_nit', $nitSsearch);
+                    });
+                });
         }
 
-        $extractos = $response['response']->data;
-        $extractosNits = [];
-
-        foreach ($extractos as $extracto) {
-            $extracto = (object)$extracto;
-            $extractosNits[$extracto->id_nit][] =$extracto;
+        $areaM2Total = Inmueble::whereNotNull('id');
+        if ($search) {
+            $areaM2Total->where('nombre', 'LIKE', '%'.$search.'%')
+                ->orWhere('area', 'LIKE', '%'.$search.'%')
+                ->orWhere('coeficiente', 'LIKE', '%'.$search.'%')
+                ->orWhere('observaciones', 'LIKE', '%'.$search.'%')
+                ->orWhere('valor_total_administracion', 'LIKE', '%'.$search.'%')
+                ->when(count($nitSsearch) > 0 ? true : false, function ($query) use($nitSsearch) {
+                    $query->orWhereHas('personas',  function ($query) use($nitSsearch) {
+                        $query->whereIn('id_nit', $nitSsearch);
+                    });
+                });
         }
 
-        $total_intereses = 0;
-        $count_intereses = 0;
-
-        $response = (new Extracto(//TRAER ANTICIPOS
-            null,
-            [4,8]
-        ))->send(request()->user()->id_empresa);
-
-        if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-            DB::connection('max')->rollback();
-            return response()->json([
-                "success"=>false,
-                'data' => [],
-                "message"=> $response['message']
-            ], 422);
+        $coeficienteTotal = Inmueble::whereNotNull('id');
+        if ($search) {
+            $coeficienteTotal->where('nombre', 'LIKE', '%'.$search.'%')
+                ->orWhere('area', 'LIKE', '%'.$search.'%')
+                ->orWhere('coeficiente', 'LIKE', '%'.$search.'%')
+                ->orWhere('observaciones', 'LIKE', '%'.$search.'%')
+                ->orWhere('valor_total_administracion', 'LIKE', '%'.$search.'%')
+                ->when(count($nitSsearch) > 0 ? true : false, function ($query) use($nitSsearch) {
+                    $query->orWhereHas('personas',  function ($query) use($nitSsearch) {
+                        $query->whereIn('id_nit', $nitSsearch);
+                    });
+                });
         }
 
-        $anticipos = $response['response']->data;
-        $anticiposNits = [];
-
-        foreach ($anticipos as $anticipo) {
-            $anticipo = (object)$anticipo;
-            $anticiposNits[$anticipo->id_nit][] = $anticipo;
+        $inmueblesPresupuesto = Inmueble::whereNotNull('id');
+        if ($search) {
+            $inmueblesPresupuesto->where('nombre', 'LIKE', '%'.$search.'%')
+                ->orWhere('area', 'LIKE', '%'.$search.'%')
+                ->orWhere('coeficiente', 'LIKE', '%'.$search.'%')
+                ->orWhere('observaciones', 'LIKE', '%'.$search.'%')
+                ->orWhere('valor_total_administracion', 'LIKE', '%'.$search.'%')
+                ->when(count($nitSsearch) > 0 ? true : false, function ($query) use($nitSsearch) {
+                    $query->orWhereHas('personas',  function ($query) use($nitSsearch) {
+                        $query->whereIn('id_nit', $nitSsearch);
+                    });
+                });
         }
-
-        $total_anticipos = 0;
-        $count_anticipos = 0;
-
-        foreach ($nitsFacturacion as $inmuebleNit) {
-            $cobrarInteses = [];
-
-            $inmueblesFacturar = InmuebleNit::with('inmueble.concepto', 'inmueble.zona')//INMUEBLES DEL NIT
-                ->where('id_nit', $inmuebleNit->id_nit)
-                ->get();
-
-            //RECORREMOS INMUEBLES DEL NIT
-            foreach ($inmueblesFacturar as $inmuebleFactura) {
-                $cxcIntereses = $inmuebleFactura->inmueble->concepto->id_cuenta_cobrar;
-                if ($inmuebleFactura->inmueble->concepto->intereses && !in_array($cxcIntereses, $cobrarInteses)) {
-                    array_push($cobrarInteses, $cxcIntereses);
-                }
-            }
-            
-            $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
-            $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
-
-            if (array_key_exists($inmuebleNit->id_nit, $extractosNits)) {
-                foreach ($extractosNits[$inmuebleNit->id_nit] as $extracto) {
-                    $saldo = floatval($extracto->saldo);
-                    $saldo_anterior+= $saldo;
-                    $count_saldo_anterior++;
-                    if (!in_array($extracto->id_cuenta, $cobrarInteses)) continue;
-                    
-                    $total_intereses+= $saldo * ($porcentaje_intereses_mora / 100);
-                    $count_intereses++;
-                }
-            }
-
-            if (array_key_exists($inmuebleNit->id_nit, $anticiposNits)) {
-                foreach ($anticiposNits[$inmuebleNit->id_nit] as $anticipos) {
-                    $anticipo = floatval($anticipos->saldo);
-                    $total_anticipos+= $anticipo;
-                    $count_anticipos++;
-                }
+        $inmueblesFilter = [];
+        $inmueblesPresupuesto = $inmueblesPresupuesto->get();
+        if (count($inmueblesPresupuesto)) {
+            foreach ($inmueblesPresupuesto as $inmuebles) {
+                $inmueblesFilter[] = $inmuebles->id;
             }
         }
 
-        $existe_facturacion = Facturacion::where('fecha_manual', $finMes)->count();
+        $totalPresupuesto = InmuebleNit::whereIn('id_inmueble', $inmueblesFilter)
+            ->sum('valor_total');;
 
         $data = [
-            'numero_total_unidades' => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
-            'numero_registro_unidades' => $totalInmuebles,
-            'area_total_m2' => Entorno::where('nombre', 'area_total_m2')->first()->valor,
-            'area_registro_m2' => $areaM2Total,
-            'valor_total_presupuesto' => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
-            'valor_registro_presupuesto' => $valorRegistroPresupuesto,
-            'valor_registro_coeficiente' => $coeficienteTotal * 100,
-            'periodo_facturacion' => Entorno::where('nombre', 'periodo_facturacion')->first()->valor,
-            'total_intereses' => $total_intereses,
-            'count_intereses' => $count_intereses,
-            'totales_extras_multas' => $total_extras_multas,
-            'saldo_anterior' => $saldo_anterior,
-            'count_saldo_anterior' => $count_saldo_anterior,
-            'total_anticipos' => $total_anticipos,
-            'count_anticipos' => $count_anticipos,
-            'totales_concepto_facturacion' => $total_concepto_facturacion,
-            'existe_facturacion' => $existe_facturacion
+            'numero_registro_unidades' => $totalInmuebles->count(),
+            'area_registro_m2' => $areaM2Total->sum('area'),
+            'valor_registro_presupuesto' => $totalPresupuesto,
+            'valor_registro_coeficiente' => $coeficienteTotal->sum('coeficiente') * 100
         ];
 
         return response()->json([
