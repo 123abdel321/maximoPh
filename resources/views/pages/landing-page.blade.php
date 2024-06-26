@@ -1333,7 +1333,7 @@
                                             <em>Extras esclusivos</em>
 											<br/>
 											<br/>
-											IVA, ICA, Certificados de retención, PQR - Mensajeria - Tateras Clasificados y asambleas, Repositorio de actas, Medios magneticos & Activos fijos
+											IVA, ICA, Certificados de retención, PQR - Mensajeria - Tareas Clasificados y asambleas, Repositorio de actas, Medios magneticos & Activos fijos
                                         </p>
                                         <div>
                                             <a class="link-mktg text-semibold color-fg-default py-1 f3-mktg"
