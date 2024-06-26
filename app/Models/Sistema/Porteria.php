@@ -15,6 +15,7 @@ class Porteria extends Model
 
     protected $fillable = [
         'id_usuario',
+        'id_nit',
         'tipo_porteria',
         'tipo_vehiculo',
         'tipo_mascota',
@@ -34,7 +35,7 @@ class Porteria extends Model
 
     public function propietario()
     {
-		return $this->belongsTo('App\Models\User', 'id_usuario', 'id');
+		return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
 	}
 
 }

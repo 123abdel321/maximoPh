@@ -22,24 +22,9 @@
 
                 <input type="file" name="imagen_porteria" id="imagen_porteria" onchange="readURLPorteria(this);" style="display: none" />
 
-                @if ($usuario_rol != 5 && $usuario_rol != 3)
-                    <div class="form-group  col-12 col-sm-6 col-md-6">
-                        <label>Cédula / Nit<span style="color: red">*</span></label>
-                        <select name="id_nit_porteria" id="id_nit_porteria" class="form-control form-control-sm" style="width: 100%; font-size: 13px;" required>
-                        </select>
-                        
-                        <div class="invalid-feedback">
-                            La cédula / nit es requerida
-                        </div>
-                    </div>
-                @endif
-
                 <div class="form-group col-12 col-sm-6 col-md-6" style="align-self: center;">
                     <label for="exampleFormControlSelect1">Categorias<span style="color: red">*</span></label>
                     <select class="form-control form-control-sm" id="tipo_porteria_create" name="tipo_porteria_create">
-                        @if ($usuario_rol != 5 && $usuario_rol != 3)
-                            <option value="0">PROPIETARIO</option>
-                        @endif
                         <option value="1">RESIDENTE</option>
                         <option value="4">VISITANTE</option>
                         <option value="2">MASCOTA</option>

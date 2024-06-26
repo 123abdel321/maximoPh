@@ -46,6 +46,9 @@ Route::controller(ApiController::class)->group(function () {
     Route::get('register', 'register');
     Route::get('usuario-accion', 'getUsuario');
     Route::post('create-empresa', 'createEmpresa');
+    Route::get('/', function (Request $request) {
+        return response()->json('MaximoPH API');
+    });
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

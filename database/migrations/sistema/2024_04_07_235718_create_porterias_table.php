@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('porterias', function (Blueprint $table) {
             $table->id();
             $table->integer('id_usuario')->nullable();
+            $table->integer('id_nit')->nullable();
             $table->integer('tipo_porteria')->nullable()->default(0)->comment('0 - Propietario; 1 - Residente; 2 - Mascota; 3 - Vehiculo; 4 - Visitante;');
             $table->integer('tipo_vehiculo')->nullable()->default(0)->comment('0 - Ninguno; 1 - Carro; 2 - Moto; 3 - Otros;');
             $table->integer('tipo_mascota')->nullable()->default(0)->comment('0 - Perro; 1 - Gato; 2 - Otros;');

@@ -32,9 +32,68 @@ class PorteriaController extends Controller
         ];
 	}
 
-    public function index ()
+    public function index (Request $request)
     {
-        return view('pages.administrativo.porteria.porteria-view');
+        $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->user()->id)
+            ->where('id_empresa', $request->user()->id_empresa)
+            ->first();
+
+        $data = [
+            'usuario_rol' => $usuarioEmpresa->id_rol
+        ];
+
+        return view('pages.administrativo.porteria.porteria-view', $data);
+    }
+
+    public function readPorteria (Request $request)
+    {
+        try {
+            $draw = $request->get('draw');
+            $start = $request->get("start");
+            $rowperpage = $request->get("length");
+
+            $columnIndex_arr = $request->get('order');
+            $columnName_arr = $request->get('columns');
+            $order_arr = $request->get('order');
+            $search_arr = $request->get('search');
+
+            $columnIndex = $columnIndex_arr[0]['column']; // Column index
+            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
+            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
+            $searchValue = $search_arr['value']; // Search value
+
+            $porteria = Porteria::orderBy($columnName,$columnSortOrder)
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
+
+            $porteriasTotals = $porterias->get();
+
+            $porteriasPaginate = $porterias->skip($start)
+                ->take($rowperpage);
+
+            return response()->json([
+                'success'=>	true,
+                'draw' => $draw,
+                'iTotalRecords' => $porteriasTotals->count(),
+                'iTotalDisplayRecords' => $porteriasTotals->count(),
+                'data' => $porteriasPaginate->get(),
+                'perPage' => $rowperpage,
+                'message'=> 'Zonas generados con exito!'
+            ]);
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
     }
 
     public function read (Request $request)
@@ -50,33 +109,45 @@ class PorteriaController extends Controller
             $porteriaTotal = Porteria::count();
 
             $porteria = Porteria::with('archivos', 'propietario')
-                ->where('estado', true);
+                ->where('estado', true)
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
 
+            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2) {
+                $porteria->where('id_usuario', $request->user()->id);
+            }
+            
             if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2 && $request->get("search")) {
-                $porteria->where('id_usuario', $request->user()->id)
+                $porteria->where('id_nit', $usuarioEmpresa->id_nit)
                     ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
             } else if ($request->get("search")){
-                $usuarioSearch = $this->usuarioSearch($request->get("search"));
-                $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
-                    ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
-                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
-                    ->when(count($usuarioSearch), function ($query) use($usuarioSearch) {
-                        $query->orWhereIn('id_usuario', $usuarioSearch);
-                    });
+                // // $usuarioSearch = $this->usuarioSearch($request->get("search"));
+                
+                // $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
+                //     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                //     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                //     // ->when(count($usuarioSearch), function ($query) use($usuarioSearch) {
+                //     //     $query->orWhereIn('id_usuario', $usuarioSearch);
+                //     // })
+                //     ;
             }
-
-            if ($request->get("hoy")) {
-                $fechaHoy = Carbon::now();
-                $diaHoy = $fechaHoy->dayOfWeek;
-
+            
+            if ($request->get("id_nit")) $porteria->where('id_nit');
+            if ($request->get("tipo")) $porteria->where('tipo_porteria');
+            if ($request->get("fecha")) {
+                $fechaFilter = Carbon::parse($request->get("fecha"))->format('Y-m-d');
+                $diaFilter = $fechaHoy->dayOfWeek;
                 $porteria->where('dias', 'LIKE', '%'.$diaHoy.'%')
                     ->orWhere('hoy', $fechaHoy->format('Y-m-d'));
             }
-
-            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2) {
-                $porteria->where('id_usuario', $request->user()->id);
+            if ($request->get("search")) {
             }
 
             $porteria->skip($start)->take($rowperpage);
@@ -153,6 +224,17 @@ class PorteriaController extends Controller
 
             $file = $request->file('imagen_porteria');
 
+            $usuarioEmpresa = null;
+            if ($request->get('id_nit_porteria')) {
+                $usuarioEmpresa = UsuarioEmpresa::where('id_nit', $request->get('id_nit_porteria'))
+                    ->where('id_empresa', $request->user()->id_empresa)
+                    ->first();
+            } else {
+                $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->user()->id)
+                    ->where('id_empresa', $request->user()->id_empresa)
+                    ->first();
+            }
+
             //ACTUALIZAR
             if ($request->get('id_porteria_up')) {
                 Porteria::where('id', $request->get('id_porteria_up'))
@@ -178,7 +260,8 @@ class PorteriaController extends Controller
                 }
             } else {
                 $porteria = Porteria::create([
-                    'id_usuario' => request()->user()->id,
+                    'id_nit' => $usuarioEmpresa->id_nit,
+                    'id_usuario' => $usuarioEmpresa->id_usuario,
                     'tipo_porteria' => $request->get('tipo_porteria_create'),
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
                     'tipo_mascota' => $request->get('tipo_mascota_porteria'),
@@ -341,6 +424,7 @@ class PorteriaController extends Controller
             ->where('firstname', 'LIKE', '%'.$search.'%')
             ->orWhere('lastname', 'LIKE', '%'.$search.'%')
             ->orWhere('email', 'LIKE', '%'.$search.'%')
+            ->orWhere('apartamentos', 'LIKE', '%'.$search.'%')
             ->get()->toArray();
 
         if (count($users)) {

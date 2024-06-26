@@ -76,71 +76,18 @@
                         Agregar en porteria
                     </button>
                 @endcan
-                @can('porteria eventos')
-                    <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria">
-                        Agregar evento
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm" id="verEventoPorteriaHoy" style="width: 10px; height: 34px;">
-                        <label style="margin-left: -12px; color: white;">Hoy</label>
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm" id="quitarEventoPorteriaHoy" style="width: 10px; height: 34px; display: none;">
-                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
-                    </button>
-                    
-                @endcan
-            </div>
-            <div class="col-12 col-md-4 col-sm-4">
-                <input type="text" id="searchInputPorteria" class="form-control form-control-sm search-table" onkeydown="searchPorteria(event)" placeholder="Buscar Visitante, Mascotas, Residentes & Vehiculos">
             </div>
         </div>
 
-        <div class="card" style="height: 100%; display: none;">
-            <div class="row" style="z-index: 9; margin-top: 7px;">
-
-                <div class="form-group col-6 col-sm-4 col-md-4">
-                    <label for="formZonaLabel">Persona<span style="color: red">*</span></label>
-                    <select name="id_nit_porteria_filter" id="id_nit_porteria_filter" class="form-control form-control-sm">
-                    </select>
-                </div>
-    
-                <div class="form-group col-6 col-sm-4 col-md-4">
-                    <label for="exampleFormControlSelect1">Categorias<span style="color: red">*</span></label>
-                    <select class="form-control form-control-sm" id="id_tipo_porteria_filter">
-                        <option value="">TODOS</option>
-                        <option value="0">PERSONAS</option>
-                        <option value="1">MASCOTAS</option>
-                        <option value="2">VEHICULOS</option>
-                    </select>
-                </div>
-    
-                <div class="form-group col-6 col-sm-4 col-md-4">
-                    <label for="example-text-input" class="form-control-label">Buscar</label>
-                    <input type="text" class="form-control form-control-sm" name="searchInputPorteria" id="searchInputPorteria" onkeydown="searchPorteria(event)">
-                </div>
-
-            </div>
-        </div>
-
-        <div id="loading-porteria" class="row" style="margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); place-content: center;">
-            <i class="fa fa-spinner fa-pulse fa-4x fa-fw" style="color: white;width: 150px;"></i>
-        </div>
-
-        <div id="items-tabla-porteria" class="card mb-4" style="content-visibility: auto; overflow: auto;">
+        <div class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
-                <p style="margin-bottom: 0px; text-align: -webkit-center; font-weight: 600; font-size: 20px">Eventos creados del día</p>
 
-                @include('pages.administrativo.porteria.porteria_evento-table')
+                @include('pages.administrativo.porteria.porteria-table', ['usuario_rol' => $usuario_rol])
 
             </div>
         </div>
-        
-        <div id="items-card-porteria" class="row" style="margin-top: 1rem; padding-right: 0px; margin-left: -5px;">
 
-        </div>
-
-        @include('pages.administrativo.porteria.porteria-form')
-        @include('pages.administrativo.porteria.porteria_evento-form')
-        @include('pages.administrativo.porteria.porteria_evento-show')
+        @include('pages.administrativo.porteria.porteria-form', ['usuario_rol' => $usuario_rol])
 
     </div>
 </div>
