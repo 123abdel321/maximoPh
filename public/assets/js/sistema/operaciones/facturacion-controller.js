@@ -239,6 +239,9 @@ function facturarNitIndividual() {
             }
         }
     }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Creación errada', errorsMsg);
     });
 }
 
