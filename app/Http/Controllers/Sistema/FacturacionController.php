@@ -250,7 +250,7 @@ class FacturacionController extends Controller
                 $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
                 if ($anticiposDisponibles > 0) {
-                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
+                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, 'cuotas');
                 }
             }
 
@@ -423,7 +423,7 @@ class FacturacionController extends Controller
                     
                     $inicioMes = date('Y-m', strtotime($periodo_facturacion));
                     $valor+= $inmuebleFactura->valor_total;
-                    
+
                     $documentoReferencia = $this->generarFacturaInmueble($factura, $inmuebleFactura, $totalInmuebles);
                     if ($totalAnticipos > 0) {
                         $totalAnticipos = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia);
@@ -822,7 +822,6 @@ class FacturacionController extends Controller
     {
         $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
         $data = (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))->buildPdf()->getData();
-        // // dd($data);
 
         // return view('pdf.facturacion.facturaciones', $data);
         return (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))
@@ -899,7 +898,7 @@ class FacturacionController extends Controller
         return $inicioMes.$documentoReferenciaNumeroInmuebles;
     }
 
-    private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
+    private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia, $anotherConcepto = false)
     {
         $totalAnticipar = 0;
         if ($totalAnticipos >= $inmuebleFactura->valor_total) {
@@ -923,8 +922,8 @@ class FacturacionController extends Controller
             $facturaDetalle = FacturacionDetalle::create([
                 'id_factura' => $factura->id,
                 'id_nit' => $inmuebleFactura->id_nit,
-                'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
-                'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                'id_cuenta_por_cobrar' => $anotherConcepto ? $inmuebleFactura->id_cuenta_cobrar : $id_cuenta_anticipos,
+                'id_cuenta_ingreso' => $anotherConcepto ? $inmuebleFactura->id_cuenta_ingreso : $inmuebleFactura->id_cuenta_cobrar,
                 'id_comprobante' => $id_comprobante_notas,
                 'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                 'fecha_manual' => $inicioMes.'-01',
