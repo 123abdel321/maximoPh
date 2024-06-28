@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 //SISTEMA
 use App\Http\Controllers\HomeController;
@@ -36,11 +36,11 @@ use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
-//MODELOS
-use App\Models\Empresa\Empresa;
-use App\Models\Sistema\Porteria;
-use App\Models\Sistema\InmuebleNit;
-use App\Models\Empresa\UsuarioEmpresa;
+// //MODELOS
+// use App\Models\Empresa\Empresa;
+// use App\Models\Sistema\Porteria;
+// use App\Models\Sistema\InmuebleNit;
+// use App\Models\Empresa\UsuarioEmpresa;
 
 Route::get('/', function () {
 	return view('pages.landing-page');
@@ -57,35 +57,35 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 	Route::group(['middleware' => ['clientconnectionweb']], function () {
 
 		// Route::get('/actualizar-nits-apartamentos', [InmuebleNitController::class, 'fast']);
-		Route::get('/crear-porteria-items', function (Request $request) {
-			$inmuebleNit = InmuebleNit::with('nit')->groupBy('id_nit')->get();
+		// Route::get('/crear-porteria-items', function (Request $request) {
+		// 	$inmuebleNit = InmuebleNit::with('nit')->groupBy('id_nit')->get();
 			
-			if (count($inmuebleNit)) {
-				foreach ($inmuebleNit as $nit) {
-					$usuarioNit = UsuarioEmpresa::where('id_empresa', request()->user()->id_empresa)
-						->where('id_nit', $nit->id)
-						->first();
+		// 	if (count($inmuebleNit)) {
+		// 		foreach ($inmuebleNit as $nit) {
+		// 			$usuarioNit = UsuarioEmpresa::where('id_empresa', request()->user()->id_empresa)
+		// 				->where('id_nit', $nit->id)
+		// 				->first();
 
-					if ($usuarioNit) {
-						Porteria::create([
-							'id_nit' => $nit->id,
-							'id_usuario' => $usuarioNit->id_usuario,
-							'tipo_porteria' => $nit->tipo,
-							'tipo_vehiculo' => null,
-							'tipo_mascota' => null,
-							'nombre' => $nit->nit->nombre_completo,
-							'dias' => null,
-							'placa' => null,
-							'hoy' => null,
-							'observacion' => null,
-							'created_by' => request()->user()->id,
-							'updated_by' => request()->user()->id
-						]);
-					}
-				}
-			}
-			return json_encode('items de porteria creados con exito');
-		});
+		// 			if ($usuarioNit) {
+		// 				Porteria::create([
+		// 					'id_nit' => $nit->id,
+		// 					'id_usuario' => $usuarioNit->id_usuario,
+		// 					'tipo_porteria' => $nit->tipo,
+		// 					'tipo_vehiculo' => null,
+		// 					'tipo_mascota' => null,
+		// 					'nombre' => $nit->nit->nombre_completo,
+		// 					'dias' => null,
+		// 					'placa' => null,
+		// 					'hoy' => null,
+		// 					'observacion' => null,
+		// 					'created_by' => request()->user()->id,
+		// 					'updated_by' => request()->user()->id
+		// 				]);
+		// 			}
+		// 		}
+		// 	}
+		// 	return json_encode('items de porteria creados con exito');
+		// });
 
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
