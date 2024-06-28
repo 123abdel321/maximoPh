@@ -187,7 +187,7 @@ class FacturacionController extends Controller
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
             $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
             $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
-            
+
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
             $factura = Facturacion::create([//CABEZA DE FACTURA
@@ -251,7 +251,7 @@ class FacturacionController extends Controller
                 $valoresExtra+= $cuotaMultaFactura->valor_total;
                 $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
-                if ($anticiposDisponibles > 0 && $this->generarCruce($cuotaMultaFactura->id_cuenta_cobrar)) {
+                if ($anticiposDisponibles > 0) {
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, 'cuotas');
                 }
             }
