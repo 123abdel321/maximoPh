@@ -675,7 +675,7 @@ function clearFormEventoPorteria() {
     $('#default_avatar_evento').show();
     $('#default_avatar_evento').attr('src', '/img/add-imagen.png');
 
-    $comboInmuebleEventos.prop('disabled', false);
+    // $comboInmuebleEventos.prop('disabled', false);
     $("#tipo_evento").val(0).trigger('change');
     $("#persona_porteria_evento").val("").trigger('change');
     $("#inmueble_porteria_evento").val("").trigger('change');

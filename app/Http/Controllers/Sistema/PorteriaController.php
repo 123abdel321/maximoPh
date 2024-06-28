@@ -128,26 +128,26 @@ class PorteriaController extends Controller
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
             } else if ($request->get("search")){
-                // // $usuarioSearch = $this->usuarioSearch($request->get("search"));
                 
-                // $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
-                //     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
-                //     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
-                //     // ->when(count($usuarioSearch), function ($query) use($usuarioSearch) {
-                //     //     $query->orWhereIn('id_usuario', $usuarioSearch);
-                //     // })
-                //     ;
             }
             
-            if ($request->get("id_nit")) $porteria->where('id_nit');
-            if ($request->get("tipo")) $porteria->where('tipo_porteria');
+            if ($request->get("id_nit")) $porteria->where('id_nit', $request->get("id_nit"));
+            if ($request->get("tipo") || $request->get("tipo") == '0') $porteria->where('tipo_porteria', $request->get("tipo"));
             if ($request->get("fecha")) {
-                $fechaFilter = Carbon::parse($request->get("fecha"))->format('Y-m-d');
-                $diaFilter = $fechaHoy->dayOfWeek;
-                $porteria->where('dias', 'LIKE', '%'.$diaHoy.'%')
-                    ->orWhere('hoy', $fechaHoy->format('Y-m-d'));
+                $fechaFilter = Carbon::parse($request->get("fecha"));
+                $diaFilter = $fechaFilter->dayOfWeek;
+                $porteria->where('dias', 'LIKE', '%'.$diaFilter.'%')
+                    ->orWhere('hoy', $fechaFilter->format('Y-m-d'));
             }
             if ($request->get("search")) {
+                $nitSearch = $this->nitsSearch($request->get("search"));
+                
+                $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->when(count($nitSearch), function ($query) use($nitSearch) {
+                        $query->orWhereIn('id_nit', $nitSearch);
+                    });
             }
 
             $porteria->skip($start)->take($rowperpage);
@@ -429,6 +429,29 @@ class PorteriaController extends Controller
 
         if (count($users)) {
             foreach ($users as $nit) {
+                $data[] = $nit->id;
+            }
+        }
+
+        return $data;        
+    }
+
+    private function nitsSearch($search)
+    {
+        $data = [];
+        $nits = DB::connection('sam')->table('nits')->select('id')
+            ->where('razon_social', 'LIKE', '%'.$search.'%')
+            ->orWhere('numero_documento', 'LIKE', '%'.$search.'%')
+            ->orWhere(DB::raw("(CASE
+                WHEN razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                WHEN (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, otros_nombres, primer_apellido, segundo_apellido)
+                ELSE NULL
+            END)"), 'LIKE', '%'.$search.'%')
+            ->orWhere('email', 'LIKE', '%'.$search.'%')
+            ->get()->toArray();
+
+        if (count($nits)) {
+            foreach ($nits as $nit) {
                 $data[] = $nit->id;
             }
         }

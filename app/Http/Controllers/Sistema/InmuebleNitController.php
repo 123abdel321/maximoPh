@@ -178,6 +178,7 @@ class InmuebleNitController extends Controller
                 'id_empresa' => request()->user()->id_empresa
             ],[
                 'id_rol' => $idRol, // 3: PROPIETARIO; 4:RESIDENTE
+                'id_nit' => $nit->id,
                 'estado' => 1, // default: 1 activo
             ]);
 
@@ -280,6 +281,7 @@ class InmuebleNitController extends Controller
         }
 
         try {
+            
             DB::connection('max')->beginTransaction();
             DB::connection('clientes')->beginTransaction();
 
@@ -312,12 +314,13 @@ class InmuebleNitController extends Controller
 
             $idRol = $request->get('tipo') == 0 ? 5 : 3;
             $rolPropietario = RolesGenerales::find($idRol);
-
+            
             UsuarioEmpresa::updateOrCreate([
                 'id_usuario' => $usuarioPropietario->id,
                 'id_empresa' => request()->user()->id_empresa
             ],[
                 'id_rol' => $idRol, // ROL PROPIETARIO
+                'id_nit' => $nit->id,
                 'estado' => 1, // default: 1 activo
             ]);
 

@@ -76,10 +76,30 @@
                         Agregar en porteria
                     </button>
                 @endcan
+                @can('porteria eventos')
+                    <button type="button" class="btn btn-dark btn-sm" id="volverEventoPorteria" style="width: 10px; height: 34px; display: none;">
+                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm" id="verEventoPorteria">
+                        Ver eventos
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria" style="display: none;">
+                        Agregar evento
+                    </button>
+                    <!-- <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria">
+                        Evento
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="verEventoPorteriaHoy" style="width: 10px; height: 34px;">
+                        <label style="margin-left: -12px; color: white;">Hoy</label>
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="quitarEventoPorteriaHoy" style="width: 10px; height: 34px; display: none;">
+                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
+                    </button> -->
+                @endcan
             </div>
         </div>
 
-        <div class="card mb-4" style="content-visibility: auto; overflow: auto;">
+        <div id="tabla-porteria" class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
 
                 @include('pages.administrativo.porteria.porteria-table', ['usuario_rol' => $usuario_rol])
@@ -87,6 +107,16 @@
             </div>
         </div>
 
+        <div id="items-tabla-porteria" class="card mb-4" style="content-visibility: auto; overflow: auto; display: none;">
+            <div class="card-body">
+
+                @include('pages.administrativo.porteria.porteria_evento-table')
+
+            </div>
+        </div>
+
+        @include('pages.administrativo.porteria.porteria_evento-form')
+        @include('pages.administrativo.porteria.porteria_evento-show')
         @include('pages.administrativo.porteria.porteria-form', ['usuario_rol' => $usuario_rol])
 
     </div>
