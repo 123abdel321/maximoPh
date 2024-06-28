@@ -252,7 +252,7 @@ class FacturacionController extends Controller
                 $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
                 if ($anticiposDisponibles > 0) {
-                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, 'cuotas');
+                    $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
                 }
             }
 
@@ -900,7 +900,7 @@ class FacturacionController extends Controller
         return $inicioMes.$documentoReferenciaNumeroInmuebles;
     }
 
-    private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia, $anotherConcepto = false)
+    private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
     {
         if ($anotherConcepto) {
             $totalAnticipar = 0;
@@ -922,12 +922,12 @@ class FacturacionController extends Controller
             foreach ($this->facturas as $key => $facturacxp) {
                 if ($totalAnticipar <= 0) continue;
                 $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
-                // dd($inmuebleFactura);
+                
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
-                    'id_cuenta_por_cobrar' => $anotherConcepto ? $inmuebleFactura->id_cuenta_cobrar : $id_cuenta_anticipos,
-                    'id_cuenta_ingreso' => $anotherConcepto ? $inmuebleFactura->id_cuenta_ingreso : $inmuebleFactura->id_cuenta_cobrar,
+                    'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
+                    'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
                     'id_comprobante' => $id_comprobante_notas,
                     'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                     'fecha_manual' => $inicioMes.'-01',
