@@ -142,6 +142,7 @@ function porteriaInit() {
         responsive: false,
         processing: true,
         serverSide: true,
+
         fixedHeader: true,
         deferLoading: 0,
         initialLoad: false,
@@ -157,8 +158,8 @@ function porteriaInit() {
             url: base_url + 'porteriaevento',
             data: function ( d ) {
                 d.tipo = $("#tipo_evento_porteria_filter").val(),
-                d.fecha = $("#fecha_porteria_evento_filter").val(),
                 d.id_inmueble = $("#inmueble_porteria_evento_filter").val(),
+                d.fecha = $("#fecha_porteria_evento_filter").val(),
                 d.search = $("#searchInputPorteriaEvento").val()
             }
         },
@@ -916,6 +917,19 @@ function searchPorteria (event) {
     porteria_table.context[0].jqXHR.abort();
     porteria_table.ajax.reload();
 }
+
+function searchPorteriaEvento (event) {
+    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
+        return;
+    }
+    var botonPrecionado = event.key.length == 1 ? event.key : '';
+    searchValuePorteria = $('#searchInputPorteriaEvento').val();
+    searchValuePorteria = searchValuePorteria+botonPrecionado;
+    if(event.key == 'Backspace') searchValuePorteria = searchValuePorteria.slice(0, -1);
+
+    porteria_evento_table.context[0].jqXHR.abort();
+    porteria_evento_table.ajax.reload();
+} 
 
 function formatNitPorteria (nit) {
     if (nit.loading) return nit.text;

@@ -53,6 +53,27 @@ class PorteriaEventoController extends Controller
                     'updated_by'
                 )
                 ->whereDate('created_at', Carbon::now()->format('Y-m-d'));
+
+            if ($request->get("id_inmueble")) $porteriaEvento->where('id_inmueble', $request->get("id_inmueble"));
+            if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));
+            if ($request->get("fecha")) {
+                $fechaFilter = Carbon::parse($request->get("fecha")->format('Y-m-d'));
+                $porteriaEvento->where('fecha_ingreso', $fechaFilter)
+                    ->orWhere('fecha_salida', $fechaFilter)
+                    ->orWhere('created_at', $fechaFilter);
+            }
+            if ($request->get("search")) {
+                $porteriaEvento->where('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->orWhereHas('persona', function ($query) use ($request) {
+                        $query->where('nombre', 'like', '%' .$request->get("search"). '%')
+                            ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                            ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
+                    })
+                    ->orWhereHas('inmueble', function ($query) use ($request) {
+                        $query->where('nombre', 'like', '%' .$request->get("search"). '%')
+                            ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
+                    });
+            }
             
             $porteriaEventoTotals = $porteriaEvento->get();
             
