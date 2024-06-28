@@ -247,10 +247,10 @@ class FacturacionController extends Controller
                     'documento_referencia' => $documentoReferencia,
                     'saldo' => floatval($cuotaMultaFactura->valor_total)
                 ];
+            }
 
-                if ($anticiposDisponibles > 0 && $valoresIntereses) {
-                    $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
-                }
+            if ($anticiposDisponibles > 0 && $valoresIntereses) {
+                $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
             }
 
             //RECORREMOS CUOTAS Y MULTAS CXC
@@ -915,7 +915,7 @@ class FacturacionController extends Controller
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-
+        
         foreach ($detalleFacturas as $detalleFactura) {
             if ($totalAnticipos <= 0) continue;
             $detalleFactura = (object)$detalleFactura;
