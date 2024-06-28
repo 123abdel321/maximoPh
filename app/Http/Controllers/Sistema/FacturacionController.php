@@ -902,53 +902,51 @@ class FacturacionController extends Controller
 
     private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
     {
-        if ($anotherConcepto) {
-            $totalAnticipar = 0;
-            if ($totalAnticipos >= $inmuebleFactura->valor_total) {
-                $totalAnticipar = $inmuebleFactura->valor_total;
-                $totalAnticipos-= $inmuebleFactura->valor_total;
-            } else {
-                $totalAnticipar = $totalAnticipos;
-                $totalAnticipos = 0;
-            }
-    
-            $id_comprobante_notas = Entorno::where('nombre', 'id_comprobante_notas')->first()->valor;
-            $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
-            $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-            $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-            $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-            $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
-    
-            foreach ($this->facturas as $key => $facturacxp) {
-                if ($totalAnticipar <= 0) continue;
-                $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
-                
-                $facturaDetalle = FacturacionDetalle::create([
-                    'id_factura' => $factura->id,
-                    'id_nit' => $inmuebleFactura->id_nit,
-                    'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
-                    'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
-                    'id_comprobante' => $id_comprobante_notas,
-                    'id_centro_costos' => $inmuebleFactura->id_centro_costos,
-                    'fecha_manual' => $inicioMes.'-01',
-                    'documento_referencia' => $documentoReferencia,
-                    'documento_referencia_anticipo' => $facturacxp->documento_referencia,
-                    'valor' => round($totalCruce),
-                    'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
-                    'naturaleza_opuesta' => true,
-                    'created_by' => request()->user()->id,
-                    'updated_by' => request()->user()->id,
-                ]);
-                $totalAnticipar-= $totalCruce;
-                $this->facturas[$key]->saldo-= $totalCruce;
-            }
-    
-            foreach ($this->facturas as $key => $facturacxp) {
-                if ($facturacxp->saldo <= 0) unset($this->facturas[$key]);
-            }
-    
-            return $totalAnticipos;
+        $totalAnticipar = 0;
+        if ($totalAnticipos >= $inmuebleFactura->valor_total) {
+            $totalAnticipar = $inmuebleFactura->valor_total;
+            $totalAnticipos-= $inmuebleFactura->valor_total;
+        } else {
+            $totalAnticipar = $totalAnticipos;
+            $totalAnticipos = 0;
         }
+
+        $id_comprobante_notas = Entorno::where('nombre', 'id_comprobante_notas')->first()->valor;
+        $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
+        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
+        $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
+
+        foreach ($this->facturas as $key => $facturacxp) {
+            if ($totalAnticipar <= 0) continue;
+            $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
+            
+            $facturaDetalle = FacturacionDetalle::create([
+                'id_factura' => $factura->id,
+                'id_nit' => $inmuebleFactura->id_nit,
+                'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
+                'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                'id_comprobante' => $id_comprobante_notas,
+                'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                'fecha_manual' => $inicioMes.'-01',
+                'documento_referencia' => $documentoReferencia,
+                'documento_referencia_anticipo' => $facturacxp->documento_referencia,
+                'valor' => round($totalCruce),
+                'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
+                'naturaleza_opuesta' => true,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id,
+            ]);
+            $totalAnticipar-= $totalCruce;
+            $this->facturas[$key]->saldo-= $totalCruce;
+        }
+
+        foreach ($this->facturas as $key => $facturacxp) {
+            if ($facturacxp->saldo <= 0) unset($this->facturas[$key]);
+        }
+
+        return $totalAnticipos;
     }
     
     private function generarFacturaInmuebleIntereses(Facturacion $factura, $inmuebleFactura, $id_empresa, $periodo_facturacion)
