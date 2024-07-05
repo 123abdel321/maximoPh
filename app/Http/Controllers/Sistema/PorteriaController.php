@@ -123,12 +123,22 @@ class PorteriaController extends Controller
             }
             
             if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2 && $request->get("search")) {
+                $nitSearch = $this->nitsSearch($request->get("search"));
                 $porteria->where('id_nit', $usuarioEmpresa->id_nit)
                     ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
-                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
+                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->when(count($nitSearch), function ($query) use($nitSearch) {
+                        $query->orWhereIn('id_nit', $nitSearch);
+                    });
             } else if ($request->get("search")){
-                
+                $nitSearch = $this->nitsSearch($request->get("search"));
+                $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->when(count($nitSearch), function ($query) use($nitSearch) {
+                        $query->orWhereIn('id_nit', $nitSearch);
+                    });
             }
             
             if ($request->get("id_nit")) $porteria->where('id_nit', $request->get("id_nit"));
@@ -138,16 +148,6 @@ class PorteriaController extends Controller
                 $diaFilter = $fechaFilter->dayOfWeek;
                 $porteria->where('dias', 'LIKE', '%'.$diaFilter.'%')
                     ->orWhere('hoy', $fechaFilter->format('Y-m-d'));
-            }
-            if ($request->get("search")) {
-                $nitSearch = $this->nitsSearch($request->get("search"));
-                
-                $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
-                    ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
-                    ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
-                    ->when(count($nitSearch), function ($query) use($nitSearch) {
-                        $query->orWhereIn('id_nit', $nitSearch);
-                    });
             }
 
             $porteria->skip($start)->take($rowperpage);
@@ -176,6 +176,14 @@ class PorteriaController extends Controller
             $porteria = Porteria::with('archivos', 'propietario')
                 ->where('id', $request->get('id'))
                 ->first();
+
+            if (!$porteria->propietario) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => null,
+                    "message"=>'El propietario no tiene una Cédula/Nit asociado'
+                ], 422);
+            }
                 
             $nit = Nits::where('email', $porteria->propietario->email)->first();
             $inmuebleNit = InmuebleNit::with('inmueble')->where('id_nit', $nit->id)->first();
@@ -448,6 +456,7 @@ class PorteriaController extends Controller
                 ELSE NULL
             END)"), 'LIKE', '%'.$search.'%')
             ->orWhere('email', 'LIKE', '%'.$search.'%')
+            ->orWhere('apartamentos', 'LIKE', '%'.$search.'%')
             ->get()->toArray();
 
         if (count($nits)) {

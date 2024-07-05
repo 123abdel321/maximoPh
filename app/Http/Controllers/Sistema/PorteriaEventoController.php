@@ -57,10 +57,10 @@ class PorteriaEventoController extends Controller
             if ($request->get("id_inmueble")) $porteriaEvento->where('id_inmueble', $request->get("id_inmueble"));
             if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));
             if ($request->get("fecha")) {
-                $fechaFilter = Carbon::parse($request->get("fecha")->format('Y-m-d'));
-                $porteriaEvento->where('fecha_ingreso', $fechaFilter)
-                    ->orWhere('fecha_salida', $fechaFilter)
-                    ->orWhere('created_at', $fechaFilter);
+                $fechaFilter = Carbon::parse($request->get("fecha"))->format('Y-m-d');
+                $porteriaEvento->where('fecha_ingreso', 'LIKE', '%'.$fechaFilter.'%')
+                    ->orWhere('fecha_salida', 'LIKE', '%'.$fechaFilter.'%')
+                    ->orWhere('created_at', 'LIKE', '%'.$fechaFilter.'%');
             }
             if ($request->get("search")) {
                 $porteriaEvento->where('observacion', 'like', '%' .$request->get("search"). '%')

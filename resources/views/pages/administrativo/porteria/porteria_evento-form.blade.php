@@ -24,6 +24,7 @@
                     <label for="exampleFormControlSelect1">Tipo evento<span style="color: red">*</span></label>
                     <select class="form-control form-control-sm" name="tipo_evento" id="tipo_evento">
                         <option value="0">Visita</option>
+                        <option value="3">Domicilio</option>
                         <option value="1">Paquete</option>
                         <option value="2">Minuta</option>
                     </select>

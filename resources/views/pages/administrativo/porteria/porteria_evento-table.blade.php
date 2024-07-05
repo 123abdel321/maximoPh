@@ -5,6 +5,7 @@
         <select class="form-control form-control-sm" id="tipo_evento_porteria_filter" name="tipo_evento_porteria_filter">
             <option value="">Todos</option>
             <option value="0">Visita</option>
+            <option value="3">Domicilio</option>
             <option value="1">Paquete</option>
             <option value="2">Minuta</option>
         </select>

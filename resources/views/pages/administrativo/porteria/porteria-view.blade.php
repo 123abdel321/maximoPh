@@ -71,11 +71,7 @@
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-8 col-sm-8">
-                @can('porteria create')
-                    <button type="button" class="btn btn-primary btn-sm" id="generatePorteriaNueva">
-                        Agregar en porteria
-                    </button>
-                @endcan
+                
                 @can('porteria eventos')
                     <button type="button" class="btn btn-dark btn-sm" id="volverEventoPorteria" style="width: 10px; height: 34px; display: none;">
                         <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
@@ -86,15 +82,11 @@
                     <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria" style="display: none;">
                         Agregar evento
                     </button>
-                    <!-- <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria">
-                        Evento
+                @endcan
+                @can('porteria create')
+                    <button type="button" class="btn btn-primary btn-sm" id="generatePorteriaNueva">
+                        Nuevo registro
                     </button>
-                    <button type="button" class="btn btn-success btn-sm" id="verEventoPorteriaHoy" style="width: 10px; height: 34px;">
-                        <label style="margin-left: -12px; color: white;">Hoy</label>
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm" id="quitarEventoPorteriaHoy" style="width: 10px; height: 34px; display: none;">
-                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
-                    </button> -->
                 @endcan
             </div>
         </div>

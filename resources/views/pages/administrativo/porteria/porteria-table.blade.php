@@ -42,7 +42,8 @@
             <th>Placa</th>
             <th>Dias</th>
             <th>Observacion</th>
-            <th>Cedula / Nit</th>
+            <th>Propietario / Residente</th>
+            <th>Ubicacion</th>
             <th>Creación registro</th>
             <th>Ultima actualización</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>

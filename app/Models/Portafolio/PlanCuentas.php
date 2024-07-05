@@ -18,8 +18,8 @@ class PlanCuentas extends Model
 
     protected $fillable = [
         'id_padre',
-        'id_tipo_cuenta',
         'id_impuesto',
+        'id_tipo_cuenta',
         'id_exogena_formato',
         'id_exogena_formato_concepto',
         'id_exogena_formato_columna',
@@ -39,6 +39,11 @@ class PlanCuentas extends Model
         'created_by',
         'updated_by'
     ];
+
+    public function padre()
+    {
+        return $this->hasOne(PlanCuentas::class, "id_padre");
+    }
     
     public function tipos_cuenta()
     {

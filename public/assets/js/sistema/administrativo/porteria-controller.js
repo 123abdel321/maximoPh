@@ -39,6 +39,10 @@ var weekGoalkeeper = [
 
 function porteriaInit() {
 
+    fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
+    $('#fecha_porteria_filter').val(fecha);
+    $('#fecha_porteria_evento_filter').val(fecha);
+
     porteria_table = $('#porteriaTable').DataTable({
         pageLength: 15,
         dom: 'Brtip',
@@ -100,7 +104,10 @@ function porteriaInit() {
                 if (row.tipo_porteria == 4) {
                     return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #d000a4;">Visitante</span>';
                 }
-                return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #f4ff04; color: black;">Propietario</span>';
+                if (row.tipo_porteria == 5) {
+                    return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #198c51;">Paquete</span>';
+                }
+                return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #82198c; color: white;">Propietario</span>';
             }},
             {"data":'placa'},
             {"data":'dias'},
@@ -108,6 +115,12 @@ function porteriaInit() {
             {"data": function (row, type, set){  
                 if (row.propietario) {
                     return row.propietario.nombre_completo;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){  
+                if (row.propietario) {
+                    return row.propietario.apartamentos;
                 }
                 return '';
             }},
@@ -185,6 +198,9 @@ function porteriaInit() {
                 }
                 if (row.tipo == '2') {
                     return 'Minuta';
+                }
+                if (row.tipo == '3') {
+                    return 'Paquete';
                 }
                 return 'Visita';
             }},
@@ -365,6 +381,20 @@ function porteriaInit() {
         
             }).fail((err) => {
                 $("#loading-card-porteria-"+id).hide();
+                var errorsMsg = "";
+                var mensaje = err.responseJSON.message;
+                if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+                    for (field in mensaje) {
+                        var errores = mensaje[field];
+                        for (campo in errores) {
+                            errorsMsg += "- "+errores[campo]+" <br>";
+                        }
+                    };
+                } else {
+                    errorsMsg = mensaje
+                }
+                agregarToast('error', 'Error al cargar evento', errorsMsg);
+
             });
 
         });
@@ -551,6 +581,71 @@ function porteriaInit() {
     });
 
     porteria_table.ajax.reload();
+
+    $("#form-porteria").submit(function(e) {
+        e.preventDefault();
+    
+        var update = false;
+        $("#savePorteria").hide();
+        $("#savePorteriaLoading").show();
+    
+        if ($("#id_porteria_up").val()) update = true;
+    
+        var ajxForm = document.getElementById("form-porteria");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "porteria");
+        xhr.send(data);
+        xhr.onload = function(res) {
+            var responseData = JSON.parse(res.currentTarget.response);
+            $('#savePorteria').show();
+            $('#savePorteriaLoading').hide();
+    
+            if (responseData.success) {
+                agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
+            } else {
+                agregarToast('error', 'Carga errada', responseData.message);
+            }
+            
+            porteria_table.ajax.reload();
+            $("#porteriaFormModal").modal('hide');
+        };
+        xhr.onerror = function (res) {
+            agregarToast('error', 'Carga errada', 'errorsMsg');
+            $('#savePorteria').show();
+            $('#savePorteriaLoading').hide();
+        };
+    });
+    
+    $("#form-porteria-evento").submit(function(e) {
+        e.preventDefault();
+    
+        $("#savePorteriaEvento").hide();
+        $("#savePorteriaEventoLoading").show();
+        $comboInmuebleEventos.prop('disabled', false);
+    
+        var ajxForm = document.getElementById("form-porteria-evento");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "porteriaevento");
+        xhr.send(data);
+        xhr.onload = function(res) {
+            $('#savePorteriaEvento').show();
+            $('#savePorteriaEventoLoading').hide();
+    
+            porteria_evento_table.ajax.reload();
+            
+            //AGREGAR VER EVENTOS
+            agregarToast('exito', 'Evento creado', 'Evento creado con exito!', true);
+    
+            $("#porteriaEventoFormModal").modal('hide');
+        };
+        xhr.onerror = function (res) {
+            agregarToast('error', 'Evento errada', 'Error al crear evento');
+            $('#savePorteria').show();
+            $('#savePorteriaLoading').hide();
+        };
+    });
 }
 
 $(document).on('click', '#generatePorteriaNueva', function () {
@@ -559,6 +654,7 @@ $(document).on('click', '#generatePorteriaNueva', function () {
 });
 
 $(document).on('click', '#verEventoPorteria', function () {
+    var fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     $("#tabla-porteria").hide();
     $("#items-tabla-porteria").show();
 
@@ -568,7 +664,8 @@ $(document).on('click', '#verEventoPorteria', function () {
     $("#generateEventoPorteria").show();
 
     $("#tipo_evento_porteria_filter").val('');
-    $("#fecha_porteria_evento_filter").val('');
+    
+    $('#fecha_porteria_evento_filter').val(fecha);
     $("#inmueble_porteria_evento_filter").val('').change();;
     $("#searchInputPorteriaEvento").val('');
     
@@ -587,75 +684,10 @@ $(document).on('click', '#volverEventoPorteria', function () {
     porteria_table.ajax.reload();
 });
 
-$("#form-porteria").submit(function(e) {
-    e.preventDefault();
-
-    var update = false;
-    $("#savePorteria").hide();
-    $("#savePorteriaLoading").show();
-
-    if ($("#id_porteria_up").val()) update = true;
-
-    var ajxForm = document.getElementById("form-porteria");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "porteria");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        var responseData = JSON.parse(res.currentTarget.response);
-        $('#savePorteria').show();
-        $('#savePorteriaLoading').hide();
-
-        if (responseData.success) {
-            agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
-        } else {
-            agregarToast('error', 'Carga errada', responseData.message);
-        }
-        
-        porteria_table.ajax.reload();
-        $("#porteriaFormModal").modal('hide');
-    };
-    xhr.onerror = function (res) {
-        agregarToast('error', 'Carga errada', 'errorsMsg');
-        $('#savePorteria').show();
-        $('#savePorteriaLoading').hide();
-    };
-});
-
-$("#form-porteria-evento").submit(function(e) {
-    e.preventDefault();
-
-    $("#savePorteriaEvento").hide();
-    $("#savePorteriaEventoLoading").show();
-    $comboInmuebleEventos.prop('disabled', false);
-
-    var ajxForm = document.getElementById("form-porteria-evento");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "porteriaevento");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        $('#savePorteriaEvento').show();
-        $('#savePorteriaEventoLoading').hide();
-
-        porteria_evento_table.ajax.reload();
-        
-        //AGREGAR VER EVENTOS
-        agregarToast('exito', 'Evento creado', 'Evento creado con exito!', true);
-
-        $("#porteriaEventoFormModal").modal('hide');
-    };
-    xhr.onerror = function (res) {
-        agregarToast('error', 'Evento errada', 'Error al crear evento');
-        $('#savePorteria').show();
-        $('#savePorteriaLoading').hide();
-    };
-});
-
 $(document).on('change', '#tipo_porteria_create', function () {
     var tipoPorteria = $("#tipo_porteria_create").val();
     $("#tipo_vehiculo_porteria").val('');
-    console.log('tipoPorteria: ',tipoPorteria);
+
     hideInputPorteria();
     if(parseInt(tipoPorteria) == 1 || parseInt(tipoPorteria) == 0) {
         $("#input_tipo_vehiculo_porteria").hide();
@@ -666,7 +698,7 @@ $(document).on('change', '#tipo_porteria_create', function () {
     } else if (parseInt(tipoPorteria) == 3) {
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_placa_persona_porteria").show();
-    } else if (parseInt(tipoPorteria) == 4) {
+    } else if (parseInt(tipoPorteria) == 4 || parseInt(tipoPorteria) == 5) {
         $("#input_dias_porteria").show();
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_nombre_persona_porteria").show();

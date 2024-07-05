@@ -2,8 +2,8 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" style="contain: content;" role="document">
         <form id="form-porteria" class="modal-content" style="margin-top: 10px;" enctype="multipart/form-data">
             <div class="modal-header">
-                <h5 class="modal-title" id="textPorteriaCreate" style="display: block;">Agregar en porteria</h5>
-                <h5 class="modal-title" id="textPorteriaUpdate" style="display: none;">Editar en porteria</h5>
+                <h5 class="modal-title" id="textPorteriaCreate" style="display: block;">Crear nuevo Registro</h5>
+                <h5 class="modal-title" id="textPorteriaUpdate" style="display: none;">Editar Registro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
@@ -42,6 +42,7 @@
                         @endif
                         <option value="1">RESIDENTE</option>
                         <option value="4">VISITANTE</option>
+                        <option value="5">PAQUETE</option>
                         <option value="2">MASCOTA</option>
                         <option value="3">VEHICULO</option>
                     </select>
