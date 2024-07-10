@@ -1797,3 +1797,19 @@ function cronometroPqrsf (init = true) {
 
     document.getElementById("hms").innerHTML = hAux + ":" + mAux + ":" + sAux; 
 }
+
+function arreglarMensajeError(mensaje) {
+    var errorsMsg = '';
+    if (typeof mensaje === 'object') {
+        for (field in mensaje) {
+            var errores = mensaje[field];
+            for (campo in errores) {
+                errorsMsg += field+": "+errores[campo]+" <br>";
+            }
+        };
+    }
+    else if (typeof mensaje === 'string') {
+        errorsMsg = mensaje;
+    }
+    return errorsMsg;
+}

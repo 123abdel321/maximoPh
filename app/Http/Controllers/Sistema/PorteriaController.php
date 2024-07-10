@@ -109,7 +109,6 @@ class PorteriaController extends Controller
             $porteriaTotal = Porteria::count();
 
             $porteria = Porteria::with('archivos', 'propietario')
-                ->where('estado', true)
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -146,8 +145,7 @@ class PorteriaController extends Controller
             if ($request->get("fecha")) {
                 $fechaFilter = Carbon::parse($request->get("fecha"));
                 $diaFilter = $fechaFilter->dayOfWeek;
-                $porteria->where('dias', 'LIKE', '%'.$diaFilter.'%')
-                    ->orWhere('hoy', $fechaFilter->format('Y-m-d'));
+                $porteria->where('dias', 'LIKE', '%'.$diaFilter);
             }
 
             $porteria->skip($start)->take($rowperpage);

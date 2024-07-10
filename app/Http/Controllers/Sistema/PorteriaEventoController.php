@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Porteria;
 use App\Models\Sistema\PorteriaEvento;
 use App\Models\Sistema\ArchivosGenerales;
 
@@ -135,6 +136,13 @@ class PorteriaEventoController extends Controller
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
+
+            if ($request->get('persona_porteria_evento')) {
+                $porteria = Porteria::find($request->get('persona_porteria_evento'));
+                if ($porteria == 5) {
+                    $porteria->estado = false;
+                }
+            }
 
             if ($file) {
                 $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';

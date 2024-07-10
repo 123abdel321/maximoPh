@@ -99,7 +99,12 @@ function porteriaInit() {
                     return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #4cd361;">Mascota</span>';
                 }
                 if (row.tipo_porteria == 3) {
-                    return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #c0bb12;">Vehiculo</span>';
+                    var texto = 'CARRO';
+                    if (row.tipo_vehiculo == 1) texto = 'MOTO';
+                    if (row.tipo_vehiculo == 2) texto = 'MOTO ELECTRICA';
+                    if (row.tipo_vehiculo == 2) texto = 'BICICLETA ELECTRICA';
+                    if (row.tipo_vehiculo == 4) texto = 'OTROS';
+                    return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #c0bb12;">'+texto+'</span>';
                 }
                 if (row.tipo_porteria == 4) {
                     return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #d000a4;">Visitante</span>';
@@ -110,7 +115,55 @@ function porteriaInit() {
                 return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #82198c; color: white;">Propietario</span>';
             }},
             {"data":'placa'},
-            {"data":'dias'},
+            {"data": function (row, type, set){  
+                const porteria = row;
+                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5) {
+                    if (porteria.dias) {
+                        var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+                        var numeroDia = new Date(dayNow).getDay();
+                        var diasText = '';
+                        var dias = porteria.dias.split(',');
+                        dias.forEach(dia => {
+                            if (diasText) {
+                                if (numeroDia == dia) diasText+=', <b style="color: #59bded;">'+semanaPorteria[dia]+'</b>';
+                                else diasText+=', '+semanaPorteria[dia];
+                                
+                            } else { 
+                                if (numeroDia == dia) diasText+= '<b style="color: #59bded;">'+semanaPorteria[dia]+'</b>';
+                                else diasText+= semanaPorteria[dia];
+                            }
+                        });
+                        return `<p style="font-size: 11px; text-align: -webkit-center; margin-bottom: 0px; margin-top: 5px;">${diasText}</p>`
+                    }
+                    if (porteria.hoy) {
+                        return `<p style="font-size: 11px; text-align: -webkit-center; margin-bottom: 0px; margin-top: 5px;">${porteria.hoy}</p>`;
+                    }
+                }
+            
+                return ``;
+            }},
+            {"data": function (row, type, set){  
+                const porteria = row;
+                if (porteria.tipo_porteria == 1 || porteria.tipo_porteria == 3) {
+                    return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
+                }
+                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5) {
+                    var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+                    var numeroDia = new Date(dayNow).getDay();
+            
+                    if (porteria.dias) {
+                        var diasArray = porteria.dias.split(",");
+                        if (diasArray.includes((numeroDia)+"")) {
+                            return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
+                        }
+                    }
+                    if (porteria.hoy && numeroDia == new Date(porteria.hoy).getDay()) {
+                        return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
+                    }
+                    return `<span class="badge badge-sm bg-gradient-danger">NO AUTORIZADO</span>`;
+                }
+                return ``;
+            }},
             {"data":'observacion'},
             {"data": function (row, type, set){  
                 if (row.propietario) {

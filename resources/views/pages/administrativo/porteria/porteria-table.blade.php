@@ -41,6 +41,7 @@
             <th>Tipo</th>
             <th>Placa</th>
             <th>Dias</th>
+            <th>Estado</th>
             <th>Observacion</th>
             <th>Propietario / Residente</th>
             <th>Ubicacion</th>

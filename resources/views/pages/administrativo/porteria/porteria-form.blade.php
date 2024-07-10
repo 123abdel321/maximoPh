@@ -58,8 +58,10 @@
                     <select class="form-control form-control-sm" name="tipo_vehiculo_porteria" id="tipo_vehiculo_porteria">
                         <option value="" >NINGUNO</option>
                         <option value="0">CARRO</option>
-                        <option value="1">VEHICULO</option>
-                        <option value="2">OTROS</option>
+                        <option value="1">MOTO</option>
+                        <option value="2">MOTO ELECTRICA</option>
+                        <option value="3">BICICLETA ELECTRICA</option>
+                        <option value="4">OTROS</option>
                     </select>
                 </div>
 
