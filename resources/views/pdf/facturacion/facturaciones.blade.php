@@ -50,7 +50,8 @@
 
 			.header-factura > th {
 				border: 1px solid #ddd;
-				background-color: #58978423;
+				background-color: #05434e;
+				color: white;
 			}
 
 			thead {
@@ -262,7 +263,7 @@
 					</tr>
 				@endforeach
 					
-					<tr style="background-color: #ededed;">
+					<tr style="background-color: #58978423;">
 						<td class="padding5 detalle-factura-descripcion">TOTAL</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
