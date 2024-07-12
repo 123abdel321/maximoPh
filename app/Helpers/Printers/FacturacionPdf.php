@@ -41,7 +41,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 		// if ($this->tipoEmpresion == 1) return 'landscape';
 		// if ($this->tipoEmpresion == 2) return 'portrait';
 
-		return '';
+		return 'landscape';
 	}
 
     public function data()
