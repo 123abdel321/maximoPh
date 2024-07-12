@@ -298,8 +298,8 @@
 					<table>
 						<tr>
 							<td class="empresa-footer-left padding5">
-								ESTE INFORME FU&Eacute; GENERADO POR PORTAFOLIOERP <br>
-								www.portafolioerp.com
+								ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
+								www.maximoph.com
 							</td>
 						</tr>
 					</table>
