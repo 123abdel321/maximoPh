@@ -203,6 +203,7 @@ class InmuebleNitController extends Controller
             } else {
                 $portero = Porteria::create([
                     'id_usuario' => $usuarioPropietario->id,
+                    'id_nit' => $nit->id,
                     'tipo_porteria' => $request->get('tipo') == 1 ? 1 : 0,
                     'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
                     'dias' => $request->get('tipo') != 0 ? '1,2,3,4,5,6,7' : null,
