@@ -187,7 +187,7 @@
 									<table>
 										<thead>
 											<tr>
-												<th colspan="2" class="header-total padding5">CLIENTE</th>
+												<th colspan="2" class="header-total padding5">PROPIETARIO</th>
 											</tr>
 										</thead>
 										<tbody>
