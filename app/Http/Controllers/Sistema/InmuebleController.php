@@ -117,7 +117,7 @@ class InmuebleController extends Controller
     {
         $rules = [
             'nombre' => 'required|min:1|max:200|unique:max.inmuebles,nombre',
-            'id_zona' => 'nullable|exists:max.zonas,id',
+            'id_zona' => 'required|exists:max.zonas,id',
             'id_concepto_facturacion' => 'nullable|exists:max.concepto_facturacions,id',
             'area' => 'required',
             'valor_total_administracion' => 'nullable',
