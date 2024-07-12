@@ -68,7 +68,17 @@ class FacturacionPdf extends AbstractPrinterPdf
 		$totales = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
 			->mergeBindings($query)
-			->select(DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'));
+			->select(
+                DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+                DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
+				DB::raw('SUM(debito) AS debito'),
+				DB::raw('SUM(credito) AS credito'),
+				DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+				DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
+				DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
+                'fecha_manual',
+                'consecutivo'
+            );
 
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))

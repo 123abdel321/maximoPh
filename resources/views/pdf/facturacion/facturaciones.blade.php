@@ -146,9 +146,12 @@
 					<td colspan="7 padding5">
 						<table>
 							<tr>
-								<td class=" padding5">
-									
+								<td class="consecutivo padding5">
+									<p>
+										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span>
+									</p>
 								</td>
+								
 								<td class="empresa padding5">
 									<h1>{{ $empresa->razon_social }}</h1>
 									<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
@@ -199,13 +202,12 @@
 													@if($nit->ciudad)
 														{{ $nit->ciudad }}
 													@endif
+													@if ($nit->telefono)
+														- TEL: {{ $nit->telefono }}
+													@endif
 												</td>
 											</tr>
-											@if ($nit->telefono)
-												<tr>
-													<td class="padding3"> TEL: {{ $nit->telefono }}</td>
-												</tr>
-											@endif
+											
 										</tbody>
 									</table>
 								</td>
@@ -219,8 +221,12 @@
 										</thead>
 										<tbody>
 											<tr >
-												<td class="padding5">TOTAL FACTURA</td>
-												<td class="valor padding5">{{ number_format($totales->saldo_final) }}</td>
+												<th class="padding5">FECHA FACTURA</th>
+												<th class="valor padding5">{{ $totales->fecha_manual }}</th>
+											</tr>
+											<tr >
+												<th class="padding5">TOTAL FACTURA</th>
+												<th class="valor padding5">{{ number_format($totales->saldo_final) }}</th>
 											</tr>
 										</tbody>
 									</table>
@@ -240,7 +246,6 @@
 					<td class="spacer"></td>
 				</tr>
 				<tr class="header-factura padding5">
-					<th class="padding5">CUENTA</th>
 					<th class="padding5">NOMBRE</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
@@ -250,13 +255,19 @@
 			<tbody class="detalle-factura">
 				@foreach ($cuentas as $cuenta)
 					<tr>
-						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->cuenta }}</td>
 						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
 					</tr>
 				@endforeach
+					
+					<tr style="background-color: #ededed;">
+						<td class="padding5 detalle-factura-descripcion">TOTAL</td>
+						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
+						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
+						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
+					</tr>
 			</tbody>
 		</table>
 				
