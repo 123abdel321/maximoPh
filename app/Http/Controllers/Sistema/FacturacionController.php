@@ -25,8 +25,6 @@ use App\Models\Portafolio\PlanCuentas;
 use App\Models\Portafolio\CentroCostos;
 use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Sistema\ConceptoFacturacion;
-
-
 class FacturacionController extends Controller
 {
     protected $facturas = null;
@@ -73,8 +71,8 @@ class FacturacionController extends Controller
             $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
             
             $nitSsearch = $search ? $this->nitsSearch($search) : [];
-            $query = $this->inmueblesNitsQuery($empresa, $search, $nitSsearch);
-            $query->unionAll($this->cuotasMultasQuery($empresa, $search, $nitSsearch));
+            $query = $this->inmueblesNitsQuery($empresa, $search, $nitSsearch, $request);
+            $query->unionAll($this->cuotasMultasQuery($empresa, $search, $nitSsearch, $request));
 
             $facturacion = DB::connection('max')
                 ->table(DB::raw("({$query->toSql()}) AS facturaciondata"))
@@ -1100,7 +1098,7 @@ class FacturacionController extends Controller
         return [$valorTotalIntereses, $detalleIntereses];
     }
 
-    private function inmueblesNitsQuery($empresa, $search, $nitSsearch)
+    private function inmueblesNitsQuery($empresa, $search, $nitSsearch, $request = null)
     {
         return DB::connection('max')->table('inmueble_nits AS INMN')
             ->select(
@@ -1123,7 +1121,11 @@ class FacturacionController extends Controller
             })
             ->when(count($nitSsearch), function ($query) use($nitSsearch) {
                 $query->orWhereIn('INMN.id_nit', $nitSsearch);
-            });
+            })
+            ->when($request->get('factura_fisica') ? true : false, function ($query) {
+                $query->orWhereIn('INMN.enviar_notificaciones_mail', true);
+            })
+            ;
     }
 
     private function cuotasMultasQuery($empresa, $search, $nitSsearch)

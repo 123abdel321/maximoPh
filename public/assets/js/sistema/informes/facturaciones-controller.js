@@ -113,3 +113,7 @@ $("#periodo_facturaciones").on('change', function(event) {
 $("#id_nit_facturaciones").on('change', function(event) {
     facturaiones_table.ajax.reload();
 });
+
+$("#nit_fisica_facturaciones").on('change', function(event) {
+    facturaiones_table.ajax.reload();
+});
