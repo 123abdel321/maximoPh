@@ -13,6 +13,7 @@ use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Facturacion;
 use App\Models\Portafolio\ConRecibos;
+use App\Models\Empresa\UsuarioEmpresa;
 
 class EstadoCuentaController extends Controller
 {
@@ -25,6 +26,9 @@ class EstadoCuentaController extends Controller
             'numero_documento' => $nit ? $nit->numero_documento : '',
             'id_comprobante' => Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor,
             'id_cuenta_ingreso' => Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor,
+            'usuario_empresa' => UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first()
         ];
 
         return view('pages.administrativo.estado_cuenta.estado_cuenta-view', $data);

@@ -53,7 +53,22 @@ function pagotransferenciaInit() {
                     return '';
                 }
             },
-            {"data":'fecha_manual'},
+            {
+                "data": function (row, type, set){
+                    var fecha = new Date(row.created_at);
+                    var formatoFecha = new Intl.DateTimeFormat('es-ES', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        second: 'numeric',
+                        hour12: false,
+                        timeZone: 'UTC' // Cambia la zona horaria según tu necesidad
+                    });
+                    return formatoFecha.format(fecha);
+                }
+            },
             {"data":'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {
                 data: 'id',
