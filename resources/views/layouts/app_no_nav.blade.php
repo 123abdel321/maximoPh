@@ -663,6 +663,9 @@
         }
         
         function sendDataLogin() {
+            if (localStorage.getItem("auth_token")){
+                window.location.href = '/home';
+            }
             $('#error-login').hide();
             $("#button-login-loading").show();
             $("#button-login").hide();
