@@ -663,9 +663,15 @@
         }
         
         function sendDataLogin() {
-            if (localStorage.getItem("auth_token")){
-                window.location.href = '/home';
-            }
+
+            localStorage.setItem("token_db_portafolio", '');
+            localStorage.setItem("auth_token", '');
+            localStorage.setItem("auth_token_erp", '');
+            localStorage.setItem("empresa_nombre", '');
+            localStorage.setItem("notificacion_code", '');
+            localStorage.setItem("fondo_sistema", '');
+            localStorage.setItem("empresa_logo", '');
+
             $('#error-login').hide();
             $("#button-login-loading").show();
             $("#button-login").hide();
