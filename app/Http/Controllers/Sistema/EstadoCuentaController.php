@@ -55,7 +55,7 @@ class EstadoCuentaController extends Controller
             $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
                 $nit->id,
                 [4,8]
-            ))->actual()->get();
+            ))->anticipos()->get();
 
             $cuentasXPData = null;
             if (count($responseCXP)) {

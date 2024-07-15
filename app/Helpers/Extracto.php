@@ -259,4 +259,33 @@ class Extracto
         return $queryActual;
     }
 
+    public function anticipos()
+    {
+        $fecha = Carbon::now();
+
+        $query = $this->queryAnticipos();
+
+        $anticipo = DB::connection('sam')
+            ->table(DB::raw("({$query->toSql()}) AS documentosanticipos"))
+            ->mergeBindings($query)
+            ->select(
+                "id_nit",
+                "id_cuenta",
+                "id_comprobante",
+                "id_centro_costos",
+                "fecha_manual",
+                "consecutivo",
+                "documento_referencia",
+                "naturaleza_cuenta",
+                DB::raw('IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono'),
+                DB::raw('IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) AS saldo'),
+                DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
+            )
+            ->groupByRaw('id_nit')
+            ->havingRaw("IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) != 0")
+            ->where('fecha_manual', '<=', $fecha);
+
+        return $anticipo;
+    }
+
 }
