@@ -13,6 +13,7 @@ use App\Http\Controllers\ChangePassword;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\ReciboController;
+use App\Http\Controllers\Portafolio\CarteraController;
 //TABLAS
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\InmuebleController;
@@ -99,7 +100,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/recibo', [ReciboController::class, 'index']);
 		Route::get('/pagotransferencia', [ReciboController::class, 'indexPagos']);
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
-		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);
 		Route::get('/facturacion-pdf', [FacturacionController::class, 'index']);
 		Route::get('/facturacion-show-pdf', [FacturacionController::class, 'showPdf']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
@@ -135,6 +135,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);
 		Route::get('/usuarios', [UsuariosController::class, 'index']);
+		//INFORMES
+		Route::get('/cartera', [CarteraController::class, 'index']);
+		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);
 	});
 	
 });

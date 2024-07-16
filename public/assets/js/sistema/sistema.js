@@ -110,6 +110,7 @@ var moduloCreado = {
     'pqrsf': false,
     'perfil': false,
     'facturaciones': false,
+    'cartera': false,
 };
 
 var moduloRoute = {
@@ -131,7 +132,8 @@ var moduloRoute = {
     'pqrsf': 'administrativo',
     'perfil': 'administrativo',
     'facturaciones': 'informes',
-    'importinmuebles': 'importador'
+    'importinmuebles': 'importador',
+    'cartera': 'informes',
 }
 
 $('.water').show();
