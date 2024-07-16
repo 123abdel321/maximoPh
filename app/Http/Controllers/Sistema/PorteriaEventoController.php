@@ -139,7 +139,7 @@ class PorteriaEventoController extends Controller
 
             if ($request->get('persona_porteria_evento')) {
                 $porteria = Porteria::find($request->get('persona_porteria_evento'));
-                if ($porteria == 5) {
+                if ($porteria->tipo == 5 || $porteria->tipo == 6) {
                     $porteria->estado = false;
                 }
             }

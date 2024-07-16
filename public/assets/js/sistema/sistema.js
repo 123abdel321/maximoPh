@@ -414,6 +414,17 @@ function openNewItem(id, nombre, icon, open = true) {
     if (open) document.getElementById('sidenav-main-2').click();
 }
 
+function closeAnotherItems(id) {
+    let items = document.getElementsByClassName("nav-padre");
+    for (let index = 0; index < items.length; index++) {
+        const element = items[index];
+        if (element.id != 'nav_'+id) {
+            element.classList.add("collapsed");
+            document.getElementById('collapse'+element.id.split('_')[1]).classList.remove("show"); 
+        }
+    }
+}
+
 function closeMenu() {
     if (sidenav.classList.contains('side-nav-maximo-open')) {
         toggleSidenavMaximo();

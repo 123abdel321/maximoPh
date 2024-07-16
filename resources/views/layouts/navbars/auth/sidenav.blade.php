@@ -22,25 +22,25 @@
     }
 
     @-webkit-keyframes color_change {
-            from { color: skyblue; }
-            to { color: darkcyan ; }
-        }
-        @-moz-keyframes color_change {
-            from { color: skyblue; }
-            to { color: darkcyan ; }
-        }
-        @-ms-keyframes color_change {
-            from { color: skyblue; }
-            to { color: darkcyan ; }
-        }
-        @-o-keyframes color_change {
-            from { color: skyblue; }
-            to { color: darkcyan ; }
-        }
-        @keyframes color_change {
-            from { color: skyblue; }
-            to { color: darkcyan ; }
-        }
+        from { color: skyblue; }
+        to { color: darkcyan ; }
+    }
+    @-moz-keyframes color_change {
+        from { color: skyblue; }
+        to { color: darkcyan ; }
+    }
+    @-ms-keyframes color_change {
+        from { color: skyblue; }
+        to { color: darkcyan ; }
+    }
+    @-o-keyframes color_change {
+        from { color: skyblue; }
+        to { color: darkcyan ; }
+    }
+    @keyframes color_change {
+        from { color: skyblue; }
+        to { color: darkcyan ; }
+    }
 
 </style>
 
@@ -59,15 +59,15 @@
     @foreach ($menus as $menu)
 
         <li class="nav-item">
-            <div data-bs-toggle="collapse" href="#collapse{{ $menu[0]->padre->nombre }}" class="nav-link collapsed" aria-controls="dashboardsExamples" role="button" aria-expanded="false" style="color: white;">
+            <div id="nav_{{ $menu[0]->padre->id }}" data-bs-toggle="collapse" href="#collapse{{ $menu[0]->padre->id }}" class="nav-link collapsed nav-padre" aria-controls="{{ $menu[0]->padre->nombre }}" role="button" aria-expanded="false" style="color: white;"
+                onclick="closeAnotherItems('{{ $menu[0]->padre->id }}' )">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                    
                     <i class="{{ $menu[0]->padre->icon }} text-sm opacity-10" style="color: #12d9ff !important;"></i>
                 </div>
                 <span class="nav-link-text ms-1">{{ $menu[0]->padre->nombre }}</span>
             </div>
 
-            <div class="collapse" id="collapse{{ $menu[0]->padre->nombre }}" >
+            <div class="collapse collapse-slow" id="collapse{{ $menu[0]->padre->id }}" >
                 <ul class="navbar-nav" style="margin-left: 15px; border-left: solid 1px #18ff00; margin-left: 30px;">
 
                     @foreach ($menu as $item)
