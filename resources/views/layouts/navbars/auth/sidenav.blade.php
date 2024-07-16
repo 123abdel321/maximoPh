@@ -54,7 +54,7 @@
     <br/>
     <hr class="horizontal dark mt-0">
 
-    <ul class="collapse navbar-collapse navbar-nav" id="sidenav-collapse-main" style="height: 100%;">
+    <ul class="collapse navbar-collapse navbar-nav" id="sidenav-collapse-main" style="height: 80%;">
 
     @foreach ($menus as $menu)
 
