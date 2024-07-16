@@ -50,7 +50,7 @@
                 </div>
 
                 <div id="input_nombre_persona_porteria" style="display: block;" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Nombre<span style="color: red">*</span></label>
+                    <label for="example-text-input" class="form-control-label">Nombre</label>
                     <input type="text" class="form-control form-control-sm" name="nombre_persona_porteria" id="nombre_persona_porteria" onfocus="this.select();">
                 </div>
 

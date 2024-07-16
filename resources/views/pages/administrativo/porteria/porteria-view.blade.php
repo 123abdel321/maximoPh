@@ -117,4 +117,5 @@
 <script>
     var crearPorteria = '<?php echo auth()->user()->can('porteria create'); ?>';
     var eventoPorteria = '<?php echo auth()->user()->can('porteria eventos'); ?>';
+    var usuario_rol = JSON.parse('<?php echo $usuario_rol; ?>');
 </script>

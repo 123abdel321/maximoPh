@@ -112,6 +112,9 @@ function porteriaInit() {
                 if (row.tipo_porteria == 5) {
                     return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #198c51;">Paquete</span>';
                 }
+                if (row.tipo_porteria == 6) {
+                    return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #479295; color: white;">Domicilio</span>';
+                }
                 return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #82198c; color: white;">Propietario</span>';
             }},
             {"data":'placa'},
@@ -192,9 +195,9 @@ function porteriaInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Evento</span>&nbsp;';
-                    html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                    html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Evento</span>&nbsp;';
+                    if (usuario_rol != 4) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    if (usuario_rol != 4) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
             },
@@ -315,20 +318,18 @@ function porteriaInit() {
                 $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
             }
 
-            if(parseInt(data.tipoPorteria) == 1) {
-                $("#input_tipo_vehiculo_porteria").hide();
-                $("#input_nombre_persona_porteria").show();
-            } else if (parseInt(data.tipoPorteria) == 2) {
-                $("#input_tipo_mascota_porteria").show();
-                $("#input_nombre_persona_porteria").show();
-            } else if (parseInt(data.tipoPorteria) == 3) {
-                $("#input_tipo_vehiculo_porteria").show();
-                $("#input_placa_persona_porteria").show();
-            } else if (parseInt(data.tipoPorteria) == 4) {
-                $("#input_dias_porteria").show();
-                $("#input_tipo_vehiculo_porteria").show();
-                $("#input_nombre_persona_porteria").show();
+            var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+            var numeroDia = new Date(dayNow).getDay();
+            if (data.hoy && numeroDia == new Date(data.hoy).getDay()) {
+                $('#diaPorteria0').prop('checked', true);
             }
+            
+            changeTipoPorteria(data.tipo_porteria);
+            
+            console.log('data.tipo_vehiculo', data);
+            var tipoVehiculo = data.tipo_vehiculo;
+            if (!tipoVehiculo && tipoVehiculo!=0) $("#input_placa_persona_porteria").hide();
+            else $("#input_placa_persona_porteria").show();
 
             $("#id_porteria_up").val(id);
             $("#tipo_porteria_create").val(data.tipo_porteria);
@@ -739,9 +740,11 @@ $(document).on('click', '#volverEventoPorteria', function () {
 
 $(document).on('change', '#tipo_porteria_create', function () {
     var tipoPorteria = $("#tipo_porteria_create").val();
-    $("#tipo_vehiculo_porteria").val('');
-
     hideInputPorteria();
+    changeTipoPorteria(tipoPorteria);
+});
+
+function changeTipoPorteria(tipoPorteria) {
     if(parseInt(tipoPorteria) == 1 || parseInt(tipoPorteria) == 0) {
         $("#input_tipo_vehiculo_porteria").hide();
         $("#input_nombre_persona_porteria").show();
@@ -751,11 +754,18 @@ $(document).on('change', '#tipo_porteria_create', function () {
     } else if (parseInt(tipoPorteria) == 3) {
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_placa_persona_porteria").show();
-    } else if (parseInt(tipoPorteria) == 4 || parseInt(tipoPorteria) == 5) {
+    } else if (parseInt(tipoPorteria) == 4 || parseInt(tipoPorteria) == 5 || parseInt(tipoPorteria) == 6) {
         $("#input_dias_porteria").show();
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_nombre_persona_porteria").show();
     }
+}
+
+$(document).on('change', '#tipo_vehiculo_porteria', function () {
+    var tipoVehiculo = $("#tipo_vehiculo_porteria").val();
+
+    if (tipoVehiculo == '') $("#input_placa_persona_porteria").hide();
+    else $("#input_placa_persona_porteria").show();
 });
 
 $(document).on('change', '#tipo_porteria_filter', function () {
