@@ -277,6 +277,8 @@ class Extracto
                 "consecutivo",
                 "documento_referencia",
                 "naturaleza_cuenta",
+                DB::raw('SUM(debito) AS debito'),
+                DB::raw('SUM(credito) AS credito'),
                 DB::raw('IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono'),
                 DB::raw('IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) AS saldo'),
                 DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
