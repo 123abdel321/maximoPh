@@ -800,8 +800,7 @@ class FacturacionController extends Controller
                     DB::raw('SUM(total_columnas) AS total_columnas')
                 )
                 ->groupByRaw('id_nit')
-                ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-                ->havingRaw('saldo_final != 0');
+                ->orderByRaw('cuenta, id_nit, documento_referencia, created_at');
 
             $facturacionTotals = $facturaciones->get();
 
@@ -1438,8 +1437,11 @@ class FacturacionController extends Controller
 			})
             ->when($request->get('id_nit'), function ($query) use($request) {
 				$query->where('DG.id_nit', '=', $request->get('id_nit'));
+			})
+            ->when($request->get('factura_fisica'), function ($query) {
+                $nits = $this->nitFacturaFisica();
+				$query->whereIn('DG.id_nit', $nits);
 			});
-            // ->when $;
 
         return $documentosQuery;
     }
@@ -1496,6 +1498,10 @@ class FacturacionController extends Controller
 			})
             ->when($request->get('id_nit'), function ($query) use($request) {
 				$query->where('DG.id_nit', '=', $request->get('id_nit'));
+			})
+            ->when($request->get('factura_fisica'), function ($query) {
+                $nits = $this->nitFacturaFisica();
+				$query->whereIn('DG.id_nit', $nits);
 			});
 
         return $anterioresQuery;
@@ -1531,6 +1537,21 @@ class FacturacionController extends Controller
             return round($number / $redondeo->valor) * $redondeo->valor;
         }
         return $number;
+    }
+
+    private function nitFacturaFisica()
+    {
+        $nits = [];
+        $inmuebleNit = InmuebleNit::where('enviar_notificaciones_fisica', 1)
+            ->select('id_nit')
+            ->groupBy('id_nit')
+            ->get();
+
+        foreach ($inmuebleNit as $key => $nit) {
+            array_push($nits, $nit->id_nit);
+        }
+
+        return $nits;
     }
 
 }
