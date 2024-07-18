@@ -198,20 +198,34 @@ function carteraInit() {
     $('#id_nit_cartera').select2({
         theme: 'bootstrap-5',
         delay: 250,
-        placeholder: "Seleccione una Cédula/nit",
-        allowClear: true,
+        placeholder: "Seleccione un cliente",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
         ajax: {
-            url: 'api/nit/combo-nit',
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
             dataType: 'json',
-            headers: headers,
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
             processResults: function (data) {
                 return {
                     results: data.data
                 };
             }
-        },
-        templateResult: formatNitCartera,
-        templateSelection: formatRepoCartera
+        }
     });
 
     $('input[type=radio][name=detallar_cartera]').change(function() {
