@@ -186,7 +186,7 @@ function carteraInit() {
                 return query;
             },
             dataType: 'json',
-            headers: headersERP,
+            headers: headers,
             processResults: function (data) {
                 return {
                     results: data.data
@@ -203,7 +203,7 @@ function carteraInit() {
         ajax: {
             url: 'api/nit/combo-nit',
             dataType: 'json',
-            headers: headersERP,
+            headers: headers,
             processResults: function (data) {
                 return {
                     results: data.data
