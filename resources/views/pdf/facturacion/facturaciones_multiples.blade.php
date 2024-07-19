@@ -154,7 +154,13 @@
 									<tr>
 										<td class="consecutivo padding5">
 											<p>
-												<span span class="numero-consecutivo">N° {{ $factura->totales->consecutivo }}</span>
+												<span span class="numero-consecutivo">N°
+													@if ($factura->totales)
+														{{ $factura->totales->consecutivo }}
+													@else
+														N/A
+													@endif
+												</span>
 											</p>
 										</td>
 										
@@ -179,65 +185,68 @@
 					</thead>
 				</table>
 
-				<table>
-					<thead class="">
-						<tr>
-							<td class="spacer padding5"></td>
-						</tr>
-						<tr>
-							<td colspan="8 padding5">
-								<table>
-									<tr>
-										<td class="aling-top padding5">
-											<table>
-												<thead>
-													<tr>
-														<th colspan="2" class="header-total padding5">PROPIETARIO</th>
-													</tr>
-												</thead>
-												<tbody>
-													<tr>
-														<td class="padding3">{{ $factura->cuentas[0]->nombre_nit }}</td>
-													</tr>
-													<tr>
-														<td class="padding3">{{ $factura->cuentas[0]->tipo_documento }} N° {{ $factura->cuentas[0]->numero_documento }}</td>
-													</tr>
-													<tr>
-												<td class="padding3">{{ $factura->cuentas[0]->direccion }}
-													@if ($factura->cuentas[0]->telefono)
-														- TEL: {{ $factura->cuentas[0]->telefono }}
-													@endif
-												</td>
-											</tr>
-												</tbody>
-											</table>
-										</td>
-										
-										<td class="table-total-factura padding5">
-											<table>
-												<thead>
-													<tr>
-														<th colspan="2" class="header-total padding5">TOTALES</th>
-													</tr>
-												</thead>
-												<tbody>
-													<tr >
-														<th class="padding5">FECHA DOCUMENTO</th>
-														<th class="valor padding5">{{ $factura->totales->fecha_manual }}</th>
-													</tr>
-													<tr >
-														<th class="padding5">TOTAL DOCUMENTO</th>
-														<th class="valor padding5">{{ number_format($factura->totales->saldo_final) }}</th>
-													</tr>
-												</tbody>
-											</table>
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</thead>
-				</table>
+				@if (count($factura->cuentas))
+					<table>
+						<thead class="">
+							<tr>
+								<td class="spacer padding5"></td>
+							</tr>
+							<tr>
+								<td colspan="8 padding5">
+									<table>
+										<tr>
+											<td class="aling-top padding5">
+												<table>
+													<thead>
+														<tr>
+															<th colspan="2" class="header-total padding5">PROPIETARIO</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="padding3">{{ $factura->cuentas[0]->nombre_nit }}</td>
+														</tr>
+														<tr>
+															<td class="padding3">{{ $factura->cuentas[0]->tipo_documento }} N° {{ $factura->cuentas[0]->numero_documento }}</td>
+														</tr>
+														<tr>
+													<td class="padding3">{{ $factura->cuentas[0]->direccion }}
+														@if ($factura->cuentas[0]->telefono)
+															- TEL: {{ $factura->cuentas[0]->telefono }}
+														@endif
+													</td>
+												</tr>
+													</tbody>
+												</table>
+											</td>
+											
+											<td class="table-total-factura padding5">
+												<table>
+													<thead>
+														<tr>
+															<th colspan="2" class="header-total padding5">TOTALES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr >
+															<th class="padding5">FECHA DOCUMENTO</th>
+															<th class="valor padding5">{{ $factura->totales->fecha_manual }}</th>
+														</tr>
+														<tr >
+															<th class="padding5">TOTAL DOCUMENTO</th>
+															<th class="valor padding5">{{ number_format($factura->totales->saldo_final) }}</th>
+														</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</thead>
+					</table>
+				@endif
+
 
 				@if (count($factura->cuentas))
 					<table class="tabla-detalle-factura">
