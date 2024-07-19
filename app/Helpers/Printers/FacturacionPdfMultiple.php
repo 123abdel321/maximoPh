@@ -113,12 +113,16 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     DB::raw('SUM(total_columnas) AS total_columnas')
                 )
             ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0');
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
+            ->groupByRaw('id_nit, id_cuenta, documento_referencia')
+            ->get();
 
-            array_push($dataFacturas, (object)[
-                'cuentas' => $facturaciones->groupByRaw('id_nit, id_cuenta, documento_referencia')->get(),
-                'totales' => $totales->groupByRaw('id_nit')->first(),
-            ]);
+            if (count($facturaciones)) {
+                array_push($dataFacturas, (object)[
+                    'cuentas' => $facturaciones,
+                    'totales' => $totales->groupByRaw('id_nit')->first(),
+                ]);
+            }
         }
         
         return [

@@ -139,53 +139,54 @@
 		</style>
 
 	</head>
+	
 	@foreach ($facturas as $factura)
-		<div class="page">
-			<body class="main">
+		@if (count($factura->cuentas) && $factura->totales)
+			<div class="page">
+				<body class="main">
 
-				<table >
-					<thead>
-						<tr>
-							<td class="spacer padding5"></td>
-						</tr>
-						<tr>
-							<td colspan="7 padding5">
-								<table>
-									<tr>
-										<td class="consecutivo padding5">
-											<p>
-												<span span class="numero-consecutivo">N°
-													@if ($factura->totales)
-														{{ $factura->totales->consecutivo }}
-													@else
-														N/A
-													@endif
-												</span>
-											</p>
-										</td>
-										
-										<td class="empresa padding5">
-											<h1>{{ $empresa->razon_social }}</h1>
-											<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
-											<span>{{ $empresa->direccion }}</span><br>
-											<span>TEL: {{ $empresa->telefono }}</span><br>
-										</td>
-										
-										<td class="logo padding5">
-											@if ($empresa->logo)
-												<img stype="height:70px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
-											@else
-												<img style="height:70px;" src="img/logo_contabilidad.png">
-											@endif
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-					</thead>
-				</table>
+					<table >
+						<thead>
+							<tr>
+								<td class="spacer padding5"></td>
+							</tr>
+							<tr>
+								<td colspan="7 padding5">
+									<table>
+										<tr>
+											<td class="consecutivo padding5">
+												<p>
+													<span span class="numero-consecutivo">N°
+														@if ($factura->totales)
+															{{ $factura->totales->consecutivo }}
+														@else
+															N/A
+														@endif
+													</span>
+												</p>
+											</td>
+											
+											<td class="empresa padding5">
+												<h1>{{ $empresa->razon_social }}</h1>
+												<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
+												<span>{{ $empresa->direccion }}</span><br>
+												<span>TEL: {{ $empresa->telefono }}</span><br>
+											</td>
+											
+											<td class="logo padding5">
+												@if ($empresa->logo)
+													<img stype="height:70px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
+												@else
+													<img style="height:70px;" src="img/logo_contabilidad.png">
+												@endif
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</thead>
+					</table>
 
-				@if (count($factura->cuentas))
 					<table>
 						<thead class="">
 							<tr>
@@ -245,10 +246,7 @@
 							</tr>
 						</thead>
 					</table>
-				@endif
 
-
-				@if (count($factura->cuentas))
 					<table class="tabla-detalle-factura">
 						<thead class="">
 							<tr>
@@ -281,45 +279,45 @@
 							</tr>
 						</tbody>
 					</table>
-				@endif
-						
-				<script type="text/php">
-					if ( isset($pdf) ) {
-						$pdf->page_script('
-							$font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-							$pdf->text(300, 800, "$PAGE_NUM / $PAGE_COUNT", $font, 8);
-						');
-					}
-				</script>
-		
-				<table class="footer">
-					<tr>
-						<td class="padding5 ">
-							<table>
-								<tr >
-									<td class="empresa-footer padding5">
-										Maximo PH<br>
-										{{ $fecha_pdf }}
-									</td>
-								</tr>
-							</table>
-						</td>
-						<td class="padding5"></td>
-						<td class="padding5 generado">
-							<table>
-								<tr>
-									<td class="empresa-footer-left padding5">
-										ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
-										www.maximoph.com
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table> 
-				
-			</body>
-		</div>
+							
+					<script type="text/php">
+						if ( isset($pdf) ) {
+							$pdf->page_script('
+								$font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+								$pdf->text(300, 800, "$PAGE_NUM / $PAGE_COUNT", $font, 8);
+							');
+						}
+					</script>
+			
+					<table class="footer">
+						<tr>
+							<td class="padding5 ">
+								<table>
+									<tr >
+										<td class="empresa-footer padding5">
+											Maximo PH<br>
+											{{ $fecha_pdf }}
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td class="padding5"></td>
+							<td class="padding5 generado">
+								<table>
+									<tr>
+										<td class="empresa-footer-left padding5">
+											ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
+											www.maximoph.com
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table> 
+					
+				</body>
+			</div>
+		@endif
 	@endforeach
 
 </html>
