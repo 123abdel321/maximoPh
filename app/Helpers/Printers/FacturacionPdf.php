@@ -78,7 +78,8 @@ class FacturacionPdf extends AbstractPrinterPdf
 				DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
                 'fecha_manual',
                 'consecutivo'
-            );
+            )
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0');
 
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
@@ -119,7 +120,8 @@ class FacturacionPdf extends AbstractPrinterPdf
 				DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
 				DB::raw('SUM(total_columnas) AS total_columnas')
 			)
-			->orderByRaw('cuenta, id_nit, documento_referencia, created_at');
+			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0');
 
         return [
 			'empresa' => $this->empresa,
