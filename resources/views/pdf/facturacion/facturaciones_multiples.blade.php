@@ -239,39 +239,40 @@
 					</thead>
 				</table>
 
-				<table class="tabla-detalle-factura">
-					<thead class="">
-						<tr>
-							<td class="spacer"></td>
-						</tr>
-						<tr class="header-factura padding5">
-							<th class="padding5">NOMBRE</th>
-							<th class="padding5">SALDO ANTERIOR</th>
-							<th class="padding5">VALOR FACTURA</th>
-							<th class="padding5">TOTAL ABONO</th>
-							<th class="padding5">SALDO FINAL</th>
-						</tr>
-					</thead>
-					<tbody class="detalle-factura">
-						@foreach ($factura->cuentas as $cuenta)
+				@if (count($factura->cuentas))
+					<table class="tabla-detalle-factura">
+						<thead class="">
 							<tr>
-								<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
-								<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
-								<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
-								<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
-								<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
+								<td class="spacer"></td>
 							</tr>
-						@endforeach
-						<tr style="background-color: #58978423;">
-							<td class="padding5 detalle-factura-descripcion">TOTAL</td>
-							<td class="padding5 valor">{{ number_format($factura->totales->saldo_anterior) }}</td>
-							<td class="padding5 valor">{{ number_format($factura->totales->total_facturas) }}</td>
-							<td class="padding5 valor">{{ number_format($factura->totales->total_abono) }}</td>
-							<td class="padding5 valor">{{ number_format($factura->totales->saldo_final) }}</td>
-						</tr>
-					</tbody>
-				</table>
-
+							<tr class="header-factura padding5">
+								<th class="padding5">NOMBRE</th>
+								<th class="padding5">SALDO ANTERIOR</th>
+								<th class="padding5">VALOR FACTURA</th>
+								<th class="padding5">TOTAL ABONO</th>
+								<th class="padding5">SALDO FINAL</th>
+							</tr>
+						</thead>
+						<tbody class="detalle-factura">
+							@foreach ($factura->cuentas as $cuenta)
+								<tr>
+									<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
+									<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
+									<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
+									<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
+									<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
+								</tr>
+							@endforeach
+							<tr style="background-color: #58978423;">
+								<td class="padding5 detalle-factura-descripcion">TOTAL</td>
+								<td class="padding5 valor">{{ number_format($factura->totales->saldo_anterior) }}</td>
+								<td class="padding5 valor">{{ number_format($factura->totales->total_facturas) }}</td>
+								<td class="padding5 valor">{{ number_format($factura->totales->total_abono) }}</td>
+								<td class="padding5 valor">{{ number_format($factura->totales->saldo_final) }}</td>
+							</tr>
+						</tbody>
+					</table>
+				@endif
 						
 				<script type="text/php">
 					if ( isset($pdf) ) {
