@@ -7,28 +7,29 @@ use Illuminate\Support\Carbon;
 //MODELS
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\InmuebleNit;
 
-class FacturacionPdf extends AbstractPrinterPdf
+class FacturacionPdfMultiple extends AbstractPrinterPdf
 {
-    public $id_nit;
+    public $nits;
 	public $empresa;
 	public $periodo;
 
-    public function __construct(Empresa $empresa, $id_nit = null, $periodo)
+    public function __construct(Empresa $empresa, $nits = [], $periodo)
 	{
 		parent::__construct($empresa);
 
 		copyDBConnection('max', 'max');
         setDBInConnection('max', $empresa->token_db);
 
-		$this->id_nit = $id_nit;
+		$this->nits = $nits;
 		$this->empresa = $empresa;
 		$this->periodo = $periodo;
 	}
 
     public function view()
 	{
-		return 'pdf.facturacion.facturaciones';
+		return 'pdf.facturacion.facturaciones_multiples';
 	}
 
     public function name()
@@ -46,92 +47,87 @@ class FacturacionPdf extends AbstractPrinterPdf
 
     public function data()
     {
-		
-		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
-		$nit = null;
-		
-		if($getNit){ 
-			$nit = (object)[
-				'nombre_nit' => $getNit->nombre_completo,
-				'telefono' =>  $getNit->telefono_1,
-				'email' => $getNit->email,
-				'direccion' => $getNit->direccion,
-				'tipo_documento' => $getNit->tipo_documento->nombre,
-				'numero_documento' => $getNit->numero_documento,
-				"ciudad" => $getNit->ciudad ? $getNit->ciudad->nombre_completo : '',
-			];
-		}
+        $dataFacturas = [];
 
-		$query = $this->carteraDocumentosQuery();
-		$query->unionAll($this->carteraAnteriorQuery());
+        foreach ($this->nits as $id_nit) {
 
-		$totales = DB::connection('sam')
-			->table(DB::raw("({$query->toSql()}) AS cartera"))
-			->mergeBindings($query)
-			->select(
-                DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
-                DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
-				DB::raw('SUM(debito) AS debito'),
-				DB::raw('SUM(credito) AS credito'),
-				DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
-				DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
-				DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
-                'fecha_manual',
-                'consecutivo'
+            $query = $this->carteraDocumentosQuery($id_nit);
+            $query->unionAll($this->carteraAnteriorQuery($id_nit));
+
+            $totales = DB::connection('sam')
+                ->table(DB::raw("({$query->toSql()}) AS cartera"))
+                ->mergeBindings($query)
+                ->select(
+                    DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+                    DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
+                    DB::raw('SUM(debito) AS debito'),
+                    DB::raw('SUM(credito) AS credito'),
+                    DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+                    DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
+                    DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
+                    'fecha_manual',
+                    'consecutivo'
             );
 
-		$facturaciones = DB::connection('sam')
-			->table(DB::raw("({$query->toSql()}) AS cartera"))
-			->mergeBindings($query)
-			->select(
-				'id_nit',
-				'numero_documento',
-				'nombre_nit',
-				'razon_social',
-				'id_cuenta',
-				'cuenta',
-				'naturaleza_cuenta',
-				'auxiliar',
-				'nombre_cuenta',
-				'documento_referencia',
-				'id_centro_costos',
-				'codigo_cecos',
-				'nombre_cecos',
-				'id_comprobante',
-				'codigo_comprobante',
-				'nombre_comprobante',
-				'consecutivo',
-				'concepto',
-				'fecha_manual',
-				'created_at',
-				'fecha_creacion',
-				'fecha_edicion',
-				'created_by',
-				'updated_by',
-				'anulado',
-				'plazo',
-				DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
-				DB::raw('SUM(debito) AS debito'),
-				DB::raw('SUM(credito) AS credito'),
-				DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
-				DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
-				DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
-				DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
-				DB::raw('SUM(total_columnas) AS total_columnas')
-			)
-			->orderByRaw('cuenta, id_nit, documento_referencia, created_at');
+            $facturaciones = DB::connection('sam')
+                ->table(DB::raw("({$query->toSql()}) AS cartera"))
+                ->mergeBindings($query)
+                ->select(
+                    'id_nit',
+                    'numero_documento',
+                    'nombre_nit',
+                    'razon_social',
+                    'direccion',
+                    'tipo_documento',
+                    "telefono",
+                    'id_cuenta',
+                    'cuenta',
+                    'naturaleza_cuenta',
+                    'auxiliar',
+                    'nombre_cuenta',
+                    'documento_referencia',
+                    'id_centro_costos',
+                    'codigo_cecos',
+                    'nombre_cecos',
+                    'id_comprobante',
+                    'codigo_comprobante',
+                    'nombre_comprobante',
+                    'consecutivo',
+                    'concepto',
+                    'fecha_manual',
+                    'created_at',
+                    'fecha_creacion',
+                    'fecha_edicion',
+                    'created_by',
+                    'updated_by',
+                    'anulado',
+                    'plazo',
+                    DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
+                    DB::raw('SUM(debito) AS debito'),
+                    DB::raw('SUM(credito) AS credito'),
+                    DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+                    DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
+                    DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
+                    DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
+                    DB::raw('SUM(total_columnas) AS total_columnas')
+                )
+            ->orderByRaw('cuenta, id_nit, documento_referencia, created_at');
 
+            array_push($dataFacturas, (object)[
+                'cuentas' => $facturaciones->groupByRaw('id_nit, id_cuenta, documento_referencia')->get(),
+                'totales' => $totales->groupByRaw('id_nit')->first(),
+            ]);
+        }
+        
         return [
-			'empresa' => $this->empresa,
-			'nit' => $nit,
-			'cuentas' => $facturaciones->groupByRaw('id_nit, id_cuenta, documento_referencia')->get(),
-			'totales' => $totales->groupByRaw('id_nit')->first(),
-			'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
+            'empresa' => $this->empresa,
+            'facturas' => $dataFacturas,
+            'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
 			'usuario' => request()->user() ? request()->user()->username : 'MaximoPH'
-		];
+        ];
     }
 
-	private function carteraDocumentosQuery()
+	private function carteraDocumentosQuery($id_nit)
     {
         $documentosQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
@@ -143,6 +139,9 @@ class FacturacionPdf extends AbstractPrinterPdf
                     ELSE NULL
                 END) AS nombre_nit"),
                 "N.razon_social",
+                "N.direccion",
+                "N.telefono_1 AS telefono",
+                "TD.nombre AS tipo_documento",
                 "N.plazo",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
@@ -172,6 +171,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('nits AS N', 'DG.id_nit', 'N.id')
+            ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
             ->leftJoin('plan_cuentas_tipos AS PCT', 'PC.id', 'PCT.id_cuenta')
             ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
@@ -181,14 +181,14 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->when($this->periodo, function ($query) {
 				$query->where('DG.fecha_manual', '>=', $this->periodo);
 			})
-            ->when($this->id_nit, function ($query) {
-				$query->where('DG.id_nit', '=', $this->id_nit);
+            ->when($id_nit, function ($query) use ($id_nit) {
+				$query->where('DG.id_nit', $id_nit);
 			});
 
         return $documentosQuery;
     }
 
-    private function carteraAnteriorQuery()
+    private function carteraAnteriorQuery($id_nit)
     {
         $anterioresQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
@@ -200,6 +200,9 @@ class FacturacionPdf extends AbstractPrinterPdf
                     ELSE NULL
                 END) AS nombre_nit"),
                 "N.razon_social",
+                "N.direccion",
+                "N.telefono_1 AS telefono",
+                "TD.nombre AS tipo_documento",
                 "N.plazo",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
@@ -229,6 +232,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('nits AS N', 'DG.id_nit', 'N.id')
+            ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
             ->leftJoin('plan_cuentas_tipos AS PCT', 'PC.id', 'PCT.id_cuenta')
             ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
@@ -238,8 +242,8 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->when($this->periodo, function ($query) {
 				$query->where('DG.fecha_manual', '<', $this->periodo);
 			})
-            ->when($this->id_nit, function ($query) {
-				$query->where('DG.id_nit', '=', $this->id_nit);
+            ->when($id_nit, function ($query) use ($id_nit) {
+				$query->where('DG.id_nit', $id_nit);
 			});
 
         return $anterioresQuery;

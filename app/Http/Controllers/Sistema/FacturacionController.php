@@ -8,6 +8,7 @@ use App\Helpers\Extracto;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\Printers\FacturacionPdf;
+use App\Helpers\Printers\FacturacionPdfMultiple;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\FacturacionERP;
@@ -829,10 +830,21 @@ class FacturacionController extends Controller
     public function showPdf(Request $request)
     {
         $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-        $data = (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))->buildPdf()->getData();
-
+        // $data = (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))->buildPdf()->getData();
         // return view('pdf.facturacion.facturaciones', $data);
         return (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))
+            ->buildPdf()
+            ->showPdf();
+    }
+
+    public function showMultiplePdf(Request $request)
+    {
+        $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+        // if ($request->get('factura_fisica')
+        $nits = $this->nitFacturaFisica($request->get('factura_fisica'));
+        // $data = (new FacturacionPdfMultiple($empresa, $nits, $request->get('periodo')))->buildPdf()->getData();
+        // return view('pdf.facturacion.facturaciones_multiples', $data);
+        return (new FacturacionPdfMultiple($empresa, $nits, $request->get('periodo')))
             ->buildPdf()
             ->showPdf();
     }
@@ -1439,7 +1451,7 @@ class FacturacionController extends Controller
 				$query->where('DG.id_nit', '=', $request->get('id_nit'));
 			})
             ->when($request->get('factura_fisica'), function ($query) {
-                $nits = $this->nitFacturaFisica();
+                $nits = $this->nitFacturaFisica(true);
 				$query->whereIn('DG.id_nit', $nits);
 			});
 
@@ -1500,7 +1512,7 @@ class FacturacionController extends Controller
 				$query->where('DG.id_nit', '=', $request->get('id_nit'));
 			})
             ->when($request->get('factura_fisica'), function ($query) {
-                $nits = $this->nitFacturaFisica();
+                $nits = $this->nitFacturaFisica(true);
 				$query->whereIn('DG.id_nit', $nits);
 			});
 
@@ -1539,11 +1551,13 @@ class FacturacionController extends Controller
         return $number;
     }
 
-    private function nitFacturaFisica()
+    private function nitFacturaFisica($fisica = false)
     {
         $nits = [];
-        $inmuebleNit = InmuebleNit::where('enviar_notificaciones_fisica', 1)
-            ->select('id_nit')
+        $inmuebleNit = InmuebleNit::select('id_nit')
+            ->when($fisica, function ($query) {
+                $query->where('enviar_notificaciones_fisica', 1);
+            })
             ->groupBy('id_nit')
             ->get();
 

@@ -132,6 +132,10 @@
 				vertical-align: top;
 			}
 
+			.page-break {
+				page-break-after: always;
+			}
+
 		</style>
 
 	</head>
@@ -250,6 +254,7 @@
 					<th class="padding5">NOMBRE</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
+					<th class="padding5">TOTAL ABONO</th>
 					<th class="padding5">SALDO FINAL</th>
 				</tr>
 			</thead>
@@ -259,6 +264,7 @@
 						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
+						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
 					</tr>
 				@endforeach
@@ -267,6 +273,7 @@
 						<td class="padding5 detalle-factura-descripcion">TOTAL</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
+						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
 					</tr>
 			</tbody>

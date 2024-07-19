@@ -3,39 +3,6 @@ var $comboPeriodoFacturaciones = null;
 
 function facturacionesInit() {
 
-    $('#id_nit_facturaciones').select2({
-        theme: 'bootstrap-5',
-        delay: 250,
-        placeholder: "Seleccione una Cédula/nit",
-        allowClear: true,
-        ajax: {
-            url: base_url_erp + 'nit/combo-nit',
-            headers: headersERP,
-            dataType: 'json',
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
-
-    $comboPeriodoFacturaciones = $('#periodo_facturaciones').select2({
-        theme: 'bootstrap-5',
-        delay: 250,
-        placeholder: "Seleccione un periodo",
-        ajax: {
-            url: base_url + 'periodo-facturacion-combo',
-            headers: headers,
-            dataType: 'json',
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
-
     facturaiones_table = $('#FacturacionesInformeTable').DataTable({
         pageLength: 15,
         dom: 'Brtip',
@@ -83,6 +50,57 @@ function facturacionesInit() {
             window.open("/facturacion-show-pdf?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
         });
     }
+    
+    $('#id_nit_facturaciones').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un nit",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        },
+        templateResult: formatInmuebleRecibo,
+        templateSelection: formatInmuebleReciboSelection
+    });
+
+    $comboPeriodoFacturaciones = $('#periodo_facturaciones').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un periodo",
+        ajax: {
+            url: base_url + 'periodo-facturacion-combo',
+            headers: headers,
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 
     if (periodo_facturaciones) {
         var dataPeriodo = {
@@ -95,7 +113,24 @@ function facturacionesInit() {
     }
 
     facturaiones_table.ajax.reload();
+
+    $("#periodo_facturaciones").on('change', function(event) {
+        facturaiones_table.ajax.reload();
+    });
+    
+    $("#id_nit_facturaciones").on('change', function(event) {
+        facturaiones_table.ajax.reload();
+    });
+    
+    $("#nit_fisica_facturaciones").on('change', function(event) {
+        facturaiones_table.ajax.reload();
+    });
 }
+
+$("#imprimirMultipleFacturacion").on('click', function(event) {
+    var facturaFisica = $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : ''
+    window.open("/facturacion-multiple-show-pdf?factura_fisica="+facturaFisica+"&periodo="+formatoFechaFacturacion(), "_blank");
+});
 
 function formatoFechaFacturacion() {
     var periodo = $("#periodo_facturaciones").val();
@@ -106,14 +141,25 @@ function formatoFechaFacturacion() {
     return fecha;
 }
 
-$("#periodo_facturaciones").on('change', function(event) {
-    facturaiones_table.ajax.reload();
-});
+function formatInmuebleRecibo (inmueble) {
 
-$("#id_nit_facturaciones").on('change', function(event) {
-    facturaiones_table.ajax.reload();
-});
+    if (inmueble.loading) return inmueble.text;
 
-$("#nit_fisica_facturaciones").on('change', function(event) {
-    facturaiones_table.ajax.reload();
-});
+    var persona = '';
+
+    if (inmueble && inmueble.personas && inmueble.personas.length) {
+        persona = ' - ' + inmueble.personas[0].nit.nombre_completo
+    }
+
+    return inmueble.text + persona;
+}
+
+function formatInmuebleReciboSelection (inmueble) {
+    var persona = '';
+
+    if (inmueble && inmueble.personas && inmueble.personas.length) {
+        persona = ' - ' + inmueble.personas[0].nit.nombre_completo
+    }
+
+    return inmueble.text + persona;
+}

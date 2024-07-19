@@ -13,25 +13,33 @@
                 <form id="facturacionesInformeForm" style="margin-top: 10px;">
 
                     <div class="row">
-                        <div class="form-group col-12 col-sm-4 col-md-4">
+                        <div class="form-group col-6 col-sm-3 col-md-4">
                             <label for="exampleFormControlSelect1">Periodo</label>
                             <select name="periodo_facturaciones" id="periodo_facturaciones" class="form-control form-control-sm">
                                 <option value="">Seleccionar</option>
                             </select>
                         </div>
-                        <div class="form-group col-12 col-sm-4 col-md-4">
+                        <div class="form-group col-6 col-sm-3 col-md-4">
                             <label for="exampleFormControlSelect1">Nit</label>
                             <select class="form-control form-control-sm" name="id_nit_facturaciones" id="id_nit_facturaciones">
                                 <option value="">Seleccionar</option>
                             </select>
                         </div>
 
-                        <div class="form-check form-switch col-12 col-sm-4 col-md-4" style="">
+                        <div class="form-check form-switch col-6 col-sm-3 col-md-2" style="place-content: center;">
                             <input class="form-check-input" type="checkbox" name="nit_fisica_facturaciones" id="nit_fisica_facturaciones" style="height: 20px;">
                             <label class="form-check-label" for="nit_fisica_facturaciones">Facturacion fisica</label>
+                        </div>
+
+                        <div class="form-check form-switch col-6 col-sm-3 col-md-2" style="">
+                            <span id="imprimirMultipleFacturacion" href="javascript:void(0)" class="btn badge bg-gradient-success" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
+                                <i class="fas fa-print" style="font-size: 17px;"></i>&nbsp;
+                                <b style="vertical-align: text-top;">IMPRIMIR</b>
+                            </span>
                         </div> 
                     </div>  
                 </form>
+                <div style="height: 10px;"></div>  
                 <div class="col-md normal-rem">
                     <!-- BOTON GENERAR -->
                     <!-- <span id="generarFacturaciones" href="javascript:void(0)" class="btn badge bg-gradient-info" style="min-width: 40px; margin-right: 5px;">
@@ -53,13 +61,13 @@
                         <i class="fas fa-lock" style="color: red; position: absolute; margin-top: -10px; margin-left: 4px;"></i>
                     </span> -->
                     <!-- BOTON ULTIMO INFORME -->
-                    <span id="generarFacturacionesUltimo" href="javascript:void(0)" class="btn badge bg-gradient-info" style="min-width: 40px; margin-right: 3px; float: right; display:none;">
+                    <!-- <span id="generarFacturacionesUltimo" href="javascript:void(0)" class="btn badge bg-gradient-info" style="min-width: 40px; margin-right: 3px; float: right; display:none;">
                         <i class="fas fa-history" style="font-size: 17px;"></i>&nbsp;
                         <b style="vertical-align: text-top;">CARGAR ULTIMO INFORME</b>
                     </span>
                     <div id="generarFacturacionesUltimoLoading" class="spinner-border spinner-erp" style="display:none;" role="status">
                         <span class="sr-only">Loading...</span>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
