@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Zonas;
+use App\Models\Sistema\InmuebleNit;
 
 class ZonasController extends Controller
 {
@@ -168,6 +169,37 @@ class ZonasController extends Controller
                     'tipo' => $request->get('tipo'),
                     'updated_by' => request()->user()->id
                 ]);
+
+            //ACTUAIZAR DATOS EN NITS
+            $nitsInmuebles = InmuebleNit::with('inmueble.zona')
+                ->whereHas('inmueble', function ($query) use ($request) {
+                    $query->whereHas('zona', function ($q) use ($request) {
+                        $q->where('id_zona', $request->get('id'));
+                    });
+                })
+                ->groupBy('id_nit')
+                ->get();
+    
+            foreach ($nitsInmuebles as $nit) {
+    
+                $inmueblesNits = InmuebleNit::with('inmueble.zona')
+                    ->whereHas('inmueble', function ($query) use ($request) {
+                        $query->whereHas('zona', function ($q) use ($request) {
+                            $q->where('id_zona', $request->get('id'));
+                        });
+                    })
+                    ->get();
+
+                $apartamentos = '';
+    
+                if (count($inmueblesNits)) {
+                    foreach ($inmueblesNits as $key => $inmuebleNit) {
+                        $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
+                    }
+                }
+                $nit->nit->apartamentos = rtrim($apartamentos, ", ");
+                $nit->nit->save();
+            }
 
             DB::connection('max')->commit();
 

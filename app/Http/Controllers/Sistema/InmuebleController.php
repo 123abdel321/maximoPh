@@ -269,6 +269,26 @@ class InmuebleController extends Controller
                 $inmuebleNis->save();
             }
 
+            //ACTUAIZAR DATOS EN NITS
+            $nitsInmuebles = InmuebleNit::where('id_inmueble', $request->get('id'))
+                ->with('nit')
+                ->groupBy('id_nit')
+                ->get();
+    
+            foreach ($nitsInmuebles as $nit) {
+    
+                $inmueblesNits = InmuebleNit::with('inmueble.zona')->where('id_nit', $nit->nit->id)->get();
+                $apartamentos = '';
+    
+                if (count($inmueblesNits)) {
+                    foreach ($inmueblesNits as $key => $inmuebleNit) {
+                        $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
+                    }
+                }
+                $nit->nit->apartamentos = rtrim($apartamentos, ", ");
+                $nit->nit->save();
+            }
+
             DB::connection('max')->commit();
 
             return response()->json([
@@ -490,5 +510,20 @@ class InmuebleController extends Controller
         }
 
         return $data;        
+    }
+
+    private function actualizarNombreApartamentos(Nits $nit)
+    {
+        $inmueblesNits = InmuebleNit::with('inmueble.zona')->where('id_nit', $nit->id)->get();
+
+        $apartamentos = '';
+
+        if (count($inmueblesNits)) {
+            foreach ($inmueblesNits as $key => $inmuebleNit) {
+                $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
+            }
+        }
+        $nit->apartamentos = rtrim($apartamentos, ", ");
+        $nit->save();
     }
 }
