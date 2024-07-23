@@ -25,16 +25,16 @@ function instalacionempresaInit() {
         },
         columns: [
             {"data": 'id',
-            render: function (row, type, set){
+            render: function (row, type, data){
                 var urlImg = `logos_empresas/no-photo.jpg`;
                 var nameImg = 'none-img'
-                if (row.logo) {
-                    urlImg = row.logo;
-                    nameImg = row.logo;
+                if (data.logo) {
+                    urlImg = data.logo;
+                    nameImg = data.logo;
                 }
                 return `<img
                     style="height: 40px; border-radius: 10%; cursor: pointer;"
-                    onclick="mostrarEventoPorteria(${row.id})"
+                    onclick="mostrarEventoPorteria(${data.id})"
                     src="${bucketUrl}${urlImg}"
                     alt="${nameImg}"
                 />`;
@@ -69,11 +69,27 @@ function instalacionempresaInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, empresas_table);
-            console.log('data: ',data);
-            // $("#empresaFormModal").modal('show');
+            console.log(data);
+            if (data.logo) {
+                $('#new_avatar_empresa_edit').attr('src', data.logo);
+                $('#default_avatar_empresa_edit').hide();
+                $('#new_avatar_empresa_edit').show();
+            } else {
+                $('#default_avatar_empresa_edit').show();
+                $('#new_avatar_empresa_edit').hide();
+            }
+            
+            $("#id_empresa_up").val(data.id);
+            $("#razon_social_empresa_edit").val(data.razon_social);
+            $("#nombre_completo_empresa_edit").val(data.nombre);
+            $("#nit_empresa_edit").val(data.nit);
+            $("#telefono_empresa_edit").val(data.telefono);
+            $("#direccion_empresa_edit").val(data.direccion);
+            $("#numero_unidades_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(data.numero_unidades)));
+            $("#valor_unidades_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(data.valor_suscripcion_mensual) / parseFloat(data.numero_unidades)));
+            $("#total_mensualidad_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(data.valor_suscripcion_mensual)));
 
-            // $("#form-empresa-rut").hide();
-            // $("#form-empresa-create").show();
+            $("#empresaEditFormModal").modal('show');
         });
 
         empresas_table.on('click', '.select-empresa', function() {
@@ -209,7 +225,42 @@ $("#form-empresa-create").submit(function(e) {
         var responseData = JSON.parse(res.currentTarget.response);
         agregarToast('error', 'Carga errada', responseData.message);
     };
+});
 
+$("#form-empresa-update").submit(function(e) {
+    e.preventDefault();
+
+    var form = document.querySelector('#form-empresa-update');
+
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+
+    $('#updateEmpresa').hide();
+    $('#updateEmpresaLoading').show();
+
+    var ajxForm = document.getElementById("form-empresa-update");
+    var data = new FormData(ajxForm);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "actualizarempresa");
+    xhr.send(data);
+    xhr.onload = function(res) {
+        var responseData = JSON.parse(res.currentTarget.response);
+
+        $('#updateEmpresa').show();
+        $('#updateEmpresaLoading').hide();
+
+        agregarToast('exito', 'Actualización completada', 'Actualización completada con exito!');
+        
+        $("#empresaEditFormModal").modal('hide');
+
+        empresas_table.ajax.reload();
+    };
+    xhr.onerror = function (res) {
+        var responseData = JSON.parse(res.currentTarget.response);
+        agregarToast('error', 'Carga errada', responseData.message);
+    };
 });
 
 $("input[data-type='currency']").on({
@@ -237,4 +288,45 @@ function changePrecioSuscripcion() {
     var numeroUnidad = stringToNumberFloat($('#numero_unidades').val());
 
     $("#total_mensualidad").val(new Intl.NumberFormat("ja-JP").format(parseFloat(valorUnidad) * parseFloat(numeroUnidad)));
+}
+
+function changePrecioSuscripcionEdit() {
+    var valorUnidad = stringToNumberFloat($('#valor_unidades_edit').val());
+    var numeroUnidad = stringToNumberFloat($('#numero_unidades_edit').val());
+
+    $("#total_mensualidad_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(valorUnidad) * parseFloat(numeroUnidad)));
+}
+
+function readURLEmpresaNueva(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            newImgProfile = e.target.result;
+            $('#imagen_empresa_nueva').attr('src', e.target.result);
+            $('#new_avatar_empresa').attr('src', e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+
+        $('#default_avatar_empresa').hide();
+        $('#new_avatar_empresa').show();
+    }
+}
+
+function readURLEmpresaEdit(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            newImgProfile = e.target.result;
+            $('#imagen_empresa_edit').attr('src', e.target.result);
+            $('#new_avatar_empresa_edit').attr('src', e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+
+        $('#default_avatar_empresa_edit').hide();
+        $('#new_avatar_empresa_edit').show();
+    }
 }

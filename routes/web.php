@@ -109,6 +109,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
+		Route::post('/actualizarempresa', [InstaladorController::class, 'actualizarDatos']);
 		Route::get('/estadocuenta', [EstadoCuentaController::class, 'index']);
 		//PERFIL
 		Route::get('/perfil', [PerfilController::class, 'index']);

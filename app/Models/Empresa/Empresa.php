@@ -37,6 +37,7 @@ class Empresa extends Model
         'telefono',
         'hash',
         'valor_suscripcion_mensual',
+        'numero_unidades',
         'id_usuario_owner',
         'fecha_ultimo_cierre'
 	];

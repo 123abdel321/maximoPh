@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('telefono', 50);
             $table->string('hash', 100);
             $table->decimal('valor_suscripcion_mensual', 15)->default(0);
+            $table->decimal('numero_unidades', 15)->default(0);
             $table->integer('id_usuario_owner')->comment('Id del usuario dueño de esta empresa');
             $table->date('fecha_ultimo_cierre')->nullable();
             $table->timestamps();

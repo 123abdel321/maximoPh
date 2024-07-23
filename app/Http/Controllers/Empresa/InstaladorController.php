@@ -10,12 +10,14 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Jobs\ProcessProvisionedDatabase;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\InstaladorEmpresa;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Entorno;
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
@@ -210,6 +212,11 @@ class InstaladorController extends Controller
 				'address' => $request->direccion_empresa_nueva,
             ]);
 
+            $numeroUnidades = str_replace(".00", "", $request->get('numero_unidades_edit'));
+            $numeroUnidades = str_replace(",", "", $request->get('numero_unidades_edit'));
+            $valorUnidades = str_replace(".00", "", $request->get('valor_unidades_edit'));
+            $valorUnidades = str_replace(",", "", $request->get('valor_unidades_edit'));
+
             $empresa = Empresa::create([
 				'servidor' => 'max',
 				'nombre' => $request->razon_social_empresa_nueva,
@@ -219,7 +226,7 @@ class InstaladorController extends Controller
 				'dv' => '',
 				'telefono' => $request->telefono_empresa_nueva,
                 'id_usuario_owner' => $usuarioOwner->id,
-                'valor_suscripcion_mensual' => intval(str_replace("", ",", $request->numero_unidades)) * intval(str_replace("", ",", $request->valor_unidades)),
+                'valor_suscripcion_mensual' => $numeroUnidades * $valorUnidades,
 				'estado' => 0
 			]);
 
@@ -235,12 +242,17 @@ class InstaladorController extends Controller
             }
 
             $nameDb = $this->generateUniqueNameDb($empresa);
-
             $empresa->token_db_maximo = 'maximo_'.$nameDb;
             $empresa->token_db_portafolio = 'portafolio_'.$nameDb;
             $empresa->token_api_portafolio = $response['response']->api_key_token;
             $empresa->estado = 1;
             $empresa->hash = Hash::make($empresa->id);
+
+            $file = $request->file('imagen_empresa_edit');
+            if ($file) {
+                $empresa->logo = Storage::disk('do_spaces')->put('logos_empresas', $file, 'public');
+            }
+
 			$empresa->save();
 
             $this->associateUserToCompany($usuarioOwner, $empresa);
@@ -255,6 +267,80 @@ class InstaladorController extends Controller
                 "success" => true,
                 'data' => '',
                 "message" => 'La instalación se está procesando, verifique en 1 minuto.'
+            ], 200);
+            
+        } catch (Exception $e) {
+            DB::connection('clientes')->rollback();
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function actualizarDatos (Request $request)
+    {
+        $rules = [
+            'imagen_empresa_edit' => 'nullable|max:1024',
+            'razon_social_empresa_edit' => 'required',
+            'nombre_completo_empresa_edit' => 'required',
+            'nit_empresa_edit' => 'required',
+            'numero_unidades_edit' => 'required',
+            'valor_unidades_edit' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('clientes')->beginTransaction();
+            DB::connection('max')->beginTransaction();
+
+            $numeroUnidades = str_replace(".00", "", $request->get('numero_unidades_edit'));
+            $numeroUnidades = str_replace(",", "", $request->get('numero_unidades_edit'));
+            $valorUnidades = str_replace(".00", "", $request->get('valor_unidades_edit'));
+            $valorUnidades = str_replace(",", "", $request->get('valor_unidades_edit'));
+
+            $empresa = Empresa::where('id', $request->id_empresa_up)
+                ->update([
+                    'numero_unidades' => $numeroUnidades,
+                    'nombre' => $request->nombre_completo_empresa_edit,
+                    'razon_social' => $request->razon_social_empresa_edit,
+                    'nit' => $request->nit_empresa_edit,
+                    'telefono' => $request->telefono_empresa_edit,
+                    'valor_suscripcion_mensual' => $numeroUnidades * $valorUnidades,
+                ]);
+
+            $file = $request->file('imagen_empresa_edit');
+            if ($file) {
+                $url = Storage::disk('do_spaces')->put('logos_empresas', $file, 'public');
+                $empresa = Empresa::where('id', $request->id_empresa_up)
+                    ->update([
+                        'logo' => $url
+                    ]);
+            }
+
+            Entorno::where('nombre', 'numero_total_unidades')
+                ->update([
+                    'valor' => $numeroUnidades
+                ]);
+
+            DB::connection('clientes')->commit();
+            DB::connection('max')->commit();
+
+            return response()->json([
+                "success" => true,
+                'data' => '',
+                "message" => 'Empresa actualizada con exito.'
             ], 200);
             
         } catch (Exception $e) {

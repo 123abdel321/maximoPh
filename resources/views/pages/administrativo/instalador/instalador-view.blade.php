@@ -23,6 +23,7 @@
     </div>
 
     @include('pages.administrativo.instalador.instalador-form')
+    @include('pages.administrativo.instalador.instalador-form-edit')
 
 </div>
 
