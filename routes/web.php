@@ -1,6 +1,6 @@
 <?php
 
-// use Illuminate\Http\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 //SISTEMA
 use App\Http\Controllers\HomeController;
@@ -37,13 +37,79 @@ use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
-// //MODELOS
-// use App\Models\Empresa\Empresa;
+//MODELOS
+use App\Models\Empresa\Visitantes;
 // use App\Models\Sistema\Porteria;
 // use App\Models\Sistema\InmuebleNit;
 // use App\Models\Empresa\UsuarioEmpresa;
 
-Route::get('/', function () {
+Route::get('/', function (Request $request) {
+
+	$user_agent = $_SERVER['HTTP_USER_AGENT'];
+	$browser        = "Desconocido";
+	$browser_array  = array(
+		'/msie/i'       =>  'Internet Explorer',
+		'/firefox/i'    =>  'Firefox',
+		'/safari/i'     =>  'Safari',
+		'/chrome/i'     =>  'Google Chrome',
+		'/edge/i'       =>  'Edge',
+		'/opera/i'      =>  'Opera',
+		'/netscape/i'   =>  'Netscape',
+		'/maxthon/i'    =>  'Maxthon',
+		'/konqueror/i'  =>  'Konqueror',
+		'/mobile/i'     =>  'Handheld Browser'
+	);
+	foreach ( $browser_array as $regex => $value ) {
+		if ( preg_match( $regex, $user_agent ) ) {
+			$browser = $value;
+		}
+	}
+
+	$user_agent = $_SERVER['HTTP_USER_AGENT'];
+	$os_platform =   "Desconocido";
+	$os_array =   array(
+		'/windows nt 10/i'      =>  'Windows 10',
+		'/windows nt 6.3/i'     =>  'Windows 8.1',
+		'/windows nt 6.2/i'     =>  'Windows 8',
+		'/windows nt 6.1/i'     =>  'Windows 7',
+		'/windows nt 6.0/i'     =>  'Windows Vista',
+		'/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+		'/windows nt 5.1/i'     =>  'Windows XP',
+		'/windows xp/i'         =>  'Windows XP',
+		'/windows nt 5.0/i'     =>  'Windows 2000',
+		'/windows me/i'         =>  'Windows ME',
+		'/win98/i'              =>  'Windows 98',
+		'/win95/i'              =>  'Windows 95',
+		'/win16/i'              =>  'Windows 3.11',
+		'/macintosh|mac os x/i' =>  'Mac OS X',
+		'/mac_powerpc/i'        =>  'Mac OS 9',
+		'/linux/i'              =>  'Linux',
+		'/ubuntu/i'             =>  'Ubuntu',
+		'/iphone/i'             =>  'iPhone',
+		'/ipod/i'               =>  'iPod',
+		'/ipad/i'               =>  'iPad',
+		'/android/i'            =>  'Android',
+		'/blackberry/i'         =>  'BlackBerry',
+		'/webos/i'              =>  'Mobile'
+	);
+	foreach ( $os_array as $regex => $value ) {
+		if ( preg_match($regex, $user_agent ) ) {
+			$os_platform = $value;
+		}
+	}
+
+	$data = [
+		'id_usuario' => $request->user() ? $request->user()->id : null,
+		'ip' => $_SERVER['REMOTE_ADDR'],
+		'device' => $os_platform,
+		'browser' => $browser,
+		'platform' => $_SERVER['HTTP_SEC_CH_UA_PLATFORM'],
+	];
+
+	$visitante = Visitantes::create($data);
+
+	info('Visitante: ', $data);
+	
 	return view('pages.landing-page');
 });
 

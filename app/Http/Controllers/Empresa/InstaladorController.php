@@ -134,6 +134,7 @@ class InstaladorController extends Controller
             ];
 
             foreach ($pages as $page) {
+                
                 $text = nl2br($page->getText());
                 $text = str_replace(["\n","\t"], " ", $text);
                 $dataPage = explode('<br />', $text);
@@ -145,12 +146,13 @@ class InstaladorController extends Controller
                 $data['direccion'] = $this->getDireccion($dataPage);
                 $data['razon_social'] = $this->getRazonSocial($dataPage);
                 $data['nombre_completo'] = $this->getNombreCompleto($dataPage);
+
+                return response()->json([
+                    "success" => true,
+                    "data" => $data,
+                ]);
             }
 
-            return response()->json([
-                "success" => true,
-                "data" => $data,
-            ]);
 
         } catch (Exception $e) {
             return response()->json([

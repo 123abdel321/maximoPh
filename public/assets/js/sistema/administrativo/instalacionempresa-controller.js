@@ -69,7 +69,9 @@ function instalacionempresaInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, empresas_table);
-            console.log(data);
+
+            clearFormularioEditEmpresa();
+
             if (data.logo) {
                 $('#new_avatar_empresa_edit').attr('src', data.logo);
                 $('#default_avatar_empresa_edit').hide();
@@ -149,6 +151,8 @@ $(document).on('click', '#generateNuevaEmpresa', function () {
     $("#form-empresa-rut").show();
     $("#form-empresa-create").hide();
     $("#empresaFormModal").modal('show');
+
+    clearFormularioEmpresa();
 });
 
 $(document).on('click', '#omitirEmpresa', function () {
@@ -276,11 +280,25 @@ $("input[data-type='currency']").on({
 
 function clearFormularioEmpresa() {
     $("#razon_social_empresa_nueva").val("");
-    $("#nombre_completo_empresa_nueva").val("");
     $("#nit_empresa_nueva").val("");
     $("#email_empresa_nueva").val("");
     $("#telefono_empresa_nueva").val("");
     $("#direccion_empresa_nueva").val("");
+
+    $('#new_avatar_empresa_nueva').hide();
+    $('#default_avatar_empresa_nueva').show();
+}
+
+function clearFormularioEditEmpresa() {
+    $("#id_empresa_up").val("");
+    $("#razon_social_empresa_edit").val("");
+    $("#nit_empresa_edit").val("");
+    $("#email_empresa_edit").val("");
+    $("#telefono_empresa_edit").val("");
+    $("#direccion_empresa_edit").val("");
+
+    $('#new_avatar_empresa_edit').hide();
+    $('#default_avatar_empresa_edit').show();
 }
 
 function changePrecioSuscripcion() {

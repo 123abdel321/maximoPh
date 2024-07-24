@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
+use App\Models\Empresa\Visitantes;
 use App\Models\Portafolio\UserERP;
 use App\Models\Portafolio\EmpresaERP;
 use App\Models\Portafolio\UsuarioEmpresaERP;
@@ -64,6 +65,7 @@ class LoginController extends Controller
 
             $plainTextToken = '';
             if ($user->remember_token) {
+                
                 $token = $user->createToken("web_token");
                 $plainTextToken = $token->plainTextToken;
                 $user->remember_token = $plainTextToken;
@@ -127,6 +129,71 @@ class LoginController extends Controller
             }
 
             $user->syncPermissions($nombrePermisos);
+
+            $user_agent = $_SERVER['HTTP_USER_AGENT'];
+            $browser        = "Desconocido";
+            $browser_array  = array(
+                '/msie/i'       =>  'Internet Explorer',
+                '/firefox/i'    =>  'Firefox',
+                '/safari/i'     =>  'Safari',
+                '/chrome/i'     =>  'Google Chrome',
+                '/edge/i'       =>  'Edge',
+                '/opera/i'      =>  'Opera',
+                '/netscape/i'   =>  'Netscape',
+                '/maxthon/i'    =>  'Maxthon',
+                '/konqueror/i'  =>  'Konqueror',
+                '/mobile/i'     =>  'Handheld Browser'
+            );
+            foreach ( $browser_array as $regex => $value ) {
+                if ( preg_match( $regex, $user_agent ) ) {
+                    $browser = $value;
+                }
+            }
+
+            $user_agent = $_SERVER['HTTP_USER_AGENT'];
+            $os_platform =   "Desconocido";
+            $os_array =   array(
+                '/windows nt 10/i'      =>  'Windows 10',
+                '/windows nt 6.3/i'     =>  'Windows 8.1',
+                '/windows nt 6.2/i'     =>  'Windows 8',
+                '/windows nt 6.1/i'     =>  'Windows 7',
+                '/windows nt 6.0/i'     =>  'Windows Vista',
+                '/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+                '/windows nt 5.1/i'     =>  'Windows XP',
+                '/windows xp/i'         =>  'Windows XP',
+                '/windows nt 5.0/i'     =>  'Windows 2000',
+                '/windows me/i'         =>  'Windows ME',
+                '/win98/i'              =>  'Windows 98',
+                '/win95/i'              =>  'Windows 95',
+                '/win16/i'              =>  'Windows 3.11',
+                '/macintosh|mac os x/i' =>  'Mac OS X',
+                '/mac_powerpc/i'        =>  'Mac OS 9',
+                '/linux/i'              =>  'Linux',
+                '/ubuntu/i'             =>  'Ubuntu',
+                '/iphone/i'             =>  'iPhone',
+                '/ipod/i'               =>  'iPod',
+                '/ipad/i'               =>  'iPad',
+                '/android/i'            =>  'Android',
+                '/blackberry/i'         =>  'BlackBerry',
+                '/webos/i'              =>  'Mobile'
+            );
+            foreach ( $os_array as $regex => $value ) {
+                if ( preg_match($regex, $user_agent ) ) {
+                    $os_platform = $value;
+                }
+            }
+
+            $data = [
+                'id_usuario' => $request->user() ? $request->user()->id : null,
+                'ip' => $_SERVER['REMOTE_ADDR'],
+                'device' => $os_platform,
+                'browser' => $browser,
+                'platform' => $_SERVER['HTTP_SEC_CH_UA_PLATFORM'],
+            ];
+
+            $visitante = Visitantes::create($data);
+
+            info('Usuario: ', $data);
 
             return response()->json([
                 'success'=>	true,
@@ -353,4 +420,64 @@ class LoginController extends Controller
         }
         return $randomString;
     }
+
+    public function getOS() {
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+		$os_platform =   "Desconocido";
+		$os_array =   array(
+			'/windows nt 10/i'      =>  'Windows 10',
+			'/windows nt 6.3/i'     =>  'Windows 8.1',
+			'/windows nt 6.2/i'     =>  'Windows 8',
+			'/windows nt 6.1/i'     =>  'Windows 7',
+			'/windows nt 6.0/i'     =>  'Windows Vista',
+			'/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+			'/windows nt 5.1/i'     =>  'Windows XP',
+			'/windows xp/i'         =>  'Windows XP',
+			'/windows nt 5.0/i'     =>  'Windows 2000',
+			'/windows me/i'         =>  'Windows ME',
+			'/win98/i'              =>  'Windows 98',
+			'/win95/i'              =>  'Windows 95',
+			'/win16/i'              =>  'Windows 3.11',
+			'/macintosh|mac os x/i' =>  'Mac OS X',
+			'/mac_powerpc/i'        =>  'Mac OS 9',
+			'/linux/i'              =>  'Linux',
+			'/ubuntu/i'             =>  'Ubuntu',
+			'/iphone/i'             =>  'iPhone',
+			'/ipod/i'               =>  'iPod',
+			'/ipad/i'               =>  'iPad',
+			'/android/i'            =>  'Android',
+			'/blackberry/i'         =>  'BlackBerry',
+			'/webos/i'              =>  'Mobile'
+		);
+		foreach ( $os_array as $regex => $value ) {
+			if ( preg_match($regex, $user_agent ) ) {
+				$os_platform = $value;
+			}
+		}
+		return $os_platform;
+	}
+
+
+	public function getBrowser() {
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+		$browser        = "Desconocido";
+		$browser_array  = array(
+			'/msie/i'       =>  'Internet Explorer',
+			'/firefox/i'    =>  'Firefox',
+			'/safari/i'     =>  'Safari',
+			'/chrome/i'     =>  'Google Chrome',
+			'/edge/i'       =>  'Edge',
+			'/opera/i'      =>  'Opera',
+			'/netscape/i'   =>  'Netscape',
+			'/maxthon/i'    =>  'Maxthon',
+			'/konqueror/i'  =>  'Konqueror',
+			'/mobile/i'     =>  'Handheld Browser'
+		);
+		foreach ( $browser_array as $regex => $value ) {
+			if ( preg_match( $regex, $user_agent ) ) {
+				$browser = $value;
+			}
+		}
+		return $browser;
+	}
 }
