@@ -187,8 +187,7 @@ class LoginController extends Controller
                 'id_usuario' => $request->user() ? $request->user()->id : null,
                 'ip' => $_SERVER['REMOTE_ADDR'],
                 'device' => $os_platform,
-                'browser' => $browser,
-                'platform' => $_SERVER['HTTP_SEC_CH_UA_PLATFORM'],
+                'browser' => $browser
             ];
 
             $visitante = Visitantes::create($data);
