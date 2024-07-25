@@ -18,6 +18,12 @@ class Visitantes extends Model
         'ip',
         'device',
         'browser',
-        'platform',
+        'loc',
+        'city',
+        'region',
+        'country',
+        'hostname',
+        'org',
+        'timezone',
     ];
 }

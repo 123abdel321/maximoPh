@@ -17,7 +17,13 @@ return new class extends Migration
             $table->string('ip', 200)->nullable();
             $table->string('device', 200)->nullable();
             $table->string('browser', 200)->nullable();
-            $table->string('platform', 200)->nullable();
+            $table->string('loc', 200)->nullable();
+            $table->string('city', 200)->nullable();
+            $table->string('region', 200)->nullable();
+            $table->string('country', 200)->nullable();
+            $table->string('hostname', 200)->nullable();
+            $table->string('org', 200)->nullable();
+            $table->string('timezone', 200)->nullable();
             $table->timestamps();
         });
     }

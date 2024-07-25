@@ -98,12 +98,34 @@ Route::get('/', function (Request $request) {
 		}
 	}
 
-	$data = [
-		'id_usuario' => $request->user() ? $request->user()->id : null,
-		'ip' => $_SERVER['REMOTE_ADDR'],
-		'device' => $os_platform,
-		'browser' => $browser
-	];
+	$curl = Http::withHeaders([
+		'Content-Type' => 'application/json',
+	])->get('https://api.ipify.org?format=json');
+
+	$response = (object) $curl->json();
+
+	if ($response->ip) {
+		$geo = Http::withHeaders([
+			'Content-Type' => 'application/json',
+		])->get('ipinfo.io/'.$response->ip.'?token=ba8524c502fa55');
+		$responseGeo = (object) $geo->json();
+
+		if ($responseGeo) {
+			$data = [
+				'id_usuario' => $request->user() ? $request->user()->id : null,
+				'ip' => $response->ip,
+				'device' => $os_platform,
+				'browser' => $browser,
+				'loc' => $responseGeo->loc,
+				'city' => $responseGeo->city,
+				'region' => $responseGeo->region,
+				'country' => $responseGeo->country,
+				'hostname' => $responseGeo->hostname,
+				'org' => $responseGeo->org,
+				'timezone' => $responseGeo->timezone
+			];
+		}
+	}
 
 	$visitante = Visitantes::create($data);
 
