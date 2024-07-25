@@ -116,13 +116,13 @@ Route::get('/', function (Request $request) {
 				'ip' => $response->ip,
 				'device' => $os_platform,
 				'browser' => $browser,
-				'loc' => $responseGeo->loc,
-				'city' => $responseGeo->city,
-				'region' => $responseGeo->region,
-				'country' => $responseGeo->country,
-				'hostname' => $responseGeo->hostname,
-				'org' => $responseGeo->org,
-				'timezone' => $responseGeo->timezone
+				'loc' => property_exists($responseGeo, 'loc') ? $responseGeo->loc : null,
+				'city' => property_exists($responseGeo, 'city') ? $responseGeo->city : null,
+				'region' => property_exists($responseGeo, 'region') ? $responseGeo->region : null,
+				'country' => property_exists($responseGeo, 'country') ? $responseGeo->country : null,
+				'hostname' => property_exists($responseGeo, 'hostname') ? $responseGeo->hostname : null,
+				'org' => property_exists($responseGeo, 'org') ? $responseGeo->org : null,
+				'timezone' => property_exists($responseGeo, 'timezone') ? $responseGeo->timezone : null,
 			];
 		}
 	}
