@@ -18,6 +18,7 @@ use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\PorteriaController;
+use App\Http\Controllers\Sistema\VisitantesController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
@@ -30,6 +31,8 @@ use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,6 +43,11 @@ use App\Http\Controllers\Sistema\ImportadorRecibosController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+
+Route::controller(VisitantesController::class)->group(function () {
+    Route::post('visitante', 'create');
+});
 
 Route::controller(ApiController::class)->group(function () {
     Route::get('login', 'login');

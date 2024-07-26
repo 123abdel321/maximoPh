@@ -1996,7 +1996,46 @@
     <div id="js-global-screen-reader-notice" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <div id="js-global-screen-reader-notice-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
 
+    <!-- JQUERY --> 
+    <script src="assets/js/sistema/jquery-3.5.1.js"></script>
+
 	<script>
+        let dataIp = null;
+
+        function onGet() {
+            const url = "https://api.ipify.org?format=json";
+            var headers = {}
+            
+            fetch(url, {
+                method : "GET",
+                mode: 'cors',
+                headers: headers
+            })
+            .then((response) => {
+                var data = response.json();
+                return data;
+            })
+            .then(data => {
+                dataIp = data.ip
+            })
+            .catch(function(error) {
+            });
+        }
+
+        onGet();
+
+        setTimeout(function(){
+            console.log('dataIp: ',dataIp)
+            $.ajax({
+                url: 'api/visitante',
+                method: 'POST',
+                data: JSON.stringify({ip: dataIp}),
+                dataType: 'json',
+            }).done((res) => {
+            }).fail((res) => {
+            });
+        },300);
+
 		function openWhatSapp() {
             window.open("https://wa.me/3183899872?text=Hola,%20necesito%20más%20información%20sobre%20maximoph%2020listing`", "_blank");
         }
@@ -2004,6 +2043,7 @@
         function reloadLogin() {
             window.location.href = '/login';
         }
+        
 	</script>
 
 </body>
