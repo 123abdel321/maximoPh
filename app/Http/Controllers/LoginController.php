@@ -108,16 +108,11 @@ class LoginController extends Controller
             }
         }
 
-        $curl = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->get('https://api.ipify.org?format=json');
-    
-        $response = (object) $curl->json();
         $responseGeo = null;
-        if ($response->ip) {
+        if ($request->ip) {
             $geo = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->get('ipinfo.io/'.$response->ip.'?token=ba8524c502fa55');
+            ])->get('ipinfo.io/'.$request->ip.'?token=ba8524c502fa55');
             $responseGeo = (object) $geo->json();
         }
 
@@ -201,7 +196,7 @@ class LoginController extends Controller
             if ($responseGeo) {
                 $data = [
                     'id_usuario' => $request->user() ? $request->user()->id : null,
-                    'ip' => $response->ip,
+                    'ip' => $request->ip,
                     'device' => $os_platform,
                     'browser' => $browser,
                     'loc' => property_exists($responseGeo, 'loc') ? $responseGeo->loc : null,

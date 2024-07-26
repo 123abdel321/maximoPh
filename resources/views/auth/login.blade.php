@@ -61,6 +61,21 @@
                     </div>
                 </div>
             </div>
+            <script type="module">
+                async function onGet() {
+                    let url = "https://api.ipify.org?format=json";
+                    var headers = {}
+
+                    let response = await fetch("https://api.ipify.org?format=json", {
+                        method : "GET",
+                        mode: 'cors',
+                        headers: headers
+                    })
+                    let data = await response.json();
+                    localStorage.setItem("ip_geo", data ? data.ip: null);
+                }
+                onGet()
+            </script>
         </section>
     </main>
 @endsection

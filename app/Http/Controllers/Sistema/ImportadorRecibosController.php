@@ -154,6 +154,8 @@ class ImportadorRecibosController extends Controller
                     $extractos = (new Extracto(
                         $reciboImport->id_nit,
                         [3,7],
+                        null,
+                        $this->fechaManual
                     ))->actual()->get();
 
                     $documentoGeneral = new Documento(

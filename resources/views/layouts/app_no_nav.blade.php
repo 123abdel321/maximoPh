@@ -640,7 +640,7 @@
     <!-- sweetalert2 -->
     <script src="assets/js/sistema/sweetalert2.all.min.js"></script>
 
-    <script>
+    <script type="module">
         //LOCAL
         
         // const base_url = 'http://127.0.0.1:8090/api/';
@@ -684,6 +684,7 @@
                 data: {
                     "email": $('#email_login').val(),
                     "password": $('#password_login').val(),
+                    "ip": localStorage.getItem("ip_geo")
                 },
                 dataType: 'json',
             }).done((res) => {
