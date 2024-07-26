@@ -229,7 +229,7 @@ class LoginController extends Controller
         if ($responseGeo) {
             $data = [
                 'id_usuario' => $request->user() ? $request->user()->id : null,
-                'ip' => $response->ip,
+                'ip' => $request->ip,
                 'device' => $os_platform,
                 'browser' => $browser,
                 'loc' => property_exists($responseGeo, 'loc') ? $responseGeo->loc : null,
