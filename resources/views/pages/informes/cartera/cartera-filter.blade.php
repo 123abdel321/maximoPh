@@ -37,8 +37,8 @@
                         <div class="form-group form-group col-12 col-sm-4 col-md-3">
                             <label for="exampleFormControlSelect1">Agrupar por:</label>
                             <select class="form-control form-control-sm agrupar_cartera" id="agrupar_cartera" name="agrupar_cartera">
-                                <option value="id_cuenta">Cuenta</option>
                                 <option value="id_nit">Cedula/Nits</option>
+                                <option value="id_cuenta">Cuenta</option>
                             </select>
                         </div>
 
