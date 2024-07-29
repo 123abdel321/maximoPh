@@ -85,6 +85,10 @@ class VisitantesController extends Controller
 
             	if ($responseGeo) {
             		$data = [
+						'id_usuario' => $request->user() ? $request->user()->id : null,
+						'ip' => $request->get('ip'),
+						'device' => $os_platform,
+						'browser' => $browser,
             			'loc' => property_exists($responseGeo, 'loc') ? $responseGeo->loc : null,
             			'city' => property_exists($responseGeo, 'city') ? $responseGeo->city : null,
             			'region' => property_exists($responseGeo, 'region') ? $responseGeo->region : null,
