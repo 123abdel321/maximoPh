@@ -177,7 +177,7 @@ function estadocuentaInit() {
                 "data": function (row, type, set){
                     var html = '';
                     if (row.total) {
-                        html+= '<span id="imprimirfactra_'+row.id+'" href="javascript:void(0)" class="btn badge btn-outline-dark imprimir-factura disabled" style="margin-bottom: 0rem !important; color: black; background-color: white !important;">Imprimir</span>';
+                        html+= '<span id="imprimirfactra_'+row.id+'" href="javascript:void(0)" class="btn badge btn-outline-dark imprimir-factura" style="margin-bottom: 0rem !important; color: black; background-color: white !important;">Imprimir</span>';
                     }
                     return html;
                 }, width: '60px'
@@ -252,6 +252,14 @@ function estadocuentaInit() {
                     });
                 }
             })
+        });        
+    }
+
+    if (estado_cuenta_facturas_table) {
+        estado_cuenta_facturas_table.on('click', '.imprimir-factura', function() {
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, estado_cuenta_facturas_table);
+            window.open("/facturacion-show-pdf?id_nit="+data.id_nit+"&periodo="+data.fecha_manual, "_blank");
         });
     }
 

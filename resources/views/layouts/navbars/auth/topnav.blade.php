@@ -176,7 +176,10 @@
                         </label>
                         <div class="dropdown-divider" style="border-top: 1px solid #d8d8d8;"></div>
                         <a class="dropdown-item" href="javascript:void(0)" onclick="showProfile()"><i class="fas fa-user-circle"></i>&nbsp;&nbsp;Perfil</a>
-                        <a href="javascript:void(0)" class="dropdown-item login-portafolioerp" onclick="openPortafolioERP()"><img src="/img/logo_contabilidad.png" style="width: 15px; margin-left: -1px;">&nbsp;&nbsp;Portafolio ERP</a>
+                        @if ($rol_usuario == 2 || $rol_usuario == 1)
+                            <a href="javascript:void(0)" class="dropdown-item login-portafolioerp" onclick="openPortafolioERP()"><img src="/img/logo_contabilidad.png" style="width: 15px; margin-left: -1px;">&nbsp;&nbsp;Portafolio ERP</a>
+                        @endif
+                        
                         <a href="javascript:void(0)" class="dropdown-item" onclick="closeSessionProfile()"><i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Cerrar sesión</a>
                     </div>
                     <!-- <div class="dropdown">

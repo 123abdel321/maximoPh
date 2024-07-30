@@ -286,6 +286,7 @@ class EstadoCuentaController extends Controller
                 $factura = (object)$factura;
                 $facturasData[] = (object)[
                     'id' => $factura->id,
+                    'id_nit' => $factura->id_nit,
                     'documento_referencia' => 'TOTAL FACTURA '.$factura->fecha_manual,
                     'valor' => $factura->valor,
                     'fecha_manual' => $factura->fecha_manual,
@@ -296,6 +297,7 @@ class EstadoCuentaController extends Controller
                     $detalle = (object)$detalle;
                     $facturasData[] = (object)[
                         'id' => $detalle->id,
+                        'id_nit' => $factura->id_nit,
                         'documento_referencia' => $detalle->documento_referencia,
                         'valor' => $detalle->valor,
                         'fecha_manual' => $detalle->fecha_manual,

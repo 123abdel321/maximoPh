@@ -61,7 +61,7 @@
             </div>
         @endif
         @include('layouts.navbars.auth.sidenav', ['menus', $menus])
-        @include('layouts.navbars.auth.topnav')
+        @include('layouts.navbars.auth.topnav', ['rol_usuario', $rol_usuario])
         <div id="contenerdores-views" class="tab-content clearfix" onclick="closeMenu()">
             <main class="tab-pane main-content border-radius-lg change-view active" style="margin-left: 5px;" id="containner-dashboard">
             </main>
