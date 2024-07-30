@@ -154,7 +154,7 @@ class PorteriaController extends Controller
                 'success'=>	true,
                 'iTotalRecords' => $porteriaTotal,
                 'iTotalDisplayRecords' => $porteriaTotal,
-                'data' => $porteria->get(),
+                'data' => $porteria->orderBy('id', 'DESC')->get(),
                 'perPage' => $rowperpage,
                 'message'=> 'Porteria generada con exito!'
             ]);
