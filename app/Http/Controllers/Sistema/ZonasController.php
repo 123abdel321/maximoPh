@@ -188,6 +188,7 @@ class ZonasController extends Controller
                             $q->where('id_zona', $request->get('id'));
                         });
                     })
+                    ->where('id_nit', $nit->id_nit)
                     ->get();
 
                 $apartamentos = '';
