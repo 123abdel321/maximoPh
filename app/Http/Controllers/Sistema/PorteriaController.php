@@ -142,7 +142,7 @@ class PorteriaController extends Controller
             
             if ($request->get("id_nit")) $porteria->where('id_nit', $request->get("id_nit"));
             if ($request->get("tipo") || $request->get("tipo") == '0') $porteria->where('tipo_porteria', $request->get("tipo"));
-            if ($request->get("fecha")) {
+            if ($request->get("fecha") && !$request->get("search")) {
                 $fechaFilter = Carbon::parse($request->get("fecha"));
                 $diaFilter = $fechaFilter->dayOfWeek;
                 $porteria->where('dias', 'LIKE', '%'.$diaFilter);
