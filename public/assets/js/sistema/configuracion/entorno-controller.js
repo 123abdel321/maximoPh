@@ -1,4 +1,27 @@
 function entornoInit() {
+    $('#id_cuenta_pronto_pago').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: 'api/plan-cuenta/combo-cuenta',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    auxiliar: true,
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 
     for (let index = 0; index < variablesEntorno.length; index++) {
         const variable = variablesEntorno[index];
@@ -9,6 +32,8 @@ function entornoInit() {
             'numero_total_unidades',
             'valor_total_presupuesto_year_actual',
             'porcentaje_intereses_mora',
+            'dias_pronto_pago',
+            'tasa_pronto_pago',
         ];
 
         var checkEntorno = [
@@ -19,6 +44,10 @@ function entornoInit() {
 
         var dateEntorno = [
             'periodo_facturacion',
+        ];
+
+        var select2 = [
+            'id_cuenta_pronto_pago',
         ];
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
@@ -50,6 +79,9 @@ $(document).on('click', '#updateEntorno', function () {
         'editar_valor_admon_inmueble': $("input[type='checkbox']#editar_valor_admon_inmueble").is(':checked') ? '1' : '0',
         'editar_coheficiente_admon_inmueble': $("input[type='checkbox']#editar_coheficiente_admon_inmueble").is(':checked') ? '1' : '0',
         'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '0',
+        'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
+        'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
+        'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),
     };
 
     $.ajax({
