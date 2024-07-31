@@ -228,7 +228,7 @@ class InstaladorController extends Controller
 				'dv' => '',
 				'telefono' => $request->telefono_empresa_nueva,
                 'id_usuario_owner' => $usuarioOwner->id,
-                'valor_suscripcion_mensual' => $numeroUnidades * $valorUnidades,
+                'valor_suscripcion_mensual' => parseFloat($numeroUnidades) * parseFloat($valorUnidades),
 				'estado' => 0
 			]);
 
