@@ -47,14 +47,18 @@ class EntornoController extends Controller
                 'editar_valor_admon_inmueble',
                 'editar_coheficiente_admon_inmueble',
                 'periodo_facturacion',
-                'redondeo_intereses'
+                'redondeo_intereses',
+                'dias_pronto_pago',
+                'tasa_pronto_pago',
+                'id_cuenta_pronto_pago',
             ];
 
             foreach ($variablesEntorno as $variable) {
-                if ($request->has($variable)) {
-                    Entorno::where('nombre', $variable)->update([
-                        'valor' => $request->get($variable)
-                    ]);
+                if ($request->has($variable) && $request->get($variable)) {
+                    Entorno::updateOrCreate(
+                        [ 'nombre' => $variable ],
+                        [ 'valor' => $request->get($variable) ]
+                    );
                 }
             }
 
