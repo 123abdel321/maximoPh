@@ -144,6 +144,7 @@ function conceptofacturacionInit() {
 
             $("#id_concepto_facturacion_up").val(data.id);
             $("#codigo_concepto_facturacion").val(data.codigo),
+            $("#tipo_concepto_facturacion").val(data.tipo_concepto);
             $("#nombre_concepto_facturacion").val(data.nombre_concepto);
             $("#valor_concepto_facturacion").val(new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(data.valor));
 

@@ -522,6 +522,7 @@ function showViewEstadoCuenta(tipo) {
     $('#button_historico_pagos').removeClass("button-totals-selected").addClass('button-totals');
     $('#button_historico_cxc').removeClass("button-totals-selected").addClass('button-totals');
 
+    $('#reloadEstadoCuenta').hide();
     $('#table_estado_cuenta').hide();
     $('#table_estado_cuenta').hide();
     $('#generatePagoEstadoCuenta').hide();
@@ -531,6 +532,7 @@ function showViewEstadoCuenta(tipo) {
     
     switch (tipo) {
         case 1:
+            $('#reloadEstadoCuenta').show();
             $('#table_estado_cuenta').show();
             $('#table_pagos_estado_cuenta').hide();
             $('#table_facturas_estado_cuenta').hide();
