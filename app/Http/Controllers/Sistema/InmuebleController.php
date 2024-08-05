@@ -88,6 +88,24 @@ class InmuebleController extends Controller
                     
             }
 
+            if ($request->get('id_nit')) {
+                $inmueble->whereHas('personas',  function ($query) use($request) {
+                    $query->where('id_nit', $request->get('id_nit'));
+                });
+            }
+
+            if ($request->get('id_zona')) {
+                $inmueble->whereHas('zona',  function ($query) use($request) {
+                    $query->where('id_zona', $request->get('id_zona'));
+                });
+            }
+
+            if ($request->get('id_concepto_facturacion')) {
+                $inmueble->whereHas('concepto',  function ($query) use($request) {
+                    $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
+                });
+            }
+
             $inmuebleTotals = $inmueble->get();
 
             $inmueblePaginate = $inmueble->skip($start)
@@ -393,6 +411,24 @@ class InmuebleController extends Controller
                 });
         }
 
+        if ($request->get('id_nit')) {
+            $totalInmuebles->whereHas('personas',  function ($query) use($request) {
+                $query->where('id_nit', $request->get('id_nit'));
+            });
+        }
+
+        if ($request->get('id_zona')) {
+            $totalInmuebles->whereHas('zona',  function ($query) use($request) {
+                $query->where('id_zona', $request->get('id_zona'));
+            });
+        }
+
+        if ($request->get('id_concepto_facturacion')) {
+            $totalInmuebles->whereHas('concepto',  function ($query) use($request) {
+                $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
+            });
+        }
+
         $areaM2Total = Inmueble::whereNotNull('id');
         if ($search) {
             $areaM2Total->where('nombre', 'LIKE', '%'.$search.'%')
@@ -405,6 +441,24 @@ class InmuebleController extends Controller
                         $query->whereIn('id_nit', $nitSsearch);
                     });
                 });
+        }
+
+        if ($request->get('id_nit')) {
+            $areaM2Total->whereHas('personas',  function ($query) use($request) {
+                $query->where('id_nit', $request->get('id_nit'));
+            });
+        }
+
+        if ($request->get('id_zona')) {
+            $areaM2Total->whereHas('zona',  function ($query) use($request) {
+                $query->where('id_zona', $request->get('id_zona'));
+            });
+        }
+
+        if ($request->get('id_concepto_facturacion')) {
+            $areaM2Total->whereHas('concepto',  function ($query) use($request) {
+                $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
+            });
         }
 
         $coeficienteTotal = Inmueble::whereNotNull('id');
@@ -421,6 +475,24 @@ class InmuebleController extends Controller
                 });
         }
 
+        if ($request->get('id_nit')) {
+            $coeficienteTotal->whereHas('personas',  function ($query) use($request) {
+                $query->where('id_nit', $request->get('id_nit'));
+            });
+        }
+
+        if ($request->get('id_zona')) {
+            $coeficienteTotal->whereHas('zona',  function ($query) use($request) {
+                $query->where('id_zona', $request->get('id_zona'));
+            });
+        }
+
+        if ($request->get('id_concepto_facturacion')) {
+            $coeficienteTotal->whereHas('concepto',  function ($query) use($request) {
+                $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
+            });
+        }
+
         $inmueblesPresupuesto = Inmueble::whereNotNull('id');
         if ($search) {
             $inmueblesPresupuesto->where('nombre', 'LIKE', '%'.$search.'%')
@@ -433,6 +505,23 @@ class InmuebleController extends Controller
                         $query->whereIn('id_nit', $nitSsearch);
                     });
                 });
+        }
+        if ($request->get('id_nit')) {
+            $inmueblesPresupuesto->whereHas('personas',  function ($query) use($request) {
+                $query->where('id_nit', $request->get('id_nit'));
+            });
+        }
+
+        if ($request->get('id_zona')) {
+            $inmueblesPresupuesto->whereHas('zona',  function ($query) use($request) {
+                $query->where('id_zona', $request->get('id_zona'));
+            });
+        }
+
+        if ($request->get('id_concepto_facturacion')) {
+            $inmueblesPresupuesto->whereHas('concepto',  function ($query) use($request) {
+                $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
+            });
         }
         $inmueblesFilter = [];
         $inmueblesPresupuesto = $inmueblesPresupuesto->get();

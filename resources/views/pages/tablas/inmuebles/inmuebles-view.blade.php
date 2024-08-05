@@ -25,7 +25,6 @@
                 @endcan
             </div>
             <div class="col-12 col-md-6 col-sm-6" >
-                <input type="text" id="searchInputInmuebles" class="form-control form-control-sm search-table" placeholder="Buscar" onkeydown="searchInmuebles(event)">
                 <h4 id="nombre_inmueble_nit" style="display: none; float: inline-end; color: white;"></h4>
             </div>
         </div>

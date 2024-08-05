@@ -6,6 +6,9 @@ var $comboInmuebleNit = null;
 var $comboZonaInmueble = null;
 var searchValueInmuebles = null;
 var buscarTotalesInmuebles = false;
+var $comboInmuebleNitFilter = null;
+var $comboInmuebleZonaFilter = null;
+var $comboInmuebleConceptoFilter = null;
 var $comboConceptoFacturacionInmueble = null;
 
 function inmuebleInit() {
@@ -31,6 +34,9 @@ function inmuebleInit() {
             headers: headers,
             url: base_url + 'inmueble',
             data: function ( d ) {
+                d.id_nit = $('#id_nit_inmueble_filter').val(),
+                d.id_zona = $('#id_zona_inmueble_filter').val(),
+                d.id_concepto_facturacion = $('#id_concepto_facturacion_inmueble_filter').val(),
                 d.search = searchValueInmuebles;
             }
         },
@@ -448,6 +454,40 @@ function inmuebleInit() {
             }
         }
     });
+    
+    $comboInmuebleNitFilter = $('#id_nit_inmueble_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 
     $comboZonaInmueble = $('#id_zona_inmueble').select2({
         theme: 'bootstrap-5',
@@ -471,10 +511,57 @@ function inmuebleInit() {
         }
     });
 
+    $comboInmuebleZonaFilter = $('#id_zona_inmueble_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una Zona",
+        allowClear: true,
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });    
+
     $comboConceptoFacturacionInmueble = $('#id_concepto_facturacion_inmueble').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#inmuebleFormModal'),
         delay: 250,
+        ajax: {
+            url: 'api/concepto-facturacion-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboInmuebleConceptoFilter = $('#id_concepto_facturacion_inmueble_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un Concepto",
+        allowClear: true,
         ajax: {
             url: 'api/concepto-facturacion-combo',
             headers: headers,
@@ -793,7 +880,12 @@ function getTotalesInmuebles(){
         url: base_url + 'inmueble-total',
         method: 'GET',
         headers: headers,
-        data: {search: searchValueInmuebles},
+        data: {
+            search: searchValueInmuebles,
+            id_nit: $('#id_nit_inmueble_filter').val(),
+            id_zona: $('#id_zona_inmueble_filter').val(),
+            id_concepto_facturacion: $('#id_concepto_facturacion_inmueble_filter').val()
+        },
         dataType: 'json',
     }).done((res) => {
         buscarTotalesInmuebles = false;
@@ -899,4 +991,19 @@ $("input[data-type='currency']").on({
     blur: function() {
         formatCurrency($(this), "blur");
     }
+});
+
+$(document).on('change', '#id_nit_inmueble_filter', function () {
+    inmueble_table.ajax.reload();
+    getTotalesInmuebles();
+});
+
+$(document).on('change', '#id_zona_inmueble_filter', function () {
+    inmueble_table.ajax.reload();
+    getTotalesInmuebles();
+});
+
+$(document).on('change', '#id_concepto_facturacion_inmueble_filter', function () {
+    inmueble_table.ajax.reload();
+    getTotalesInmuebles();
 });
