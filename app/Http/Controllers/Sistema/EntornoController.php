@@ -15,7 +15,7 @@ class EntornoController extends Controller
     public function index(Request $request)
     {
         $data = [
-            'variables_entorno' => Entorno::get()
+            'variables_entorno' => Entorno::with('cuenta_contable')->get()
         ];
         
         return view('pages.configuracion.entorno.entorno-view', $data);
@@ -40,6 +40,7 @@ class EntornoController extends Controller
                 'numero_total_unidades',
                 'valor_total_presupuesto_year_actual',
                 'validacion_estricta',
+                'causacion_mensual_rapida',
                 'dia_limite_pago_sin_interes',
                 'dia_limite_descuento_pronto_pago',
                 'porcentaje_descuento_pronto_pago',

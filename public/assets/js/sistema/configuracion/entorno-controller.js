@@ -1,5 +1,8 @@
+$comboCuentaProntoPago = null;
+
 function entornoInit() {
-    $('#id_cuenta_pronto_pago').select2({
+
+    $comboCuentaProntoPago = $('#id_cuenta_pronto_pago').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una cuenta",
@@ -39,7 +42,8 @@ function entornoInit() {
         var checkEntorno = [
             'editar_coheficiente_admon_inmueble',
             'editar_valor_admon_inmueble',
-            'validacion_estricta'
+            'validacion_estricta',
+            'causacion_mensual_rapida'
         ];
 
         var dateEntorno = [
@@ -62,6 +66,16 @@ function entornoInit() {
         if (dateEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(variable.valor);
         }
+
+        if (select2.indexOf(variable.nombre) + 1) {
+            var dataCuenta = {
+                id: variable.cuenta_contable.id,
+                text: variable.cuenta_contable.cuenta + ' - ' + variable.cuenta_contable.nombre
+            };
+            var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+            $comboCuentaProntoPago.append(newOption).trigger('change');
+            $comboCuentaProntoPago.val(dataCuenta.id).trigger('change');
+        }
     }
 }
 
@@ -79,6 +93,7 @@ $(document).on('click', '#updateEntorno', function () {
         'editar_valor_admon_inmueble': $("input[type='checkbox']#editar_valor_admon_inmueble").is(':checked') ? '1' : '0',
         'editar_coheficiente_admon_inmueble': $("input[type='checkbox']#editar_coheficiente_admon_inmueble").is(':checked') ? '1' : '0',
         'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '0',
+        'causacion_mensual_rapida': $("input[type='checkbox']#causacion_mensual_rapida").is(':checked') ? '1' : '0',
         'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
         'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),

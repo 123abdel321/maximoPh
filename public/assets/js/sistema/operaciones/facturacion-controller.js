@@ -71,6 +71,7 @@ function generarTablaPreview(data) {
         htmlInmuebles+= `<tr ${styles}>
             <td style="font-weight: 600;">${inmueble.concepto_facturacion}</td>
             <td style="text-align: end;">${inmueble.items}</td>
+            <td style="text-align: end;">${new Intl.NumberFormat("ja-JP").format(inmueble.saldo_anterior)}</td>
             <td style="text-align: end;">${new Intl.NumberFormat("ja-JP").format(inmueble.valor_total)}</td>
             <td style="text-align: end;" id="inmueble_causado_${inmueble.id_concepto_facturacion}">0</td>
             <td style="text-align: end;" id="inmueble_diferencia_${inmueble.id_concepto_facturacion}">${new Intl.NumberFormat("ja-JP").format(inmueble.valor_total)}</td>
@@ -109,6 +110,7 @@ function generarTablaPreview(data) {
         htmlExtras+= `<tr ${styles}>
             <td style="font-weight: 600;">${extra.concepto_facturacion}</td>
             <td style="text-align: end;">${extra.items}</td>
+            <td style="text-align: end;">${new Intl.NumberFormat("ja-JP").format(extra.saldo_anterior)}</td>
             <td style="text-align: end;">${new Intl.NumberFormat("ja-JP").format(extra.valor_total)}</td>
             <td style="text-align: end;" id="extras_causado_${extra.id_concepto_facturacion}">0</td>
             <td style="text-align: end;" id="extras_diferencia_${extra.id_concepto_facturacion}">${new Intl.NumberFormat("ja-JP").format(extra.valor_total)}</td>

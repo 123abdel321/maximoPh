@@ -66,6 +66,7 @@
                         <tr>
                             <th style="border-radius: 15px 0px 0px 0px !important;">Concepto</th>
                             <th>Items</th>
+                            <th>Saldo Ant.</th>
                             <th>Esperado</th>
                             <th>Causado</th>
                             <th>Diferencia</th>

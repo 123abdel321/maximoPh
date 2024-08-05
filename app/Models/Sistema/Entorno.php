@@ -19,4 +19,9 @@ class Entorno extends Model
         'created_by',
         'updated_by'
     ];
+
+    public function cuenta_contable()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'valor');
+    }
 }

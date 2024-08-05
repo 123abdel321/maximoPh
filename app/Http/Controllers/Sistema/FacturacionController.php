@@ -486,6 +486,7 @@ class FacturacionController extends Controller
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
         $inmuebles = DB::connection('max')->table('inmueble_nits')->select(
+                'CFA.id_cuenta_cobrar',
                 'CFA.nombre_concepto AS nombre_concepto',
                 DB::raw("INM.id_concepto_facturacion"),
                 DB::raw("COUNT(INM.id) AS items"),
@@ -515,18 +516,36 @@ class FacturacionController extends Controller
 
         foreach ($inmuebles as $inmueble) {
             if (!$inmueble->id_concepto_facturacion) continue;
-            $concepto = ConceptoFacturacion::find($inmueble->id_concepto_facturacion);
             $countInmuebles+= $inmueble->items;
-            $inmueblesConceptos[] = (object)[
+            $inmueblesConceptos[$inmueble->id_cuenta_cobrar] = (object)[
                 'id_concepto_facturacion' => $inmueble->id_concepto_facturacion,
                 'concepto_facturacion' => $inmueble->nombre_concepto,
                 'items' => $inmueble->items,
+                'saldo_anterior' => 0,
                 'valor_total' => round($inmueble->valor_total),
                 'causado_total'=> 0,
                 'causado_count'=> 0,
                 'diferencia'=> 0,
             ];
         }
+
+        $countCuotas = 0;
+        foreach ($cuotasExtra as $cuotas) {
+            if (!$cuotas->id_concepto_facturacion) continue;
+            $countCuotas+= $cuotas->items;
+            $concepto = ConceptoFacturacion::find($cuotas->id_concepto_facturacion);
+            $extrasConceptos[$concepto->id_cuenta_cobrar] = (object)[
+                'id_concepto_facturacion' => $cuotas->id_concepto_facturacion,
+                'concepto_facturacion' => $concepto->nombre_concepto,
+                'items' => $cuotas->items,
+                'saldo_anterior' => 0,
+                'valor_total' => round($cuotas->valor_total),
+                'causado_total'=> 0,
+                'causado_count'=> 0,
+                'diferencia'=> 0,
+            ];
+        }
+
         //INTERESES
         $fechaPeriodo = date('Y-m-d', strtotime(date('Y-m', strtotime($periodo_facturacion)).'-01'. ' - 1 day'));
         
@@ -542,6 +561,13 @@ class FacturacionController extends Controller
         foreach ($extractos as $extracto) {
             $extracto = (object)$extracto;
             $extractosNits[$extracto->id_nit][] = $extracto;
+            if (array_key_exists($extracto->id_cuenta, $inmueblesConceptos)) {
+                $inmueblesConceptos[$extracto->id_cuenta]->saldo_anterior+= $extracto->saldo;
+            }
+
+            if (array_key_exists($extracto->id_cuenta, $extrasConceptos)) {
+                $extrasConceptos[$extracto->id_cuenta]->saldo_anterior+= $extracto->saldo;
+            }
         }        
 
         //ANTICIPOS
@@ -567,32 +593,17 @@ class FacturacionController extends Controller
         $totales = DB::connection('max')->table('inmueble_nits')->select(
             DB::raw("SUM(valor_total) AS valor_total")
         )->first();
-
+        $totalSaldoAnteriorInmuebles = array_sum(array_column($inmueblesConceptos,'saldo_anterior'));
         $inmueblesConceptos[] = (object)[
             'id_concepto_facturacion' => 'total_inmuebles',
             'concepto_facturacion' => 'TOTALES',
             'items' => $countInmuebles,
+            'saldo_anterior' => $totalSaldoAnteriorInmuebles,
             'valor_total' => round($totales->valor_total),
             'causado_total'=> 0,
             'causado_count'=> 0,
             'diferencia'=> 0,
         ];
-        
-        $countCuotas = 0;
-        foreach ($cuotasExtra as $cuotas) {
-            if (!$cuotas->id_concepto_facturacion) continue;
-            $countCuotas+= $cuotas->items;
-            $concepto = ConceptoFacturacion::find($cuotas->id_concepto_facturacion);
-            $extrasConceptos[] = (object)[
-                'id_concepto_facturacion' => $cuotas->id_concepto_facturacion,
-                'concepto_facturacion' => $concepto->nombre_concepto,
-                'items' => $cuotas->items,
-                'valor_total' => round($cuotas->valor_total),
-                'causado_total'=> 0,
-                'causado_count'=> 0,
-                'diferencia'=> 0,
-            ];
-        }
 
         $inmuebleNitData = []; 
         $query = $this->getInmueblesNitsQuery();
@@ -655,6 +666,7 @@ class FacturacionController extends Controller
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
             'items' => $count_intereses,
+            'saldo_anterior' => $totalSaldoAnteriorInmuebles,
             'valor_total' => $this->roundNumber($total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
@@ -668,6 +680,7 @@ class FacturacionController extends Controller
             'id_concepto_facturacion' => 'total_extras',
             'concepto_facturacion' => 'TOTALES',
             'items' => $count_intereses + $countCuotas,
+            'saldo_anterior' => array_sum(array_column($extrasConceptos,'saldo_anterior')),
             'valor_total' => round($cuotasMultas->sum('valor_total') + $total_intereses),
             'causado_total'=> 0,
             'causado_count'=> 0,
@@ -679,8 +692,8 @@ class FacturacionController extends Controller
         return response()->json([
             "success"=>true,
             'data' => [
-                'inmuebles' => $inmueblesConceptos,
-                'cuotas' => $extrasConceptos,
+                'inmuebles' => array_values($inmueblesConceptos),
+                'cuotas' => array_values($extrasConceptos),
                 'periodo_facturacion' => $periodo_facturacion,
                 'existe_facturacion' => $existe_facturacion,
                 'saldo_anterior' => $saldo_anterior,

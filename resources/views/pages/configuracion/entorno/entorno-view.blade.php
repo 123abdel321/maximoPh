@@ -25,7 +25,7 @@
 
                         <br/>
 
-                        <div class="row">
+                        <div class="row" style="padding: 5px;">
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Área total M2</label>
@@ -91,6 +91,13 @@
                                 <input class="form-check-input" type="checkbox" name="editar_coheficiente_admon_inmueble" id="editar_coheficiente_admon_inmueble" style="height: 20px;">
                                 <label class="form-check-label" for="editar_coheficiente_admon_inmueble">
                                     Editar coheficiente inmuebles
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="causacion_mensual_rapida" id="causacion_mensual_rapida" style="height: 20px;">
+                                <label class="form-check-label" for="causacion_mensual_rapida">
+                                    Causación mensual rapida
                                 </label>
                             </div>
 
