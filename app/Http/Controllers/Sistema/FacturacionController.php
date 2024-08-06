@@ -292,7 +292,7 @@ class FacturacionController extends Controller
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
                 }
             }
-
+            
             //RECORREMOS INMUEBLES DEL NIT
             foreach ($inmueblesFacturar as $inmuebleFactura) {
                 if (count($inmueblesFacturar) > 1) $totalInmuebles++;
@@ -943,7 +943,7 @@ class FacturacionController extends Controller
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
-            'concepto' => $inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Coef:'.$inmuebleFactura->coeficiente,
+            'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Cogef:'.$inmuebleFactura->coeficiente,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
