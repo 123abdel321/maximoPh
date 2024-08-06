@@ -943,7 +943,7 @@ class FacturacionController extends Controller
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
-            'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
+            'concepto' => $inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Cohef:'.$inmuebleFactura->coeficiente,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
@@ -1313,12 +1313,14 @@ class FacturacionController extends Controller
                 'inmueble_nits.valor_total',
                 'INM.nombre',
                 'INM.id_concepto_facturacion',
+                'INM.coeficiente',
                 'CFA.nombre_concepto',
                 'CFA.id_cuenta_cobrar',
                 'CFA.id_cuenta_ingreso',
                 'CFA.id_cuenta_interes',
                 'CFA.intereses',
-                'ZO.id_centro_costos'
+                'ZO.id_centro_costos',
+                'ZO.nombre AS nombre_zona'
             )
             ->leftJoin('inmuebles AS INM', 'inmueble_nits.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
