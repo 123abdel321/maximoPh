@@ -43,16 +43,17 @@ function entornoInit() {
             'editar_coheficiente_admon_inmueble',
             'editar_valor_admon_inmueble',
             'validacion_estricta',
-            'causacion_mensual_rapida'
+            'causacion_mensual_rapida',
+            'presupuesto_mensual',
         ];
 
         var dateEntorno = [
             'periodo_facturacion',
         ];
 
-        var select2 = [
-            'id_cuenta_pronto_pago',
-        ];
+        // var select2 = [
+        //     'id_cuenta_pronto_pago',
+        // ];
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
@@ -67,15 +68,15 @@ function entornoInit() {
             $('#'+variable.nombre).val(variable.valor);
         }
 
-        if (select2.indexOf(variable.nombre) + 1) {
-            var dataCuenta = {
-                id: variable.cuenta_contable.id,
-                text: variable.cuenta_contable.cuenta + ' - ' + variable.cuenta_contable.nombre
-            };
-            var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
-            $comboCuentaProntoPago.append(newOption).trigger('change');
-            $comboCuentaProntoPago.val(dataCuenta.id).trigger('change');
-        }
+        // if (select2.indexOf(variable.nombre) + 1) {
+        //     var dataCuenta = {
+        //         id: variable.cuenta_contable.id,
+        //         text: variable.cuenta_contable.cuenta + ' - ' + variable.cuenta_contable.nombre
+        //     };
+        //     var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+        //     $comboCuentaProntoPago.append(newOption).trigger('change');
+        //     $comboCuentaProntoPago.val(dataCuenta.id).trigger('change');
+        // }
     }
 }
 
@@ -94,9 +95,10 @@ $(document).on('click', '#updateEntorno', function () {
         'editar_coheficiente_admon_inmueble': $("input[type='checkbox']#editar_coheficiente_admon_inmueble").is(':checked') ? '1' : '0',
         'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '0',
         'causacion_mensual_rapida': $("input[type='checkbox']#causacion_mensual_rapida").is(':checked') ? '1' : '0',
-        'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
-        'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
-        'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),
+        'presupuesto_mensual': $("input[type='checkbox']#presupuesto_mensual").is(':checked') ? '1' : '0',
+        // 'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
+        // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
+        // 'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),
     };
 
     $.ajax({

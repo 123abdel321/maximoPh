@@ -32,6 +32,7 @@ class FacturacionController extends Controller
     protected $saldoBase = 0;
     protected $countIntereses = 0;
     protected $valoresBaseProximaAdmin = 0;
+    protected $aptoProntoPago = false;
     
     public function index ()
     {
@@ -39,15 +40,25 @@ class FacturacionController extends Controller
         $areaM2Total = Inmueble::sum('area');
         $coeficienteTotal = Inmueble::sum('coeficiente');
         $valorRegistroPresupuesto = InmuebleNit::sum('valor_total');
+        $numero_total_unidades = Entorno::where('nombre', 'numero_total_unidades')->first();
+        $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
+        $valor_total_presupuesto = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
+        $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
+        $presupuesto_mensual = Entorno::where('nombre', 'presupuesto_mensual')->first();
+        $valor_total_presupuesto = $valor_total_presupuesto && $valor_total_presupuesto->valor ? $valor_total_presupuesto->valor : 0;
+        $presupuesto_mensual = $presupuesto_mensual && $presupuesto_mensual->valor ? $presupuesto_mensual->valor : 0;
+
+        if (!$presupuesto_mensual) $valor_total_presupuesto = $valor_total_presupuesto / 12;
 
         $data = [
-            'numero_total_unidades' => Entorno::where('nombre', 'numero_total_unidades')->first()->valor,
+            'numero_total_unidades' => $numero_total_unidades ? $numero_total_unidades->valor : '0',
             'numero_registro_unidades' => $totalInmuebles,
-            'area_total_m2' => Entorno::where('nombre', 'area_total_m2')->first()->valor,
+            'area_total_m2' => $area_total_m2 ? $area_total_m2->valor : '0',
             'area_registro_m2' => $areaM2Total,
-            'valor_total_presupuesto' => Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor,
+            'valor_total_presupuesto' => $valor_total_presupuesto ? $valor_total_presupuesto : '0',
+            'causacion_mensual_rapida' => $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : '0',
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
-            'valor_registro_coeficiente' => $coeficienteTotal * 100,
+            'valor_registro_coeficiente' => $coeficienteTotal,
         ];
 
         return view('pages.operaciones.facturacion.facturacion-view', $data);
@@ -181,11 +192,22 @@ class FacturacionController extends Controller
 
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+            $dias_pronto_pago = Entorno::where('nombre', 'dias_pronto_pago')->first();
+            $tasa_pronto_pago = Entorno::where('nombre', 'tasa_pronto_pago')->first();
+            $id_cuenta_pronto_pago = Entorno::where('nombre', 'id_cuenta_pronto_pago')->first();
+
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
             $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
             $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
+
+            if ($id_cuenta_pronto_pago && $dias_pronto_pago && $tasa_pronto_pago) {
+                $id_cuenta_pronto_pago = $id_cuenta_pronto_pago->valor;
+                $dias_pronto_pago = $dias_pronto_pago->valor;
+                $tasa_pronto_pago = $tasa_pronto_pago->valor;
+                $this->aptoProntoPago = true;
+            }
 
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
@@ -215,6 +237,7 @@ class FacturacionController extends Controller
             $valoresIntereses+= $valores;
 
             if ($valoresIntereses) {
+                $this->aptoProntoPago = false;
                 $dataGeneral['extras']['intereses'] = (object)[
                     'items' => 1,
                     'id_concepto_facturacion' => 'intereses',

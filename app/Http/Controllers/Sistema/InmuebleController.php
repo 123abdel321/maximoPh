@@ -37,13 +37,19 @@ class InmuebleController extends Controller
         $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
         $numero_total_unidades = Entorno::where('nombre', 'numero_total_unidades')->first();
         $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
+        $presupuesto_mensual = Entorno::where('nombre', 'presupuesto_mensual')->first();
+        $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual && $valor_total_presupuesto_year_actual->valor ? $valor_total_presupuesto_year_actual->valor : 0;
+        $presupuesto_mensual = $presupuesto_mensual && $presupuesto_mensual->valor ? $presupuesto_mensual->valor : 0;
+
+        if (!$presupuesto_mensual) $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual / 12;
         
         $data = [
             "editar_valor_admon_inmueble" => $editar_valor_admon_inmueble && $editar_valor_admon_inmueble->valor ? $editar_valor_admon_inmueble->valor : '0',
             "editar_coheficiente_admon_inmueble" => $editar_coheficiente_admon_inmueble && $editar_coheficiente_admon_inmueble->valor ? $editar_coheficiente_admon_inmueble->valor : '0',
-            "valor_total_presupuesto_year_actual" => $valor_total_presupuesto_year_actual && $valor_total_presupuesto_year_actual->valor ? $valor_total_presupuesto_year_actual->valor : '0',
+            "valor_total_presupuesto_year_actual" => $valor_total_presupuesto_year_actual ? $valor_total_presupuesto_year_actual : '0',
             "numero_total_unidades" => $numero_total_unidades && $numero_total_unidades->valor ? $numero_total_unidades->valor : '0',
             "area_total_m2" => $area_total_m2 && $area_total_m2->valor ? $area_total_m2->valor : '0',
+            "presupuesto_mensual" => $presupuesto_mensual ? $presupuesto_mensual : '0',
         ];
 
         return view('pages.tablas.inmuebles.inmuebles-view', $data);
@@ -532,13 +538,13 @@ class InmuebleController extends Controller
         }
 
         $totalPresupuesto = InmuebleNit::whereIn('id_inmueble', $inmueblesFilter)
-            ->sum('valor_total');;
+            ->sum('valor_total');
 
         $data = [
             'numero_registro_unidades' => $totalInmuebles->count(),
             'area_registro_m2' => $areaM2Total->sum('area'),
             'valor_registro_presupuesto' => $totalPresupuesto,
-            'valor_registro_coeficiente' => $coeficienteTotal->sum('coeficiente') * 100
+            'valor_registro_coeficiente' => $coeficienteTotal->sum('coeficiente')
         ];
 
         return response()->json([

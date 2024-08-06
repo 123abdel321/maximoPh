@@ -57,7 +57,7 @@
                                 <input type="number" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
                             </div>
 
-                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                            <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Días pronto pago</label>
                                 <input type="number" class="form-control form-control-sm" name="dias_pronto_pago" id="dias_pronto_pago">
                             </div>
@@ -71,7 +71,7 @@
                                 <label for="exampleFormControlSelect1">Cuenta pronto pago</label>
                                 <select name="id_cuenta_pronto_pago" id="id_cuenta_pronto_pago" class="form-control form-control-sm">
                                 </select>
-                            </div>
+                            </div> -->
 
                             <div class="form-check form-switch col-12 col-sm-4 col-md-3">
                                 <input class="form-check-input" type="checkbox" name="validacion_estricta" id="validacion_estricta" style="height: 20px;">
@@ -100,6 +100,13 @@
                                     Causación mensual rapida
                                 </label>
                             </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="presupuesto_mensual" id="presupuesto_mensual" style="height: 20px;">
+                                <label class="form-check-label" for="presupuesto_mensual">
+                                    Presupuesto mensual
+                                </label>
+                            </div>                            
 
                         </div>
 

@@ -41,6 +41,7 @@ class EntornoController extends Controller
                 'valor_total_presupuesto_year_actual',
                 'validacion_estricta',
                 'causacion_mensual_rapida',
+                'presupuesto_mensual',
                 'dia_limite_pago_sin_interes',
                 'dia_limite_descuento_pronto_pago',
                 'porcentaje_descuento_pronto_pago',
@@ -49,13 +50,13 @@ class EntornoController extends Controller
                 'editar_coheficiente_admon_inmueble',
                 'periodo_facturacion',
                 'redondeo_intereses',
-                'dias_pronto_pago',
-                'tasa_pronto_pago',
-                'id_cuenta_pronto_pago',
+                // 'dias_pronto_pago',
+                // 'tasa_pronto_pago',
+                // 'id_cuenta_pronto_pago',
             ];
 
             foreach ($variablesEntorno as $variable) {
-                if ($request->has($variable) && $request->get($variable)) {
+                if ($request->get($variable) || $request->get($variable) == '0') {
                     Entorno::updateOrCreate(
                         [ 'nombre' => $variable ],
                         [ 'valor' => $request->get($variable) ]

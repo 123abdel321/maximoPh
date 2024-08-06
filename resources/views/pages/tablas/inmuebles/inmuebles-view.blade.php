@@ -97,7 +97,8 @@
                                     0
                                 </h5>
                                 <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($valor_total_presupuesto_year_actual / 12) }}
+
+                                    &nbsp;de {{ number_format($valor_total_presupuesto_year_actual) }}
                                 </h5>
                             </div>
                             <div class="icon icon-shape bg-gradient-danger shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
