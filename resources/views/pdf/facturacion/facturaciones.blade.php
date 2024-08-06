@@ -160,8 +160,9 @@
 								<td class="empresa padding5">
 									<h1>{{ $empresa->razon_social }}</h1>
 									<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
-									<span>{{ $empresa->direccion }}</span><br>
 									<span>TEL: {{ $empresa->telefono }}</span><br>
+									<span>{{ $empresa->direccion }}</span><br>
+									<span>{{ $empresa->correo }}</span><br>
 								</td>
 								
 								<td class="logo padding5">
@@ -261,7 +262,7 @@
 			<tbody class="detalle-factura">
 				@foreach ($cuentas as $cuenta)
 					<tr>
-						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
+						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>

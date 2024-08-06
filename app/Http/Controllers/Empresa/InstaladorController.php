@@ -225,6 +225,8 @@ class InstaladorController extends Controller
 				'tipo_contribuyente' => 1,
 				'razon_social' => $request->razon_social_empresa_nueva,
 				'nit' => $request->nit_empresa_nueva,
+				'direccion' => $request->direccion_empresa_nueva,
+				'correo' => $request->email_empresa_nueva,
 				'dv' => '',
 				'telefono' => $request->telefono_empresa_nueva,
                 'id_usuario_owner' => $usuarioOwner->id,
@@ -318,6 +320,8 @@ class InstaladorController extends Controller
                     'nombre' => $request->nombre_completo_empresa_edit,
                     'razon_social' => $request->razon_social_empresa_edit,
                     'nit' => $request->nit_empresa_edit,
+                    'direccion' => $request->direccion_empresa_edit,
+                    'correo' => $request->correo_empresa_edit,
                     'telefono' => $request->telefono_empresa_edit,
                     'valor_suscripcion_mensual' => $numeroUnidades * $valorUnidades,
                 ]);

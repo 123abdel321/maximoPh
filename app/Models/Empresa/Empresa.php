@@ -34,6 +34,7 @@ class Empresa extends Model
         'logo',
         'fecha_retiro',
         'direccion',
+        'correo',
         'telefono',
         'hash',
         'valor_suscripcion_mensual',

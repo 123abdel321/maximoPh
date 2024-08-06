@@ -49,6 +49,11 @@
                 </div>
 
                 <div class="form-group col-12 col-sm-6 col-md-6">
+                    <label for="example-text-input" class="form-control-label">Correo</label>
+                    <input type="text" class="form-control form-control-sm" name="correo_empresa_edit" id="correo_empresa_edit" onfocus="this.select();">
+                </div>
+
+                <div class="form-group col-12 col-sm-6 col-md-6">
                     <label for="example-text-input" class="form-control-label">Numero de unidades</label>
                     <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="numero_unidades_edit" id="numero_unidades_edit" value="1" onchange="changePrecioSuscripcionEdit()" onfocus="this.select();">
                 </div>

@@ -32,7 +32,6 @@ class FacturacionController extends Controller
     protected $saldoBase = 0;
     protected $countIntereses = 0;
     protected $valoresBaseProximaAdmin = 0;
-    protected $aptoProntoPago = false;
     
     public function index ()
     {
@@ -206,7 +205,6 @@ class FacturacionController extends Controller
                 $id_cuenta_pronto_pago = $id_cuenta_pronto_pago->valor;
                 $dias_pronto_pago = $dias_pronto_pago->valor;
                 $tasa_pronto_pago = $tasa_pronto_pago->valor;
-                $this->aptoProntoPago = true;
             }
 
             $this->eliminarFactura($request->get('id'), $inicioMes);
@@ -237,7 +235,6 @@ class FacturacionController extends Controller
             $valoresIntereses+= $valores;
 
             if ($valoresIntereses) {
-                $this->aptoProntoPago = false;
                 $dataGeneral['extras']['intereses'] = (object)[
                     'items' => 1,
                     'id_concepto_facturacion' => 'intereses',
