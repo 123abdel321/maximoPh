@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
@@ -586,25 +587,24 @@ class InmuebleController extends Controller
 
     private function nitsSearch($search)
     {
-        $data = [];
-        $nits = DB::connection('sam')->table('nits')->select('id')
-            ->where('razon_social', 'LIKE', '%'.$search.'%')
-            ->orWhere('numero_documento', 'LIKE', '%'.$search.'%')
-            ->orWhere(DB::raw("(CASE
-                WHEN razon_social IS NOT NULL AND razon_social != '' THEN razon_social
-                WHEN (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, otros_nombres, primer_apellido, segundo_apellido)
-                ELSE NULL
-            END)"), 'LIKE', '%'.$search.'%')
-            ->orWhere('email', 'LIKE', '%'.$search.'%')
-            ->get()->toArray();
-
-        if (count($nits)) {
-            foreach ($nits as $nit) {
-                $data[] = $nit->id;
-            }
-        }
-
-        return $data;        
+        $nits = Nits::select('id')
+            ->orWhere('numero_documento', 'LIKE', '%' . $search . '%')
+            ->orWhere('segundo_apellido', 'LIKE', '%' . $search . '%')
+            ->orWhere('primer_nombre', 'LIKE', '%' . $search . '%')
+            ->orWhere('otros_nombres', 'LIKE', '%' . $search . '%')
+            ->orWhere('razon_social', 'LIKE', '%' . $search . '%')
+            ->orWhere('email', 'LIKE', '%' . $search . '%')
+            ->orWhere(DB::raw("CONCAT(FORMAT(numero_documento, 0),'-',digito_verificacion,' - ',razon_social)"), "like", "%" . $search . "%")
+            ->orWhere(DB::raw("CONCAT(FORMAT(numero_documento, 0),' - ',razon_social)"), "like", "%" . $search . "%")
+            ->orWhere(DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+            ->orWhere(DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+            ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+            ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+            ->orWhere('primer_apellido', 'LIKE', '%' . $search . '%')
+            ->orWhere('apartamentos', 'LIKE', '%' . $search . '%')
+            ->pluck('id');
+        
+        return $nits;        
     }
 
     private function actualizarNombreApartamentos(Nits $nit)
