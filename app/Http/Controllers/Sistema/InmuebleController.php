@@ -374,30 +374,62 @@ class InmuebleController extends Controller
 
     public function combo (Request $request)
     {
-        $inmuebles = Inmueble::with('personas.nit')
-            ->select(
+        // $nits = Nits::
+        //     ->orWhere('numero_documento', 'LIKE', '%' . $search . '%')
+        //     ->orWhere('segundo_apellido', 'LIKE', '%' . $search . '%')
+        //     ->orWhere('primer_nombre', 'LIKE', '%' . $search . '%')
+        //     ->orWhere('otros_nombres', 'LIKE', '%' . $search . '%')
+        //     ->orWhere('razon_social', 'LIKE', '%' . $search . '%')
+        //     ->orWhere('email', 'LIKE', '%' . $search . '%')
+        //     ->orWhere(DB::raw("CONCAT(FORMAT(numero_documento, 0),'-',digito_verificacion,' - ',razon_social)"), "like", "%" . $search . "%")
+        //     ->orWhere(DB::raw("CONCAT(FORMAT(numero_documento, 0),' - ',razon_social)"), "like", "%" . $search . "%")
+        //     ->orWhere(DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+        //     ->orWhere(DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+        //     ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+        //     ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+        //     ->orWhere('primer_apellido', 'LIKE', '%' . $search . '%')
+        //     ->orWhere('apartamentos', 'LIKE', '%' . $search . '%')
+        $nits = Nits::select(
                 \DB::raw('*'),
-                \DB::raw("nombre as text")
+                \DB::raw("CONCAT_WS(' ',apartamentos,' - ',primer_nombre,primer_apellido,segundo_apellido) as text")
             );
 
         if ($request->get("search")) {
-            $nitSsearch = $this->nitsSearch($request->get('search'));
-            
-            if (count($nitSsearch)) {
-                $inmuebles->whereHas('personas',  function ($query) use($nitSsearch) {
-                        $query->whereIn('id_nit', $nitSsearch);
-                    })
-                    ->orWhere('nombre', 'LIKE', '%' . $request->get("search") . '%')
-                    ->orWhere('area', 'LIKE', '%' . $request->get("search") . '%')
-                    ->orWhere('coeficiente', 'LIKE', '%' . $request->get("search") . '%');
-            } else {
-                $inmuebles->where('nombre', 'LIKE', '%' . $request->get("search") . '%')
-                    ->orWhere('area', 'LIKE', '%' . $request->get("search") . '%')
-                    ->orWhere('coeficiente', 'LIKE', '%' . $request->get("search") . '%');
-            }
+            $search = $request->get("search");
+            $nits->orWhere('numero_documento', 'LIKE', '%' . $search . '%')
+                ->orWhere('segundo_apellido', 'LIKE', '%' . $search . '%')
+                ->orWhere('primer_nombre', 'LIKE', '%' . $search . '%')
+                ->orWhere('otros_nombres', 'LIKE', '%' . $search . '%')
+                ->orWhere('razon_social', 'LIKE', '%' . $search . '%')
+                ->orWhere('email', 'LIKE', '%' . $search . '%')
+                ->orWhere(DB::raw("CONCAT(FORMAT(numero_documento, 0),'-',digito_verificacion,' - ',razon_social)"), "like", "%" . $search . "%")
+                ->orWhere(DB::raw("CONCAT(FORMAT(numero_documento, 0),' - ',razon_social)"), "like", "%" . $search . "%")
+                ->orWhere(DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+                ->orWhere(DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+                ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+                ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
+                ->orWhere('primer_apellido', 'LIKE', '%' . $search . '%')
+                ->orWhere('apartamentos', 'LIKE', '%' . $search . '%');
         }
 
-        return $inmuebles->paginate(20);
+        // if ($request->get("search")) {
+        //     $nitSsearch = $this->nitsSearch($request->get('search'));
+            
+        //     if (count($nitSsearch)) {
+        //         $inmuebles->whereHas('personas',  function ($query) use($nitSsearch) {
+        //                 $query->whereIn('id_nit', $nitSsearch);
+        //             })
+        //             ->orWhere('nombre', 'LIKE', '%' . $request->get("search") . '%')
+        //             ->orWhere('area', 'LIKE', '%' . $request->get("search") . '%')
+        //             ->orWhere('coeficiente', 'LIKE', '%' . $request->get("search") . '%');
+        //     } else {
+        //         $inmuebles->where('nombre', 'LIKE', '%' . $request->get("search") . '%')
+        //             ->orWhere('area', 'LIKE', '%' . $request->get("search") . '%')
+        //             ->orWhere('coeficiente', 'LIKE', '%' . $request->get("search") . '%');
+        //     }
+        // }
+
+        return $nits->paginate(20);
     }
 
     public function totales (Request $request)
