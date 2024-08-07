@@ -397,7 +397,7 @@ class InmuebleController extends Controller
             }
         }
 
-        return $inmuebles->paginate(40);
+        return $inmuebles->paginate(20);
     }
 
     public function totales (Request $request)
@@ -602,6 +602,7 @@ class InmuebleController extends Controller
             ->orWhere(DB::raw("CONCAT_WS(' ',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%" . $search . "%")
             ->orWhere('primer_apellido', 'LIKE', '%' . $search . '%')
             ->orWhere('apartamentos', 'LIKE', '%' . $search . '%')
+            ->take(20)
             ->pluck('id');
         
         return $nits;        
