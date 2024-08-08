@@ -153,7 +153,7 @@ class ImportadorInmuebles extends Controller
                 $valorAdmin = $inmuebleIm->valor_administracion;
                 if ($inmuebleIm->id_nit) {
                     
-                    if ($inmueble && !property_exists($inmueble, 'id')) {
+                    if (is_object($inmueble) && !property_exists($inmueble, 'id')) {
                         return response()->json([
                             "success"=>false,
                             'data' => [],
