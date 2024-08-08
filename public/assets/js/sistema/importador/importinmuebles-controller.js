@@ -167,18 +167,20 @@ btnImportRecibo.addEventListener('click', event => {
                 totalesInmueblesImport();
             }
         });
-        var mensaje = err.message;
+        
+        var mensaje = err.responseJSON.message;
         var errorsMsg = "";
         if (typeof mensaje === 'object') {
             for (field in mensaje) {
+
                 var errores = mensaje[field];
                 for (campo in errores) {
                     errorsMsg += field+": "+errores[campo]+" <br>";
                 }
-                agregarToast('error', 'Importación de Inmuebles errado', errorsMsg);
             };
+            agregarToast('error', 'Actuailización errada', errorsMsg);
         } else {
-            agregarToast('error', 'Importación de Inmuebles errado', mensaje);
+            agregarToast('error', 'Actuailización errada', mensaje);
         }
     });
 });
