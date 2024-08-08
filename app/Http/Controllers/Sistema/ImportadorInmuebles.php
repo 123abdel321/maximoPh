@@ -152,7 +152,7 @@ class ImportadorInmuebles extends Controller
                 $porcentajeAdmin = $inmuebleIm->porcentaje_administracion ? $inmuebleIm->porcentaje_administracion : 100;
                 $valorAdmin = $inmuebleIm->valor_administracion;
                 if ($inmuebleIm->id_nit) {
-                    if (!$inmueble->id) {
+                    if (!property_exists($inmueble, 'id')) {
                         return response()->json([
                             "success"=>false,
                             'data' => [],
