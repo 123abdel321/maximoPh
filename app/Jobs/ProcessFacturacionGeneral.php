@@ -38,6 +38,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     public $empresa = null;
 	public $id_empresa = null;
     public $id_cuenta_intereses = null;
+    public $id_cuenta_anticipos = null;
     public $id_cuenta_ingreso_intereses = null;
     public $porcentaje_intereses_mora = null;
     public $id_comprobante_ventas = null;
@@ -69,6 +70,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $this->id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
         $this->periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $this->id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
+        $this->id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
         $this->id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
         $this->id_cuenta_ingreso_intereses = Entorno::where('nombre', 'id_cuenta_ingreso_intereses')->first()->valor;
         $this->porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
