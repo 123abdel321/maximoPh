@@ -152,6 +152,13 @@ class ImportadorInmuebles extends Controller
                 $porcentajeAdmin = $inmuebleIm->porcentaje_administracion ? $inmuebleIm->porcentaje_administracion : 100;
                 $valorAdmin = $inmuebleIm->valor_administracion;
                 if ($inmuebleIm->id_nit) {
+                    if (!$inmueble) {
+                        return response()->json([
+                            "success"=>false,
+                            'data' => [],
+                            "message"=>["Inmueble" => ["El inmueble no existe, registro No. ".$inmueblesImport->id]]
+                        ], 422);
+                    }
                     InmuebleNit::where('id_inmueble', $inmueble->id)
                         ->where('id_nit', $inmuebleIm->id_nit)
                         ->updateOrCreate([
