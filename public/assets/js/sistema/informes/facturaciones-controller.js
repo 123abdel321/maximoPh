@@ -81,9 +81,7 @@ function facturacionesInit() {
                     results: data.data
                 };
             },
-        },
-        templateResult: formatInmuebleRecibo,
-        templateSelection: formatInmuebleReciboSelection
+        }
     });
 
     $comboPeriodoFacturaciones = $('#periodo_facturaciones').select2({

@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\FacturacionERP;
 use App\Helpers\PortafolioERP\EliminarFactura;
 use App\Helpers\PortafolioERP\EliminarFacturas;
+use App\Jobs\ProcessFacturacionGeneral;
+use App\Jobs\ProcessFacturacionGeneralDelete;
+use App\Jobs\ProcessFacturacionGeneralCausar;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
@@ -359,6 +362,72 @@ class FacturacionController extends Controller
         }
     }
 
+    public function generarGeneral ()
+    {
+        try {
+
+            ProcessFacturacionGeneral::dispatch(request()->user()->id, request()->user()->id_empresa);
+
+            return response()->json([
+                "success"=>true,
+                'data' => [],
+                "message"=>'Facturación confirmada con exito'
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function generarGeneralDelete ()
+    {
+        try {
+
+            ProcessFacturacionGeneralDelete::dispatch(request()->user()->id, request()->user()->id_empresa);
+
+            return response()->json([
+                "success"=>true,
+                'data' => [],
+                "message"=>'Eliminación confirmada con exito'
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function generarGeneralCausar ()
+    {
+        try {
+
+            ProcessFacturacionGeneralCausar::dispatch(request()->user()->id, request()->user()->id_empresa);
+            
+            return response()->json([
+                "success"=>true,
+                'data' => [],
+                "message"=>'Eliminación confirmada con exito'
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     public function confirmar ()
     {
         try {
@@ -504,6 +573,8 @@ class FacturacionController extends Controller
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
+        $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
+        $causacion_mensual_rapida = $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : 0;
 
         $inmuebles = DB::connection('max')->table('inmueble_nits')->select(
                 'CFA.id_cuenta_cobrar',
@@ -588,7 +659,7 @@ class FacturacionController extends Controller
             if (array_key_exists($extracto->id_cuenta, $extrasConceptos)) {
                 $extrasConceptos[$extracto->id_cuenta]->saldo_anterior+= $extracto->saldo;
             }
-        }        
+        }
 
         //ANTICIPOS
         $anticipos = (new Extracto(
@@ -645,14 +716,16 @@ class FacturacionController extends Controller
 
         foreach ($facturarNit as $nit) {
 
-            $nits = Nits::find($nit->id_nit);
-
-            $inmuebleNitData[] = (object)[
-                'id_nit' => $nits->id,
-                'nombre_nit' => $nits->nombre_completo,
-                'documento_nit' => $nits->numero_documento,
-                'facturado' => false
-            ];
+            if (!$causacion_mensual_rapida) {
+                $nits = Nits::find($nit->id_nit);
+    
+                $inmuebleNitData[] = (object)[
+                    'id_nit' => $nits->id,
+                    'nombre_nit' => $nits->nombre_completo,
+                    'documento_nit' => $nits->numero_documento,
+                    'facturado' => false
+                ];
+            }
 
             $sumaRapida = 0;
             if (array_key_exists($nit->id_nit, $extractosNits)) {
@@ -733,7 +806,7 @@ class FacturacionController extends Controller
             ],
             "message"=>'Preview facturación generado con exito'
         ], 200);
-    }
+    }    
 
     private function getInmueblesNitsQuery()
     {
@@ -943,7 +1016,7 @@ class FacturacionController extends Controller
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
-            'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Cogef:'.$inmuebleFactura->coeficiente,
+            'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Coef:'.$inmuebleFactura->coeficiente,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,

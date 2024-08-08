@@ -391,7 +391,7 @@ class InmuebleController extends Controller
         //     ->orWhere('apartamentos', 'LIKE', '%' . $search . '%')
         $nits = Nits::select(
                 \DB::raw('*'),
-                \DB::raw("CONCAT_WS(' ',apartamentos,' - ',primer_nombre,primer_apellido,segundo_apellido) as text")
+                \DB::raw("CONCAT_WS(' ',apartamentos,'.',primer_nombre,primer_apellido,segundo_apellido) as text")
             );
 
         if ($request->get("search")) {

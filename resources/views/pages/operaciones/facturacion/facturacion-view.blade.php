@@ -16,6 +16,9 @@
                     <button type="button" class="btn btn-primary btn-sm" id="generateFacturacion">CARGANDO FACTURACIÓN
                         <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
+                    <button type="button" class="btn btn-dark btn-sm" id="generateFacturacionLoading" style="display: none;">GENERANDO FACTURACIONES
+                        <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
+                    </button>
                     <button type="button" class="btn btn-danger btn-sm" id="detenerFacturacion" style="display: none;">
                     </button>
                     <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadFacturacion">
@@ -157,3 +160,7 @@
 
     </div>
 </div>
+
+<script>
+    var causacion_mensual_rapida = JSON.parse('<?php echo $causacion_mensual_rapida; ?>');
+</script>

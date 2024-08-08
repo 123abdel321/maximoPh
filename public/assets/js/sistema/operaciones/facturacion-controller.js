@@ -6,6 +6,7 @@ var nitsFacturando = [];
 var facturandoPersona = false;
 var detenerFacturacion = false;
 var countIntereses = 0;
+var channelFacturacionRapida = pusher.subscribe('facturacion-rapida-'+localStorage.getItem("notificacion_code"));
 
 function facturacionInit() {
     saldosTotales = [
@@ -19,10 +20,12 @@ function facturacionInit() {
 }
 
 function getFacturacionData() {
+    let url = 'facturacion-preview';
+    if (causacion_mensual_rapida) url = 'facturacion-preview';
     $("#reloadFacturacionIconNormal").hide();
     $("#reloadFacturacionIconLoading").show();
     $.ajax({
-        url: base_url + 'facturacion-preview',
+        url: base_url + url,
         method: 'GET',
         headers: headers,
         dataType: 'json',
@@ -48,7 +51,8 @@ function generarTablaPreview(data) {
     if (data.existe_facturacion) {
         $('#generateFacturacion').text('VALIDAR FACTURACIÓN '+ dateText);
     } else {
-        $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
+        if (causacion_mensual_rapida) $('#generateFacturacion').text('FACTURACIÓN RAPIDA '+ dateText);
+        else $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
     }
     //INMUEBLES
     var tablaBefore = document.getElementById("facturacion-inmuebles-preview");
@@ -247,6 +251,91 @@ function facturarNitIndividual() {
     });
 }
 
+function facturarRapidamente() {
+    $("#reloadFacturacion").hide();
+    $("#generateFacturacion").hide();
+    $("#generateFacturacionLoading").show();
+
+    $("#text_progress_bar").html(`ELIMINANDO DOCUMENTOS ...`);
+    document.querySelector("#width_progress_bar").style.setProperty("background-color", "#c29802", "important");
+    var bar = document.querySelector("#width_progress_bar");
+    bar.style.width = 100 + "%";
+    
+    facturandoPersona = $.ajax({
+        url: base_url + 'facturacion-general-delete',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if (res.success) {
+            agregarToast('info', 'Generando facturaciones', 'En un momento se le notificará cuando haya finalizado ...', true );
+            $("#progress_bar").show();
+        }
+    }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+}
+
+channelFacturacionRapida.bind('notificaciones', function(data) {
+    
+    if (data.action == 2) {
+        $("#text_progress_bar").html(`ORGANIZANDO DATOS ...`);
+        document.querySelector("#width_progress_bar").style.setProperty("background-color", "#02c2ab", "important");
+        facturandoPersona = $.ajax({
+            url: base_url + 'facturacion-general',
+            method: 'POST',
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((err) => {
+            var mensaje = err.responseJSON.message;
+            var errorsMsg = arreglarMensajeError(mensaje);
+            agregarToast('error', 'Creación errada', errorsMsg);
+        });
+    }
+
+    if (data.action == 3) {
+        $("#text_progress_bar").html(`GENERANDO DOCUMENTOS CONTABLES ...`);
+        document.querySelector("#width_progress_bar").style.setProperty("background-color", "#0250c2", "important");
+
+        var dataGeneral = data.dataGeneral
+        if (dataGeneral) {
+            actualizarTotales(dataGeneral, {
+                'valor_anticipos': dataGeneral.valor_anticipos,
+                'valor': dataGeneral.valor,
+            });
+            actualizarSaldos({
+                'valor_anticipos': dataGeneral.valor_anticipos,
+                'valor': dataGeneral.valor,
+            });
+        }
+
+        facturandoPersona = $.ajax({
+            url: base_url + 'facturacion-general-causar',
+            method: 'POST',
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((err) => {
+            var mensaje = err.responseJSON.message;
+            var errorsMsg = arreglarMensajeError(mensaje);
+            agregarToast('error', 'Creación errada', errorsMsg);
+        });
+    }
+
+    if (data.action == 4) {
+        $("#progress_bar").hide();
+        $("#text_progress_bar").html(``);
+        $("#reloadFacturacion").show();
+        $("#generateFacturacion").show();
+        $("#generateFacturacionLoading").hide();
+        agregarToast('exito', 'Facturación exitosa', 'Facturación rapida finalizada con exito!', true);
+    }
+    
+});
+
 function actualizarTotales(data, factura) {
     var extras = data.extras;
     var inmuebles = data.inmuebles;
@@ -258,16 +347,23 @@ function actualizarTotales(data, factura) {
         var index = cuotasData.findIndex(item => item.id_concepto_facturacion == key);
         var total = cuotasData.findIndex(item => item.id_concepto_facturacion == "total_extras");
         if (index >= 0) {
-            if (cuotasData[index].id_concepto_facturacion == "intereses") {
-                cuotasData[index].items_causados+= 1;
-                cuotasData[total].items_causados+= 1;
+            if (cuotasData[index].id_concepto_facturacion == "intereses" && value.items) {
+                if (cuotasData[index].items != 0) {
+                    if (cuotasData[index].items > 1) {
+                        cuotasData[index].items_causados = value.items;
+                        cuotasData[total].items_causados = value.items;
+                    } else {
+                        cuotasData[index].items_causados+= 1;
+                        cuotasData[total].items_causados+= 1;
+                    }
+                }
             } else {
                 cuotasData[index].items_causados+= parseFloat(value.items);
                 cuotasData[total].items_causados+= parseFloat(value.items); 
             }
 
-            cuotasData[index].total_causados+= parseFloat(value.valor_causado);
-            cuotasData[total].total_causados+= parseFloat(value.valor_causado);
+            // cuotasData[index].total_causados+= parseFloat(value.valor_causado);
+            // cuotasData[total].total_causados+= parseFloat(value.valor_causado);
 
             var previoCountA = cuotasData[index].total_causados - value.valor_causado;
             var countA = new CountUp('extras_causado_'+key, previoCountA, cuotasData[index].total_causados, 0, 0.5);
@@ -491,7 +587,8 @@ $(document).on('click', '#reloadFacturacion', function () {
 
 $(document).on('click', '#generateFacturacion', function () {
     detenerFacturacion = false;
-    facturarNitIndividual();
+    if (causacion_mensual_rapida) facturarRapidamente();
+    else facturarNitIndividual();
 });
 
 $(document).on('click', '#detenerFacturacion', function () {

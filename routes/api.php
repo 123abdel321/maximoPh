@@ -109,8 +109,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('facturaciones', 'readPdf');
             Route::post('facturacion', 'generar');
             Route::get('facturacion-preview', 'totales');
+            Route::get('facturacion-preview-lite', 'totalesLite');
             Route::get('facturacion-proceso', 'readDetalle');
             Route::post('facturacion-confirmar', 'confirmar');
+            Route::post('facturacion-general', 'generarGeneral');
+            Route::post('facturacion-general-delete', 'generarGeneralDelete');
+            Route::post('facturacion-general-causar', 'generarGeneralCausar');
             Route::post('facturacion-individual', 'generarIndividual');
             Route::get('periodo-facturacion-combo', 'comboPeriodos');
         });
