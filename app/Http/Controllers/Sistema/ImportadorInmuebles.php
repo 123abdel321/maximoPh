@@ -152,7 +152,8 @@ class ImportadorInmuebles extends Controller
                 $porcentajeAdmin = $inmuebleIm->porcentaje_administracion ? $inmuebleIm->porcentaje_administracion : 100;
                 $valorAdmin = $inmuebleIm->valor_administracion;
                 if ($inmuebleIm->id_nit) {
-                    if (!property_exists($inmueble, 'id')) {
+                    
+                    if ($inmueble && !property_exists($inmueble, 'id')) {
                         return response()->json([
                             "success"=>false,
                             'data' => [],
@@ -180,6 +181,8 @@ class ImportadorInmuebles extends Controller
                             ]);
                     }
                 }
+                $inmueblesImport->estado = 5;
+                $inmueblesImport->save();
             }
 
             InmueblesImport::truncate();
