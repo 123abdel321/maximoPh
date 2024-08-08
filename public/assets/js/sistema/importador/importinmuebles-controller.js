@@ -159,6 +159,7 @@ btnImportRecibo.addEventListener('click', event => {
         });
         agregarToast('exito', 'Inmuebles importadas', 'Inmuebles importadas con exito!', true);
     }).fail((err) => {
+
         $('#cargarPlantillaInmuebles').show();
         $('#cargarPlantillaInmueblesLoagind').hide();
         import_inmuebles_table.ajax.reload(function(res) {
@@ -166,6 +167,18 @@ btnImportRecibo.addEventListener('click', event => {
                 totalesInmueblesImport();
             }
         });
-        agregarToast('error', 'Importación de Inmuebles errado', '');
+        var mensaje = err.message;
+        var errorsMsg = "";
+        if (typeof mensaje === 'object') {
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += field+": "+errores[campo]+" <br>";
+                }
+                agregarToast('error', 'Importación de Inmuebles errado', errorsMsg);
+            };
+        } else {
+            agregarToast('error', 'Importación de Inmuebles errado', mensaje);
+        }
     });
 });
