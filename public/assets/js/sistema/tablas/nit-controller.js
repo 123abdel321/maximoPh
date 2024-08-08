@@ -55,7 +55,7 @@ function nitInit() {
                     return '';
                 }
             },
-            {"data":'observaciones'},
+            {"data":'observaciones'},            
             {
                 "data": function (row, type, set){
                     if(row.tipo_documento){
@@ -82,6 +82,8 @@ function nitInit() {
                     return 'NO';
                 }
             },
+            {"data":'email_1'},
+            {"data":'email_2'},
             {"data": function (row, type, set){  
                 var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
                 if(!row.created_by && !row.fecha_creacion) return '';

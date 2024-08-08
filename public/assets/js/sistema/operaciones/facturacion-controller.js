@@ -260,6 +260,8 @@ function facturarRapidamente() {
     document.querySelector("#width_progress_bar").style.setProperty("background-color", "#c29802", "important");
     var bar = document.querySelector("#width_progress_bar");
     bar.style.width = 100 + "%";
+
+    $("#progress_bar").show();
     
     facturandoPersona = $.ajax({
         url: base_url + 'facturacion-general-delete',
@@ -269,7 +271,6 @@ function facturarRapidamente() {
     }).done((res) => {
         if (res.success) {
             agregarToast('info', 'Generando facturaciones', 'En un momento se le notificará cuando haya finalizado ...', true );
-            $("#progress_bar").show();
         }
     }).fail((err) => {
         var mensaje = err.responseJSON.message;

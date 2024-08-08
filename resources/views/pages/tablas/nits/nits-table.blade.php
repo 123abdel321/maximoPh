@@ -12,6 +12,8 @@
             <th>Tipo documento</th>
             <th>Tipo contribuyente</th>
             <th>Declarante</th>
+            <th>Email 1</th>
+            <th>Email 2</th>
             <th>Creación registro</th>
             <th>Ultima actualización</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>
