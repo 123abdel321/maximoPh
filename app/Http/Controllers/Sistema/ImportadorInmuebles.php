@@ -160,17 +160,33 @@ class ImportadorInmuebles extends Controller
                             "message"=>["Inmueble" => ["El inmueble no existe, registro No. ".$inmueblesImport->id]]
                         ], 422);
                     }
-                    InmuebleNit::where('id_inmueble', $inmueble->id)
-                        ->where('id_nit', $inmuebleIm->id_nit)
-                        ->updateOrCreate([
-                            'id_nit' => $inmuebleIm->id_nit,
-                            'id_inmueble' => $inmueble->id,
-                            'porcentaje_administracion' => $porcentajeAdmin,
-                            'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
-                            'tipo' => $inmuebleIm->tipo,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
-                        ]);
+                    if (is_object($inmueble) && property_exists($inmueble, 'id')) {
+                        if ($inmueble->id) {
+                            InmuebleNit::where('id_inmueble', $inmueble->id)
+                                ->where('id_nit', $inmuebleIm->id_nit)
+                                ->updateOrCreate([
+                                    'id_nit' => $inmuebleIm->id_nit,
+                                    'id_inmueble' => $inmueble->id,
+                                    'porcentaje_administracion' => $porcentajeAdmin,
+                                    'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
+                                    'tipo' => $inmuebleIm->tipo,
+                                    'created_by' => request()->user()->id,
+                                    'updated_by' => request()->user()->id
+                                ]);
+                        } else {
+                            return response()->json([
+                                "success"=>false,
+                                'data' => [],
+                                "message"=>["Inmueble" => ["El inmueble no existe, registro No. ".$inmueblesImport->id]]
+                            ], 422);
+                        }
+                    } else {
+                        return response()->json([
+                            "success"=>false,
+                            'data' => [],
+                            "message"=>["Inmueble" => ["El inmueble no existe, registro No. ".$inmueblesImport->id]]
+                        ], 422);
+                    }
                 } else if (count($inmueblesNitsExistentes)) {
                     foreach ($inmueblesNitsExistentes as $key => $inmuebleNit) {
                         InmuebleNit::where('id', $inmuebleNit->id)
