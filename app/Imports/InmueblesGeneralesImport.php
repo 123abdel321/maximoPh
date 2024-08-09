@@ -46,10 +46,29 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
             $valor_admon = null;
             $coheficiente = null;
 
+            if ($row['zona']) {
+                $zona = Zonas::where('nombre', $row['zona'])->first();
+
+                if (!$inmueble && !$zona) {
+                    $estado = 1;
+                    $observacionMala.= 'La zona: '.$row['zona'].', no fue encontrada! <br>';
+                }
+            } else if ($inmueble) {
+                $zona = Zonas::find($inmueble->id_zona)->first();
+            }
+
             if ($row['inmueble']) {
-                $inmueble = Inmueble::with('zona')
-                    ->where('nombre', $row['inmueble'])
-                    ->first();
+                //BUSCAR INMUEBLE
+                if ($zona) {
+                    $inmueble = Inmueble::with('zona')
+                        ->where('nombre', $row['inmueble'])
+                        ->where('id_zona', $zona->id)
+                        ->first();
+                } else {
+                    $inmueble = Inmueble::with('zona')
+                        ->where('nombre', $row['inmueble'])
+                        ->first();
+                }
                 if (!$inmueble) {
                     $observacionBuena.= 'Creación del inmueble! <br>';
                 } else {
@@ -74,17 +93,6 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
                     $estado = 1;
                     $observacionMala.= 'El numero de documento: '.$row['cedula_nit'].', no fue encontrado!<br>';
                 }
-            }
-
-            if ($row['zona']) {
-                $zona = Zonas::where('nombre', $row['zona'])->first();
-
-                if (!$inmueble && !$zona) {
-                    $estado = 1;
-                    $observacionMala.= 'La zona: '.$row['zona'].', no fue encontrada! <br>';
-                }
-            } else if ($inmueble) {
-                $zona = Zonas::find($inmueble->id_zona)->first();
             }
 
             if ($row['concepto']) {
