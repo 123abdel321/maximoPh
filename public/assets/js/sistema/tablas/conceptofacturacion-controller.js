@@ -164,14 +164,51 @@ function conceptofacturacionInit() {
                 $comboCuentaIva.val(dataCuenta.id).trigger('change');
             }
 
+            if(data.cuenta_anticipo) {
+                var dataCuenta = {
+                    id: data.cuenta_anticipo.id,
+                    text: data.cuenta_anticipo.cuenta + ' - ' + data.cuenta_anticipo.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaProntoPagoAnticipo.append(newOption).trigger('change');
+                $comboCuentaProntoPagoAnticipo.val(dataCuenta.id).trigger('change');
+            }
+
+            if(data.cuenta_gasto) {
+                var dataCuenta = {
+                    id: data.cuenta_gasto.id,
+                    text: data.cuenta_gasto.cuenta + ' - ' + data.cuenta_gasto.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaProntoPagoGasto.append(newOption).trigger('change');
+                $comboCuentaProntoPagoGasto.val(dataCuenta.id).trigger('change');
+            }
+
             $("#id_concepto_facturacion_up").val(data.id);
-            $("#codigo_concepto_facturacion").val(data.codigo),
+            $("#codigo_concepto_facturacion").val(data.codigo);
             $("#tipo_concepto_facturacion").val(data.tipo_concepto);
             $("#nombre_concepto_facturacion").val(data.nombre_concepto);
             $("#valor_concepto_facturacion").val(new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(data.valor));
 
             if (data.intereses) $('#intereses_concepto_facturacion').prop('checked', true);
             else $('#intereses_concepto_facturacion').prop('checked', false);
+
+            if (data.pronto_pago) {
+                $('#pronto_pago_concepto_facturacion').prop('checked', true);
+                $('#input-id_cuenta_pronto_pago_gasto').show();
+                $('#input-id_cuenta_pronto_pago_anticipo').show();
+                $('#input-dias_concepto_facturacion').show();
+                $('#input-porcentaje_descuento_concepto_facturacion').show();
+            } else {
+                $('#pronto_pago_concepto_facturacion').prop('checked', false);
+                $('#input-id_cuenta_pronto_pago_gasto').hide();
+                $('#input-id_cuenta_pronto_pago_anticipo').hide();
+                $('#input-dias_concepto_facturacion').hide();
+                $('#input-porcentaje_descuento_concepto_facturacion').hide();
+            }
+
+            $("#dias_concepto_facturacion").val(data.dias_pronto_pago);
+            $("#porcentaje_descuento_concepto_facturacion").val(data.porcentaje_pronto_pago);
 
             $("#conceptoFacturacionFormModal").modal('show');
         });

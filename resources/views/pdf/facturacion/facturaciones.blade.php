@@ -256,9 +256,9 @@
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">TOTAL ABONO</th>
-					@if ($pronto_pago)
+					<!-- @if ($pronto_pago)
 					<th class="padding5">PRONTO PAGO</th>
-					@endif
+					@endif -->
 					<th class="padding5">SALDO FINAL</th>
 				</tr>
 			</thead>
@@ -269,11 +269,11 @@
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
-						@if ($cuenta->descuento)
+						<!-- @if ($cuenta->descuento)
 							<td class="padding5 valor">{{ $cuenta->porcentaje_descuento.'% - '.number_format($cuenta->descuento) }}</td>
 						@elseif ($pronto_pago)
 							<td class="padding5 valor"></td>
-						@endif
+						@endif -->
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
 					</tr>
 				@endforeach
@@ -283,18 +283,17 @@
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
-						@if ($pronto_pago)
+						<!-- @if ($pronto_pago)
 							<td class="padding5 valor"></td>
-						@endif
+						@endif -->
 						<td class="padding5 valor">{{ number_format($totales->saldo_final + $totales->descuento) }}</td>
 					</tr>
 					@if ($pronto_pago)
 					<tr style="background-color: #009b6c23;">
 						<td class="padding5 detalle-factura-descripcion"></td>
-						<td class="padding5 valor"></td>
-						<td class="padding5 valor"></td>
 						<td class="padding5 valor">Descuento pronto pago</td>
 						<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
+						<td class="padding5 valor">0</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
 					</tr>
 					@endif
