@@ -50,7 +50,7 @@ class ConceptoFacturacionController extends Controller
             $searchValue = $search_arr['value']; // Search value
 
             $conceptoFacturacion = ConceptoFacturacion::orderBy($columnName,$columnSortOrder)
-                ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva')
+                ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
                 ->where('nombre_concepto', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
@@ -94,6 +94,8 @@ class ConceptoFacturacionController extends Controller
             'id_cuenta_interes' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_cobrar' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_iva' => 'nullable|exists:sam.plan_cuentas,id',
+            'id_cuenta_gasto' => 'nullable|exists:sam.plan_cuentas,id',
+            'id_cuenta_anticipo' => 'nullable|exists:sam.plan_cuentas,id',
             'intereses' => 'nullable',
             'valor' => 'nullable',
         ];
@@ -118,6 +120,12 @@ class ConceptoFacturacionController extends Controller
                 'id_cuenta_interes' => $request->get('id_cuenta_interes'),
                 'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
                 'id_cuenta_iva' => $request->get('id_cuenta_iva'),
+
+                'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
+                'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
+                'dias_pronto_pago' => $request->get('dias_pronto_pago'),
+                'porcentaje_pronto_pago' => $request->get('porcentaje_pronto_pago'),
+
                 'intereses' => $request->get('intereses'),
                 'tipo_concepto' => $request->get('tipo_concepto'),
                 'valor' => $request->get('valor'),
@@ -187,6 +195,12 @@ class ConceptoFacturacionController extends Controller
                     'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
                     'id_cuenta_iva' => $request->get('id_cuenta_iva'),
                     'intereses' => $request->get('intereses'),
+
+                    'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
+                    'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
+                    'dias_pronto_pago' => $request->get('dias_pronto_pago'),
+                    'porcentaje_pronto_pago' => $request->get('porcentaje_pronto_pago'),
+                    
                     'tipo_concepto' => $request->get('tipo_concepto'),
                     'valor' => $request->get('valor'),
                     'updated_by' => request()->user()->id
