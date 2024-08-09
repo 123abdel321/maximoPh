@@ -127,7 +127,7 @@ class ImportadorInmuebles extends Controller
                 $inmueble = (object)['id' => null];
                 //CREATE OR UPDATE INMUEBLE
                 if ($inmuebleIm->id_inmueble) {
-                    $inmueble = Inmueble::where('id', $inmuebleIm->id_inmueble)
+                    Inmueble::where('id', $inmuebleIm->id_inmueble)
                         ->update([
                             'area' => $inmuebleIm->area,
                             'coeficiente' => $inmuebleIm->coheficiente,
@@ -135,6 +135,7 @@ class ImportadorInmuebles extends Controller
                             'id_concepto_facturacion' => $inmuebleIm->id_concepto_facturacion,
                             'valor_total_administracion' => $inmuebleIm->valor_administracion,
                         ]);
+                    $inmueble = Inmueble::find($inmuebleIm->id_inmueble);
                 } else {
                     $inmueble = Inmueble::create([
                         'nombre' => $inmuebleIm->nombre_inmueble,
@@ -152,8 +153,9 @@ class ImportadorInmuebles extends Controller
                 $porcentajeAdmin = $inmuebleIm->porcentaje_administracion ? $inmuebleIm->porcentaje_administracion : 100;
                 $valorAdmin = $inmuebleIm->valor_administracion;
                 if ($inmuebleIm->id_nit) {
-                    
+
                     if ($inmueble && is_object($inmueble) && $inmueble->id) {
+
                         InmuebleNit::where('id_inmueble', $inmueble->id)
                             ->where('id_nit', $inmuebleIm->id_nit)
                             ->updateOrCreate([
@@ -173,6 +175,7 @@ class ImportadorInmuebles extends Controller
                         ], 422);
                     }
                 } else if (count($inmueblesNitsExistentes)) {
+
                     foreach ($inmueblesNitsExistentes as $key => $inmuebleNit) {
                         InmuebleNit::where('id', $inmuebleNit->id)
                             ->update([
@@ -182,8 +185,8 @@ class ImportadorInmuebles extends Controller
                             ]);
                     }
                 }
-                $inmueblesImport->estado = 5;
-                $inmueblesImport->save();
+                $inmuebleIm->estado = 5;
+                $inmuebleIm->save();
             }
 
             InmueblesImport::truncate();
