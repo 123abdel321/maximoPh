@@ -527,7 +527,9 @@ class InmuebleController extends Controller
         }
 
         $inmueblesPresupuesto = Inmueble::whereNotNull('id');
+        $filtrar = false;
         if ($search) {
+            $filtrar = true;
             $inmueblesPresupuesto->where('nombre', 'LIKE', '%'.$search.'%')
                 ->orWhere('area', 'LIKE', '%'.$search.'%')
                 ->orWhere('coeficiente', 'LIKE', '%'.$search.'%')
@@ -540,32 +542,32 @@ class InmuebleController extends Controller
                 });
         }
         if ($request->get('id_nit')) {
+            $filtrar = true;
             $inmueblesPresupuesto->whereHas('personas',  function ($query) use($request) {
                 $query->where('id_nit', $request->get('id_nit'));
             });
         }
 
         if ($request->get('id_zona')) {
+            $filtrar = true;
             $inmueblesPresupuesto->whereHas('zona',  function ($query) use($request) {
                 $query->where('id_zona', $request->get('id_zona'));
             });
         }
 
         if ($request->get('id_concepto_facturacion')) {
+            $filtrar = true;
             $inmueblesPresupuesto->whereHas('concepto',  function ($query) use($request) {
                 $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
             });
         }
-        $inmueblesFilter = [];
-        $inmueblesPresupuesto = $inmueblesPresupuesto->get();
-        if (count($inmueblesPresupuesto)) {
-            foreach ($inmueblesPresupuesto as $inmuebles) {
-                $inmueblesFilter[] = $inmuebles->id;
-            }
+        $totalPresupuesto = 0;
+        if ($filtrar) {
+            $inmueblesPresupuesto = $inmueblesPresupuesto->pluck('id');
+            $totalPresupuesto = InmuebleNit::whereIn('id_inmueble', $inmueblesPresupuesto)->sum('valor_total');
+        } else {
+            $totalPresupuesto = InmuebleNit::sum('valor_total');
         }
-
-        $totalPresupuesto = InmuebleNit::whereIn('id_inmueble', $inmueblesFilter)
-            ->sum('valor_total');
 
         $data = [
             'numero_registro_unidades' => $totalInmuebles->count(),
