@@ -293,7 +293,7 @@
 						<td class="padding5 detalle-factura-descripcion"></td>
 						<td class="padding5 valor"></td>
 						<td class="padding5 valor"></td>
-						<td class="padding5 valor">Dto pronto pago</td>
+						<td class="padding5 valor">Descuento pronto pago</td>
 						<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
 					</tr>
