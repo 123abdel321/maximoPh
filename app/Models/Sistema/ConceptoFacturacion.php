@@ -21,6 +21,11 @@ class ConceptoFacturacion extends Model
         'id_cuenta_cobrar',
         'id_cuenta_iva',
         'intereses',
+        'pronto_pago',
+        'id_cuenta_gasto',
+        'id_cuenta_anticipo',
+        'dias_pronto_pago',
+        'porcentaje_pronto_pago',
         'tipo_concepto',
         'valor',
         'created_by',
@@ -45,5 +50,15 @@ class ConceptoFacturacion extends Model
     public function cuenta_iva()
     {
         return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_iva');
+    }
+
+    public function cuenta_gasto()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_gasto');
+    }
+
+    public function cuenta_anticipo()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'id_cuenta_anticipo');
     }
 }

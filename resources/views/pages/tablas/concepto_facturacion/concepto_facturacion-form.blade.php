@@ -63,8 +63,35 @@
                         <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
                             <input class="form-check-input" type="checkbox" name="intereses_concepto_facturacion" id="intereses_concepto_facturacion" style="height: 20px;">
                             <label class="form-check-label" for="intereses_concepto_facturacion">Intereses</label>
-                        </div>   
+                        </div>
+
+                        <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
+                            <input class="form-check-input" type="checkbox" name="pronto_pago_concepto_facturacion" id="pronto_pago_concepto_facturacion" style="height: 20px;">
+                            <label class="form-check-label" for="pronto_pago_concepto_facturacion">Pronto pago</label>
+                        </div>
+
+                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-id_cuenta_pronto_pago_gasto" style="display: none;">
+                            <label for="exampleFormControlSelect1">Cuenta pronto pago gasto</label>
+                            <select name="id_cuenta_pronto_pago_gasto" id="id_cuenta_pronto_pago_gasto" class="form-control form-control-sm">
+                            </select>
+                        </div>
+
+                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-id_cuenta_pronto_pago_anticipo" style="display: none;">
+                            <label for="exampleFormControlSelect1">Cuenta pronto pago anticipo</label>
+                            <select name="id_cuenta_pronto_pago_anticipo" id="id_cuenta_pronto_pago_anticipo" class="form-control form-control-sm">
+                            </select>
+                        </div>
                         
+                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-dias_concepto_facturacion" style="display: none;">
+                            <label for="example-text-input" class="form-control-label">Días pronto pago</label>
+                            <input type="number" class="form-control form-control-sm" name="dias_concepto_facturacion" id="dias_concepto_facturacion">
+                        </div>
+                        
+                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-porcentaje_descuento_concepto_facturacion" style="display: none;">
+                            <label for="example-text-input" class="form-control-label">Porcentaje descuento</label>
+                            <input type="number" class="form-control form-control-sm" name="porcentaje_descuento_concepto_facturacion" id="porcentaje_descuento_concepto_facturacion">
+                        </div>
+
                     </div>  
                 </form>
             </div>
