@@ -57,6 +57,16 @@
                                 <input type="number" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
                             </div>
 
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Factura text 1</label>
+                                <input type="text" class="form-control form-control-sm" name="factura_texto1" id="factura_texto1">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Factura text 2</label>
+                                <input type="text" class="form-control form-control-sm" name="factura_texto2" id="factura_texto2">
+                            </div>
+
                             <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Días pronto pago</label>
                                 <input type="number" class="form-control form-control-sm" name="dias_pronto_pago" id="dias_pronto_pago">

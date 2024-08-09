@@ -50,6 +50,8 @@ class EntornoController extends Controller
                 'editar_coheficiente_admon_inmueble',
                 'periodo_facturacion',
                 'redondeo_intereses',
+                'factura_texto1',
+                'factura_texto2',
                 // 'dias_pronto_pago',
                 // 'tasa_pronto_pago',
                 // 'id_cuenta_pronto_pago',

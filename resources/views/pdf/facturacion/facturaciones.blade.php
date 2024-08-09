@@ -136,6 +136,10 @@
 				page-break-after: always;
 			}
 
+			.minus {
+				text-transform: lowercase;
+			}
+
 		</style>
 
 	</head>
@@ -298,14 +302,6 @@
 					</tr>
 					@endif
 
-					<!-- <tr style="background-color: #58978423;">
-						<td class="padding5 detalle-factura-descripcion"></td>
-						<td class="padding5 valor"></td>
-						<td class="padding5 valor"></td>
-						<td class="padding5 valor"></td>
-						<td class="padding5 valor"></td>
-						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
-					</tr> -->
 			</tbody>
 		</table>
 				
@@ -317,6 +313,35 @@
 				');
 			}
 		</script>
+
+		@if ($texto_1 || $texto_2)
+		<table>
+			<tr>
+				@if ($texto_1)
+				<td class="aling-top padding5">
+					<table>
+						<thead>
+							<tr>
+								<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
+							</tr>
+						</thead>
+					</table>
+				</td>
+				@endif
+				@if ($texto_2)
+				<td class="table-total-factura padding5">
+					<table>
+						<thead>
+							<tr>
+								<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
+							</tr>
+						</thead>
+					</table>
+				</td>
+				@endif
+			</tr>
+		</table>
+		@endif
 
 		<table class="footer">
 			<tr>

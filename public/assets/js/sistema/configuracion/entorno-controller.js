@@ -2,29 +2,29 @@ $comboCuentaProntoPago = null;
 
 function entornoInit() {
 
-    $comboCuentaProntoPago = $('#id_cuenta_pronto_pago').select2({
-        theme: 'bootstrap-5',
-        delay: 250,
-        placeholder: "Seleccione una cuenta",
-        allowClear: true,
-        ajax: {
-            url: 'api/plan-cuenta/combo-cuenta',
-            headers: headers,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term,
-                    auxiliar: true,
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
+    // $comboCuentaProntoPago = $('#id_cuenta_pronto_pago').select2({
+    //     theme: 'bootstrap-5',
+    //     delay: 250,
+    //     placeholder: "Seleccione una cuenta",
+    //     allowClear: true,
+    //     ajax: {
+    //         url: 'api/plan-cuenta/combo-cuenta',
+    //         headers: headers,
+    //         dataType: 'json',
+    //         data: function (params) {
+    //             var query = {
+    //                 search: params.term,
+    //                 auxiliar: true,
+    //             }
+    //             return query;
+    //         },
+    //         processResults: function (data) {
+    //             return {
+    //                 results: data.data
+    //             };
+    //         }
+    //     }
+    // });
 
     for (let index = 0; index < variablesEntorno.length; index++) {
         const variable = variablesEntorno[index];
@@ -51,6 +51,11 @@ function entornoInit() {
             'periodo_facturacion',
         ];
 
+        var textEntorno = [
+            'factura_texto1',
+            'factura_texto2',
+        ]; 
+
         // var select2 = [
         //     'id_cuenta_pronto_pago',
         // ];
@@ -65,6 +70,10 @@ function entornoInit() {
         }
 
         if (dateEntorno.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(variable.valor);
+        }
+
+        if (textEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(variable.valor);
         }
 
@@ -96,6 +105,8 @@ $(document).on('click', '#updateEntorno', function () {
         'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '0',
         'causacion_mensual_rapida': $("input[type='checkbox']#causacion_mensual_rapida").is(':checked') ? '1' : '0',
         'presupuesto_mensual': $("input[type='checkbox']#presupuesto_mensual").is(':checked') ? '1' : '0',
+        'factura_texto1': $('#factura_texto1').val(),
+        'factura_texto2': $('#factura_texto2').val(),
         // 'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         // 'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),

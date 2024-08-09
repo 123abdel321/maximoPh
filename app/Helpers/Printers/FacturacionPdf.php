@@ -5,6 +5,7 @@ namespace App\Helpers\Printers;
 use DB;
 use Illuminate\Support\Carbon;
 //MODELS
+use App\Models\Sistema\Entorno;
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\ConceptoFacturacion;
@@ -173,12 +174,17 @@ class FacturacionPdf extends AbstractPrinterPdf
             'fecha_manual' => $totales->fecha_manual,
             'saldo_final' => $totales->saldo_final - $totalDescuento
         ];
-        // dd($dataCuentas[0]->descuento);
+
+        $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
+        $texto2 = Entorno::where('nombre', 'factura_texto2')->first();
+
         return [
 			'empresa' => $this->empresa,
 			'nit' => $nit,
 			'cuentas' => $dataCuentas,
 			'totales' => $totalData,
+            'texto_1' => $texto1 ? $texto1->valor : '',
+            'texto_2' => $texto2 ? $texto2->valor : '',
             'pronto_pago' => $tieneDescuentoProntoPago,
 			'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
 			'usuario' => request()->user() ? request()->user()->username : 'MaximoPH'
