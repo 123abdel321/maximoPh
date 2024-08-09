@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 //MODELS
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\ConceptoFacturacion;
 
 class FacturacionPdf extends AbstractPrinterPdf
 {
@@ -19,7 +20,10 @@ class FacturacionPdf extends AbstractPrinterPdf
 		parent::__construct($empresa);
 
 		copyDBConnection('max', 'max');
-        setDBInConnection('max', $empresa->token_db);
+        setDBInConnection('max', $empresa->token_db_maximo);
+
+        copyDBConnection('sam', 'sam');
+        setDBInConnection('sam', $empresa->token_db_portafolio);
 
 		$this->id_nit = $id_nit;
 		$this->empresa = $empresa;
@@ -79,7 +83,8 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'fecha_manual',
                 'consecutivo'
             )
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0');
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
+            ->groupByRaw('id_nit')->first();
 
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
@@ -121,13 +126,60 @@ class FacturacionPdf extends AbstractPrinterPdf
 				DB::raw('SUM(total_columnas) AS total_columnas')
 			)
 			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0');
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
+            ->groupByRaw('id_nit, id_cuenta, documento_referencia')->get();
 
+        $dataCuentas = [];
+        $totalDescuento = 0;
+        $tieneDescuentoProntoPago = false;
+        foreach ($facturaciones as $facturacion) {
+
+            $conceptoFactura = DB::connection('max')
+                ->table('concepto_facturacions')
+                ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
+                ->first();
+
+            if ($conceptoFactura->pronto_pago) {
+                $tieneDescuentoProntoPago = true;
+                $descuento = $facturacion->saldo_final * ($conceptoFactura->porcentaje_pronto_pago / 100);
+                $totalDescuento+= $descuento;
+                $dataCuentas[] = (object)[
+                    'concepto' => $facturacion->concepto,
+                    'saldo_anterior' => $facturacion->saldo_anterior,
+                    'total_facturas' => $facturacion->total_facturas,
+                    'total_abono' => $facturacion->total_abono,
+                    'descuento' => $descuento,
+                    'porcentaje_descuento' => $conceptoFactura->porcentaje_pronto_pago,
+                    'saldo_final' => $facturacion->saldo_final - $descuento,
+                ];
+            } else {
+                $dataCuentas[] = (object)[
+                    'concepto' => $facturacion->concepto,
+                    'saldo_anterior' => $facturacion->saldo_anterior,
+                    'total_facturas' => $facturacion->total_facturas,
+                    'total_abono' => $facturacion->total_abono,
+                    'descuento' => 0,
+                    'porcentaje_descuento' => ' ',
+                    'saldo_final' => $facturacion->saldo_final,
+                ];
+            }
+        }
+        $totalData = (object)[
+            'saldo_anterior' => $totales->saldo_anterior,
+            'total_facturas' => $totales->total_facturas,
+            'total_abono' => $totales->total_abono,
+            'descuento' => $totalDescuento,
+            'consecutivo' => $totales->consecutivo,
+            'fecha_manual' => $totales->fecha_manual,
+            'saldo_final' => $totales->saldo_final - $totalDescuento
+        ];
+        // dd($dataCuentas[0]->descuento);
         return [
 			'empresa' => $this->empresa,
 			'nit' => $nit,
-			'cuentas' => $facturaciones->groupByRaw('id_nit, id_cuenta, documento_referencia')->get(),
-			'totales' => $totales->groupByRaw('id_nit')->first(),
+			'cuentas' => $dataCuentas,
+			'totales' => $totalData,
+            'pronto_pago' => $tieneDescuentoProntoPago,
 			'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
 			'usuario' => request()->user() ? request()->user()->username : 'MaximoPH'
 		];
