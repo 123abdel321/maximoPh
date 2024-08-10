@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
@@ -26,6 +27,8 @@ use Spatie\Permission\Models\Permission;
 
 class LoginController extends Controller
 {
+    use AuthenticatesUsers;
+
     protected $messages = null;
 
     public function __construct()
@@ -52,6 +55,12 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+
+        // if ($this->hasTooManyLoginAttempts($request)) {
+		// 	$this->fireLockoutEvent($request);
+		// 	return $this->sendLockoutResponse($request);
+		// }
+
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
 
@@ -119,7 +128,7 @@ class LoginController extends Controller
         if (Auth::attempt($credenciales1) || Auth::attempt($credenciales2)) {
             $request->session()->regenerate();
             $user =  User::find(Auth::user()->id);
-
+            $data = null;
             if($user->tokens()->where('tokenable_id', $user->id)
                 ->where('name', 'web_token')
                 ->exists()) {
@@ -209,9 +218,9 @@ class LoginController extends Controller
                 ];
             }
         
-            $visitante = Visitantes::create($data);
+            // $visitante = Visitantes::create($data);
 
-            info('Usuario: ', $data);
+            // info('Usuario: ', $data);
 
             return response()->json([
                 'success'=>	true,
@@ -242,8 +251,8 @@ class LoginController extends Controller
             ];
         }
     
-        $visitante = Visitantes::create($data);
-        Log::error('Fallido login', $data);
+        // $visitante = Visitantes::create($data);
+        // Log::error('Fallido login', $data);
 
         return response()->json([
     		'success'=>	false,
