@@ -140,7 +140,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
 
-            if ($conceptoFactura->pronto_pago) {
+            if ($conceptoFactura && $conceptoFactura->pronto_pago) {
                 $tieneDescuentoProntoPago = true;
                 $descuento = $facturacion->saldo_final * ($conceptoFactura->porcentaje_pronto_pago / 100);
                 $totalDescuento+= $descuento;
