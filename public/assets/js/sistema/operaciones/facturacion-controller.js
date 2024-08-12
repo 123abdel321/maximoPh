@@ -345,8 +345,10 @@ function actualizarTotales(data, factura) {
         countIntereses++;
     }
     for (const [key, value] of Object.entries(extras)) {
+
         var index = cuotasData.findIndex(item => item.id_concepto_facturacion == key);
         var total = cuotasData.findIndex(item => item.id_concepto_facturacion == "total_extras");
+
         if (index >= 0) {
             if (cuotasData[index].id_concepto_facturacion == "intereses" && value.items) {
                 if (cuotasData[index].items != 0) {
@@ -363,8 +365,8 @@ function actualizarTotales(data, factura) {
                 cuotasData[total].items_causados+= parseFloat(value.items); 
             }
 
-            // cuotasData[index].total_causados+= parseFloat(value.valor_causado);
-            // cuotasData[total].total_causados+= parseFloat(value.valor_causado);
+            cuotasData[index].total_causados+= parseFloat(value.valor_causado);
+            cuotasData[total].total_causados+= parseFloat(value.valor_causado);
 
             var previoCountA = cuotasData[index].total_causados - value.valor_causado;
             var countA = new CountUp('extras_causado_'+key, previoCountA, cuotasData[index].total_causados, 0, 0.5);
