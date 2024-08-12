@@ -45,7 +45,6 @@ abstract class AbstractPrinterPdf
 
     public function showPdf()
     {
-        // dd($this->data);
         return $this->pdf->stream($this->name);
     }
 
@@ -57,7 +56,11 @@ abstract class AbstractPrinterPdf
     public function saveStorage()
     {
         $pdfBuilder = $this->pdf->output();
-        Storage::disk('do_spaces')->put('pdf/'.$this->name, $pdfBuilder);
+        $nameFile = '/maximo/empresas/'.$this->empresa->id.'/pdf'.'/'.$this->name.'.pdf';
+
+        $url = Storage::disk('do_spaces')->put($nameFile, $pdfBuilder, 'public');
+
+        return env('DO_SPACES_ENDPOINT',null).$nameFile;
     }
     
 }

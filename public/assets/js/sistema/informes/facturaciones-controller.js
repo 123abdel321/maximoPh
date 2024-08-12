@@ -130,6 +130,29 @@ $("#imprimirMultipleFacturacion").on('click', function(event) {
     window.open("/facturacion-multiple-show-pdf?factura_fisica="+facturaFisica+"&periodo="+formatoFechaFacturacion(), "_blank");
 });
 
+$("#enviarEmailFacturas").on('click', function(event) {
+
+    let data = {
+        factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
+        periodo: formatoFechaFacturacion(),
+        id_nit: $("#id_nit_facturaciones").val()
+    }
+
+    $.ajax({
+        url: base_url + 'facturacion-email',
+        method: 'GET',
+        data: data,
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        console.log(res);
+    }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+});
+
 function formatoFechaFacturacion() {
     var periodo = $("#periodo_facturaciones").val();
     var fecha = '';

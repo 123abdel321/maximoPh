@@ -117,6 +117,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('facturacion-general-causar', 'generarGeneralCausar');
             Route::post('facturacion-individual', 'generarIndividual');
             Route::get('periodo-facturacion-combo', 'comboPeriodos');
+            Route::get('facturacion-email', 'email');
         });
         //CUOTAS EXTRA & MULTAS
         Route::controller(CuotasMultasController::class)->group(function () {

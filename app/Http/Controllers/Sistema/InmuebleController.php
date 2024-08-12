@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Zonas;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
@@ -135,7 +136,7 @@ class InmuebleController extends Controller
     public function create (Request $request)
     {
         $rules = [
-            'nombre' => 'required|min:1|max:200|unique:max.inmuebles,nombre',
+            'nombre' => 'required|min:1|max:200',
             'id_zona' => 'required|exists:max.zonas,id',
             'id_concepto_facturacion' => 'nullable|exists:max.concepto_facturacions,id',
             'area' => 'required',
@@ -144,6 +145,19 @@ class InmuebleController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        $existeImueble = Inmueble::where('nombre', $request->get('nombre'))
+            ->where('id_zona', $request->get('id_zona'))
+            ->count();
+
+        if ($existeImueble) {
+            $zona = Zonas::find($request->get('id_zona'));
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>'El inmueble ya existe en la zona '.$zona->nombre
+            ], 422);
+        }
 
 		if ($validator->fails()){
             return response()->json([
@@ -210,16 +224,7 @@ class InmuebleController extends Controller
     {
         $rules = [
             'id' => 'required|exists:max.inmuebles,id',
-            'nombre' => ['required','min:1','max:200',
-                function($attribute, $value, $fail) use ($request) {
-                    $inmuebleOld = Inmueble::find($request->get('id'));
-                    if ($inmuebleOld->nombre != $request->get('nombre')) {
-                        $inmuebleNew = Inmueble::where('nombre', $request->get('nombre'));
-                        if ($inmuebleNew->count()) {
-                            $fail("La nombre del inmueble ".$value." ya existe.");
-                        }
-                    }
-                }],
+            'nombre' => 'required|min:1|max:200',
             'id_zona' => 'nullable|exists:max.zonas,id',
             'id_concepto_facturacion' => 'nullable|exists:max.concepto_facturacions,id',
             'area' => 'required',
@@ -228,6 +233,19 @@ class InmuebleController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        $existeImueble = Inmueble::where('nombre', $request->get('nombre'))
+            ->where('id_zona', $request->get('id_zona'))
+            ->count();
+
+        if ($existeImueble) {
+            $zona = Zonas::find($request->get('id_zona'));
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>'El inmueble ya existe en la zona '.$zona->nombre
+            ], 422);
+        }
 
 		if ($validator->fails()){
             return response()->json([

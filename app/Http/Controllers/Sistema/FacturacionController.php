@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Sistema;
 use DB;
 use Config;
 use App\Helpers\Extracto;
+use App\Mail\GeneralEmail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\Printers\FacturacionPdf;
@@ -17,6 +18,8 @@ use App\Helpers\PortafolioERP\EliminarFacturas;
 use App\Jobs\ProcessFacturacionGeneral;
 use App\Jobs\ProcessFacturacionGeneralDelete;
 use App\Jobs\ProcessFacturacionGeneralCausar;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
@@ -808,28 +811,6 @@ class FacturacionController extends Controller
         ], 200);
     }    
 
-    private function getInmueblesNitsQuery()
-    {
-        $nits = DB::connection('max')->table('inmueble_nits AS IN')
-            ->select(
-                'IN.id_nit'
-            );
-        
-        return $nits;
-    }
-
-    private function getCuotasMultasNitsQuery($fecha_facturar)
-    {
-        $nits = DB::connection('max')->table('cuotas_multas AS CM')
-            ->select(
-                'CM.id_nit'
-            )
-            ->where("CM.fecha_inicio", '<=', $fecha_facturar)
-            ->where("CM.fecha_fin", '>=', $fecha_facturar);
-        
-        return $nits;
-    }
-
     public function indexPdf(Request $request)
     {
         $periodo = Facturacion::select(
@@ -970,6 +951,103 @@ class FacturacionController extends Controller
         return $periodo->paginate(40);
     }
 
+    public function email (Request $request)
+    {
+        $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+
+        $query = $this->carteraDocumentosQuery($request);
+        $query->unionAll($this->carteraAnteriorQuery($request));
+
+        DB::connection('sam')
+            ->table(DB::raw("({$query->toSql()}) AS cartera"))
+            ->select(
+                'id_nit',
+                'email',
+                'email_1',
+                'email_2',
+                'nombre_nit',
+                'consecutivo',
+                DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+            )
+            ->mergeBindings($query)
+            ->groupByRaw('id_nit')
+            ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
+            ->chunk(34, function ($nits) use($empresa, $request) {
+                foreach ($nits as $nit) {
+                    
+                    $facturaPdf = (new FacturacionPdf($empresa, $nit->id_nit, $request->get('periodo')))
+                        ->buildPdf()
+                        ->saveStorage();
+
+                    if ($nit->email) {
+                        Mail::to($nit->email)
+                        ->cc('noreply@maximoph.com')
+                        ->bcc('bcc@maximoph.com')
+                        ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
+                            'nombre' => $nit->nombre_nit,
+                            'factura' => $nit->consecutivo,
+                            'valor' => $nit->saldo_final,
+                        ], $facturaPdf));
+                    }
+
+                    if ($nit->email_1) {
+                        Mail::to($nit->email)
+                        ->cc('noreply@maximoph.com')
+                        ->bcc('bcc@maximoph.com')
+                        ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
+                            'nombre' => $nit->nombre_nit,
+                            'factura' => $nit->consecutivo,
+                            'valor' => $nit->saldo_final,
+                        ], $facturaPdf));
+                    }
+
+                    if ($nit->email_2) {
+                        Mail::to($nit->email)
+                        ->cc('noreply@maximoph.com')
+                        ->bcc('bcc@maximoph.com')
+                        ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
+                            'nombre' => $nit->nombre_nit,
+                            'factura' => $nit->consecutivo,
+                            'valor' => $nit->saldo_final,
+                        ], $facturaPdf));
+                    }
+
+                    Storage::disk('do_spaces')->delete($facturaPdf);
+
+                    return response()->json([
+                        "success"=> true,
+                        "message"=> 'Emails enviados con exito'
+                    ], 200);
+                }
+            });
+
+        return response()->json([
+            "success"=> true,
+            "message"=> 'Emails enviados con exito'
+        ], 200);
+    }
+
+    private function getInmueblesNitsQuery()
+    {
+        $nits = DB::connection('max')->table('inmueble_nits AS IN')
+            ->select(
+                'IN.id_nit'
+            );
+        
+        return $nits;
+    }
+
+    private function getCuotasMultasNitsQuery($fecha_facturar)
+    {
+        $nits = DB::connection('max')->table('cuotas_multas AS CM')
+            ->select(
+                'CM.id_nit'
+            )
+            ->where("CM.fecha_inicio", '<=', $fecha_facturar)
+            ->where("CM.fecha_fin", '>=', $fecha_facturar);
+        
+        return $nits;
+    }
 
     private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura)
     {
@@ -1518,6 +1596,9 @@ class FacturacionController extends Controller
                 END) AS nombre_nit"),
                 "N.razon_social",
                 "N.plazo",
+                "N.email",
+                "N.email_1",
+                "N.email_2",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",
@@ -1579,6 +1660,9 @@ class FacturacionController extends Controller
                 END) AS nombre_nit"),
                 "N.razon_social",
                 "N.plazo",
+                "N.email",
+                "N.email_1",
+                "N.email_2",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",
