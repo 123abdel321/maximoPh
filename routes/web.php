@@ -36,6 +36,9 @@ use App\Http\Controllers\Empresa\UsuariosController;
 use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
+//INFORMES
+use App\Http\Controllers\Sistema\ImpuestosIvaController;
+
 
 //MODELOS
 use App\Models\Empresa\Visitantes;
@@ -43,12 +46,28 @@ use App\Models\Empresa\Visitantes;
 // use App\Models\Sistema\InmuebleNit;
 // use App\Models\Empresa\UsuarioEmpresa;
 
+//ANOTHERS
+// use App\Mail\GeneralEmail;
+// use Illuminate\Support\Facades\Mail;
+
 Route::get('/', function (Request $request) {
 
 	
 	
 	return view('pages.landing-page');
 });
+
+// Route::get('/mail', function (Request $request) {
+// 	Mail::to('abdel_123@hotmail.es')
+// 		->cc('cc@maximoph.com')
+// 		->bcc('bcc@maximoph.com')
+// 		->send(new GeneralEmail('FACTURA FLORIDA NORTEAMERICA', 'emails.factura', [
+// 			'nombre' => 'CARTA GENA',
+// 			'factura' => 123,
+// 			'valor' => 321,
+// 		]));
+// 	return 'MAIL';
+// });
 
 Auth::routes();
 
@@ -143,6 +162,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//INFORMES
 		Route::get('/cartera', [CarteraController::class, 'index']);
 		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);
+		Route::get('/impuestosiva', [ImpuestosIvaController::class, 'index']);
+		
 	});
 	
 });

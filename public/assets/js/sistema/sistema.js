@@ -111,6 +111,7 @@ var moduloCreado = {
     'perfil': false,
     'facturaciones': false,
     'cartera': false,
+    'impuestoiva': false,
 };
 
 var moduloRoute = {
@@ -134,6 +135,7 @@ var moduloRoute = {
     'facturaciones': 'informes',
     'importinmuebles': 'importador',
     'cartera': 'informes',
+    'impuestosiva': 'informes',
 }
 
 $('.water').show();

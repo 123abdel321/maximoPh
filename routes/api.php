@@ -21,6 +21,7 @@ use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Sistema\VisitantesController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
+use App\Http\Controllers\Sistema\ImpuestosIvaController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
@@ -118,6 +119,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('facturacion-individual', 'generarIndividual');
             Route::get('periodo-facturacion-combo', 'comboPeriodos');
             Route::get('facturacion-email', 'email');
+        });
+        //IMPUESTOS IVA
+        Route::controller(ImpuestosIvaController::class)->group(function () {
+            Route::get('impuestosiva', 'read');
         });
         //CUOTAS EXTRA & MULTAS
         Route::controller(CuotasMultasController::class)->group(function () {
