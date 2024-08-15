@@ -134,7 +134,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         $totalDescuento = 0;
         $tieneDescuentoProntoPago = false;
         foreach ($facturaciones as $facturacion) {
-            $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->cuenta.' - '.$facturacion->nombre_cuenta : $facturacion->concepto;
+            $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
             $conceptoFactura = DB::connection('max')
                 ->table('concepto_facturacions')
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)

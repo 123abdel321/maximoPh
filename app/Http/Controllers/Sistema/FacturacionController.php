@@ -63,7 +63,7 @@ class FacturacionController extends Controller
             'valor_total_presupuesto' => $valor_total_presupuesto ? $valor_total_presupuesto : '0',
             'causacion_mensual_rapida' => $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : '0',
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
-            'valor_registro_coeficiente' => $coeficienteTotal,
+            'valor_registro_coeficiente' => $coeficienteTotal / 100,
         ];
 
         return view('pages.operaciones.facturacion.facturacion-view', $data);
