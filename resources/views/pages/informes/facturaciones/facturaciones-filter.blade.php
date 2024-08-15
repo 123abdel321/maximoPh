@@ -38,12 +38,14 @@
                             </span>
                         </div>
 
-                        <div class="form-check form-switch col-6 col-sm-4 col-md-2" style="">
-                            <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
-                                <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
-                                <b style="vertical-align: text-top;">ENVIAR FACTURAS</b>
-                            </span>
-                        </div> 
+                        @can('facturaciones email')
+                            <div class="form-check form-switch col-6 col-sm-4 col-md-2" style="">
+                                <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
+                                    <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
+                                    <b style="vertical-align: text-top;">ENVIAR FACTURAS</b>
+                                </span>
+                            </div>
+                        @endcan
                     </div>  
                 </form>
                 <div style="height: 10px;"></div>  
