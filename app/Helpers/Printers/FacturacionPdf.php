@@ -134,7 +134,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         $totalDescuento = 0;
         $tieneDescuentoProntoPago = false;
         foreach ($facturaciones as $facturacion) {
-
+            $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->cuenta.' - '.$facturacion->nombre_cuenta : $facturacion->concepto;
             $conceptoFactura = DB::connection('max')
                 ->table('concepto_facturacions')
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
@@ -145,7 +145,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 $descuento = $facturacion->saldo_final * ($conceptoFactura->porcentaje_pronto_pago / 100);
                 $totalDescuento+= $descuento;
                 $dataCuentas[] = (object)[
-                    'concepto' => $facturacion->concepto,
+                    'concepto' =>  $concepto,
                     'saldo_anterior' => $facturacion->saldo_anterior,
                     'total_facturas' => $facturacion->total_facturas,
                     'total_abono' => $facturacion->total_abono,
@@ -155,7 +155,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ];
             } else {
                 $dataCuentas[] = (object)[
-                    'concepto' => $facturacion->concepto,
+                    'concepto' =>  $concepto,
                     'saldo_anterior' => $facturacion->saldo_anterior,
                     'total_facturas' => $facturacion->total_facturas,
                     'total_abono' => $facturacion->total_abono,
