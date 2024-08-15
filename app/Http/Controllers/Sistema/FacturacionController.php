@@ -805,7 +805,7 @@ class FacturacionController extends Controller
                 'valor_registro_presupuesto' => floatval(InmuebleNit::sum('valor_total')),
                 'numero_total_unidades' => floatval(Entorno::where('nombre', 'numero_total_unidades')->first()->valor),
                 'numero_registro_unidades' => Inmueble::count(),
-                'valor_registro_coeficiente' => Inmueble::sum('coeficiente') * 100,
+                'valor_registro_coeficiente' => Inmueble::sum('coeficiente'),
             ],
             "message"=>'Preview facturación generado con exito'
         ], 200);
