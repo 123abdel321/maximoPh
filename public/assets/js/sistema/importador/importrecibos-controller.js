@@ -163,8 +163,22 @@ btnImportRecibo.addEventListener('click', event => {
         import_recibos_table.ajax.reload(function(res) {
             if (res.success && res.data.length) {
                 totalesRecibosImport();
+            } else {
+                var mensaje = res.message;
+                var errorsMsg = '';
+                if (typeof mensaje === 'object') {
+                    for (field in mensaje) {
+                        var errores = mensaje[field];
+                        for (campo in errores) {
+                            errorsMsg += field+": "+errores[campo]+" <br>";
+                        }
+                    };
+                }
+                else if (typeof mensaje === 'string') {
+                    errorsMsg = mensaje;
+                }
+                agregarToast('error', 'Importación de Recibos errado', errorsMsg);
             }
         });
-        agregarToast('error', 'Importación de Recibos errado', '');
     });
 });
