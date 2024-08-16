@@ -151,7 +151,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                     'total_abono' => $facturacion->total_abono,
                     'descuento' => $descuento,
                     'porcentaje_descuento' => $conceptoFactura->porcentaje_pronto_pago,
-                    'saldo_final' => $facturacion->saldo_final - $descuento,
+                    'saldo_final' => $facturacion->saldo_final,
                 ];
             } else {
                 $dataCuentas[] = (object)[
@@ -172,7 +172,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'descuento' => $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
-            'saldo_final' => $totales->saldo_final - $totalDescuento
+            'saldo_final' => $totales->saldo_final
         ];
 
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();

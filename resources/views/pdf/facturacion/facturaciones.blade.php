@@ -259,7 +259,7 @@
 					<th class="padding5">NOMBRE</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
-					<th class="padding5">TOTAL ABONO</th>
+					<th class="padding5">ANTICIPOS</th>
 					<!-- @if ($pronto_pago)
 					<th class="padding5">PRONTO PAGO</th>
 					@endif -->
