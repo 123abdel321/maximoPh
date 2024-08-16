@@ -318,20 +318,20 @@ function nitInit() {
     nits_table.ajax.reload();
 }
 
-$('.only-lyrics').keypress(function (e) {
-    var txt = String.fromCharCode(e.which);
-    if (!txt.match(/[A-Za-z&. ]/)) {
-        return false;
-    }
-});
+// $('.only-lyrics').keypress(function (e) {
+//     var txt = String.fromCharCode(e.which);
+//     if (!txt.match(/[A-Za-z&. ]/)) {
+//         return false;
+//     }
+// });
   
-$('.only-lyrics').bind('paste', function() {
-    setTimeout(function() { 
-        var value = $(this).val();
-        var updated = value.replace(/[^A-Za-z&. ]/g, '');
-        $(this).val(updated);
-    });
-});
+// $('.only-lyrics').bind('paste', function() {
+//     setTimeout(function() { 
+//         var value = $(this).val();
+//         var updated = value.replace(/[^A-Za-z&. ]/g, '');
+//         $(this).val(updated);
+//     });
+// });
 
 $('.only-numbers').keypress(function (e) {
     var txt = String.fromCharCode(e.which);
@@ -561,28 +561,20 @@ function hideFormNits(){
 
     var nitsForm = [
         'id_vendedor_nit',
-        'id_ciudad',
         'observaciones',
         'numero_documento',
         'razon_social',
-        'telefono_1',
-        'direccion',
-        'email',
         'declarante'
     ];
 
     var noNitsForm = [
         'id_vendedor_nit',
-        'id_ciudad',
         'observaciones',
         'numero_documento',
         'primer_apellido',
         'segundo_apellido',
         'primer_nombre',
         'otros_nombres',
-        'telefono_1',
-        'direccion',
-        'email',
         'declarante'
     ];
 
