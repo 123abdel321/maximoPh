@@ -16,6 +16,7 @@ use App\Models\Sistema\Entorno;
 use App\Models\Portafolio\ConRecibos;
 use App\Models\Portafolio\PlanCuentas;
 use App\Models\Portafolio\Comprobantes;
+use App\Models\Portafolio\CentroCostos;
 use App\Models\Portafolio\FacFormasPago;
 use App\Models\Sistema\ConRecibosImport;
 use App\Models\Portafolio\ConReciboPagos;
@@ -149,6 +150,7 @@ class ImportadorRecibosController extends Controller
                     $this->consecutivo = $this->getNextConsecutive($comprobante->id, $this->fechaManual);
 
                     $recibo = $this->createFacturaRecibo($reciboImport);
+                    $cecos = CentroCostos::first();
                     //GUARDAR DETALLE & MOVIMIENTO CONTABLE RECIBOS
 
                     $extractos = (new Extracto(
@@ -193,7 +195,7 @@ class ImportadorRecibosController extends Controller
                         $doc = new DocumentosGeneral([
                             "id_cuenta" => $cuentaPago->id,
                             "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
-                            "id_centro_costos" => $cuentaPago->exige_centro_costos ? $recibo->id_centro_costos : null,
+                            "id_centro_costos" => $cuentaPago->exige_centro_costos ?  $cecos->id : null,
                             "concepto" => $cuentaPago->exige_concepto ? 'IMPORTADO DESDE RECIBOS' : null,
                             "documento_referencia" => $cuentaPago->exige_documento_referencia ? $documentoReferencia : null,
                             "debito" => $saldoNuevo < 0 ? $extracto->saldo : $valorDisponible,
@@ -234,7 +236,7 @@ class ImportadorRecibosController extends Controller
                         $doc = new DocumentosGeneral([
                             "id_cuenta" => $cuentaAnticipo->id,
                             "id_nit" => $cuentaAnticipo->exige_nit ? $recibo->id_nit : null,
-                            "id_centro_costos" => $cuentaAnticipo->exige_centro_costos ? $recibo->id_centro_costos : null,
+                            "id_centro_costos" => $cuentaAnticipo->exige_centro_costos ? $cecos->id : null,
                             "concepto" => $cuentaAnticipo->exige_concepto ? 'ANTICIPO IMPORTADO DESDE RECIBOS' : null,
                             "documento_referencia" => $cuentaAnticipo->exige_documento_referencia ? $documentoReferencia : null,
                             "debito" => $valorDisponible,
