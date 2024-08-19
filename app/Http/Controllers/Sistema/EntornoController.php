@@ -54,6 +54,7 @@ class EntornoController extends Controller
                 'factura_texto1',
                 'factura_texto2',
                 'dias_pronto_pago',
+                'descuento_pago_parcial',
             ];
 
             foreach ($variablesEntorno as $variable) {

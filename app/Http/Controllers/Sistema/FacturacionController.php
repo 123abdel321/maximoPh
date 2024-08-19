@@ -36,7 +36,9 @@ class FacturacionController extends Controller
 {
     protected $facturas = null;
     protected $saldoBase = 0;
+    protected $prontoPago = false;
     protected $countIntereses = 0;
+    protected $extractosAgrupados = [];
     protected $valoresBaseProximaAdmin = 0;
     
     public function index ()
@@ -236,6 +238,34 @@ class FacturacionController extends Controller
             $valoresIntereses = 0;
 
             //COBRAR INTERESES
+            $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
+                $factura->id_nit,
+                [3,7],
+                null,
+                $periodo_facturacion
+            ))->actual()->get();
+            
+            //AGRUPAMOS 
+            $this->extractosAgrupados = [];
+            foreach ($extractos as $extracto) {
+                $extracto = (object)$extracto;
+                if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
+                $this->countIntereses++;
+                if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
+                    $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
+                    $this->extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
+                    $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
+                } else {
+                    $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
+                        'id_nit' => $extracto->id_nit,
+                        'concepto' => $extracto->concepto,
+                        'total_abono' => $extracto->total_abono,
+                        'total_facturas' => $extracto->total_facturas,
+                        'saldo' => $extracto->saldo,
+                    ];
+                }
+            }
+
             $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
             [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble, request()->user()->id_empresa, $periodo_facturacion);
             $valoresIntereses+= $valores;
@@ -251,7 +281,7 @@ class FacturacionController extends Controller
             //TRAER ANTICIPOS
             $anticiposNit = $this->totalAnticipos($factura->id_nit, request()->user()->id_empresa);
             $anticiposDisponibles = $anticiposNit;
-
+            
             //RECORREMOS CUOTAS Y MULTAS CXP
             foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
@@ -274,6 +304,8 @@ class FacturacionController extends Controller
                 ];
             }
 
+            $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
+
             if ($anticiposDisponibles > 0 && $valoresIntereses) {
                 $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
             }
@@ -290,7 +322,7 @@ class FacturacionController extends Controller
                         'valor_causado' => $cuotaMultaFactura->valor_total
                     ];
                 }
-
+                
                 $valoresExtra+= $cuotaMultaFactura->valor_total;
                 $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
@@ -536,6 +568,37 @@ class FacturacionController extends Controller
                     $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
                 }
                 //COBRAR INTERESES
+                $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
+                    $factura->id_nit,
+                    [3,7],
+                    null,
+                    $periodo_facturacion
+                ))->actual()->get();
+
+                //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
+                if (!count($extractos)) return;
+                //AGRUPAMOS 
+                $this->extractosAgrupados = [];
+                foreach ($extractos as $extracto) {
+                    $extracto = (object)$extracto;
+                    
+                    if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
+                    $this->countIntereses++;
+                    if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
+                        $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
+                        $this->extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
+                        $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
+                    } else {
+                        $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
+                            'id_nit' => $extracto->id_nit,
+                            'concepto' => $extracto->concepto,
+                            'total_abono' => $extracto->total_abono,
+                            'total_facturas' => $extracto->total_facturas,
+                            'saldo' => $extracto->saldo,
+                        ];
+                    }
+                }
+
                 [$valores, $detalleFacturas] = $this->generarFacturaInmuebleIntereses($factura, $inmueblesFacturar[0], request()->user()->id_empresa);
                 $valor+= $valores;
                 $factura->valor = $valor;
@@ -1071,6 +1134,7 @@ class FacturacionController extends Controller
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
+
         return $inicioMes;
     }
 
@@ -1157,6 +1221,16 @@ class FacturacionController extends Controller
     private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
     {
         $totalAnticipar = 0;
+        $totalDescuento = 0;
+
+        $id_comprobante_notas = Entorno::where('nombre', 'id_comprobante_notas')->first()->valor;
+        $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
+        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+
+        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
+        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
+        $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
+
         if ($totalAnticipos >= $inmuebleFactura->valor_total) {
             $totalAnticipar = $inmuebleFactura->valor_total;
             $totalAnticipos-= $inmuebleFactura->valor_total;
@@ -1164,13 +1238,29 @@ class FacturacionController extends Controller
             $totalAnticipar = $totalAnticipos;
             $totalAnticipos = 0;
         }
+        
+        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
+            if ($totalAnticipar == $inmuebleFactura->valor_total) {
+                $totalDescuento = $inmuebleFactura->valor_total * ($inmuebleFactura->porcentaje_pronto_pago / 100);
+                $totalAnticipar = $totalAnticipar - $totalDescuento;
 
-        $id_comprobante_notas = Entorno::where('nombre', 'id_comprobante_notas')->first()->valor;
-        $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
-        $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
-        $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-        $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
+                $facturaDetalle = FacturacionDetalle::create([
+                    'id_factura' => $factura->id,
+                    'id_nit' => $inmuebleFactura->id_nit,
+                    'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_gasto,
+                    'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                    'id_comprobante' => $id_comprobante_notas,
+                    'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                    'fecha_manual' => $inicioMes.'-01',
+                    'documento_referencia' => $documentoReferencia,
+                    'valor' => round($totalDescuento),
+                    'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($inmuebleFactura->valor_total).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
+                    'naturaleza_opuesta' => true,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id,
+                ]);
+            }
+        }
 
         foreach ($this->facturas as $key => $facturacxp) {
             if ($totalAnticipar <= 0) continue;
@@ -1192,6 +1282,7 @@ class FacturacionController extends Controller
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id,
             ]);
+
             $totalAnticipar-= $totalCruce;
             $this->facturas[$key]->saldo-= $totalCruce;
         }
@@ -1209,40 +1300,9 @@ class FacturacionController extends Controller
         $id_cuenta_ingreso_intereses = Entorno::where('nombre', 'id_cuenta_ingreso_intereses')->first()->valor;
         
         if (!$id_cuenta_intereses) return;
-        
-        $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
-            $factura->id_nit,
-            [3,7],
-            null,
-            $periodo_facturacion
-        ))->actual()->get();
-        
-        //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
-        if (!count($extractos)) return;
-        //AGRUPAMOS 
-        $extractosAgrupados = [];
-        foreach ($extractos as $extracto) {
-            $extracto = (object)$extracto;
-            
-            if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
-            $this->countIntereses++;
-            if (array_key_exists($extracto->id_cuenta, $extractosAgrupados)) {
-                $extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
-                $extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
-                $extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
-            } else {
-                $extractosAgrupados[$extracto->id_cuenta] = (object)[
-                    'id_nit' => $extracto->id_nit,
-                    'concepto' => $extracto->concepto,
-                    'total_abono' => $extracto->total_abono,
-                    'total_facturas' => $extracto->total_facturas,
-                    'saldo' => $extracto->saldo,
-                ];
-            }
-        }
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
-        if (!count($extractosAgrupados)) return;
+        if (!count($this->extractosAgrupados)) return;
 
         $valorTotalIntereses = 0;
         $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
@@ -1251,7 +1311,7 @@ class FacturacionController extends Controller
         $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
         $detalleIntereses = [];
 
-        foreach ($extractosAgrupados as $extracto) {
+        foreach ($this->extractosAgrupados as $extracto) {
             $saldo = floatval($extracto->saldo);
             $this->saldoBase+= $saldo;            
             
@@ -1470,6 +1530,10 @@ class FacturacionController extends Controller
                 'CFA.id_cuenta_ingreso',
                 'CFA.id_cuenta_interes',
                 'CFA.intereses',
+                'CFA.pronto_pago',
+                'CFA.id_cuenta_gasto',
+                'CFA.id_cuenta_anticipo',
+                'CFA.porcentaje_pronto_pago',
                 'ZO.id_centro_costos',
                 'ZO.nombre AS nombre_zona'
             )
@@ -1494,7 +1558,7 @@ class FacturacionController extends Controller
 
         
         foreach ($data as $extraCxC) {
-            
+
             $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
             if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
@@ -1514,6 +1578,10 @@ class FacturacionController extends Controller
                     'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
                     'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
                     'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
+                    'id_cuenta_gasto' => $extraCxC['concepto']['id_cuenta_gasto'],
+                    'id_cuenta_anticipo' => $extraCxC['concepto']['id_cuenta_anticipo'],
+                    'porcentaje_pronto_pago' => $extraCxC['concepto']['porcentaje_pronto_pago'],
+                    'pronto_pago' => $extraCxC['concepto']['pronto_pago'],
                     'intereses' => $extraCxC['concepto']['intereses'],
                     'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
                 ]);
@@ -1550,6 +1618,10 @@ class FacturacionController extends Controller
                         'id_cuenta_cobrar' => $extraCxP['concepto']['id_cuenta_cobrar'],
                         'id_cuenta_ingreso' => $extraCxP['concepto']['id_cuenta_ingreso'],
                         'id_cuenta_interes' => $extraCxP['concepto']['id_cuenta_interes'],
+                        'id_cuenta_gasto' => $extraCxC['concepto']['id_cuenta_gasto'],
+                        'id_cuenta_anticipo' => $extraCxC['concepto']['id_cuenta_anticipo'],
+                        'porcentaje_pronto_pago' => $extraCxC['concepto']['porcentaje_pronto_pago'],
+                        'pronto_pago' => $extraCxC['concepto']['pronto_pago'],
                         'intereses' => $extraCxP['concepto']['intereses'],
                         'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
                     ]);
@@ -1758,6 +1830,35 @@ class FacturacionController extends Controller
         }
 
         return $nits;
+    }
+
+    private function calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses)
+    {
+        if ($valoresIntereses) return false;
+
+        $deudaTotal = 0;
+        $descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
+        $descuentoParcial = $descuentoParcial ? $descuentoParcial->valor : 0;
+
+        foreach ($inmueblesFacturar as $inmueble) {
+            $descuento = $inmueble->pronto_pago && $inmueble->porcentaje_pronto_pago ?
+                $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :
+                0;
+
+            $deudaTotal+= ($inmueble->valor_total - $descuento);
+        }
+        
+        foreach ($cuotasMultasFacturarCxC as $multas) {
+            $descuento = $multas->pronto_pago && $multas->porcentaje_pronto_pago ?
+                $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
+                0;
+
+            $deudaTotal+= ($multas->valor_total - $descuento);
+        }
+
+        if (!$descuentoParcial && $anticiposDisponibles >= $deudaTotal) return true;
+        if ($descuentoParcial) return true;
+        return false;
     }
 
 }
