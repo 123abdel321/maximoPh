@@ -199,8 +199,6 @@ class FacturacionController extends Controller
 
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-            $dias_pronto_pago = Entorno::where('nombre', 'dias_pronto_pago')->first();
-            $tasa_pronto_pago = Entorno::where('nombre', 'tasa_pronto_pago')->first();
             $id_cuenta_pronto_pago = Entorno::where('nombre', 'id_cuenta_pronto_pago')->first();
 
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
@@ -208,12 +206,6 @@ class FacturacionController extends Controller
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
             $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
             $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
-
-            if ($id_cuenta_pronto_pago && $dias_pronto_pago && $tasa_pronto_pago) {
-                $id_cuenta_pronto_pago = $id_cuenta_pronto_pago->valor;
-                $dias_pronto_pago = $dias_pronto_pago->valor;
-                $tasa_pronto_pago = $tasa_pronto_pago->valor;
-            }
 
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
@@ -406,7 +398,7 @@ class FacturacionController extends Controller
             return response()->json([
                 "success"=>true,
                 'data' => [],
-                "message"=>'Facturación confirmada con exito'
+                "message"=>'Documentos generada con exito'
             ], 200);
 
         } catch (Exception $e) {
@@ -450,7 +442,7 @@ class FacturacionController extends Controller
             return response()->json([
                 "success"=>true,
                 'data' => [],
-                "message"=>'Eliminación confirmada con exito'
+                "message"=>'Causación confirmada con exito'
             ], 200);
 
         } catch (Exception $e) {

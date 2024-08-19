@@ -56,6 +56,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
     public $facturas = [];
     public $notificacionesGeneradas = 0;
     public $totalNotificaciones = 0;
+    public $prontoPago = false;
+    public $descuentoParcial = false;
+    public $extractosAgrupados = [];
 
     /**
      * Create a new job instance.
@@ -80,6 +83,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $this->finMes = date('Y-m-t', strtotime($this->periodo_facturacion));
         $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
+        $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
+        $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
         $this->total_facturados = 0;
         $this->dataGeneral = [
             'valor' => 0,
@@ -107,14 +112,12 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
-
-        // DB::connection('max')->beginTransaction();
         
         try {
 
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
-            
+
             DB::connection('max')
                 ->table(DB::raw("({$query->toSql()}) AS nits"))
                 ->mergeBindings($query)
@@ -132,7 +135,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit);
                         $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($nit->id_nit, $this->periodo_facturacion);
                         $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($nit->id_nit, $this->periodo_facturacion);
-
+                        
                         $factura = Facturacion::create([//CABEZA DE FACTURA
                             'id_comprobante' => $this->id_comprobante_ventas,
                             'id_nit' => $nit->id_nit,
@@ -142,13 +145,42 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             'created_by' => $this->id_usuario,
                             'updated_by' => $this->id_usuario,
                         ]);
-
+                        
                         $valoresExtra = 0;
                         $valoresAdmon = 0;
                         $totalInmuebles = 0;
                         $valoresIntereses = 0;
 
                         //COBRAR INTERESES
+                        $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
+                            $factura->id_nit,
+                            [3,7],
+                            null,
+                            $this->periodo_facturacion
+                        ))->actual()->get();
+
+                        //AGRUPAMOS 
+                        $this->extractosAgrupados = [];
+                        foreach ($extractos as $extracto) {
+                            $extracto = (object)$extracto;
+                            if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
+                            
+                            $this->countIntereses++;
+                            if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
+                                $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
+                                $this->extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
+                                $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
+                            } else {
+                                $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
+                                    'id_nit' => $extracto->id_nit,
+                                    'concepto' => $extracto->concepto,
+                                    'total_abono' => $extracto->total_abono,
+                                    'total_facturas' => $extracto->total_facturas,
+                                    'saldo' => $extracto->saldo,
+                                ];
+                            }
+                        }
+
                         $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
                         [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble);
                         
@@ -162,7 +194,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         //TRAER ANTICIPOS
                         $anticiposNit = $this->totalAnticipos($factura->id_nit, $this->id_empresa);
                         $anticiposDisponibles = $anticiposNit;
-
+                        
                         //RECORREMOS CUOTAS Y MULTAS CXP
                         foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
                             if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $this->dataGeneral['extras'])) {
@@ -185,6 +217,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             ];
                         }
 
+                        $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
@@ -246,8 +279,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
                         $this->saldoBase = 0;
                     });
+                    // dd('nani');
             });
-
             // DB::connection('max')->commit();
             
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
@@ -257,55 +290,23 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'success' =>  true,
                 'action' => 3
             ]));
-            // dd('AFUERA');
+
 		} catch (Exception $exception) {
 			Log::error('Error al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
 		}
     }
 
     private function generarFacturaInmuebleIntereses(Facturacion $factura, $inmuebleFactura)
-    {
-        
+    {   
         if (!$this->id_cuenta_intereses) return;
         
-        $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
-            $factura->id_nit,
-            [3,7],
-            null,
-            $this->periodo_facturacion
-        ))->actual()->get();
-
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
-        if (!count($extractos)) return;
-        //AGRUPAMOS 
-        $extractosAgrupados = [];
-        foreach ($extractos as $extracto) {
-            $extracto = (object)$extracto;
-            if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
-            
-            $this->countIntereses++;
-            if (array_key_exists($extracto->id_cuenta, $extractosAgrupados)) {
-                $extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
-                $extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
-                $extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
-            } else {
-                $extractosAgrupados[$extracto->id_cuenta] = (object)[
-                    'id_nit' => $extracto->id_nit,
-                    'concepto' => $extracto->concepto,
-                    'total_abono' => $extracto->total_abono,
-                    'total_facturas' => $extracto->total_facturas,
-                    'saldo' => $extracto->saldo,
-                ];
-            }
-        }
-        
-        //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
-        if (!count($extractosAgrupados)) return;
+        if (!count($this->extractosAgrupados)) return;
 
         $valorTotalIntereses = 0;
         $detalleIntereses = [];
 
-        foreach ($extractosAgrupados as $extracto) {
+        foreach ($this->extractosAgrupados as $extracto) {
             $saldo = floatval($extracto->saldo);
             $this->saldoBase+= $saldo;   
                  
@@ -372,12 +373,37 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
     {
         $totalAnticipar = 0;
+        $totalDescuento = 0;
+
         if ($totalAnticipos >= $inmuebleFactura->valor_total) {
             $totalAnticipar = $inmuebleFactura->valor_total;
             $totalAnticipos-= $inmuebleFactura->valor_total;
         } else {
             $totalAnticipar = $totalAnticipos;
             $totalAnticipos = 0;
+        }
+
+        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
+            if ($totalAnticipar == $inmuebleFactura->valor_total) {
+                $totalDescuento = $inmuebleFactura->valor_total * ($inmuebleFactura->porcentaje_pronto_pago / 100);
+                $totalAnticipar = $totalAnticipar - $totalDescuento;
+
+                $facturaDetalle = FacturacionDetalle::create([
+                    'id_factura' => $factura->id,
+                    'id_nit' => $inmuebleFactura->id_nit,
+                    'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_gasto,
+                    'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                    'id_comprobante' => $this->id_comprobante_notas,
+                    'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                    'fecha_manual' => $this->inicioMes.'-01',
+                    'documento_referencia' => $documentoReferencia,
+                    'valor' => round($totalDescuento),
+                    'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($inmuebleFactura->valor_total).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
+                    'naturaleza_opuesta' => true,
+                    'created_by' => $this->id_usuario,
+                    'updated_by' => $this->id_usuario,
+                ]);
+            }
         }
 
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
@@ -583,6 +609,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CFA.id_cuenta_ingreso',
                 'CFA.id_cuenta_interes',
                 'CFA.intereses',
+                'CFA.pronto_pago',
+                'CFA.id_cuenta_gasto',
+                'CFA.id_cuenta_anticipo',
+                'CFA.porcentaje_pronto_pago',
                 'ZO.id_centro_costos',
                 'ZO.nombre AS nombre_zona'
             )
@@ -627,6 +657,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
                     'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
                     'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
+                    'id_cuenta_gasto' => $extraCxC['concepto']['id_cuenta_gasto'],
+                    'id_cuenta_anticipo' => $extraCxC['concepto']['id_cuenta_anticipo'],
+                    'porcentaje_pronto_pago' => $extraCxC['concepto']['porcentaje_pronto_pago'],
+                    'pronto_pago' => $extraCxC['concepto']['pronto_pago'],
                     'intereses' => $extraCxC['concepto']['intereses'],
                     'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
                 ]);
@@ -663,6 +697,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         'id_cuenta_cobrar' => $extraCxP['concepto']['id_cuenta_cobrar'],
                         'id_cuenta_ingreso' => $extraCxP['concepto']['id_cuenta_ingreso'],
                         'id_cuenta_interes' => $extraCxP['concepto']['id_cuenta_interes'],
+                        'id_cuenta_gasto' => $extraCxP['concepto']['id_cuenta_gasto'],
+                        'id_cuenta_anticipo' => $extraCxP['concepto']['id_cuenta_anticipo'],
+                        'porcentaje_pronto_pago' => $extraCxP['concepto']['porcentaje_pronto_pago'],
+                        'pronto_pago' => $extraCxP['concepto']['pronto_pago'],
                         'intereses' => $extraCxP['concepto']['intereses'],
                         'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
                     ]);
@@ -671,6 +709,33 @@ class ProcessFacturacionGeneral implements ShouldQueue
         }
 
         return $dataArray;
+    }
+
+    private function calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses)
+    {
+        if ($valoresIntereses) return false;
+
+        $deudaTotal = 0;
+
+        foreach ($inmueblesFacturar as $inmueble) {
+            $descuento = $inmueble->pronto_pago && $inmueble->porcentaje_pronto_pago ?
+                $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :
+                0;
+
+            $deudaTotal+= ($inmueble->valor_total - $descuento);
+        }
+        
+        foreach ($cuotasMultasFacturarCxC as $multas) {
+            $descuento = $multas->pronto_pago && $multas->porcentaje_pronto_pago ?
+                $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
+                0;
+
+            $deudaTotal+= ($multas->valor_total - $descuento);
+        }
+
+        if (!$this->descuentoParcial && $anticiposDisponibles >= $deudaTotal) return true;
+        if ($this->descuentoParcial) return true;
+        return false;
     }
 
 	public function failed($exception)
