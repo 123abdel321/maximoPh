@@ -437,6 +437,14 @@ function clearFormConceptoFacturacion(){
     $("#nombre_concepto_facturacion").val('');
     $("#intereses_concepto_facturacion").val('');
     $("#valor_concepto_facturacion").val(0);
+
+    if (dias_pronto_pago) {
+        $("#dias_concepto_facturacion").prop('disabled', true);
+        $("#dias_concepto_facturacion").val(dias_pronto_pago);
+    } else {
+        $("#dias_concepto_facturacion").prop('disabled', false);
+        $("#dias_concepto_facturacion").val('0');
+    }
     
     $comboCuentaIngreso.val('').trigger('change');
     $comboCuentaCobrar.val('').trigger('change');

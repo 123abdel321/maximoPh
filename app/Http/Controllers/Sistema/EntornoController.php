@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Entorno;
+use App\Models\Sistema\ConceptoFacturacion;
 
 class EntornoController extends Controller
 {
@@ -52,9 +53,7 @@ class EntornoController extends Controller
                 'redondeo_intereses',
                 'factura_texto1',
                 'factura_texto2',
-                // 'dias_pronto_pago',
-                // 'tasa_pronto_pago',
-                // 'id_cuenta_pronto_pago',
+                'dias_pronto_pago',
             ];
 
             foreach ($variablesEntorno as $variable) {
@@ -63,6 +62,10 @@ class EntornoController extends Controller
                         [ 'nombre' => $variable ],
                         [ 'valor' => $request->get($variable) ]
                     );
+                }
+                if ($variable == 'dias_pronto_pago') {
+                    ConceptoFacturacion::whereNotNull('id')
+                        ->update(['dias_pronto_pago' => $request->get($variable)]);
                 }
             }
 

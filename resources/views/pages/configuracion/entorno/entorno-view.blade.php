@@ -67,12 +67,12 @@
                                 <input type="text" class="form-control form-control-sm" name="factura_texto2" id="factura_texto2">
                             </div>
 
-                            <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Días pronto pago</label>
                                 <input type="number" class="form-control form-control-sm" name="dias_pronto_pago" id="dias_pronto_pago">
                             </div>
 
-                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                            <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Tasa interes pronto pago</label>
                                 <input type="number" class="form-control form-control-sm" name="tasa_pronto_pago" id="tasa_pronto_pago">
                             </div>

@@ -36,7 +36,6 @@ function entornoInit() {
             'valor_total_presupuesto_year_actual',
             'porcentaje_intereses_mora',
             'dias_pronto_pago',
-            'tasa_pronto_pago',
         ];
 
         var checkEntorno = [
@@ -107,10 +106,16 @@ $(document).on('click', '#updateEntorno', function () {
         'presupuesto_mensual': $("input[type='checkbox']#presupuesto_mensual").is(':checked') ? '1' : '0',
         'factura_texto1': $('#factura_texto1').val(),
         'factura_texto2': $('#factura_texto2').val(),
-        // 'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
+        'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         // 'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),
     };
+
+    if (stringToNumberFloat($('#dias_pronto_pago').val() > 30)) {
+        $('#dias_pronto_pago').val(30);
+        agregarToast('error', 'Días pronto pago', 'Maximo 30 días de pronto pago');
+        return;
+    }
 
     $.ajax({
         url: base_url + 'entorno',

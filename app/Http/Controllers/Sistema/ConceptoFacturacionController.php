@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Entorno;
 use App\Models\Sistema\ConceptoFacturacion;
 
 
@@ -28,7 +29,13 @@ class ConceptoFacturacionController extends Controller
 
     public function index ()
     {
-        return view('pages.tablas.concepto_facturacion.concepto_facturacion-view');
+        $diasProntoPago = Entorno::where('nombre', 'dias_pronto_pago')->first();
+        
+        $data = [
+            'dias_pronto_pago' => $diasProntoPago ? $diasProntoPago->valor : '0',
+        ];
+
+        return view('pages.tablas.concepto_facturacion.concepto_facturacion-view', $data);
     }
 
     public function read (Request $request)
@@ -112,7 +119,8 @@ class ConceptoFacturacionController extends Controller
         
         try {
             DB::connection('max')->beginTransaction();
-
+            $diasProntoPago = Entorno::where('nombre', 'dias_pronto_pago')->first();
+            $diasProntoPago = $diasProntoPago ? $diasProntoPago->valor : 0;
             $conceptoFacturacion = ConceptoFacturacion::create([
                 'codigo' => $request->get('codigo_concepto'),
                 'nombre_concepto' => $request->get('nombre_concepto'),
@@ -124,7 +132,7 @@ class ConceptoFacturacionController extends Controller
                 'pronto_pago' => $request->get('pronto_pago'),
                 'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
                 'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
-                'dias_pronto_pago' => $request->get('dias_pronto_pago'),
+                'dias_pronto_pago' => $diasProntoPago ? $diasProntoPago : $request->get('dias_pronto_pago'),
                 'porcentaje_pronto_pago' => $request->get('porcentaje_pronto_pago'),
 
                 'intereses' => $request->get('intereses'),
