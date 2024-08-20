@@ -138,6 +138,9 @@ $("#enviarEmailFacturas").on('click', function(event) {
         id_nit: $("#id_nit_facturaciones").val()
     }
 
+    $("#enviarEmailFacturas").hide();
+    $("#enviarEmailFacturasLoading").show();
+
     $.ajax({
         url: base_url + 'facturacion-email',
         method: 'GET',
@@ -145,7 +148,9 @@ $("#enviarEmailFacturas").on('click', function(event) {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-        console.log(res);
+        $("#enviarEmailFacturas").show();
+        $("#enviarEmailFacturasLoading").hide();
+        agregarToast('exito', 'Email enviados', 'Emails enviados con exito!');
     }).fail((err) => {
         var mensaje = err.responseJSON.message;
         var errorsMsg = arreglarMensajeError(mensaje);

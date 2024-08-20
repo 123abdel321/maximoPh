@@ -139,10 +139,10 @@ var moduloRoute = {
 }
 
 $('.water').show();
+$("#titulo-view").text('Inicio');
 $('#containner-dashboard').load('/dashboard', function() {
     $('.water').hide();
 });
-$("#titulo-view").text('Inicio');
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
     // console.log('xhr: ',xhr);
@@ -180,6 +180,13 @@ if (sidenav2) {
 if (idRolUsuario == 4) {
     openNewItem('porteria', 'Porteria', 'fas fa-user-shield');
     closeMenu();
+}
+
+if (idRolUsuario == 3 || idRolUsuario == 5) {
+    setTimeout(function(){
+        console.log('show:', idRolUsuario);
+        $("#menu-propietarios").show();
+    },500);
 }
 
 $("#id_pqrsf_up").val(0);

@@ -1190,11 +1190,11 @@
                     <div class="container-xl position-relative">
                         <img alt="" aria-hidden="true" width="2236" height="1630"
                             class="position-absolute top-0 height-auto events-none d-none d-sm-block"
-                            style="width: min(600px, max(60vh, 60vw)); left: 70%; opacity: 0.2;"
+                            style="width: min(400px, max(40vh, 40vw)); left: 70%; opacity: 0.2;"
                             src="img/logo_contabilidad.png">
-                        <img alt="" aria-hidden="true" width="860" height="544"
+                        <img alt="" aria-hidden="true" width="600" height="400"
                             class="events-none d-sm-none width-full height-auto mb-n3"
-                            style="opacity: .5; margin-top: 40px;"
+                            style="opacity: .5; margin-top: 30px;"
                             src="img/logo_contabilidad.png">
                     </div>
 
