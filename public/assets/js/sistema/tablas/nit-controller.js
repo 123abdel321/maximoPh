@@ -564,7 +564,10 @@ function hideFormNits(){
         'observaciones',
         'numero_documento',
         'razon_social',
-        'declarante'
+        'declarante',
+        'telefono_1',
+        'direccion',
+        'email',
     ];
 
     var noNitsForm = [
@@ -575,18 +578,26 @@ function hideFormNits(){
         'segundo_apellido',
         'primer_nombre',
         'otros_nombres',
-        'declarante'
+        'declarante',
+        'telefono_1',
+        'direccion',
+        'email',
     ];
 
     divsForm.forEach(form => {
         $("#div_"+form).hide();
         $("#"+form).prop('required',false);
     });
-
+    
     if (tipoDocumento && tipoDocumento == '6') {
         nitsForm.forEach(form => {
             $("#div_"+form).show();
-            if (form == 'otros_nombres' || form == 'segundo_apellido') {
+            if (form == 'otros_nombres' ||
+                form == 'segundo_apellido' ||
+                form == 'telefono_1' ||
+                form == 'direccion' ||
+                form == 'email'
+            ) {
             } else {
                 $("#"+form).prop('required',true);
             }
@@ -594,7 +605,12 @@ function hideFormNits(){
     } else if (tipoDocumento) {
         noNitsForm.forEach(form => {
             $("#div_"+form).show();
-            if (form == 'otros_nombres' || form == 'segundo_apellido') {
+            if (form == 'otros_nombres' ||
+                form == 'segundo_apellido' ||
+                form == 'telefono_1' ||
+                form == 'direccion' ||
+                form == 'email'
+            ) {
             } else {
                 $("#"+form).prop('required',true);
             }
