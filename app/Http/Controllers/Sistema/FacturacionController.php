@@ -1046,7 +1046,7 @@ class FacturacionController extends Controller
                     }
 
                     if ($nit->email_1) {
-                        Mail::to($nit->email)
+                        Mail::to($nit->email_1)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
                         ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
@@ -1057,7 +1057,7 @@ class FacturacionController extends Controller
                     }
 
                     if ($nit->email_2) {
-                        Mail::to($nit->email)
+                        Mail::to($nit->email_2)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
                         ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [

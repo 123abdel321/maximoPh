@@ -33,6 +33,9 @@
     <!-- ANIMATE CSS -->
     <link rel="stylesheet" href="assets/css/sistema/animate.min.css" rel="stylesheet" />
 
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    
+
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -232,7 +235,11 @@
     <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
     <!-- SISTEMA -->
     <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}" rel="stylesheet"></script>
-<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
+
+    <!-- Include the Quill library -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    
     @stack('js')
 </body>
 

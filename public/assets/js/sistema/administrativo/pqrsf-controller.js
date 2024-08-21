@@ -1,6 +1,7 @@
 var swiper = null;
 var pqrsf_table = null;
 var $comboUsuarioPqrsf = null
+var quill = null;
 
 function pqrsfInit() {
     dateNow = new Date();
@@ -128,6 +129,68 @@ function pqrsfInit() {
     });
 
     pqrsf_table.ajax.reload();
+
+    quill = new Quill('#editor', {
+        placeholder: 'Redactar texto ...',
+        theme: 'snow'
+    });
+
+    $('#id_nit_email_filter').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#emailFormModal'),
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_zona_email_filter').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#emailFormModal'),
+        delay: 250,
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 }
 
 function loadingDataPqrsf() {
@@ -168,6 +231,60 @@ $(document).on('click', '#generatePqrsfNuevo', function () {
     clearFormPqrsf();
     $("#pqrsfFormModal").modal('show');
 });
+
+$(document).on('click', '#generateEmailNuevo', function () {
+    clearEmailSender();
+    $("#emailFormModal").modal('show');
+});
+
+
+$(document).on('click', '#sendEmail', function () {
+    var texto = quill.root.innerHTML;
+
+    if (texto == '<p><br></p>') {
+        agregarToast('error', 'Email errada', 'el mensaje es obligatorio');
+        return;
+    }
+
+    let data = {
+        id_zona: $("#id_zona_email_filter").val(),
+        id_nit: $("#id_nit_email_filter").val(),
+        texto: texto
+    }
+
+    $.ajax({
+        url: base_url + 'pqrsf-email',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            agregarToast('exito', 'Email exitoso', 'Emails enviados con exito!', true);
+            $("#emailFormModal").modal('hide');
+        }
+    }).fail((err) => {
+        $('#sendEmail').show();
+        $('#sendEmailLoading').hide();
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+});
+
+function clearEmailSender() {
+    quill.deleteText(0, quill.getLength());
+}
 
 $(document).on('change', '#tipo_pqrsf', function () {
     var tipoPorteria = $("#tipo_pqrsf").val();

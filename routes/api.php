@@ -144,6 +144,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('pqrsf-find', 'find');
             Route::post('pqrsf-tiempo', 'tiempo');
             Route::post('pqrsf-estado', 'updateEstado');
+            Route::post('pqrsf-email', 'sendEmail');
         });
         //ENTORNO
         Route::controller(EntornoController::class)->group(function () {

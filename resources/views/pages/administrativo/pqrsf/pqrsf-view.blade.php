@@ -9,6 +9,12 @@
                         Agregar pqrsf
                     </button>
                 @endcan
+
+                @can('pqrsf email')
+                    <button type="button" class="btn btn-info btn-sm" id="generateEmailNuevo">
+                        Redactar email
+                    </button>
+                @endcan
             </div>
             <div class="col-12 col-md-8 col-sm-8">
                 <input type="text" id="searchInputPqrsf" class="form-control form-control-sm search-table" onkeydown="searchPqrsf(event)" placeholder="Buscar">
@@ -48,6 +54,7 @@
             </div>
         </div>
 
+        @include('pages.administrativo.pqrsf.email-form')
         @include('pages.administrativo.pqrsf.pqrsf-form', ['usuario_empresa' => $usuario_empresa])
 
     </div>

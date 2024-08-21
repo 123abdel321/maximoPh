@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Sistema;
 
 use DB;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Mail\GeneralEmail;
+use Illuminate\Http\Request;
 use App\Events\PrivateMessageEvent;
 use App\Helpers\NotificacionGeneral;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Pqrsf;
 use App\Models\Empresa\Empresa;
+use App\Models\Portafolio\Nits;
+use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\PqrsfTiempos;
 use App\Models\Sistema\PqrsfMensajes;
 use App\Models\Empresa\UsuarioEmpresa;
@@ -561,6 +565,47 @@ class PqrsfController extends Controller
                 "message"=>$e->getMessage()
             ], 422);
         }
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+        // dd($empresa);
+        $nits = InmuebleNit::with('nit');
+
+        if ($request->get('id_zona')) {
+            $nits->whereHas('inmueble', function ($query) use ($request) {
+				$query->where('id_zona', $request->get('id_zona'));
+			});
+        }
+
+        if ($request->get('id_nit')) {
+            $nits = Nits::where('id', $request->get('id_nit'));
+        }
+
+        $nits->chunk(233, function($datos) use($empresa, $request) {
+            foreach ($datos as $nit) {
+                $nit = $nit;
+                if ($nit->nit) $nit = $nit->nit;
+
+                if ($nit->email_1) {
+                    Mail::to($nit->email_1)
+                    ->cc('noreply@maximoph.com')
+                    ->bcc('bcc@maximoph.com')
+                    ->queue(new GeneralEmail($empresa->razon_social, 'emails.mensaje', [
+                        'nombre' => $nit->nombre_completo,
+                        'mensaje' => $request->get('texto'),
+                        'logo' => $empresa->logo,
+                    ]));
+                }
+            }
+        });
+
+
+        return response()->json([
+            'success'=>	true,
+            'message'=> 'Emails enviados con exito!'
+        ]);
     }
 
     private function getDiasString ($request)
