@@ -142,6 +142,9 @@ $('.water').show();
 $("#titulo-view").text('Inicio');
 $('#containner-dashboard').load('/dashboard', function() {
     $('.water').hide();
+    if (idRolUsuario == 3 || idRolUsuario == 5) {
+        $("#menu-propietarios").show();
+    }
 });
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
@@ -180,13 +183,6 @@ if (sidenav2) {
 if (idRolUsuario == 4) {
     openNewItem('porteria', 'Porteria', 'fas fa-user-shield');
     closeMenu();
-}
-
-if (idRolUsuario == 3 || idRolUsuario == 5) {
-    setTimeout(function(){
-        console.log('show:', idRolUsuario);
-        $("#menu-propietarios").show();
-    },500);
 }
 
 $("#id_pqrsf_up").val(0);
@@ -1001,7 +997,7 @@ function formatCurrencyValue (value) {
     }
 }
  
-function formatCurrency(input, blur) {
+function formatCurrency(input, blur, decimal = 2) {
     // appends $ to value, validates decimal side
     // and puts cursor back in right position.
     
@@ -1029,15 +1025,17 @@ function formatCurrency(input, blur) {
         // add commas to left side of number
         left_side = formatNumber(left_side);
         // validate right side
-        right_side = formatNumber(right_side);
+        console.log('right_side0: ',right_side);
+        // right_side = formatNumber(right_side);
+        console.log('right_side1: ',right_side);
         // On blur make sure 2 numbers after decimal
-        if (blur === "blur") {
+        if (blur === "blur" && !right_side) {
             right_side += "00";
         }
         // Limit decimal to only 2 digits
-        right_side = right_side.substring(0, 2);
-
-        input_val = left_side + "." + right_side;
+        // right_side = right_side.substring(0, decimal);
+        console.log('right_side2: ',right_side);
+        input_val = left_side + "" + right_side;
     } else {
         input_val = formatNumber(input_val);
         if (blur === "blur") {
@@ -1057,7 +1055,7 @@ function formatCurrency(input, blur) {
 
 function stringToNumberFloat (value) {
     value = value+'';
-    if (value) value = parseFloat(parseFloat(value.replaceAll(',', '')).toFixed(2));
+    if (value) value = parseFloat(parseFloat(value.replaceAll(',', '')).toFixed(5));
     return value ? value : 0;
 }
 
@@ -1684,18 +1682,34 @@ function findDataPqrsf(id) {
         horas = 0;
         minutos = 0;
         segundos = 0;
-
-        if (id_usuario_logeado == data.id_usuario) {
-            if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
-            else $("#id_name_person_pqrsf").text(data.creador.firstname);
-            if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
-            permisoAgregarTiempos = true;
+   
+        if (data.tipo == 5) {
+            if (id_usuario_logeado == data.id_usuario) {
+                if (data.nit) {
+                    if (data.nit.logo_nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
+                    $("#id_name_person_pqrsf").text(data.nit.nombre_completo);
+                    permisoAgregarTiempos = false;
+                }
+            } else {
+                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+                if (data.usuario) $("#id_name_person_pqrsf").text(data.usuario.firstname);
+                permisoAgregarTiempos = true;
+            }
         } else {
-            if (data.usuario && data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
-            else $("#id_name_person_pqrsf").text(data.usuario.firstname);
-            if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
-            permisoAgregarTiempos = false
+            if (id_usuario_logeado == data.id_usuario) {
+                if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
+                else $("#id_name_person_pqrsf").text(data.creador.firstname);
+                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+                else if (data.nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
+                permisoAgregarTiempos = true;
+            } else {
+                if (data.usuario && data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+                else $("#id_name_person_pqrsf").text(data.usuario.firstname);
+                if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+                permisoAgregarTiempos = false;
+            }
         }
+
 
         mostrarAgregarTiempos = false;
         $("#content-button-time-pqrsf-disabled").show();

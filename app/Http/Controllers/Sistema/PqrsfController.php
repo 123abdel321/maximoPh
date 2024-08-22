@@ -66,7 +66,7 @@ class PqrsfController extends Controller
             $columnSortOrder = $order_arr[0]['dir']; // asc or desc
 
             $pqrsf = Pqrsf::orderBy($columnName,$columnSortOrder)
-                ->with('archivos', 'usuario')
+                ->with('archivos', 'usuario', 'nit')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -86,7 +86,8 @@ class PqrsfController extends Controller
                 
             } else {
                 $pqrsf->where('id_usuario', $request->user()['id'])
-                    ->orWhere('created_by', $request->user()['id']);
+                    ->orWhere('created_by', $request->user()['id'])
+                    ->orWhere('id_nit', $usuario_empresa->id_nit);
             }
 
             $pqrsfTotals = $pqrsf->get();
@@ -117,7 +118,7 @@ class PqrsfController extends Controller
     public function find (Request $request)
     {
         try {
-            $pqrsf = Pqrsf::with('usuario', 'creador', 'archivos', 'tiempos', 'mensajes.archivos')
+            $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos', 'tiempos', 'mensajes.archivos')
                 ->where('id', $request->get('id'))
                 ->first();
 
@@ -161,15 +162,29 @@ class PqrsfController extends Controller
             DB::connection('max')->beginTransaction();
 
             $id_usuario_pqrsf = $request->get('id_usuario_pqrsf');
+            $id_nit = null;
 
-            if (!$id_usuario_pqrsf) {
+            if (!$id_usuario_pqrsf || $request->get('tipo_pqrsf') == 5) {
                 $empresa = Empresa::find(request()->user()->id_empresa);
                 $id_usuario_pqrsf = $empresa->id_usuario_owner;
             }
 
+            $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', request()->user()->id)
+                ->where('id_empresa', request()->user()->id_empresa)
+                ->first();
+
+            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2) {
+                $id_nit = $usuarioEmpresa->id_nit;
+            } else if ($request->get('tipo_pqrsf') == 5) {
+                $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->get('id_usuario_pqrsf'))
+                    ->where('id_empresa', request()->user()->id_empresa)
+                    ->first();
+                $id_nit = $usuarioEmpresa ? $usuarioEmpresa->id_nit : null;
+            }
+
             $pqrsf = Pqrsf::create([
                 'id_usuario' => $id_usuario_pqrsf,
-                'id_nit' => null,
+                'id_nit' => $id_nit,
                 'tipo' => $request->get("tipo_pqrsf"),
                 'dias' => $this->getDiasString($request),
                 'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
@@ -204,8 +219,18 @@ class PqrsfController extends Controller
                 $request->get('id_usuario_pqrsf'),
                 $pqrsf
             ));
+            $idUsuarioNotificacion = $pqrsf->id_usuario;
+
+            if ($request->get('tipo_pqrsf') == 5) {
+                $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->get('id_usuario_pqrsf'))
+                    ->where('id_empresa', request()->user()->id_empresa)
+                    ->first();
+
+                $idUsuarioNotificacion = $usuarioEmpresa->id_usuario;
+            }
+            
             $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' => $pqrsf->id_usuario,
+                'id_usuario' =>  $idUsuarioNotificacion,
                 'mensaje' => $mensaje,
                 'function' => 'abrirPqrsfNotificacion',
                 'data' => $pqrsf->id,

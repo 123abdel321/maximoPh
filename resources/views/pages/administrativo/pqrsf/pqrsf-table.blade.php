@@ -5,6 +5,8 @@
             <th>Estado</th>
             <th>Tipo</th>
             <th>Remitente</th>
+            <th>Ubicación</th>
+            <th>Cedula / Nit</th>
             <th>Asunto</th>
             <th style="width: 500px !important;">Descripción</th>
             <th>Fecha creación</th>

@@ -65,6 +65,18 @@ function pqrsfInit() {
                 return '';
             }},
             {"data": function (row, type, set){
+                if (row.nit) {
+                    return row.nit.apartamentos;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
+                if (row.nit) {
+                    return row.nit.nombre_completo;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
                 return row.asunto;
             }},
             {"data": function (row, type, set){
