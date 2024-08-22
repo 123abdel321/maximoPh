@@ -159,8 +159,12 @@ $("#nombre-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 
+var urlImgFondo = 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo-defecto-maximo.png';
+if (localStorage.getItem("fondo_sistema") != 'null') {
+    urlImgFondo = bucketUrl + localStorage.getItem("fondo_sistema");
+}
 setTimeout(function(){
-    $(".fondo-sistema").css('background-image', 'url(' +bucketUrl + localStorage.getItem("fondo_sistema")+ ')');
+    $(".fondo-sistema").css('background-image', 'url(' +urlImgFondo+ ')');
 },200);
 
 if (localStorage.getItem("empresa_logo") == 'null') {
