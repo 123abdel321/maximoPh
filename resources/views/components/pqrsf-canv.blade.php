@@ -124,7 +124,7 @@
                 </div>
 
                 <div class="col-9 content-text-pqrsf">
-                    <textarea class="form-control form-control-no-upp offcanvas-input-textarea" id="mensaje_pqrsf_nuevo" name="mensaje_pqrsf_nuevo" rows="2" onkeypress="keyPressPqrsfMensaje(event)" keyup="$(this).val();" style="margin-left: -3px;" required></textarea>
+                    <textarea class="form-control-no-upp offcanvas-input-textarea" id="mensaje_pqrsf_nuevo" name="mensaje_pqrsf_nuevo" rows="2" onkeypress="keyPressPqrsfMensaje(event)" keyup="$(this).val();" style="margin-left: -3px;" required></textarea>
                 </div>
                 <div class="col-1 content-send-pqrsf">
                     <div id="button-send-pqrsf" class="button-send-pqrsf" onclick="createMensajePqrsf()">
