@@ -9,7 +9,7 @@
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-12 col-sm-12">
-                @if ($usuario_empresa && ($usuario_empresa->id_rol == 1 || $usuario_empresa->id_rol == 2))
+                @if ($usuario_empresa && ($usuario_empresa->id_rol == 1 || $usuario_empresa->id_rol == 2 || $usuario_empresa->id_rol == 3 ))
                     <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuenta" style="display: none;">
                         <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
                     </button>
