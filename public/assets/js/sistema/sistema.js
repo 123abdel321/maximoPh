@@ -363,7 +363,25 @@ function buscarNotificaciones() {
             setNotificaciones(res.total);
         }
     }).fail((res) => {
-        agregarToast('error', 'Error al consultar notificaciones', res.message);
+        let timerInterval;
+        Swal.fire({
+            title: "Sesión caducada!",
+            html: "En un momento será redirigido al inicio de sesión.",
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+            }).then((result) => {
+            closeSessionProfile();
+        });
     });
 }
 
@@ -401,6 +419,7 @@ function closeSessionProfile() {
 
         window.location.href = '/login';
     }).fail((res) => {
+        window.location.href = '/login';
     });
 }
 
