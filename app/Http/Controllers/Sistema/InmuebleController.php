@@ -87,7 +87,6 @@ class InmuebleController extends Controller
                 $inmueble->where('nombre', 'LIKE', '%'.$request->get('search').'%')
                     ->orWhere('area', 'LIKE', '%'.$request->get('search').'%')
                     ->orWhere('coeficiente', 'LIKE', '%'.$request->get('search').'%');
-                    
             }
 
             if ($request->get('id_nit')) {
@@ -236,6 +235,7 @@ class InmuebleController extends Controller
 
         $existeImueble = Inmueble::where('nombre', $request->get('nombre'))
             ->where('id_zona', $request->get('id_zona'))
+            ->where('id', '!=', $request->get('id'))
             ->count();
 
         if ($existeImueble) {

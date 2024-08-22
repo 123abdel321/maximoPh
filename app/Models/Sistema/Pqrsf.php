@@ -55,4 +55,8 @@ class Pqrsf extends Model
     public function creador(){
 		return $this->belongsTo("App\Models\User","created_by");
 	}
+
+    public function nit(){
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
+	}
 }

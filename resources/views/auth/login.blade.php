@@ -53,7 +53,7 @@
                                 style="background-image: url('/img/edificios.webp');
               background-size: cover;">
                                 <span class="mask bg-gradient-primary opacity-4"></span>
-                                <img src="/img/logo_base_sin_texto.png" class="navbar-brand-img h-20 position-relative" style="width: 60px; align-self: center;" alt="main_logo-login">
+                                <img src="/img/logo_base_sin_texto.png" class="navbar-brand-img h-20 position-relative" style="width: 55px; align-self: center;" alt="main_logo-login">
                                 <h4 class="mt-1 text-white font-weight-bolder position-relative">MAXIMO PH</h4>
                                 <p class="text-white position-relative">VERSION {{ config('app.version') }}</p>
                             </div>

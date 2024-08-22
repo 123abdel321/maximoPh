@@ -1696,6 +1696,7 @@ function findDataPqrsf(id) {
                 permisoAgregarTiempos = true;
             }
         } else {
+            console.log(id_usuario_logeado, data.id_usuario);
             if (id_usuario_logeado == data.id_usuario) {
                 if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
                 else $("#id_name_person_pqrsf").text(data.creador.firstname);
@@ -1703,9 +1704,15 @@ function findDataPqrsf(id) {
                 else if (data.nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
                 permisoAgregarTiempos = true;
             } else {
-                if (data.usuario && data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
-                else $("#id_name_person_pqrsf").text(data.usuario.firstname);
-                if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+
+                if (data.usuario) {
+                    if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+                    else $("#id_name_person_pqrsf").text(data.usuario.firstname);
+                    if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+                } else if (data.creador.avatar) {
+                    $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+                }
+                
                 permisoAgregarTiempos = false;
             }
         }
