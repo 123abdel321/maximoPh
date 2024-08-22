@@ -29,6 +29,11 @@ class PorteriaEvento extends Model
     {
         return $this->morphMany(ArchivosGenerales::class, 'relation');
 	}
+    
+    public function notificacion()
+    {
+        return $this->morphTo(Notificaciones::class, 'notificacion');
+	}
 
     public function inmueble()
     {
@@ -39,5 +44,7 @@ class PorteriaEvento extends Model
     {
         return $this->belongsTo(Porteria::class, 'id_porteria');
     }
+
+
 
 }

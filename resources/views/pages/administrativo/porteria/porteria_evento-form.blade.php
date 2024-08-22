@@ -27,6 +27,7 @@
                         <option value="3">Domicilio</option>
                         <option value="1">Paquete</option>
                         <option value="2">Minuta</option>
+                        <option value="4">Otros</option>
                     </select>
                 </div>
 

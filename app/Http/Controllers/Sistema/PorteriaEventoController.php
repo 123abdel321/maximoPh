@@ -6,6 +6,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
+use App\Helpers\NotificacionGeneral;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
@@ -161,6 +162,32 @@ class PorteriaEventoController extends Controller
             }
 
             $evento->load('archivos');
+
+            $notificacion =(new NotificacionGeneral(
+                null,
+                null,
+                $evento
+            ));
+
+            $itemPorteria = null;
+            $dataMensaje = 'Se ha grabado evento en ';
+            $itemPorteria = Porteria::find($request->get('persona_porteria_evento'));
+            $dataMensaje.= $itemPorteria->nombre ? $itemPorteria->nombre : $itemPorteria->placa;
+
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $itemPorteria->id_usuario,
+                'mensaje' => $dataMensaje,
+                'function' => '',
+                'data' => '',
+                'estado' => 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+            
+            $notificacion->notificar(
+                'porteria-mensaje-'.$request->user()['has_empresa'].'_'.$itemPorteria->id_usuario,
+                ['data' => [$dataMensaje], 'id_notificacion' => $id_notificacion]
+            );
 
             DB::connection('max')->commit();
 

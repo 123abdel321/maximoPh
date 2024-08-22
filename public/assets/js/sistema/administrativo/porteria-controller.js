@@ -37,6 +37,8 @@ var weekGoalkeeper = [
     'Sun'
 ];
 
+
+
 function porteriaInit() {
 
     fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
@@ -196,7 +198,7 @@ function porteriaInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Evento</span>&nbsp;';
+                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
                     if (usuario_rol != 4) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (usuario_rol != 4) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
@@ -258,6 +260,9 @@ function porteriaInit() {
                 }
                 if (row.tipo == '3') {
                     return 'Paquete';
+                }
+                if (row.tipo == '4') {
+                    return 'Otros';
                 }
                 return 'Visita';
             }},
@@ -485,9 +490,7 @@ function porteriaInit() {
                     results: data.data
                 };
             }
-        },
-        templateResult: formatNitPorteria,
-        templateSelection: formatRepoNitPorteria
+        }
     });
 
     $comboNitPorteriaFilter = $('#id_nit_porteria_filter').select2({

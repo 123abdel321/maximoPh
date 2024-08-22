@@ -80,7 +80,7 @@
                         Ver eventos
                     </button>
                     <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria" style="display: none;">
-                        Confirmar
+                        Agregar evento
                     </button>
                 @endcan
                 @can('porteria create')
