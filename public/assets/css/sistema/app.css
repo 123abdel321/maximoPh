@@ -974,7 +974,7 @@ div.dataTables_processing {
 .texto-dropdown-notificacion {
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     line-clamp: 1;
     -webkit-box-orient: vertical;
     max-width: 200px;
@@ -1007,7 +1007,7 @@ div.dataTables_processing {
 
 .dropdown-menu-top-3 {
     position: fixed !important;
-    top: 22%;
+    top: 135px;
     right: 115px;
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
@@ -1017,7 +1017,7 @@ div.dataTables_processing {
 
 .dropdown-menu-top-1 {
     position: fixed !important;
-    top: 14%;
+    top: 100px;
     right: 115px;
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
@@ -1027,7 +1027,7 @@ div.dataTables_processing {
 
 .dropdown-menu-top-2 {
     position: fixed !important;
-    top: 19%;
+    top: 135px;
     right: 115px;
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
