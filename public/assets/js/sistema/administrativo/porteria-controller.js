@@ -695,6 +695,7 @@ function porteriaInit() {
             $('#savePorteriaEvento').show();
             $('#savePorteriaEventoLoading').hide();
     
+            porteria_table.ajax.reload();
             porteria_evento_table.ajax.reload();
             
             //AGREGAR VER EVENTOS
