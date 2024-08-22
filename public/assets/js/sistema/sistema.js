@@ -26,6 +26,7 @@ let dropDownPerfilOpen = false;
 let dropDownNotificacionOpen = false;
 let channelPqrsf = false;
 let channelAdminPqrsf = false;
+let channelPorteria = pusher.subscribe('porteria-mensaje-'+localStorage.getItem("notificacion_code"));
 let updatingStatusPqrsf = false;
 let mostrarAgregarImagenes = false;
 let mostrarAgregarTiempos = false;
@@ -347,6 +348,10 @@ function arreglarCodigoNotificacionAdmin() {
     return nombreReal;
 }
 
+channelPorteria.bind('notificaciones', function(data) {
+    buscarNotificaciones();
+});
+
 function buscarNotificaciones() {
     $.ajax({
         url: base_url + 'notificaciones',
@@ -357,9 +362,14 @@ function buscarNotificaciones() {
         if(res.success){
             localStorage.setItem("numero_notificaciones", res.total);
             setNotificaciones(res.total);
+        } else {
+            
         }
     }).fail((res) => {
         let timerInterval;
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 2200)
         Swal.fire({
             title: "Sesión caducada!",
             html: "En un momento será redirigido al inicio de sesión.",
