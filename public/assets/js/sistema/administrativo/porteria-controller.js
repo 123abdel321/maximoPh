@@ -72,7 +72,12 @@ function porteriaInit() {
                 d.search = $("#searchInputPorteria").val()
             }
         },
-
+        'rowCallback': function(row, data, index){
+            if (data.eventos.length) {
+                $('td', row).css('background-color', '#41b14140');
+                return;
+            }
+        },
         columns: [
             {"data": function (row, type, set){
                 var urlImg = `logos_empresas/no-photo.jpg`;
