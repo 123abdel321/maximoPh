@@ -120,7 +120,8 @@ function porteriaInit() {
             {"data":'placa'},
             {"data": function (row, type, set){  
                 const porteria = row;
-                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5) {
+                
+                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5 || porteria.tipo_porteria == 6) {
                     if (porteria.dias) {
                         var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                         var numeroDia = new Date(dayNow).getDay();
@@ -150,7 +151,7 @@ function porteriaInit() {
                 if (porteria.tipo_porteria == 1 || porteria.tipo_porteria == 3) {
                     return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
                 }
-                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5) {
+                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5 || porteria.tipo_porteria == 6) {
                     var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                     var numeroDia = new Date(dayNow).getDay();
             
@@ -400,7 +401,7 @@ function porteriaInit() {
             }).done((res) => {
                 itemPorteria = res.data;
                 clearFormEventoPorteria();
-        
+
                 var dataPersona = {
                     id: itemPorteria.id,
                     text: itemPorteria.nombre
@@ -448,7 +449,6 @@ function porteriaInit() {
                     errorsMsg = mensaje
                 }
                 agregarToast('error', 'Error al cargar evento', errorsMsg);
-
             });
 
         });

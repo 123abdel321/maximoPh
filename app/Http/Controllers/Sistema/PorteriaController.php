@@ -145,7 +145,8 @@ class PorteriaController extends Controller
             if ($request->get("fecha") && !$request->get("search")) {
                 $fechaFilter = Carbon::parse($request->get("fecha"));
                 $diaFilter = $fechaFilter->dayOfWeek;
-                $porteria->where('dias', 'LIKE', '%'.$diaFilter);
+                $porteria->where('dias', 'LIKE', '%'.$diaFilter)
+                    ->orWhere('hoy', $fechaFilter);
             }
 
             $porteria->skip($start)->take($rowperpage);
