@@ -228,10 +228,6 @@ function loadingDataPqrsf() {
     document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
 }
 
-$('.form-control-no-upp').keyup(function() {
-    $(this).val($(this).val().toUpperCase());
-});
-
 $('.input-images-pqrsf').imageUploader({
     imagesInputName: 'photos',
     preloadedInputName: 'old',

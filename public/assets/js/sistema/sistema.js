@@ -37,10 +37,6 @@ const auth_token_erp = localStorage.getItem("auth_token_erp");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
 var menuOpen = false;
 
-$('.form-control-no-upp').keyup(function() {
-    $(this).val($(this).val().toUpperCase());
-});
-
 $.ajaxSetup({
     'headers':{
         "Authorization": auth_token,
