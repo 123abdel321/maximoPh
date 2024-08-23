@@ -177,8 +177,8 @@ class PorteriaEventoController extends Controller
             $id_notificacion = $notificacion->crear((object)[
                 'id_usuario' => $itemPorteria->id_usuario,
                 'mensaje' => $dataMensaje,
-                'function' => '',
-                'data' => '',
+                'function' => 'cerrarNotificacion',
+                'data' => $evento->id,
                 'estado' => 0,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id

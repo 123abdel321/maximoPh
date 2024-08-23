@@ -1487,6 +1487,12 @@ function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
     buscarNotificaciones();
 }
 
+function cerrarNotificacion(id_data, id_notificacion) {
+    leerNotificaciones(id_notificacion);    
+    openDropDownNotificaciones(true);
+    buscarNotificaciones();
+}
+
 function clickAddImgPqrsfEvent() {
     if (mostrarAgregarImagenes) {
         mostrarAgregarImagenes = false;
