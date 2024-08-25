@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('id_factura')->nullable();
             $table->integer('id_nit')->nullable();
+            $table->integer('id_concepto_facturacion')->nullable();
             $table->integer('id_cuenta_por_cobrar')->nullable();
             $table->integer('id_cuenta_ingreso')->nullable();
             $table->integer('id_comprobante')->nullable();

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('nombre_nit', 100)->nullable();
             $table->date('fecha_manual')->nullable();
             $table->decimal('pago', 15)->default(0);
+            $table->decimal('descuento', 15)->default(0);
             $table->decimal('saldo', 15)->default(0);
             $table->decimal('saldo_nuevo', 15)->default(0);
             $table->decimal('anticipos', 15)->default(0);

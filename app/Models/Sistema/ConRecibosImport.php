@@ -23,6 +23,7 @@ class ConRecibosImport extends Model
         'nombre_nit',
         'fecha_manual',
         'pago',
+        'descuento',
         'saldo',
         'saldo_nuevo',
         'anticipos',

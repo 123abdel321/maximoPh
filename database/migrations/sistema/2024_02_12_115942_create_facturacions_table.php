@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('id_nit')->nullable();
             $table->date('fecha_manual')->nullable();
             $table->string('token_factura', 255)->nullable();
+            $table->integer('pronto_pago')->nullable();
             $table->decimal('valor', 15);
             $table->decimal('valor_admon', 15)->nullable();
             $table->decimal('valor_intereses', 15)->nullable();

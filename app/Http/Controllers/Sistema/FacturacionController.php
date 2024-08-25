@@ -1114,6 +1114,7 @@ class FacturacionController extends Controller
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $cuotaMultaFactura->id_nit,
+            'id_concepto_facturacion' => $cuotaMultaFactura->id_concepto_facturacion,
             'id_cuenta_por_cobrar' => $cuotaMultaFactura->id_cuenta_cobrar,
             'id_cuenta_ingreso' => $cuotaMultaFactura->id_cuenta_ingreso,
             'id_comprobante' => $id_comprobante_ventas,
@@ -1143,6 +1144,7 @@ class FacturacionController extends Controller
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $inmuebleFactura->id_nit,
+            'id_concepto_facturacion' => $inmuebleFactura->id_concepto_facturacion,
             'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_cobrar,
             'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_ingreso,
             'id_comprobante' => $id_comprobante_ventas,
@@ -1186,6 +1188,7 @@ class FacturacionController extends Controller
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $detalleFactura->id_nit,
+                    'id_concepto_facturacion' => null,
                     'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
                     'id_cuenta_ingreso' => $detalleFactura->id_cuenta_por_cobrar,
                     'id_comprobante' => $id_comprobante_notas,
@@ -1239,6 +1242,7 @@ class FacturacionController extends Controller
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
+                    'id_concepto_facturacion' => null,
                     'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_gasto,
                     'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
                     'id_comprobante' => $id_comprobante_notas,
@@ -1261,6 +1265,7 @@ class FacturacionController extends Controller
             $facturaDetalle = FacturacionDetalle::create([
                 'id_factura' => $factura->id,
                 'id_nit' => $inmuebleFactura->id_nit,
+                'id_concepto_facturacion' => null,
                 'id_cuenta_por_cobrar' => $id_cuenta_anticipos,
                 'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
                 'id_comprobante' => $id_comprobante_notas,
@@ -1320,6 +1325,7 @@ class FacturacionController extends Controller
             $data = [
                 'id_factura' => $factura->id,
                 'id_nit' => $factura->id_nit,
+                'id_concepto_facturacion' => null,
                 'id_cuenta_por_cobrar' => $id_cuenta_intereses,
                 'id_cuenta_ingreso' => $id_cuenta_ingreso_intereses,
                 'id_comprobante' => $id_comprobante_ventas,

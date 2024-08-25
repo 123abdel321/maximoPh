@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use DB;
 use Carbon\Carbon;
 use App\Helpers\Extracto;
 use Illuminate\Support\Collection;
@@ -31,7 +32,9 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             $nit = null;
             $inmueble = null;
             $inmuebleNit = null;
+            $saldoNuevo = 0;
             $saldoTotal = 0;
+            $descuentoProntoPago = 0;
             $anticipo = 0;
             
             if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
@@ -86,25 +89,35 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
             if ($row['valor']) {
                 if ($nit) {
+                    $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
+                    $inicioMes = $inicioMes.'-01';
+                    $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
+                    $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes);
 
                     $extracto = (new Extracto(
                         $nit->id,
                         [3,7],
                     ))->completo()->first();
+                    
+                    $pagoTotal = floatval($row['valor']);
 
                     if ($extracto && $extracto->saldo) {
-                        $pagoTotal = floatval($row['valor']);
-                        $saldoTotal = $extracto->saldo;
+                        $valorPendiente = $extracto->saldo;
+                        $prontoPago = 0;
+                        $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $valorPendiente);
+                        $pagoTotal+= $descuentoProntoPago;
     
-                        if (($extracto->saldo - $pagoTotal) < 0) {
-                            $anticipo = $pagoTotal - $extracto->saldo;
+                        if (($valorPendiente - $pagoTotal) < 0) {
+                            $anticipo+= $pagoTotal - $extracto->saldo;
                         }
                     } else {
-                        $anticipo = $row['valor'];
+                        $anticipo+= $row['valor'];
                     }
     
                 }
             }
+
+            $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
 
             ConRecibosImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
@@ -116,8 +129,9 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'nombre_zona' => $inmueble ? $inmueble->zona->nombre : '',
                 'nombre_nit' => $nit ? $nit->nombre_completo : '',
                 'pago' => $row['valor'],
+                'descuento' => $descuentoProntoPago,
                 'saldo' => $saldoTotal,
-                'saldo_nuevo' => $anticipo ? 0 : $saldoTotal - floatval($row['valor']),
+                'saldo_nuevo' => $saldoNuevo,
                 'anticipos' => $anticipo,
                 'observacion' => $estado ? $observacion : 'Listo para importar',
                 'estado' => $estado,
@@ -138,6 +152,76 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             'fecha_manual' => 'C1',
             'valor' => 'D1',
         ];
+    }
+
+    private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago)
+    {
+        if (!$facturaDescuento->has_pronto_pago) {
+            if ($totalPago + $facturaDescuento->descuento >= $extracto->saldo) {
+                return $facturaDescuento->descuento;
+            }
+        }
+        return 0;
+    }
+
+    private function getFacturaMes($id_nit, $inicioMes)
+    {
+        $fechaActual = Carbon::now()->format("Y-m-d");
+        // dd($fechaActual, $inicioMes);
+        $facturas = DB::connection('max')->select("SELECT
+                FA.id AS id_factura,
+                FA.pronto_pago AS has_pronto_pago,
+                FD.id_concepto_facturacion,
+                FD.id_cuenta_por_cobrar,
+                CF.id_cuenta_gasto,
+                FD.documento_referencia,
+                SUM(FD.valor) AS subtotal,
+                CASE
+                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaActual}', '{$inicioMes}')
+                        THEN SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100)
+                        ELSE 0
+                END AS descuento,
+                CASE
+                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaActual}', '{$inicioMes}')
+                        THEN SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                        ELSE SUM(FD.valor)
+                END AS valor_total
+                
+            FROM
+                facturacion_detalles FD
+                
+            LEFT JOIN facturacions FA ON FD.id_factura = FA.id
+            LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
+
+            WHERE FD.id_nit = $id_nit
+                AND FD.fecha_manual = '{$inicioMes}'
+                AND CF.porcentaje_pronto_pago > 0
+                AND CF.dias_pronto_pago > DATEDIFF('{$fechaActual}', '{$inicioMes}')
+                
+            GROUP BY FD.id_cuenta_por_cobrar
+        ");
+
+        $facturas = collect($facturas);
+
+        if (!count($facturas)) return false;
+
+        $data = (object)[
+            'id_factura' => $facturas[0]->id_factura,
+            'has_pronto_pago' => $facturas[0]->has_pronto_pago,
+            'subtotal' => 0,
+            'descuento' => 0,
+            'valor_total' => 0,
+            'detalle' => []
+        ];
+
+        foreach ($facturas as $factura) {
+            $data->subtotal+= $factura->subtotal;
+            $data->descuento+= $factura->descuento;
+            $data->valor_total+= $factura->valor_total;
+            $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
+        }
+
+        return $data;
     }
 
 }

@@ -2,7 +2,7 @@ var import_cuotas_extras_table = null;
 var btnImportCuotasMultas = document.getElementById('actualizarPlantillaCuotasExtras');
 
 function importcuotasInit() {
-    import_cuotas_extras_table = $('#importRecibos').DataTable({
+    import_cuotas_extras_table = $('#importCuotasMultas').DataTable({
         pageLength: 20,
         dom: 'Brtip',
         paging: true,

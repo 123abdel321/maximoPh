@@ -18,6 +18,7 @@ class Facturacion extends Model
         'id_nit',
         'fecha_manual',
         'token_factura',
+        'pronto_pago',
         'valor',
         'valor_admon',
         'valor_intereses',

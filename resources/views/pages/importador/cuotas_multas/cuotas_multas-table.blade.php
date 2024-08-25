@@ -1,4 +1,4 @@
-<table id="importRecibos" class="table-import-recibos table table-bordered display responsive" width="100%">
+<table id="importCuotasMultas" class="table-import-recibos table table-bordered display responsive" width="100%">
     <thead>
         <tr>
             <th style="border-radius: 15px 0px 0px 0px !important;">Row</th>

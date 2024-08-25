@@ -39,6 +39,7 @@ function importrecibosInit() {
             {"data":'fecha_manual'},
             {"data":'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'pago', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'descuento', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'saldo_nuevo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'anticipos', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'observacion'}
