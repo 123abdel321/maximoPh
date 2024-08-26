@@ -157,7 +157,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago)
     {
-        if (!$facturaDescuento->has_pronto_pago) {
+        if (!$facturaDescuento && $facturaDescuento->has_pronto_pago) {
             if ($totalPago + $facturaDescuento->descuento >= $extracto->saldo) {
                 return $facturaDescuento->descuento;
             }
