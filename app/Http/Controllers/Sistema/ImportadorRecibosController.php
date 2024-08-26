@@ -154,8 +154,7 @@ class ImportadorRecibosController extends Controller
                     
                     $inicioMes = date('Y-m', strtotime($reciboImport->fecha_manual));
                     $finMes = date('Y-m-t', strtotime($reciboImport->fecha_manual));
-                    $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes);
-                    
+                    $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes.'-01', $reciboImport->fecha_manual);
                     $valorDisponible = $reciboImport->pago;
                     $valorRecibido = $reciboImport->pago;
                     $valorPendiente = 0;
@@ -165,19 +164,20 @@ class ImportadorRecibosController extends Controller
                     $recibo = $this->createFacturaRecibo($reciboImport);
                     $cecos = CentroCostos::first();
 
-                    //COBRAR INTERESES
-                    $extractos = (new Extracto(
-                        $reciboImport->id_nit,
-                        [3,7]
-                    ))->actual()->get();
-                    $facturasPendientes = count($extractos);
-
                     $documentoGeneral = new Documento(
                         $comprobante->id,
                         $recibo,
                         $this->fechaManual,
                         $this->consecutivo
                     );
+
+                    $extractos = (new Extracto(
+                        $reciboImport->id_nit,
+                        [3,7]
+                    ))->actual()->get();
+
+                    $facturasPendientes = count($extractos);
+
                     //AGREGAR DEUDA
                     foreach ($extractos as $extracto) {
                         if ($valorDisponible <= 0) continue;
@@ -187,7 +187,7 @@ class ImportadorRecibosController extends Controller
                         $saldoNuevo = $extracto->saldo - $valorDisponible;
                         $totalPago = $saldoNuevo < 0 ? $extracto->saldo : $valorDisponible;
                         $totalDescuento = $this->calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $facturasPendientes);
-                        // $totalDescuento = 0;
+
                         $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
 
                         if ($totalDescuento) {
@@ -351,7 +351,7 @@ class ImportadorRecibosController extends Controller
                 }
             }
             
-            // ConRecibosImport::whereIn('estado', [0])->delete();
+            ConRecibosImport::whereIn('estado', [0])->delete();
 
             DB::connection('max')->commit();
 
@@ -393,7 +393,7 @@ class ImportadorRecibosController extends Controller
 
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $facturasPendientes)
     {
-        if (!$facturaDescuento->has_pronto_pago && $facturasPendientes == 0) {
+        if ($facturaDescuento && !$facturaDescuento->has_pronto_pago && $facturasPendientes == 0) {
             if ($totalPago + $facturaDescuento->descuento >= $extracto->saldo) {
                 return $facturaDescuento->descuento;
             }
@@ -401,10 +401,10 @@ class ImportadorRecibosController extends Controller
         return 0;
     }
 
-    private function getFacturaMes($id_nit, $inicioMes)
+    private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
         $fechaActual = Carbon::now()->format("Y-m-d");
-        $inicioMes = $inicioMes.'-01';
+        $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
 
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
@@ -415,12 +415,12 @@ class ImportadorRecibosController extends Controller
                 FD.documento_referencia,
                 SUM(FD.valor) AS subtotal,
                 CASE
-                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaActual}', '{$inicioMes}')
+                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
                         THEN SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100)
                         ELSE 0
                 END AS descuento,
                 CASE
-                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaActual}', '{$inicioMes}')
+                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
                         THEN SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
                         ELSE SUM(FD.valor)
                 END AS valor_total
@@ -431,12 +431,11 @@ class ImportadorRecibosController extends Controller
             LEFT JOIN facturacions FA ON FD.id_factura = FA.id
             LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
 
-            WHERE FD.id_nit = 1
+            WHERE FD.id_nit = $id_nit
                 AND FD.fecha_manual = '{$inicioMes}'
-                AND FA.pronto_pago = 0
-                AND CF.pronto_pago = 1
                 AND CF.porcentaje_pronto_pago > 0
-                AND CF.dias_pronto_pago > DATEDIFF('{$fechaActual}', '{$inicioMes}')
+                AND FA.pronto_pago IS NULL
+                AND CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");

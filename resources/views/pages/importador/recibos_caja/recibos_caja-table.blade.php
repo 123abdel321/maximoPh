@@ -4,8 +4,10 @@
             <th style="border-radius: 15px 0px 0px 0px !important;">Row</th>
             <th style="border-radius: 15px 0px 0px 0px !important;">Row</th>
             <th>Inmueble</th>
+            <th>Concepto</th>
             <th>Documento</th>
             <th>Nombre</th>
+            <th>Email</th>
             <th>Fecha manual</th>
             <th>Saldo Actual</th>
             <th>Valor Pago</th>

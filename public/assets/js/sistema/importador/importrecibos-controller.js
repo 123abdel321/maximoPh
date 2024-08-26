@@ -34,8 +34,10 @@ function importrecibosInit() {
                 return `<i class="fas fa-minus-circle" style="color: red; font-size: 14px;"></i>&nbsp;${row.id}`;
             }},
             {"data":'nombre_inmueble'},
+            {"data":'numero_concepto_facturacion'},
             {"data":'numero_documento'},
             {"data":'nombre_nit'},
+            {"data":'email'},
             {"data":'fecha_manual'},
             {"data":'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'pago', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
