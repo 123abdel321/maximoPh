@@ -36,6 +36,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             $saldoTotal = 0;
             $descuentoProntoPago = 0;
             $anticipo = 0;
+            $valorPendiente = 0;
             
             if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
                 continue;
@@ -101,8 +102,8 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     
                     $pagoTotal = floatval($row['valor']);
 
-                    $valorPendiente = $extracto->saldo;
                     if ($extracto && $extracto->saldo) {
+                        $valorPendiente = $extracto->saldo;
                         $prontoPago = 0;
                         $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $valorPendiente);
                         $pagoTotal+= $descuentoProntoPago;
