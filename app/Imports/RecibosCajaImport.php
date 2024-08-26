@@ -90,6 +90,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
             if ($row['valor']) {
                 if ($nit) {
+                    
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
                     $inicioMes = $inicioMes.'-01';
                     $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
@@ -114,10 +115,9 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     } else {
                         $anticipo+= $row['valor'];
                     }
-    
                 }
             }
-
+            
             $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
 
             ConRecibosImport::create([
@@ -157,7 +157,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago)
     {
-        if (!$facturaDescuento && $facturaDescuento->has_pronto_pago) {
+        if ($facturaDescuento && $facturaDescuento->has_pronto_pago) {
             if ($totalPago + $facturaDescuento->descuento >= $extracto->saldo) {
                 return $facturaDescuento->descuento;
             }
