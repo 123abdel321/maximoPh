@@ -101,8 +101,8 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     
                     $pagoTotal = floatval($row['valor']);
 
+                    $valorPendiente = $extracto->saldo;
                     if ($extracto && $extracto->saldo) {
-                        $valorPendiente = $extracto->saldo;
                         $prontoPago = 0;
                         $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $valorPendiente);
                         $pagoTotal+= $descuentoProntoPago;
