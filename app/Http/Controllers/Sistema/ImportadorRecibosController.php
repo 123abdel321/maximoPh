@@ -270,7 +270,7 @@ class ImportadorRecibosController extends Controller
                                 ]);
                                 $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
     
-                                Facturacion::where($facturaDescuento->id_factura)
+                                Facturacion::where('id', $facturaDescuento->id_factura)
                                     ->update(['pronto_pago' => 1]);
                             }
                             
