@@ -158,6 +158,7 @@ class ImportadorRecibosController extends Controller
                     
                     $valorDisponible = $reciboImport->pago;
                     $valorRecibido = $reciboImport->pago;
+                    $valorPendiente = 0;
                     $this->fechaManual = $reciboImport->fecha_manual;
                     $this->consecutivo = $this->getNextConsecutive($comprobante->id, $this->fechaManual);
 
