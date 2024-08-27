@@ -83,12 +83,12 @@
                     </div>
                 @endif
 
-                <div id="input_nombre_persona_porteria" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
+                <div id="" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
                     <label for="example-text-input" class="form-control-label">Asunto</label>
                     <input type="text" class="form-control form-control-sm" name="asunto_pqrsf" id="asunto_pqrsf" onfocus="this.select();">
                 </div>
 
-                <div id="input_nombre_persona_porteria" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
+                <div id="" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
                     <label for="example-text-input" class="form-control-label">Mensaje<span style="color: red">*</span></label>
                     <textarea class="form-control form-control-sm" id="mensaje_pqrsf" name="mensaje_pqrsf" rows="2" required></textarea>
                 </div>

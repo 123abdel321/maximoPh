@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('tipo_vehiculo')->nullable()->default(0)->comment('0 - Ninguno; 1 - Carro; 2 - Moto; 3 - Otros;');
             $table->integer('tipo_mascota')->nullable()->default(0)->comment('0 - Perro; 1 - Gato; 2 - Otros;');
             $table->string('nombre', 600)->nullable();
+            $table->string('documento', 200)->nullable();
             $table->string('dias', 100)->nullable();
             $table->string('placa', 100)->nullable();
             $table->date('hoy', 100)->nullable();

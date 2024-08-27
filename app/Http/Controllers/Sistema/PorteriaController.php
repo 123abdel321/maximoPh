@@ -123,22 +123,16 @@ class PorteriaController extends Controller
             }
             
             if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2 && $request->get("search")) {
-                $nitSearch = $this->nitsSearch($request->get("search"));
                 $porteria->where('id_nit', $usuarioEmpresa->id_nit)
                     ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
-                    ->when(count($nitSearch), function ($query) use($nitSearch) {
-                        $query->orWhereIn('id_nit', $nitSearch);
-                    });
+                    ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
             } else if ($request->get("search")){
-                $nitSearch = $this->nitsSearch($request->get("search"));
                 $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
-                    ->when(count($nitSearch), function ($query) use($nitSearch) {
-                        $query->orWhereIn('id_nit', $nitSearch);
-                    });
+                    ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
             }
             
             if ($request->get("id_nit")) $porteria->where('id_nit', $request->get("id_nit"));
@@ -231,6 +225,7 @@ class PorteriaController extends Controller
             DB::connection('max')->beginTransaction();
 
             $file = $request->file('imagen_porteria');
+            $nitData = Nits::find($request->get('id_nit_porteria'));
 
             $usuarioEmpresa = null;
             if ($request->get('id_nit_porteria')) {
@@ -243,6 +238,15 @@ class PorteriaController extends Controller
                     ->first();
             }
 
+            if (!$usuarioEmpresa) {
+                DB::connection('max')->rollback();
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>'El nit '.$nitData->nombre_completo.' no tiene usuario asociado'
+                ], 422);
+            }
+
             //ACTUALIZAR
             if ($request->get('id_porteria_up')) {
                 Porteria::where('id', $request->get('id_porteria_up'))
@@ -250,6 +254,7 @@ class PorteriaController extends Controller
                         'tipo_porteria' => $request->get('tipo_porteria_create'),
                         'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
                         'tipo_mascota' => $request->get('tipo_mascota_porteria'),
+                        'documento' => $request->get('documento_persona_porteria'),
                         'nombre' => $request->get('nombre_persona_porteria'),
                         'dias' => $this->getDiasString($request),
                         'placa' => $request->get('placa_persona_porteria'),
@@ -274,6 +279,7 @@ class PorteriaController extends Controller
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
                     'tipo_mascota' => $request->get('tipo_mascota_porteria'),
                     'nombre' => $request->get('nombre_persona_porteria'),
+                    'documento' => $request->get('documento_persona_porteria'),
                     'dias' => $this->getDiasString($request),
                     'placa' => $request->get('placa_persona_porteria'),
                     'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,

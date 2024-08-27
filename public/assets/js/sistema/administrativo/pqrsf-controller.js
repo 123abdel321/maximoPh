@@ -2,6 +2,16 @@ var swiper = null;
 var pqrsf_table = null;
 var $comboUsuarioPqrsf = null
 var quill = null;
+var diaPqrsf = [
+    "diaPqrsf0",
+    "diaPqrsf1",
+    "diaPqrsf2",
+    "diaPqrsf3",
+    "diaPqrsf4",
+    "diaPqrsf5",
+    "diaPqrsf6",
+    "diaPqrsf7"
+];
 
 function pqrsfInit() {
     dateNow = new Date();
@@ -228,7 +238,7 @@ function loadingDataPqrsf() {
     document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
 }
 
-$('.input-images-pqrsf').imageUploader({
+var dataImagenes = $('.input-images-pqrsf').imageUploader({
     imagesInputName: 'photos',
     preloadedInputName: 'old',
     maxSize: 2 * 1024 * 1024,
@@ -352,4 +362,14 @@ $("#form-pqrsf").submit(function(e) {
 
 function clearFormPqrsf () {
     
+    $("#id_usuario_pqrsf").val('').change();
+    $("#hora_inicio_pqrsf").val("");
+    $("#hora_fin_pqrsf").val("");
+    $("#asunto_pqrsf").val("");
+    $("#mensaje_pqrsf").val("");
+    $("#asunto_pqrsf").val("");
+    
+    diaPqrsf.forEach(dia => {
+        $('#'+dia).prop('checked', false);
+    });
 }

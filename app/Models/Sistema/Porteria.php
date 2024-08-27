@@ -20,6 +20,7 @@ class Porteria extends Model
         'tipo_vehiculo',
         'tipo_mascota',
         'nombre',
+        'documento',
         'dias',
         'placa',
         'hoy',
