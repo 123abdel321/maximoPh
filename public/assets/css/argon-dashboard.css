@@ -9470,7 +9470,7 @@ textarea.form-control-lg {
 }
 
 .bg-warning {
-  background-color: var(--bs-primary) !important;
+  background-color: #fd7e14 !important;
 }
 
 .bg-danger {
@@ -19116,7 +19116,7 @@ textarea.form-control-lg {
 }
 
 .badge.bg-warning {
-  background: var(--bs-primary);
+  background: #fd7e14;
 }
 
 .badge.bg-danger {

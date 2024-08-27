@@ -75,8 +75,12 @@ class PqrsfController extends Controller
                     'updated_by'
                 );
 
-            if ($request->get('search')) {
-            }
+            if ($request->get('fecha_desde')) $pqrsf->where('created_at', '>=', $request->get('fecha_desde'));
+            if ($request->get('fecha_hasta')) $pqrsf->where('created_at', '<=', $request->get('fecha_hasta'));
+            if ($request->get('id_nit')) $pqrsf->where('id_nit', $request->get('id_nit'));
+            if ($request->get('tipo')) $pqrsf->where('tipo', $request->get('tipo'));
+            if ($request->get('area')) $pqrsf->where('area', $request->get('area'));
+            if ($request->get('estado') || $request->get('estado') == '0') $pqrsf->where('estado', $request->get('estado'));
 
             $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
                 ->where('id_usuario', $request->user()['id'])
@@ -142,6 +146,7 @@ class PqrsfController extends Controller
         $rules = [
             'id_usuario_pqrsf' => 'nullable|exists:clientes.users,id',
             'tipo_pqrsf' => 'required',
+            'area_pqrsf' => 'required',
             'hora_inicio_pqrsf' => 'nullable',
             'hora_fin_pqrsf' => 'nullable',
             'asunto_pqrsf' => 'nullable',
@@ -186,6 +191,7 @@ class PqrsfController extends Controller
                 'id_usuario' => $id_usuario_pqrsf,
                 'id_nit' => $id_nit,
                 'tipo' => $request->get("tipo_pqrsf"),
+                'area' => $request->get("area_pqrsf"),
                 'dias' => $this->getDiasString($request),
                 'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                 'asunto' => $request->get("asunto_pqrsf"),

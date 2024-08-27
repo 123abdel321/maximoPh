@@ -117,7 +117,7 @@
                     </div>
                 </div>
                 <!-- BOTON AGREGAR TIEMPO DISABLED -->
-                <div id="content-button-time-pqrsf-disabled" class="col-1 content-button-status-pqrsf" style="display: block; cursor: no-drop;">
+                <div id="content-button-time-pqrsf-disabled" class="col-1 content-button-status-pqrsf" style="display: none; cursor: no-drop;">
                     <div class="button-change-status-disabled">
                         <i id="content-button-add-time-iconNormal" style="position: relative; top: 42%; transform: translateY(-50%); margin-left: 5px; -webkit-transform: translateY(-50%); cursor: no-drop;" class="fas fa-stopwatch"></i>
                     </div>

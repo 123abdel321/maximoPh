@@ -14,7 +14,12 @@ var diaPqrsf = [
 ];
 
 function pqrsfInit() {
+    var fechaDesde = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     dateNow = new Date();
+
+    $('#fecha_desde_pqrsf_filter').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
+    $('#fecha_hasta_pqrsf_filter').val(fechaDesde);
+
     pqrsf_table  = $('#pqrsfTable').DataTable({
         pageLength: 20,
         dom: 'Brtip',
@@ -35,6 +40,14 @@ function pqrsfInit() {
             type: "GET",
             headers: headers,
             url: base_url + 'pqrsf',
+            data: function ( d ) {
+                d.fecha_desde = $('#fecha_desde_pqrsf_filter').val();
+                d.fecha_hasta = $('#fecha_hasta_pqrsf_filter').val();
+                d.id_nit = $('#id_nit_pqrsf_filter').val();
+                d.tipo = $('#tipo_pqrsf_filter').val();
+                d.area = $('#area_pqrsf_filter').val();
+                d.estado = $('#estado_pqrsf_filter').val();
+            }
         },
         columns: [
             {"data":'id'},
@@ -45,7 +58,7 @@ function pqrsfInit() {
                 if (row.estado == '2') {
                     return `<span class="badge bg-success">CERRADO</span><br/>`;
                 }
-                return `<span class="badge bg-light text-dark">ACTIVO</span><br/>`;;
+                return `<span class="badge bg-warning">ACTIVO</span><br/>`;
             }},
             {"data": function (row, type, set){
                 if (row.tipo == 0) {
@@ -65,6 +78,24 @@ function pqrsfInit() {
                 }
                 if (row.tipo == 5) {
                     return `TAREA`;
+                }
+                return `NINGUNO`;
+            }},
+            {"data": function (row, type, set){
+                if (row.area == 1) {
+                    return `ADMINISTRACIÓN`;
+                }
+                if (row.area == 2) {
+                    return `SEGURIDAD`;
+                }
+                if (row.area == 3) {
+                    return `ASEO`;
+                }
+                if (row.area == 4) {
+                    return `MANTENIMIENTO`;
+                }
+                if (row.area == 5) {
+                    return `ZONAS COMUNES`;
                 }
                 return `NINGUNO`;
             }},
@@ -92,7 +123,7 @@ function pqrsfInit() {
             {"data": function (row, type, set){
                 return `<div  class="text-wrap width-500">${row.descripcion}</div >`;
             }},
-            {"data":'created_at'},
+            {"data":'fecha_creacion'},
             
             {
                 "data": function (row, type, set){
@@ -213,6 +244,39 @@ function pqrsfInit() {
             }
         }
     });
+
+    $('#id_nit_pqrsf_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        language: {
+            noResults: function() {
+                return "No hay resultado";          
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 }
 
 function loadingDataPqrsf() {
@@ -319,6 +383,30 @@ $(document).on('change', '#tipo_pqrsf', function () {
     }
 });
 
+$(document).on('change', '#fecha_desde_pqrsf_filter', function () {
+    pqrsf_table.ajax.reload();
+});
+
+$(document).on('change', '#fecha_hasta_pqrsf_filter', function () {
+    pqrsf_table.ajax.reload();
+});
+
+$(document).on('change', '#id_nit_pqrsf_filter', function () {
+    pqrsf_table.ajax.reload();
+});
+
+$(document).on('change', '#tipo_pqrsf_filter', function () {
+    pqrsf_table.ajax.reload();
+});
+
+$(document).on('change', '#area_pqrsf_filter', function () {
+    pqrsf_table.ajax.reload();
+});
+
+$(document).on('change', '#estado_pqrsf_filter', function () {
+    pqrsf_table.ajax.reload();
+});
+
 $("#form-pqrsf").submit(function(e) {
     e.preventDefault();
 
@@ -368,6 +456,8 @@ function clearFormPqrsf () {
     $("#asunto_pqrsf").val("");
     $("#mensaje_pqrsf").val("");
     $("#asunto_pqrsf").val("");
+    $("#area_pqrsf").val(1);
+    
     
     diaPqrsf.forEach(dia => {
         $('#'+dia).prop('checked', false);

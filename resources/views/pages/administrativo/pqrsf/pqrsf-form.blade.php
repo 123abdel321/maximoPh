@@ -29,6 +29,17 @@
                     </select>
                 </div>
 
+                <div class="form-group col-6 col-sm-6 col-md-6">
+                    <label for="exampleFormControlSelect1">Área</label>
+                    <select class="form-control form-control-sm" id="area_pqrsf" name="area_pqrsf">
+                        <option value="1">ADMINISTRACIÓN</option>
+                        <option value="2">SEGURIDAD</option>
+                        <option value="3">ASEO</option>
+                        <option value="4">MANTENIMIENTO</option>
+                        <option value="5">ZONAS COMUNES</option>
+                    </select>
+                </div>
+
                 @if ($usuario_empresa->id_rol == 1 || $usuario_empresa->id_rol == 2)
                     <div id="input_id_usuario_pqrsf" class="form-group col-12 col-sm-6 col-md-6">
                         <label for="formZonaLabel">Usuario <span style="color: red">*</span></label>

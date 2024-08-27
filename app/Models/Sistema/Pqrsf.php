@@ -17,6 +17,7 @@ class Pqrsf extends Model
         'id_usuario',
         'id_nit',
         'tipo',
+        'area',
         'dias',
         'hoy',
         'asunto',
