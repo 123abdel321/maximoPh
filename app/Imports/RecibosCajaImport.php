@@ -105,30 +105,42 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     $inicioMes = $inicioMes.'-01';
                     $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
                     $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes, $fechaManual);
-                    
-                    $extracto = (new Extracto(
-                        $nit->id,
-                        [3,7],
-                    ))->completo()->first();
-                    
                     $pagoTotal = floatval($row['valor']);
 
-                    if ($extracto && $extracto->saldo) {
-                        $valorPendiente = $extracto->saldo;
-                        $prontoPago = 0;
-                        $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $valorPendiente);
-                        $pagoTotal+= $descuentoProntoPago;
-    
-                        if (($valorPendiente - $pagoTotal) < 0) {
-                            $anticipo+= $pagoTotal - $extracto->saldo;
+                    if (!$conceptoFacturacion) {
+
+                        $extracto = (new Extracto(
+                            $nit->id,
+                            [3,7],
+                        ))->completo()->first();
+
+                        $extractoCXC = (new Extracto(
+                            $nit->id,
+                            [4,8],
+                        ))->completo()->first();
+                        $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
+
+                        if ($extracto && $extracto->saldo) {
+                            $valorPendiente = $extracto->saldo;
+                            $prontoPago = 0;
+
+                            $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
+
+                            $pagoTotal+= $descuentoProntoPago;
+                            $pagoTotal+= $extractoCXC;
+                            if (($valorPendiente - $pagoTotal) < 0) {
+                                $anticipo+= $pagoTotal - $extracto->saldo;
+                            }
+                        } else {
+                            $anticipo+= $row['valor'];
                         }
-                    } else {
-                        $anticipo+= $row['valor'];
                     }
                 }
             }
 
-            $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
+            if (!$conceptoFacturacion) {
+                $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
+            }
 
             ConRecibosImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
@@ -169,10 +181,10 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
         ];
     }
 
-    private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago)
-    {
+    private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $extractoCXC)
+    {   
         if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
-            if ($totalPago + $facturaDescuento->descuento >= $extracto->saldo) {
+            if ($totalPago + $facturaDescuento->descuento + $extractoCXC >= $extracto->saldo) {
                 return $facturaDescuento->descuento;
             }
         }
