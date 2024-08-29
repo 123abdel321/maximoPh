@@ -325,7 +325,7 @@ function porteriaInit() {
                 $("#default_avatar_porteria").show();
                 $('#default_avatar_porteria').attr('src', bucketUrl+data.archivos[0].url_archivo);
             } else {
-                $("#new_avatar_porteria").show();
+                $("#new_avatar_porteria").hide();
                 $("#default_avatar_porteria").show();
                 $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
             }
