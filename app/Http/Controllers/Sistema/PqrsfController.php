@@ -46,7 +46,7 @@ class PqrsfController extends Controller
                 ->where('id_usuario', $request->user()['id'])
                 ->first()
         ];
-
+        
         return view('pages.administrativo.pqrsf.pqrsf-view', $data);
     }
 
@@ -65,8 +65,7 @@ class PqrsfController extends Controller
             $columnName = $columnName_arr[$columnIndex]['data']; // Column name
             $columnSortOrder = $order_arr[0]['dir']; // asc or desc
 
-            $pqrsf = Pqrsf::orderBy($columnName,$columnSortOrder)
-                ->with('archivos', 'usuario', 'nit')
+            $pqrsf = Pqrsf::with('archivos', 'usuario', 'nit')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -86,9 +85,7 @@ class PqrsfController extends Controller
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
 
-            if ($usuario_empresa->id_rol == 1 || $usuario_empresa->id_rol == 2) {
-                
-            } else {
+            if ($usuario_empresa->id_rol == 3 || $usuario_empresa->id_rol == 4) {
                 $pqrsf->where('id_usuario', $request->user()['id'])
                     ->orWhere('created_by', $request->user()['id'])
                     ->orWhere('id_nit', $usuario_empresa->id_nit);

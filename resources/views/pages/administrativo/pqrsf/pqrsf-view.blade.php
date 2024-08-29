@@ -24,7 +24,7 @@
         <div id="items-tabla-pqrsf" class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
 
-                @include('pages.administrativo.pqrsf.pqrsf-table')
+                @include('pages.administrativo.pqrsf.pqrsf-table', ['usuario_empresa' => $usuario_empresa])
 
                 <!-- <div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress">
                     <div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab;">
