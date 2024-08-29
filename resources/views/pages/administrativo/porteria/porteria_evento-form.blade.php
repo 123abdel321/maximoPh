@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" style="contain: content;" role="document">
         <form id="form-porteria-evento" class="modal-content" style="margin-top: 10px;" enctype="multipart/form-data">
             <div class="modal-header">
-                <h5 class="modal-title" id="textPorteriaCreate" style="display: block;">Agregar evento</h5>
+                <h5 class="modal-title" id="textPorteriaEventoCreate" style="display: block;">Agregar evento</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
