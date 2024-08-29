@@ -74,8 +74,8 @@ class PqrsfController extends Controller
                     'updated_by'
                 );
 
-            if ($request->get('fecha_desde')) $pqrsf->where('created_at', '>=', $request->get('fecha_desde'));
-            if ($request->get('fecha_hasta')) $pqrsf->where('created_at', '<=', $request->get('fecha_hasta'));
+            if ($request->get('fecha_desde')) $pqrsf->where('created_at', '>=', $request->get('fecha_desde').' 23:59:59');
+            if ($request->get('fecha_hasta')) $pqrsf->where('created_at', '<=', $request->get('fecha_hasta').' 23:59:59');
             if ($request->get('id_nit')) $pqrsf->where('id_nit', $request->get('id_nit'));
             if ($request->get('tipo')) $pqrsf->where('tipo', $request->get('tipo'));
             if ($request->get('area')) $pqrsf->where('area', $request->get('area'));
