@@ -303,6 +303,7 @@ function porteriaInit() {
         //EDITAR PORTERIA
         porteria_table.on('click', '.edit-porteria', function() {
             clearFormPorteria();
+
             $("#textPorteriaCreate").hide();
             $("#textPorteriaUpdate").show();
             $("#savePorteriaLoading").hide();
@@ -847,6 +848,9 @@ function clearFormPorteria() {
     $('#new_avatar_porteria').hide();
     $('#default_avatar_porteria').show();
     $('#default_avatar_porteria').attr('src', '/img/add-imagen.png');
+
+    $("#textPorteriaCreate").show();
+    $("#textPorteriaUpdate").hide();
 
     $("#id_porteria_up").val("");
     $("#tipo_porteria_create").val(1);
