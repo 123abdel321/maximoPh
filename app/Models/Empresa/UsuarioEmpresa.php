@@ -35,4 +35,9 @@ class UsuarioEmpresa extends Model
     {
         return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
     }
+
+    public function rol()
+    {
+        return $this->belongsTo("App\Models\Empresa\RolesGenerales", 'id_rol');
+    }
 }

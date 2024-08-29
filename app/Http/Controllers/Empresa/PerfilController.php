@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Empresa;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
@@ -12,6 +13,8 @@ use App\Models\User;
 use App\Models\Sistema\Zonas;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
+use App\Models\Sistema\InmuebleNit;
+
 use App\Models\Empresa\UsuarioEmpresa;
 
 class PerfilController extends Controller
@@ -32,13 +35,14 @@ class PerfilController extends Controller
 
     public function index (Request $request)
     {
-        $usuarioEmpresa = UsuarioEmpresa::with('nit')
+        $usuarioEmpresa = UsuarioEmpresa::with('nit', 'rol')
             ->where('id_empresa', $request->user()['id_empresa'])
             ->where('id_usuario', $request->user()['id'])
             ->first();
-
+        
         $data = [
-            'usuario_nit' => $usuarioEmpresa->nit
+            'usuario_nit' => $usuarioEmpresa->nit,
+            'nombre_rol' => $usuarioEmpresa->rol->nombre
         ];
 
         return view('pages.configuracion.perfil.perfil-view', $data);
@@ -76,13 +80,21 @@ class PerfilController extends Controller
                 'primer_nombre' => $request->get('primer_nombre'),
                 'otros_nombres' => $request->get('otros_nombres'),
                 'email' => $request->get('email'),
+                'email_1' => $request->get('email_1'),
+                'email_2' => $request->get('email_2'),
                 'telefono_1' => $request->get('telefono_1'),
+            ]);
+
+        InmuebleNit::where('id_nit', $usuarioEmpresa->id_nit)
+            ->update([
+                'enviar_notificaciones_mail' => $request->get('notificaciones_mail'),
+                'enviar_notificaciones_fisica' => $request->get('notificaciones_fisica')
             ]);
 
         if ($request->get('password')) {
             User::where('id', $request->user()['id'])
                 ->update([
-                    'password' => $request->get('password')
+                    'password' => Hash::make($request->get('password')),
                 ]);
         }
 
@@ -159,9 +171,26 @@ class PerfilController extends Controller
             ->where('id_usuario', $request->user()['id'])
             ->first();
 
+        $notificaciones = DB::connection('max')->select("SELECT
+                enviar_notificaciones_mail,
+                enviar_notificaciones_fisica
+            FROM
+                inmueble_nits
+                
+            WHERE id_nit = {$usuarioEmpresa->nit->id}
+            
+            GROUP BY id_nit
+        ");
+
+        $notificaciones = collect($notificaciones);
+        $notificaciones = count($notificaciones) ? $notificaciones[0] :  null;
+
         return response()->json([
             'success'=>	true,
             'data' => $usuarioEmpresa->nit,
+            'fondo_sistema' => $request->user()->fondo_sistema,
+            'notificaciones_mail' => $notificaciones ? $notificaciones->enviar_notificaciones_mail : false,
+            'notificaciones_fisica' => $notificaciones ? $notificaciones->enviar_notificaciones_fisica : false,
             'message'=> 'Datos nit consultados con exito!'
         ]);
     }

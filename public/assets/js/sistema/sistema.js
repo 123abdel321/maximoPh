@@ -145,7 +145,6 @@ $('#containner-dashboard').load('/dashboard', function() {
 });
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
-    // console.log('xhr: ',xhr);
     if(xhr.status == 401) {
         // document.getElementById('logout-form').submit();
     }
@@ -236,19 +235,14 @@ function iniciarCanalesDeNotificacion () {
 if (channelPqrsf) {
     channelPqrsf.bind('notificaciones', function(data) {
         var idPqrsfOpen = $("#id_pqrsf_up").val();
-        console.log('data: ',data);
-        console.log('data.data.estado: ',data.data);
-        console.log(data.id_pqrsf, idPqrsfOpen);
+
         if (data.id_pqrsf == idPqrsfOpen) {
             mostrarMensajesPqrsf(data.data);
             if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
             initSwipers();
             document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
-            console.log('data.created_by: ',data.data[0].created_by);
-            console.log('parseInt(id_usuario_logeado): ',parseInt(id_usuario_logeado));
             if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
         } else {
-            console.log('notificar');
             buscarNotificaciones();
         }
     });
@@ -257,9 +251,7 @@ if (channelPqrsf) {
 if (channelAdminPqrsf) {
     channelAdminPqrsf.bind('notificaciones', function(data) {
         var idPqrsfOpen = $("#id_pqrsf_up").val();
-        console.log('channelAdminPqrsf');
-        console.log('data: ',data.data);
-        console.log(data.id_pqrsf, idPqrsfOpen);
+
         if (data.id_pqrsf == idPqrsfOpen) {
             mostrarMensajesPqrsf(data.data);
             
@@ -436,7 +428,6 @@ function openPortafolioERP() {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-        console.log('res: ',res);
         window.open(base_web_erp + res.data, '_blank');
     }).fail((res) => {
     });
@@ -648,10 +639,6 @@ const lenguajeDatatable = {
 //         $("#button-login").show();
 //     });
 // });
-
-$(".btn-cerrar").click(function(event){
-    console.log('asdasd');
-});
 
 function swalFire(titulo, mensaje, estado = true){
     var status = estado ? 'success' : 'error';
@@ -1035,16 +1022,13 @@ function formatCurrency(input, blur, decimal = 2) {
         // add commas to left side of number
         left_side = formatNumber(left_side);
         // validate right side
-        console.log('right_side0: ',right_side);
         // right_side = formatNumber(right_side);
-        console.log('right_side1: ',right_side);
         // On blur make sure 2 numbers after decimal
         if (blur === "blur" && !right_side) {
             right_side += "00";
         }
         // Limit decimal to only 2 digits
         // right_side = right_side.substring(0, decimal);
-        console.log('right_side2: ',right_side);
         input_val = left_side + "" + right_side;
     } else {
         input_val = formatNumber(input_val);
@@ -1209,10 +1193,10 @@ function mostrarMensajesPqrsf(mensajes) {
 }
 
 function iniciarCronometroPqrsf(data) {
+    $("#content-button-time-pqrsf-disabled").hide();
     if (data.tipo != 5) {
         return;
     }
-    $("#content-button-time-pqrsf-disabled").hide();
     if (!data.tiempos.length) {
         pararPqrsf();
         return;
@@ -1525,7 +1509,6 @@ function guardarInicioPqrsf() {
     }).done((res) => {
         if(res.success){
             inicioTimePqrsf();
-            console.log(res.mensaje);
             mostrarMensajesPqrsf(res.mensaje);
             $("#icon-loading-time-pqrsf").hide();
         }
@@ -1692,7 +1675,6 @@ function findDataPqrsf(id) {
         dataType: 'json',
     }).done((res) => {
         var data = res.data;
-
         $(".add-time-pqrsf").hide();
         document.getElementById("hms").innerHTML="00:00:00";
         horas = 0;
@@ -1712,7 +1694,6 @@ function findDataPqrsf(id) {
                 permisoAgregarTiempos = true;
             }
         } else {
-            console.log(id_usuario_logeado, data.id_usuario);
             if (id_usuario_logeado == data.id_usuario) {
                 if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
                 else $("#id_name_person_pqrsf").text(data.creador.firstname);
@@ -1725,14 +1706,13 @@ function findDataPqrsf(id) {
                     if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
                     else $("#id_name_person_pqrsf").text(data.usuario.firstname);
                     if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
-                } else if (data.creador.avatar) {
-                    $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+                } else if (data.creador) {
+                    if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
                 }
                 
                 permisoAgregarTiempos = false;
             }
         }
-
 
         mostrarAgregarTiempos = false;
         $("#content-button-time-pqrsf-disabled").show();

@@ -26,7 +26,6 @@ function perfilInit() {
     }).done((res) => {
         if (res.data) {
             var data = res.data;
-
             if(data.tipo_documento){
                 var dataCuenta = {
                     id: data.tipo_documento.id,
@@ -42,8 +41,15 @@ function perfilInit() {
             $("#otros_nombres_perfil").val(data.otros_nombres);
             $("#primer_apellido_perfil").val(data.primer_nombre);
             $("#segundo_apellido_perfil").val(data.segundo_apellido);
+            $("#razon_social_perfil").val(data.razon_social);
             $("#email_perfil").val(data.email);
+            $('#default_fondo_sistema').attr('src', 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/'+res.fondo_sistema);
             $("#telefono_1_perfil").val(data.telefono_1);
+            $("#email_1_perfil").val(data.email_1);
+            $("#email_2_perfil").val(data.email_2);
+            $('#enviar_notificaciones_mail').prop('checked', res.notificaciones_mail ? true : false);
+            $('#enviar_notificaciones_fisica').prop('checked', res.notificaciones_fisica ? true : false);
+
         }
     }).fail((err) => {
     });
@@ -52,20 +58,14 @@ function perfilInit() {
 function readURLperfil(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
-
         reader.onload = function (e) {
             newImgProfile = e.target.result;
-            $('#imagen_perfil').attr('src', e.target.result);
-            $('#new_avatar_perfil').attr('src', e.target.result);
+            $('#default_avatar_perfil').show();
+            $('#default_name_perfil').hide();
+            $('#default_avatar_perfil').attr('src', e.target.result);
         };
 
         reader.readAsDataURL(input.files[0]);
-
-        $('#default_avatar_perfil').hide();
-        $('#new_avatar_perfil').show();
-
-        $("#updatePerfil").hide();
-        $("#updatePerfilLoading").show();
 
         var ajxForm = document.getElementById("perfil-imagen");
         var data = new FormData(ajxForm);
@@ -170,6 +170,11 @@ $(document).on('click', '#updatePerfil', function () {
         segundo_apellido: $('#segundo_apellido_perfil').val(),
         email: $('#email_perfil').val(),
         telefono_1: $('#telefono_1_perfil').val(),
+        email_1: $("#email_1_perfil").val(),
+        email_2: $("#email_2_perfil").val(),
+        password: $("#password_usuario_perfil").val(),
+        notificaciones_mail: $("input[type='checkbox']#enviar_notificaciones_mail").is(':checked') ? '1' : '0',
+        notificaciones_fisica: $("input[type='checkbox']#enviar_notificaciones_fisica").is(':checked') ? '1' : '0',
     }
 
     $.ajax({
