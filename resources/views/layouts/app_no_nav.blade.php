@@ -603,6 +603,8 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
     <!-- End Google Tag Manager -->
+
+    <!-- <script src="https://www.google.com/recaptcha/enterprise.js?render=6LdrmRwqAAAAAPoXC1Sa2jo6zwGHW0V4lX0HYDgc"></script> -->
 </head>
 
 <body class="{{ $class ?? '' }} ">
@@ -642,7 +644,7 @@
 
     <script type="module">
         //LOCAL
-        
+
         // const base_url = 'http://127.0.0.1:8090/api/';
         // const base_web = 'http://127.0.0.1:8090/';
         //DEV
@@ -655,6 +657,13 @@
         $("#button-login").click(function(event){
             sendDataLogin();
         });
+
+        // function onClick(e) {
+        //     e.preventDefault();
+        //     grecaptcha.enterprise.ready(async () => {
+        //     const token = await grecaptcha.enterprise.execute('6LdrmRwqAAAAAPoXC1Sa2jo6zwGHW0V4lX0HYDgc', {action: 'LOGIN'});
+        //     });
+        // }
 
         function changePassWord(event) {
             if(event.keyCode == 13) {
@@ -713,6 +722,7 @@
                 $("#button-login-loading").hide();
                 $("#button-login").show();
                 $('#error-login').show();
+                window.location.href = '/login';
             });
         }
     </script>
