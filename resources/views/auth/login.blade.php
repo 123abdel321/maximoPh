@@ -6,12 +6,13 @@
 
     <style>
         .card-principal {
-            position: absolute;
-            left: 50%;
-            margin-right: -50%;
-            transform: translate(-50%, 10%);
             text-align: center;
             width: 400px;
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         .card-principal-header {
             background-image: url("https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo-header.jpg");
@@ -30,7 +31,6 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-
                  
         .btn-grad {
             background-image: linear-gradient(to right, #1A2980 0%, #096c7e 51%, #1A2980 100%);
