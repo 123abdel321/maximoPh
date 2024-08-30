@@ -670,6 +670,23 @@
                 sendDataLogin();
             }
         }
+
+        $(document).on('keypress', '#email_login', function (event) {
+            console.log('keypress: ',event.keyCode);
+            if (event.keyCode == 13) {
+                setTimeout(function(){
+                    $('#password_login').focus();
+                    $('#password_login').select();
+                },10);
+            }
+        });
+
+        $(document).on('keypress', '#password_login', function (event) {
+            console.log('keypress: ',event.keyCode);
+            if (event.keyCode == 13) {
+                sendDataLogin();
+            }
+        });
         
         function sendDataLogin() {
 
@@ -697,8 +714,8 @@
                 },
                 dataType: 'json',
             }).done((res) => {
-                $("#button-login-loading").hide();
-                $("#button-login").show();
+                // $("#button-login-loading").hide();
+                // $("#button-login").show();
                 if(res.success){
                     localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
                     localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
@@ -722,7 +739,10 @@
                 $("#button-login-loading").hide();
                 $("#button-login").show();
                 $('#error-login').show();
-                window.location.href = '/login';
+                setTimeout(function(){
+                    window.location.href = '/login';
+                },500);
+                
             });
         }
     </script>
