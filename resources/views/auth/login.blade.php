@@ -78,7 +78,7 @@
                 hola
             </div> -->
             <div class="container card-principal">
-                <div class="card card-plain" style="background-color: #081329;">
+                <div class="card" style="background-color: #081329;">
                     <div class="card-header card-principal-header pb-0 text-start">
                         <div style="text-align: center;">
                             <img src="/img/logo_base_sin_texto.png" class="navbar-brand-img h-20 position-relative" style="width: 40px; align-self: center;" alt="main_logo-login">
