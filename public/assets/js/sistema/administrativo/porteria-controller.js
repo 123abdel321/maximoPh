@@ -87,7 +87,7 @@ function porteriaInit() {
                 
                 return `<img
                     id="eventoporteriaimagen_${row.id}"
-                    class="evento-porteria"
+                    class="detalle-imagen"
                     style="height: 40px; border-radius: 10%; cursor: pointer;"
                     href="javascript:void(0)"
                     src="${bucketUrl}${urlImg}"
@@ -462,6 +462,20 @@ function porteriaInit() {
                 agregarToast('error', 'Error al cargar evento', errorsMsg);
             });
 
+        });
+        //DETALLE PORTERIA
+        porteria_table.on('click', '.detalle-imagen', function() {
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, porteria_table);
+            if (data.archivos.length) {
+                var texto = data.nombre;
+                var img = bucketUrl+data.archivos[0].url_archivo;
+                if (data.tipo_porteria == 3 || data.tipo_porteria == 4 && data.placa) texto = data.placa;
+
+                $("#imagen-porteria-preview").css("background-image", "url("+img+")");
+                $("#textPorteriaPreview").text(texto);
+                $("#porteriaPreviewModal").modal('show');
+            }
         });
     }
 
@@ -1109,3 +1123,12 @@ function formatPorteriaCombo (porteria) {
 function formatPorteriaSelection (producto) {
     return producto.text;
 }
+
+$(document).on('click', '#reloadPorteria', function () {
+    $("#reloadPorteriaIconNormal").hide();
+    $("#reloadPorteriaIconLoading").show();
+    porteria_table.ajax.reload(function (res) {
+        $("#reloadPorteriaIconNormal").show();
+        $("#reloadPorteriaIconLoading").hide();
+    }); 
+});

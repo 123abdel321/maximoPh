@@ -65,6 +65,13 @@
         -webkit-box-orient: vertical;
     }
 
+    .imagen-porteria-preview {
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-attachment: local;
+        height: 500px;
+    }
 </style>
 <div class="container-fluid py-2">
     <div class="row">
@@ -88,6 +95,11 @@
                         Nuevo registro
                     </button>
                 @endcan
+
+                <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadPorteria">
+                    <i id="reloadPorteriaIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                    <i id="reloadPorteriaIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                </button>
             </div>
         </div>
 
@@ -107,6 +119,7 @@
             </div>
         </div>
 
+        @include('pages.administrativo.porteria.porteria_preview')
         @include('pages.administrativo.porteria.porteria_evento-form')
         @include('pages.administrativo.porteria.porteria_evento-show')
         @include('pages.administrativo.porteria.porteria-form', ['usuario_rol' => $usuario_rol])

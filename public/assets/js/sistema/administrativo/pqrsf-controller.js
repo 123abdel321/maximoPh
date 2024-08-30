@@ -463,3 +463,12 @@ function clearFormPqrsf () {
         $('#'+dia).prop('checked', false);
     });
 }
+
+$(document).on('click', '#reloadPqrsf', function () {
+    $("#reloadPqrsfIconNormal").hide();
+    $("#reloadPqrsfIconLoading").show();
+    pqrsf_table.ajax.reload(function (res) {
+        $("#reloadPqrsfIconNormal").show();
+        $("#reloadPqrsfIconLoading").hide();
+    }); 
+});

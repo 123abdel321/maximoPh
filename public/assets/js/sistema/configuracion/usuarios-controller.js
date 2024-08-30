@@ -78,7 +78,7 @@ function usuariosInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, usuarios_table);
-            console.log(data);
+            
             $('#password_usuario').val('');
             $('#password_confirm').val('');
             $("#id_usuarios_up").val(data.id);
@@ -237,8 +237,9 @@ function usuariosInit() {
         var data = $('#id_nit_usuario').select2('data');
         if (data.length == 0) return;
         data = data[0];
-        if (!data.email) agregarToast('error', 'Nit incompleto!', 'El nit no tiene email signado');
-        else $("#email_usuario").val(data.email);
+        if (data.text) return;
+
+        $("#email_usuario").val(data.email);
 
         if (data.primer_nombre) $("#firstname_usuario").val(data.primer_nombre);
         if (data.primer_apellido) $("#lastname_usuario").val(data.primer_apellido);

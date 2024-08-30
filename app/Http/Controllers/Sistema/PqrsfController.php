@@ -72,9 +72,10 @@ class PqrsfController extends Controller
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
                     'created_by',
                     'updated_by'
-                );
+                )
+                ->orderBy('id', 'DESC');
 
-            if ($request->get('fecha_desde')) $pqrsf->where('created_at', '>=', $request->get('fecha_desde').' 23:59:59');
+            if ($request->get('fecha_desde')) $pqrsf->where('created_at', '>=', $request->get('fecha_desde'));
             if ($request->get('fecha_hasta')) $pqrsf->where('created_at', '<=', $request->get('fecha_hasta').' 23:59:59');
             if ($request->get('id_nit')) $pqrsf->where('id_nit', $request->get('id_nit'));
             if ($request->get('tipo')) $pqrsf->where('tipo', $request->get('tipo'));

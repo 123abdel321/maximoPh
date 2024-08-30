@@ -3,7 +3,7 @@
     <div class="row">
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
-            <div class="col-12 col-md-4 col-sm-4">
+            <div class="col-12 col-md-6 col-sm-6">
                 @can('pqrsf create')
                     <button type="button" class="btn btn-primary btn-sm" id="generatePqrsfNuevo">
                         Agregar pqrsf
@@ -15,8 +15,13 @@
                         Redactar email
                     </button>
                 @endcan
+
+                <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadPqrsf">
+                    <i id="reloadPqrsfIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                    <i id="reloadPqrsfIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                </button>
             </div>
-            <div class="col-12 col-md-8 col-sm-8">
+            <div class="col-12 col-md-6 col-sm-6">
                 <input type="text" id="searchInputPqrsf" class="form-control form-control-sm search-table" onkeydown="searchPqrsf(event)" placeholder="Buscar">
             </div>
         </div>
