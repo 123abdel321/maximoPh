@@ -51,12 +51,9 @@ class ConceptoFacturacionController extends Controller
             $order_arr = $request->get('order');
             $search_arr = $request->get('search');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             $searchValue = $search_arr['value']; // Search value
 
-            $conceptoFacturacion = ConceptoFacturacion::orderBy($columnName,$columnSortOrder)
+            $conceptoFacturacion = ConceptoFacturacion::orderBy('id', 'DESC')
                 ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
                 ->where('nombre_concepto', 'like', '%' .$searchValue . '%')
                 ->select(

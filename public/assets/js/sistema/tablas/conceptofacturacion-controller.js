@@ -17,6 +17,7 @@ function conceptofacturacionInit() {
         fixedHeader: true,
         deferLoading: 0,
         initialLoad: false,
+        ordering: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
         fixedColumns : {

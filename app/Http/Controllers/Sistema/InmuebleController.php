@@ -68,11 +68,7 @@ class InmuebleController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-
-            $inmueble = Inmueble::orderBy($columnName,$columnSortOrder)
+            $inmueble = Inmueble::orderBy('id', 'DESC')
                 ->with('zona', 'concepto', 'personas.nit')
                 ->select(
                     '*',

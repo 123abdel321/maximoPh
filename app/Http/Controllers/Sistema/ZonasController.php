@@ -43,12 +43,9 @@ class ZonasController extends Controller
             $order_arr = $request->get('order');
             $search_arr = $request->get('search');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             $searchValue = $search_arr['value']; // Search value
 
-            $zonas = Zonas::orderBy($columnName,$columnSortOrder)
+            $zonas = Zonas::orderBy('id', 'DESC')
                 ->with('cecos')
                 ->where('nombre', 'like', '%' .$searchValue . '%')
                 ->select(
