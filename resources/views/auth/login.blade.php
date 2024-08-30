@@ -26,7 +26,7 @@
             background-color: #075260;
             background-image: url(https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/%E2%80%94Pngtree%E2%80%94architecture%20high%20rise%20building%20drawing_6959760.png);
             background-position: bottom;
-            background-size: inherit;
+            background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
