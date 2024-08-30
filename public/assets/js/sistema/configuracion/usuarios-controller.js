@@ -1,9 +1,11 @@
 var usuarios_table = null;
+var $comboNitUsuario = null;
 var $comboBodegaUsuario = null;
+var $comboNitUsuarioFilter = null;
 var $comboResolucionUsuario = null;
 
 function usuariosInit() {
-
+    
     usuarios_table =  $('#usuariosTable').DataTable({
         pageLength: 15,
         dom: 'Brtip',
@@ -24,15 +26,16 @@ function usuariosInit() {
             type: "GET",
             headers: headers,
             url: base_url + 'usuarios',
+            data: function ( d ) {
+                d.id_nit = $("#id_nit_usuario_filter").val(),
+                d.id_rol = $("#id_rol_usuario_filter").val(),
+                d.search = $("#searchInputUsuarios").val()
+            }
         },
         columns: [
             {"data":'username'},
-            {"data": function (row, type, set){
-                if (row.permisos.length > 0) {
-                    return row.permisos[0].rol.nombre;
-                }
-                return '';
-            }},
+            {"data":'nombre_rol'},
+            {"data":'nombre_completo'},
             {"data":'firstname'},
             {"data":'email'},
             {"data":'telefono'},
@@ -75,16 +78,29 @@ function usuariosInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, usuarios_table);
-            
+            console.log(data);
             $('#password_usuario').val('');
             $('#password_confirm').val('');
             $("#id_usuarios_up").val(data.id);
-            $("#rol_usuario").val(data.permisos[0].rol.id);
+            $("#rol_usuario").val(data.id_rol).change();
             $("#usuario").val(data.username);
             $("#email_usuario").val(data.email);
             $("#firstname_usuario").val(data.firstname);
             $("#lastname_usuario").val(data.lastname);
             $("#address_usuario").val(data.address);
+
+            if(data.id_nit) {
+                var dataNit = {
+                    id: data.id_nit,
+                    text: data.nombre_completo
+                };
+                var newOption = new Option(dataNit.text, dataNit.id, false, false);
+                $comboNitUsuario.append(newOption).trigger('change');
+                $comboNitUsuario.val(dataNit.id).trigger('change');
+            }
+
+            if (data.id_rol == 1) $("#div-id_nit_usuario").hide();
+            else $("#div-id_nit_usuario").show();
     
             $("#usuariosFormModal").modal('show');
         });
@@ -98,6 +114,136 @@ function usuariosInit() {
     $comboBodegaUsuario = $('#id_bodega_usuario').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#usuariosFormModal'),
+    });
+
+    $('#id_nit_usuario').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#usuariosFormModal'),
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboNitUsuario = $('#id_nit_usuario').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        dropdownParent: $('#usuariosFormModal'),
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";          
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboNitUsuarioFilter = $('#id_nit_usuario_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";          
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $(document).on('change', '#rol_usuario', function () {
+        var id_rol = $('#rol_usuario').val();
+        if (id_rol == 1) $("#div-id_nit_usuario").hide();
+        else $("#div-id_nit_usuario").show();
+    });
+
+    $(document).on('change', '#id_rol_usuario_filter', function () {
+        usuarios_table.ajax.reload();
+    });
+
+    $(document).on('change', '#id_nit_usuario_filter', function () {
+        usuarios_table.ajax.reload();
+    });
+
+    $(document).on('change', '#id_nit_usuario', function () {
+        var data = $('#id_nit_usuario').select2('data');
+        if (data.length == 0) return;
+        data = data[0];
+        if (!data.email) agregarToast('error', 'Nit incompleto!', 'El nit no tiene email signado');
+        else $("#email_usuario").val(data.email);
+
+        if (data.primer_nombre) $("#firstname_usuario").val(data.primer_nombre);
+        if (data.primer_apellido) $("#lastname_usuario").val(data.primer_apellido);
+        if (data.telefono_1) $("#telefono_usuario").val(data.telefono_1);
+        if (data.direccion) $("#address_usuario").val(data.direccion);
     });
 
     $('.water').hide();
@@ -121,8 +267,12 @@ function clearFormUsuarios(){
     $("#textUsuariosUpdate").hide();
     $("#saveUsuariosLoading").hide();
 
+    $('#rol_usuario').val("2");
+    $("#div-id_nit_usuario").show();
     $("#id_usuarios_up").val('');
+    $("#id_nit_usuario").val('').change();
     $("#usuario").val('');
+    $("#id_nit_usuario_filter").val('').change();
     $("#email_usuario").val('');
     $("#firstname_usuario").val('');
     $("#lastname_usuario").val('');
@@ -132,6 +282,7 @@ function clearFormUsuarios(){
     $("#id_resolucion_usuario").val('').change();
     $("#password_confirm").val('');
     $("#telefono_usuario").val('');
+
 }
 
 function usuarioNombre(event){
@@ -170,6 +321,7 @@ $(document).on('click', '#saveUsuarios', function () {
         password: $("#password_usuario").val(),
         telefono: $("#telefono_usuario").val(),
         id_bodega: $("#id_bodega_usuario").val(),
+        id_nit: $("#id_nit_usuario").val(),
         id_resolucion: $("#id_resolucion_usuario").val(),
         rol_usuario: $("#rol_usuario").val()
     }
@@ -262,6 +414,7 @@ $(document).on('click', '#updateUsuarios', function () {
         password: $("#password_usuario").val(),
         id_bodega: $("#id_bodega_usuario").val(),
         id_resolucion: $("#id_resolucion_usuario").val(),
+        id_nit: $("#id_nit_usuario").val(),
         telefono: $("#telefono_usuario").val(),
         rol_usuario: $("#rol_usuario").val()
     }

@@ -6,10 +6,13 @@ use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\User;
+use App\Models\Portafolio\Nits;
+
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
@@ -32,8 +35,13 @@ class UsuariosController extends Controller
 
     public function index (Request $request)
     {
+        $usuarioEmpresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+            ->where('id_usuario', $request->user()['id'])
+            ->first();
+
         $data = [
-            'roles' => RolesGenerales::where('id', '!=', 1)->get()
+            'roles' => RolesGenerales::where('id', '!=', 1)->get(),
+            'usuario_nit' => $usuarioEmpresa,
         ];
 
         return view('pages.configuracion.usuarios.usuarios-view', $data);
@@ -44,50 +52,115 @@ class UsuariosController extends Controller
         $draw = $request->get('draw');
         $start = $request->get("start");
         $rowperpage = $request->get("length");
+        $id_empresa = $request->user()['id_empresa'];
+        $rol_maximo = $request->user()['rol_maximo'];
 
-        $columnIndex_arr = $request->get('order');
-        $columnName_arr = $request->get('columns');
-        $order_arr = $request->get('order');
-        $search_arr = $request->get('search');
+        $filterSearch = '';
+        $filterMaximo = '';
+        $filterGeneral = '';
 
-        $columnIndex = $columnIndex_arr[0]['column']; // Column index
-        $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-        $columnSortOrder = $order_arr[0]['dir']; // asc or desc
-        $searchValue = $search_arr['value']; // Search value
-
-        $usuarios = User::orderBy($columnName,$columnSortOrder)
-            ->with('permisos.rol')
-            ->where('id_empresa', $request->user()['id_empresa'])
-            ->withWhereHas('permisos', function ($query) use ($request){
-                $query->where('id_empresa', $request->user()['id_empresa']);
-            })
-            ->select(
-                '*',
-                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
-                DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
-                'created_by',
-                'updated_by'
-            );
+        $searchValue = $request->get('search');
 
         if ($searchValue) {
-            $usuarios = $usuarios->where('username', 'like', '%' .$searchValue. '%')
-                ->orWhere('firstname', 'like', '%' .$searchValue. '%')
-                ->orWhere('lastname', 'like', '%' .$searchValue. '%')
-                ->orWhere('email', 'like', '%' .$searchValue. '%');
+            $filterSearch = 'AND US.firstname LIKE %'.$searchValue.'% ';
+            $filterSearch.= 'OR US.lastname LIKE %'.$searchValue.'% ';
+            $filterSearch.= 'OR US.email LIKE %'.$searchValue.'% ';
+            $filterSearch.= 'OR US.username LIKE %'.$searchValue.'% ';
         }
 
-        $usuarios = $usuarios->where('id_empresa', $request->user()['id_empresa']);
-        $usuariosTotals = $usuarios->get();
+        if ($request->get('id_rol')) {
+            $filterGeneral.= 'AND UE.id_rol = '.$request->get('id_rol').' ';
+        }
 
-        $usuariosPaginate = $usuarios->skip($start)
-            ->take($rowperpage);
+        if ($request->get('id_nit')) {
+            $filterGeneral.= 'AND UE.id_nit = '.$request->get('id_nit').' ';
+        }
+        
+        if (!$rol_maximo) {
+            $filterMaximo = 'AND US.rol_maximo = 0 ';
+        }
+
+        $totalUsuarios = DB::connection('clientes')->select("SELECT
+                COUNT(US.id) AS total_usuarios
+            FROM
+                users US
+                
+            LEFT JOIN usuario_empresas UE ON US.id = UE.id_usuario
+
+            WHERE UE.id_empresa = {$id_empresa}
+                {$filterSearch}
+            ");
+
+        $totalUsuarios = collect($totalUsuarios);
+        if (count($totalUsuarios)) $totalUsuarios = $totalUsuarios[0]->total_usuarios;
+        else $totalUsuarios = 0;
+
+        $usuarios = DB::connection('clientes')->select("SELECT
+                US.id,
+                UE.id_rol,
+                UE.id_nit,
+                RG.nombre AS nombre_rol,
+                US.username,
+                US.firstname,
+                US.lastname,
+                US.email,
+                US.telefono,
+                US.address,
+                US.created_by,
+                US.updated_by,
+                US.created_at,
+                US.updated_at
+            FROM
+                users US
+                
+            LEFT JOIN usuario_empresas UE ON US.id = UE.id_usuario
+            LEFT JOIN roles_generales RG ON UE.id_rol = RG.id
+
+            WHERE UE.id_empresa = {$id_empresa}
+                {$filterSearch}
+                {$filterMaximo}
+                {$filterGeneral}
+
+            LIMIT {$rowperpage} OFFSET {$start}
+        ");
+
+        $usuarios = collect($usuarios);
+        
+        $dataUsuarios = [];
+
+        if (count($usuarios)) {
+            foreach ($usuarios as $usuario) {
+                $nit = null;
+                if ($usuario->id_nit) {
+                    $nit = Nits::where('id', $usuario->id_nit)->first();
+                }
+                
+                $dataUsuarios[] = (object)[
+                    'id' => $usuario->id,
+                    'id_rol' => $usuario->id_rol,
+                    'id_nit' => $usuario->id_nit,
+                    'nombre_completo' => $nit ? $nit->nombre_completo.' '.$nit->apartamentos : '',
+                    'nombre_rol' => $usuario->nombre_rol,
+                    'username' => $usuario->username,
+                    'firstname' => $usuario->firstname,
+                    'lastname' => $usuario->lastname,
+                    'email' => $usuario->email,
+                    'telefono' => $usuario->telefono,
+                    'address' => $usuario->address,
+                    'created_by' => $usuario->created_by,
+                    'updated_by' => $usuario->updated_by,
+                    'fecha_creacion' => Carbon::parse($usuario->created_at)->format('Y-m-d H:i:s'),
+                    'fecha_edicion' => Carbon::parse($usuario->updated_at)->format('Y-m-d H:i:s'),
+                ];
+            }
+        }
 
         return response()->json([
             'success'=>	true,
             'draw' => $draw,
-            'iTotalRecords' => $usuariosTotals->count(),
-            'iTotalDisplayRecords' => $usuariosTotals->count(),
-            'data' => $usuariosPaginate->get(),
+            'iTotalRecords' => $totalUsuarios,
+            'iTotalDisplayRecords' => $totalUsuarios,
+            'data' => $dataUsuarios,
             'perPage' => $rowperpage,
             'message'=> 'Usuarios cargados con exito!'
         ]);
@@ -112,6 +185,24 @@ class UsuariosController extends Controller
                 'data' => [],
                 "message"=>$validator->errors()
             ], 422);
+        }
+
+        if ($request->get('rol_usuario') != 1) {
+            if (!$request->get('id_nit')) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>['id_nit' => 'El nit es obligatorio']
+                ], 422);
+            }
+            $nit = Nits::where('id', $request->get('id_nit'))->first();
+            if (!$nit) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>['id_nit' => 'El nit es invalido']
+                ], 422);
+            }
         }
 
         try {
@@ -140,6 +231,7 @@ class UsuariosController extends Controller
             ],[
                 'id_rol' => $rol->id, // ROL PROPIETARIO
                 'estado' => 1, // default: 1 activo
+                'id_nit' => $request->get('id_nit')
             ]);
 
             UsuarioPermisos::updateOrCreate([
@@ -207,6 +299,24 @@ class UsuariosController extends Controller
             ], 422);
         }
 
+        if ($request->get('rol_usuario') != 1) {
+            if (!$request->get('id_nit')) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>'El nit es obligatorio'
+                ], 422);
+            }
+            $nit = Nits::where('id', $request->get('id_nit'))->first();
+            if (!$nit) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>'El nit es invalido'
+                ], 422);
+            }
+        }
+
         try {
 
             DB::connection('max')->beginTransaction();
@@ -238,6 +348,7 @@ class UsuariosController extends Controller
             ],[
                 'id_rol' => $rol->id, // ROL PROPIETARIO
                 'estado' => 1, // default: 1 activo
+                'id_nit' => $request->get('id_nit')
             ]);
 
             UsuarioPermisos::updateOrCreate([

@@ -11,6 +11,27 @@
                 <form id="usuariosForm" class="row" autocomplete="off" style="margin-top: 10px;">
 
                     <input type="text" class="form-control" name="id_usuarios_up" id="id_usuarios_up" style="display: none;">
+                    <div class="form-group col-12 col-sm-6 col-md-6">
+                        <label>Rol usuario</label>
+                        <select name="rol_usuario" id="rol_usuario" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
+                            @if ($usuario_nit->id_rol == 1 )
+                                <option value="1">DIOS</option>
+                            @endif
+                            @foreach ($roles as $rol)
+                                <option value="{{ $rol->id }}">{{ $rol->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-6 col-md-6" id="div-id_nit_usuario" style="display: none;">
+                        <label for="formZonaLabel">Cédula / nit</label>
+                        <select name="id_nit_usuario" id="id_nit_usuario" class="form-control form-control-sm">
+                        </select>
+                        <div class="invalid-feedback">
+                            El usuario es requerido
+                        </div>
+                    </div>
+
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Usuario</label>
                         <input type="text" class="form-control form-control-sm" name="usuario" id="usuario" onkeypress="return usuarioNombre(event)" required>
@@ -18,9 +39,10 @@
                             El usuario es requerido
                         </div>
                     </div>
+                    
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Correo</label>
-                        <input type="email" class="form-control form-control-sm" name="email_usuario" id="email_usuario" required>
+                        <input type="email" class="form-control form-control-sm" name="email_usuario" id="email_usuario" required disabled>
                         <div class="invalid-feedback">
                             El correo es requerido
                         </div>
@@ -51,15 +73,6 @@
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Dirección</label>
                         <input type="text" class="form-control form-control-sm" name="address_usuario" id="address_usuario">
-                    </div>
-
-                    <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label>Rol usuario</label>
-                        <select name="rol_usuario" id="rol_usuario" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
-                            @foreach ($roles as $rol)
-                                <option value="{{ $rol->id }}">{{ $rol->nombre }}</option>
-                            @endforeach
-                        </select>
                     </div>
 
                 </form>

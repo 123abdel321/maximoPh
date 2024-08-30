@@ -81,6 +81,10 @@ class User extends Authenticatable
         return $this->hasMany("App\Models\Empresa\UsuarioPermisos","id_user");
     }
 
+    public function empresa_nit($id_empresa = null) {
+        return $this->empresasExternas()->where('id_empresa', $id_empresa);
+    }
+
     public function getEmpresasAttribute(){
 		$clientesPropios = $this->empresasPropias()->get()->pluck("empresa");
 		$clientesExternos = $this->empresasExternas()->get()->pluck("empresa");

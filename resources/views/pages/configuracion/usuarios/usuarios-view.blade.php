@@ -39,13 +39,13 @@
         <div class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
 
-                @include('pages.configuracion.usuarios.usuarios-table')
+                @include('pages.configuracion.usuarios.usuarios-table', ['roles' => $roles])
 
             </div>
         </div>
     </div>
 
-    @include('pages.configuracion.usuarios.usuarios-form', ['roles' => $roles])
+    @include('pages.configuracion.usuarios.usuarios-form', ['roles' => $roles, 'usuario_nit' => $usuario_nit])
     
 </div>
 

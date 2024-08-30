@@ -37,8 +37,6 @@ var weekGoalkeeper = [
     'Sun'
 ];
 
-
-
 function porteriaInit() {
 
     fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
@@ -532,9 +530,7 @@ function porteriaInit() {
                     results: data.data
                 };
             }
-        },
-        templateResult: formatNitPorteria,
-        templateSelection: formatRepoNitPorteria
+        }
     });
 
     $comboInmuebleEventos = $('#inmueble_porteria_evento').select2({
@@ -712,6 +708,30 @@ function porteriaInit() {
             $('#savePorteriaLoading').hide();
         };
     });
+
+    $(document).on('change', '#tipo_porteria_filter', function () {
+        porteria_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#id_nit_porteria_filter', function () {
+        porteria_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#fecha_porteria_filter', function () {
+        porteria_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#tipo_evento_porteria_filter', function () {
+        porteria_evento_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#fecha_porteria_evento_filter', function () {
+        porteria_evento_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#inmueble_porteria_evento_filter', function () {
+        porteria_evento_table.ajax.reload();
+    });
 }
 
 $(document).on('click', '#generatePorteriaNueva', function () {
@@ -781,30 +801,6 @@ $(document).on('change', '#tipo_vehiculo_porteria', function () {
 
     if (tipoVehiculo == '') $("#input_placa_persona_porteria").hide();
     else $("#input_placa_persona_porteria").show();
-});
-
-$(document).on('change', '#tipo_porteria_filter', function () {
-    porteria_table.ajax.reload();
-});
-
-$(document).on('change', '#id_nit_porteria_filter', function () {
-    porteria_table.ajax.reload();
-});
-
-$(document).on('change', '#fecha_porteria_filter', function () {
-    porteria_table.ajax.reload();
-});
-
-$(document).on('change', '#tipo_evento_porteria_filter', function () {
-    porteria_evento_table.ajax.reload();
-});
-
-$(document).on('change', '#fecha_porteria_evento_filter', function () {
-    porteria_evento_table.ajax.reload();
-});
-
-$(document).on('change', '#inmueble_porteria_evento_filter', function () {
-    porteria_evento_table.ajax.reload();
 });
 
 $(document).on('click', '#generateEventoPorteria', function () {
