@@ -306,7 +306,7 @@ function loadingDataPqrsf() {
 var dataImagenes = $('.input-images-pqrsf').imageUploader({
     imagesInputName: 'photos',
     preloadedInputName: 'old',
-    maxSize: 2 * 1024 * 1024,
+    // maxSize: 2 * 1024 * 1024,
     maxFiles: 10
 });
 
@@ -459,6 +459,16 @@ function clearFormPqrsf () {
     $("#asunto_pqrsf").val("");
     $("#area_pqrsf").val(1);
     
+    $('.input-images-pqrsf').imageUploader('destroy');
+    // Eliminar todo el contenido del contenedor
+    $('.input-images-pqrsf').empty();
+    // Re-inicializar el componente imageUploader
+    $('.input-images-pqrsf').imageUploader({
+        imagesInputName: 'photos',
+        preloadedInputName: 'old',
+        // maxSize: 2 * 1024 * 1024,
+        maxFiles: 10
+    });
     
     diaPqrsf.forEach(dia => {
         $('#'+dia).prop('checked', false);
