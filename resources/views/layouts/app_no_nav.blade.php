@@ -644,9 +644,11 @@
 
     <script type="module">
         //LOCAL
-
         // const base_url = 'http://127.0.0.1:8090/api/';
         // const base_web = 'http://127.0.0.1:8090/';
+        //LOCAL PUBLIC
+        // const base_url = 'http://192.168.1.6:80/api/';
+        // const base_web = 'http://192.168.1.6:80/';
         //DEV
         const base_url = 'https://maximoph.com/api/';
         const base_web = 'https://maximoph.com/';
@@ -714,8 +716,8 @@
                 },
                 dataType: 'json',
             }).done((res) => {
-                // $("#button-login-loading").hide();
-                // $("#button-login").show();
+                $("#button-login-loading").hide();
+                $("#button-login").show();
                 if(res.success){
                     localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
                     localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
@@ -739,9 +741,9 @@
                 $("#button-login-loading").hide();
                 $("#button-login").show();
                 $('#error-login').show();
-                setTimeout(function(){
-                    window.location.href = '/login';
-                },500);
+                // setTimeout(function(){
+                //     window.location.href = '/login';
+                // },1000);
                 
             });
         }
