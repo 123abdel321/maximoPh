@@ -3,11 +3,11 @@
     <div class="form-group col-12 col-sm-6 col-md-3" style="align-self: center;">
         <label for="exampleFormControlSelect1">Tipo evento</label>
         <select class="form-control form-control-sm" id="tipo_evento_porteria_filter" name="tipo_evento_porteria_filter">
-            <option value="">Todos</option>
-            <option value="0">Visita</option>
-            <option value="3">Domicilio</option>
-            <option value="1">Paquete</option>
-            <option value="2">Minuta</option>
+            <option value="">TODOS</option>
+            <option value="0">VISITA</option>
+            <option value="3">DOMICILIO</option>
+            <option value="1">PAQUETE</option>
+            <option value="2">MINUTA</option>
         </select>
     </div>
 

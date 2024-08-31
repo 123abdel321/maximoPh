@@ -100,6 +100,11 @@
                     <i id="reloadPorteriaIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
                     <i id="reloadPorteriaIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
                 </button>
+
+                <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px; display: none;" id="reloadPorteriaEvento">
+                    <i id="reloadPorteriaEventoIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                    <i id="reloadPorteriaEventoIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                </button>
             </div>
         </div>
 
@@ -129,6 +134,8 @@
 
 <script>
     var crearPorteria = '<?php echo auth()->user()->can('porteria create'); ?>';
+    var updatePorteria = '<?php echo auth()->user()->can('porteria update'); ?>';
+    var deletePorteria = '<?php echo auth()->user()->can('porteria delete'); ?>';
     var eventoPorteria = '<?php echo auth()->user()->can('porteria eventos'); ?>';
     var usuario_rol = JSON.parse('<?php echo $usuario_rol; ?>');
 </script>

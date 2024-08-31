@@ -41,10 +41,6 @@ class PorteriaEventoController extends Controller
             $columnIndex_arr = $request->get('order');
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
-
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             
             $porteriaEvento = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona')
                 ->select(
@@ -53,8 +49,7 @@ class PorteriaEventoController extends Controller
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
                     'created_by',
                     'updated_by'
-                )
-                ->whereDate('created_at', Carbon::now()->format('Y-m-d'));
+                );
 
             if ($request->get("id_inmueble")) $porteriaEvento->where('id_inmueble', $request->get("id_inmueble"));
             if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));

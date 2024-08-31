@@ -53,6 +53,7 @@ function porteriaInit() {
         fixedHeader: true,
         deferLoading: 0,
         initialLoad: false,
+        ordering: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
         fixedColumns : {
@@ -72,7 +73,7 @@ function porteriaInit() {
         },
         'rowCallback': function(row, data, index){
             if (data.eventos.length) {
-                $('td', row).css('background-color', '#41b14140');
+                $('td', row).css('background-color', '#cfebcf');
                 return;
             }
         },
@@ -202,9 +203,11 @@ function porteriaInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
-                    if (usuario_rol != 4) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                    if (usuario_rol != 4) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+
+                    if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    else if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    if (updatePorteria) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-warning edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    if (deletePorteria && !row.eventos.length) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
             },
@@ -218,10 +221,10 @@ function porteriaInit() {
         responsive: false,
         processing: true,
         serverSide: true,
-
         fixedHeader: true,
         deferLoading: 0,
         initialLoad: false,
+        ordering: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
         fixedColumns : {
@@ -758,6 +761,9 @@ $(document).on('click', '#verEventoPorteria', function () {
     $("#tabla-porteria").hide();
     $("#items-tabla-porteria").show();
 
+    $("#reloadPorteria").hide();
+    $("#reloadPorteriaEvento").show();
+
     $("#verEventoPorteria").hide();
     $("#volverEventoPorteria").show();
     $("#generatePorteriaNueva").hide();
@@ -775,7 +781,10 @@ $(document).on('click', '#verEventoPorteria', function () {
 $(document).on('click', '#volverEventoPorteria', function () {
     $("#tabla-porteria").show();
     $("#items-tabla-porteria").hide();
-    
+
+    $("#reloadPorteria").show();
+    $("#reloadPorteriaEvento").hide();
+
     $("#verEventoPorteria").show();
     $("#volverEventoPorteria").hide();
     $("#generatePorteriaNueva").show();
@@ -1130,5 +1139,14 @@ $(document).on('click', '#reloadPorteria', function () {
     porteria_table.ajax.reload(function (res) {
         $("#reloadPorteriaIconNormal").show();
         $("#reloadPorteriaIconLoading").hide();
+    }); 
+});
+
+$(document).on('click', '#reloadPorteriaEvento', function () {
+    $("#reloadPorteriaEventoIconNormal").hide();
+    $("#reloadPorteriaEventoIconLoading").show();
+    porteria_evento_table.ajax.reload(function (res) {
+        $("#reloadPorteriaEventoIconNormal").show();
+        $("#reloadPorteriaEventoIconLoading").hide();
     }); 
 });

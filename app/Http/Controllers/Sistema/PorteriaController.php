@@ -57,12 +57,9 @@ class PorteriaController extends Controller
             $order_arr = $request->get('order');
             $search_arr = $request->get('search');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             $searchValue = $search_arr['value']; // Search value
 
-            $porteria = Porteria::orderBy($columnName,$columnSortOrder)
+            $porteria = Porteria::orderBy('id', 'DESC')
                 ->with('eventos')
                 ->select(
                     '*',
@@ -107,8 +104,6 @@ class PorteriaController extends Controller
             $start = $request->get("start");
             $rowperpage = 24;
 
-            $porteriaTotal = Porteria::count();
-
             $porteria = Porteria::with('archivos', 'propietario', 'eventos')
                 ->select(
                     '*',
@@ -143,13 +138,13 @@ class PorteriaController extends Controller
                 $porteria->where('dias', 'LIKE', '%'.$diaFilter)
                     ->orWhere('hoy', $fechaFilter);
             }
-
+            $totalData = $porteria->count();
             $porteria->skip($start)->take($rowperpage);
 
             return response()->json([
                 'success'=>	true,
-                'iTotalRecords' => $porteriaTotal,
-                'iTotalDisplayRecords' => $porteriaTotal,
+                'iTotalRecords' => $totalData,
+                'iTotalDisplayRecords' => $totalData,
                 'data' => $porteria->orderBy('id', 'DESC')->get(),
                 'perPage' => $rowperpage,
                 'message'=> 'Porteria generada con exito!'
