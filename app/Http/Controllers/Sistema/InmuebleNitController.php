@@ -47,12 +47,9 @@ class InmuebleNitController extends Controller
             $order_arr = $request->get('order');
             $search_arr = $request->get('search');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             $searchValue = $search_arr['value']; // Search value
 
-            $inmuebleNit = InmuebleNit::orderBy($columnName,$columnSortOrder)
+            $inmuebleNit = InmuebleNit::orderBy('id', 'DESC')
                 ->with('nit')
                 ->select(
                     '*',
@@ -170,7 +167,7 @@ class InmuebleNitController extends Controller
                 ]);
             }
 
-            $idRol = $request->get('tipo') == 0 ? 5 : 3;
+            $idRol = $request->get('tipo') == 0 ? 3 : 5;
             $rolPropietario = RolesGenerales::find($idRol);
 
             UsuarioEmpresa::updateOrCreate([
