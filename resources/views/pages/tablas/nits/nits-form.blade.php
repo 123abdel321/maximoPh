@@ -33,7 +33,7 @@
 
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_numero_documento">
                         <label for="example-text-input" class="form-control-label">Numero documento </label>
-                        <input type="number" class="form-control form-control-sm input_decimal only-numbers" name="numero_documento" id="numero_documento" required>
+                        <input type="text" class="form-control form-control-sm input_decimal only-text" name="numero_documento" id="numero_documento" required>
                         <div class="invalid-feedback">
                             El campo es requerido
                         </div>

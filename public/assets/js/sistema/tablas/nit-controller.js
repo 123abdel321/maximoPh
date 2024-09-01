@@ -348,6 +348,21 @@ $('.only-numbers').bind('paste', function() {
     });
 });
 
+$('.only-text').keypress(function (e) {
+    var txt = String.fromCharCode(e.which);
+    if (!txt.match(/[^ ]/)) {
+        return false;
+    }
+});
+  
+$('.only-text').bind('paste', function() {
+    setTimeout(function() { 
+        var value = $(this).val();
+        var updated = value.replace(/[^ ]/g, '');
+        $(this).val(updated);
+    });
+});
+
 $('.form-control').keyup(function() {
     $(this).val($(this).val().toUpperCase());
 });
