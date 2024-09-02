@@ -60,7 +60,7 @@ class LoginController extends Controller
 		// 	$this->fireLockoutEvent($request);
 		// 	return $this->sendLockoutResponse($request);
 		// }
-
+        
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
 
@@ -218,9 +218,8 @@ class LoginController extends Controller
                 ];
             }
         
-            // $visitante = Visitantes::create($data);
-
-            // info('Usuario: ', $data);
+            $visitante = Visitantes::create($data);
+            info('Usuario: ', $data);
 
             return response()->json([
                 'success'=>	true,
