@@ -57,6 +57,14 @@
                                 <input type="number" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
                             </div>
 
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="exampleFormControlSelect1">Doc. Ref. agrupado por</label>
+                                <select class="form-control form-control-sm" name="documento_referencia_agrupado" id="documento_referencia_agrupado">
+                                    <option value="0">AÑO-MES_CANTIDAD INMUEBLES</option>
+                                    <option value="1">NOMBRE INMUEBLE-NOMBRE ZONA</option>
+                                </select>
+                            </div>
+
                             <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Factura text 1</label>
                                 <input type="text" class="form-control form-control-sm" name="factura_texto1" id="factura_texto1">

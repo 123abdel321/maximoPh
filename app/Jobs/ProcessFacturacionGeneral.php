@@ -46,6 +46,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     public $periodo_facturacion = null;
     public $id_cuenta_ingreso = null;
     public $id_centro_costos = null;
+    public $documento_referencia_agrupado = 0;
     public $inicioMes = null;
     public $finMes = null;
     public $total_facturados = null;
@@ -85,6 +86,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
         $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
         $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
+        $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
+        $this->documento_referencia_agrupado = $this->documento_referencia_agrupado ? $this->documento_referencia_agrupado->valor : 0;
         $this->total_facturados = 0;
         $this->dataGeneral = [
             'valor' => 0,
@@ -351,8 +354,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
     private function generarFacturaInmueble(Facturacion $factura, $inmuebleFactura, $totalInmuebles)
     {
-        $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
-
+        $documentoReferenciaNumeroInmuebles = $this->generarDocumentoReferencia($inmuebleFactura, $totalInmuebles);
+        
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $inmuebleFactura->id_nit,
@@ -362,14 +365,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'id_comprobante' => $this->id_comprobante_ventas,
             'id_centro_costos' => $inmuebleFactura->id_centro_costos,
             'fecha_manual' => $this->inicioMes.'-01',
-            'documento_referencia' => $this->inicioMes.$documentoReferenciaNumeroInmuebles,
+            'documento_referencia' => $documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
             'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Coef:'.$inmuebleFactura->coeficiente,
             'naturaleza_opuesta' => false,
             'created_by' => $this->id_usuario,
             'updated_by' => $this->id_usuario,
         ]);
-        return $this->inicioMes.$documentoReferenciaNumeroInmuebles;
+        return $documentoReferenciaNumeroInmuebles;
     }
 
     private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
@@ -620,7 +623,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CFA.id_cuenta_anticipo',
                 'CFA.porcentaje_pronto_pago',
                 'ZO.id_centro_costos',
-                'ZO.nombre AS nombre_zona'
+                'ZO.nombre AS nombre_zona',
+                'ZO.nombre AS nombre_zona',
+                DB::raw("CONCAT(INM.nombre, '-', ZO.nombre) as documento_referencia_group")
             )
             ->leftJoin('inmuebles AS INM', 'inmueble_nits.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
@@ -742,6 +747,15 @@ class ProcessFacturacionGeneral implements ShouldQueue
         if (!$this->descuentoParcial && $anticiposDisponibles >= $deudaTotal) return true;
         if ($this->descuentoParcial) return true;
         return false;
+    }
+
+    private function generarDocumentoReferencia($inmuebleFactura, $totalInmuebles)
+    {
+        if ($this->documento_referencia_agrupado) {
+            return $inmuebleFactura->documento_referencia_group;
+        }
+        $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
+        return $this->inicioMes.$countItems;
     }
 
 	public function failed($exception)

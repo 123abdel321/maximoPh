@@ -56,6 +56,10 @@ function entornoInit() {
             'factura_texto2',
         ]; 
 
+        var select = [
+            'documento_referencia_agrupado',
+        ];
+
         // var select2 = [
         //     'id_cuenta_pronto_pago',
         // ];
@@ -74,6 +78,10 @@ function entornoInit() {
         }
 
         if (textEntorno.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(variable.valor);
+        }
+
+        if (select.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(variable.valor);
         }
 
@@ -109,6 +117,7 @@ $(document).on('click', '#updateEntorno', function () {
         'factura_texto1': $('#factura_texto1').val(),
         'factura_texto2': $('#factura_texto2').val(),
         'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
+        'documento_referencia_agrupado': $('#documento_referencia_agrupado').val(),
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         // 'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),
     };
