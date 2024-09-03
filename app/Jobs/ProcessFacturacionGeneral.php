@@ -331,7 +331,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'id_comprobante' => $this->id_comprobante_ventas,
                 'id_centro_costos' => $inmuebleFactura ? $inmuebleFactura->id_centro_costos : CentroCostos::first()->id,
                 'fecha_manual' => $this->inicioMes.'-01',
-                'documento_referencia' => $this->inicioMes,
+                'documento_referencia' => $extracto->documento_referencia,
                 'valor' => round($valorTotal),
                 'concepto' => 'INTERESES '.$concepto.' - '.$this->inicioMes.'-01'.' - %'.$this->porcentaje_intereses_mora.' - BASE: '.number_format($saldo),
                 'naturaleza_opuesta' => false,
@@ -355,7 +355,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function generarFacturaInmueble(Facturacion $factura, $inmuebleFactura, $totalInmuebles)
     {
         $documentoReferenciaNumeroInmuebles = $this->generarDocumentoReferencia($inmuebleFactura, $totalInmuebles);
-        
+
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $inmuebleFactura->id_nit,
