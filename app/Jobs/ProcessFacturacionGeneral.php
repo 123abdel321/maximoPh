@@ -295,7 +295,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ]));
 
 		} catch (Exception $exception) {
-			Log::error('Error al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+			Log::error('ProcessFacturacionGeneral al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
 		}
     }
 
@@ -760,6 +760,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
 	public function failed($exception)
 	{
-		Log::error('Error al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+		Log::error('ProcessFacturacionGeneral al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
 	}
 }
