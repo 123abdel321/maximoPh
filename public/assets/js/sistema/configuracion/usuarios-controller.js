@@ -235,9 +235,9 @@ function usuariosInit() {
 
     $(document).on('change', '#id_nit_usuario', function () {
         var data = $('#id_nit_usuario').select2('data');
+        
         if (data.length == 0) return;
         data = data[0];
-        if (data.text) return;
 
         $("#email_usuario").val(data.email);
 
