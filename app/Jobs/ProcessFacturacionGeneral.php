@@ -179,6 +179,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                     'concepto' => $extracto->concepto,
                                     'total_abono' => $extracto->total_abono,
                                     'total_facturas' => $extracto->total_facturas,
+                                    'documento_referencia' => $extracto->documento_referencia,
                                     'saldo' => $extracto->saldo,
                                 ];
                             }
