@@ -16,6 +16,7 @@ function usuariosInit() {
         fixedHeader: true,
         deferLoading: 0,
         initialLoad: false,
+        ordering: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
         fixedColumns : {
@@ -235,7 +236,7 @@ function usuariosInit() {
 
     $(document).on('change', '#id_nit_usuario', function () {
         var data = $('#id_nit_usuario').select2('data');
-        
+
         if (data.length == 0) return;
         data = data[0];
 
