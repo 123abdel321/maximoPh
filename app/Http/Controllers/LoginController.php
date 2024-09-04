@@ -252,8 +252,8 @@ class LoginController extends Controller
             ];
         }
     
-        // $visitante = Visitantes::create($data);
-        // Log::error('Fallido login', $data);
+        $visitante = Visitantes::create($data);
+        Log::error('Fallido login', $data);
 
         return response()->json([
     		'success'=>	false,
