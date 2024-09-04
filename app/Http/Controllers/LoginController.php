@@ -184,6 +184,7 @@ class LoginController extends Controller
             }
                 
             $notificacionCode =  null;
+            $notificacionCodeGeneral = $empresaSelect->token_db_maximo;
             $notificacionCode = $empresaSelect->token_db_maximo.'_'.$user->id;
             $user->id_empresa = $empresaSelect->id;
             $user->has_empresa = $empresaSelect->token_db_maximo;
@@ -229,6 +230,7 @@ class LoginController extends Controller
                 'empresa' => $empresaSelect,
                 'token_db_portafolio' => base64_encode($empresaSelect->token_db_portafolio),
                 'notificacion_code' => $notificacionCode,
+                "notificacion_code_general"=>$notificacionCodeGeneral,
                 'fondo_sistema' => $user->fondo_sistema,
                 'message'=> 'Usuario logeado con exito!'
             ], 200);

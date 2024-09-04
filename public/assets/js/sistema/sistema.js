@@ -1206,7 +1206,7 @@ function mostrarMensajesPqrsf(mensajes) {
 }
 
 function iniciarCronometroPqrsf(data) {
-    $("#content-button-time-pqrsf-disabled").hide();
+    // $("#content-button-time-pqrsf-disabled").hide();
     if (data.tipo != 5) {
         return;
     }
@@ -1544,7 +1544,6 @@ function findDataPqrsf(id) {
             else if (data.nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
             permisoAgregarTiempos = true;
         } else {
-
             if (data.usuario) {
                 if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
                 else $("#id_name_person_pqrsf").text(data.usuario.firstname);
@@ -1597,7 +1596,7 @@ function mostrarDatosCabeza(data) {
 
     if (data.estado == 2) permisoAgregarTiempos = false;
 
-    if (data.estado != 2 && (idRolUsuario == 1 || idRolUsuario == 2)) $("#content-button-time-pqrsf-disabled").hide();
+    // $("#content-button-time-pqrsf-disabled").hide();
 }
 
 function agregarSwiperImg(imagenes) {
