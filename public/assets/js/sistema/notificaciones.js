@@ -142,7 +142,7 @@ function pintarNotificacion(notificacion) {
         </div>`;
 
     if (notificacion.creador && notificacion.creador.avatar) {
-        var iconHeader = `<div style="background-image:url(${notificacion.creador.avatar});background-size:cover;height:30px;width:30px;border-radius:50%;text-align:center;align-content:center;color:white;font-weight:600;">
+        var iconHeader = `<div style="background-image:url(https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/${notificacion.creador.avatar});background-size:cover;height:30px;width:30px;border-radius:50%;text-align:center;align-content:center;color:white;font-weight:600;">
             </div>`;
     }
     var tipoColores = 'sin_leer';
