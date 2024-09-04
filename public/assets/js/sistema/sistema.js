@@ -4,6 +4,11 @@
 // const base_web = 'http://127.0.0.1:8090/';
 // const base_web_erp = 'http://localhost:8000/';
 // const base_url_erp = 'http://localhost:8000/api/';
+//LOCAL PUBLIC
+// const base_url = 'http://192.168.1.6:80/api/';
+// const base_web = 'http://192.168.1.6:80/';
+// const base_web_erp = 'http://localhost:8000/';
+// const base_url_erp = 'http://localhost:8000/api/';
 //DEV
 const base_url = 'https://maximoph.com/api/';
 const base_web = 'https://maximoph.com/';
@@ -31,6 +36,7 @@ let updatingStatusPqrsf = false;
 let mostrarAgregarImagenes = false;
 let mostrarAgregarTiempos = false;
 let permisoAgregarTiempos = false;
+let channelPqrsfGeneral = null;
 
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
@@ -201,9 +207,11 @@ function actualizarAccionesPqrsf() {
 }
 
 function iniciarScrollBar() {
+    var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
     var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
     var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
 
+    new PerfectScrollbar(offcanvasBodyPorteria);
     new PerfectScrollbar(dropDownNotificacion);
     new PerfectScrollbar(offcanvasBodyPqrsf);
 }
@@ -225,31 +233,49 @@ function setNotificaciones(total = 0) {
 }
 
 function iniciarCanalesDeNotificacion () {
-    if (idRolUsuario == 1 || idRolUsuario == 2) {
-        channelAdminPqrsf = pusher.subscribe('pqrsf-mensaje-'+arreglarCodigoNotificacionAdmin()+'rol_admin');
-    } else {
-        channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
+    // if (idRolUsuario == 1 || idRolUsuario == 2) {
+    //     // channelAdminPqrsf = pusher.subscribe('pqrsf-mensaje-'+arreglarCodigoNotificacionAdmin()+'rol_admin');
+    // } else {
+    // }
+    channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
+
+    if (pqrsf_notificaciones) {
+        console.log(pqrsf_notificaciones);
+        channelPqrsfGeneral = pusher.subscribe('notificacion-pqrsf-'+localStorage.getItem("notificacion_code_general"));
     }
 }
 
-if (channelPqrsf) {
-    channelPqrsf.bind('notificaciones', function(data) {
-        var idPqrsfOpen = $("#id_pqrsf_up").val();
-
-        if (data.id_pqrsf == idPqrsfOpen) {
-            mostrarMensajesPqrsf(data.data);
-            if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
-            initSwipers();
-            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
-            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
-        } else {
-            buscarNotificaciones();
-        }
+if (channelPqrsfGeneral) {
+    channelPqrsfGeneral.bind('notificaciones', function(data) {
+        console.log('channelPqrsfGeneral: ',data);
+        openDropDownNotificaciones(true);
     });
 }
 
+channelPqrsf.bind('notificaciones', function(data) {
+
+    var idPqrsfOpen = $("#id_pqrsf_up").val();
+
+    if (data.id_pqrsf == idPqrsfOpen) {
+        mostrarMensajesPqrsf(data.data);
+        if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+        initSwipers();
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+        if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+    } else {
+        var notificacionesAbiertas = $("#notificacionesMaximo").attr('class');
+        notificacionesAbiertas = notificacionesAbiertas == 'offcanvas offcanvas-end show' ? true : false;
+        if (notificacionesAbiertas) {
+            openDropDownNotificacion(data.id_notificacion)
+        } else {
+            openDropDownNotificaciones();
+        }
+    }
+});
+
 if (channelAdminPqrsf) {
     channelAdminPqrsf.bind('notificaciones', function(data) {
+        
         var idPqrsfOpen = $("#id_pqrsf_up").val();
 
         if (data.id_pqrsf == idPqrsfOpen) {
@@ -354,44 +380,30 @@ function buscarNotificaciones() {
         if(res.success){
             localStorage.setItem("numero_notificaciones", res.total);
             setNotificaciones(res.total);
-        } else {
-            
         }
     }).fail((res) => {
         let timerInterval;
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 2200)
-        Swal.fire({
-            title: "Sesión caducada!",
-            html: "En un momento será redirigido al inicio de sesión.",
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-                const timer = Swal.getPopup().querySelector("b");
-                timerInterval = setInterval(() => {
-                timer.textContent = `${Swal.getTimerLeft()}`;
-                }, 100);
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            }
-            }).then((result) => {
-            closeSessionProfile();
-        });
-    });
-}
-
-function leerNotificaciones(id) {
-    $.ajax({
-        url: base_url + 'notificaciones',
-        method: 'PUT',
-        headers: headers,
-        data: JSON.stringify({id: id, estado: 1}),
-        dataType: 'json',
-    }).done((res) => {
-    }).fail((res) => {
+        // setTimeout(() => {
+        //     window.location.href = '/login';
+        // }, 2200)
+        // Swal.fire({
+        //     title: "Sesión caducada!",
+        //     html: "En un momento será redirigido al inicio de sesión.",
+        //     timer: 2000,
+        //     timerProgressBar: true,
+        //     didOpen: () => {
+        //         Swal.showLoading();
+        //         const timer = Swal.getPopup().querySelector("b");
+        //         timerInterval = setInterval(() => {
+        //         timer.textContent = `${Swal.getTimerLeft()}`;
+        //         }, 100);
+        //     },
+        //     willClose: () => {
+        //         clearInterval(timerInterval);
+        //     }
+        //     }).then((result) => {
+        //     closeSessionProfile();
+        // });
     });
 }
 
@@ -412,6 +424,7 @@ function closeSessionProfile() {
         localStorage.setItem("auth_token_erp", '');
         localStorage.setItem("empresa_nombre", '');
         localStorage.setItem("notificacion_code", '');
+        localStorage.setItem("notificacion_code_general", '');
         localStorage.setItem("fondo_sistema", '');
         localStorage.setItem("empresa_logo", '');
 
@@ -1321,156 +1334,6 @@ function actualizarEstadosPqrsf (estado) {
     }
 }
 
-function openDropDownNotificaciones(open = false) {
-
-    $("#dropdown-notificaciones").empty();
-
-    $("#dropdown-notificaciones").removeClass('dropdown-menu-top-1');
-    $("#dropdown-notificaciones").removeClass('dropdown-menu-top-2');
-    $("#dropdown-notificaciones").removeClass('dropdown-menu-top-3');
-
-    if (!open) {
-        if (dropDownNotificacionOpen) {
-            $("#dropdown-notificaciones").removeClass('show');
-            dropDownNotificacionOpen = false;
-            return;
-        } else {
-            $("#dropdown-notificaciones").addClass('show');
-            dropDownNotificacionOpen = true;
-        }
-    } else {
-        $("#dropdown-notificaciones").removeClass('show');
-        $("#dropdown-notificaciones").addClass('show');
-
-    }
-
-    showPlaceholderMenu();
-
-    $.ajax({
-        url: base_url + 'notificaciones',
-        method: 'GET',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        var data = res.data;
-        if (data.length) {
-            $("#dropdown-notificaciones").empty();
-            $("#dropdown-notificaciones").removeClass('dropdown-menu-top-2');
-            pintarNotificaciones(data);
-        } else {
-            $("#dropdown-notificaciones").empty();
-            $("#dropdown-notificaciones").removeClass('dropdown-menu-top-2');
-            pintarSinNotificaciones();
-        }
-    }).fail((err) => {
-        
-    });
-}
-
-function showPlaceholderMenu() {
-    $("#dropdown-notificaciones").addClass('dropdown-menu-top-2');
-
-    var html = `<div class="row texto-dropdown-notificacion-info">
-            <div class="col-11 text-wrap texto-dropdown-notificacion">
-                <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
-                <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
-            </div>
-            <div class="col-1" style="align-self: center;">
-                <span class="placeholder placeholder-sm" style="width: 15px; height: 16px; margin-left: -2px;"></span>
-            </div>
-        </div>
-        <div class="row texto-dropdown-notificacion-info">
-            <div class="col-12 hora-notificacion">
-                <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
-            </div>
-        </div>`;
-
-    var mensajeDising = document.createElement('div');
-        mensajeDising.setAttribute("class", "dropdown-item");
-        mensajeDising.setAttribute("style", "width: 251px;");
-        mensajeDising.innerHTML = [
-            html
-        ].join('');
-        document.getElementById('dropdown-notificaciones').insertBefore(mensajeDising, null);
-
-    var mensajeDising = document.createElement('div');
-        mensajeDising.setAttribute("class", "dropdown-item");
-        mensajeDising.setAttribute("style", "width: 251px;");
-        mensajeDising.innerHTML = [
-            html
-        ].join('');
-        document.getElementById('dropdown-notificaciones').insertBefore(mensajeDising, null);
-}
-
-function pintarNotificaciones(notificaciones) {
-    for (let index = 0; index < notificaciones.length; index++) {
-        let notificacion = notificaciones[index];
-
-        var html = `
-            <div class="row texto-dropdown-notificacion-${tipoNotificacion(notificacion.tipo)}">
-                <div class="col-11 text-wrap texto-dropdown-notificacion">${notificacion.mensaje}</div>
-                <div class="col-1" style="align-self: center;">
-                    <i class="fas fa-share-square" style="color: #0a889f;"></i>
-                </div>
-            </div>
-            <div class="row texto-dropdown-notificacion-${tipoNotificacion(notificacion.tipo)}">
-                <div class="col-12 hora-notificacion">
-                    ${definirTiempo(notificacion.created_at)}
-                </div>
-            </div>
-        `;
-        
-        var notificacionesNumber = '1';
-        if (notificaciones.length == 2) {
-            notificacionesNumber = '2';
-        } else if (notificaciones.length > 2) {
-            notificacionesNumber = '3';
-        }
-        
-        $("#dropdown-notificaciones").addClass("dropdown-menu-top-"+notificacionesNumber);
-        var notify = document.createElement('div');
-        notify.setAttribute("class", "dropdown-item item-notificacion");
-        // notify.setAttribute("id", "item-notificacion-"+notificacion.data);
-        notify.setAttribute("onclick", notificacion.function+"("+notificacion.data+", "+notificacion.id+")");
-        notify.innerHTML = [
-            html
-        ].join('');
-        document.getElementById('dropdown-notificaciones').insertBefore(notify, null);
-    }
-}
-
-function pintarSinNotificaciones() {
-    $("#dropdown-notificaciones").addClass("dropdown-menu-top-1");
-    
-    var html = `
-        <div>¡SIN NOTIFICACIONES!</div>
-        <div>
-            <i class="fas fa-check-circle" style="font-size: 20px; color: #22b0c9; opacity: 0.5;"></i>
-        </div>
-    `;
-
-    var notify = document.createElement('div');
-    notify.setAttribute("class", "dropdown-item");
-    notify.setAttribute("style", "text-align: center; width: 250px;");
-    notify.innerHTML = [
-        html
-    ].join('');
-    document.getElementById('dropdown-notificaciones').insertBefore(notify, null);
-}
-
-function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
-    findDataPqrsf(id_pqrsf);
-    leerNotificaciones(id_notificacion);
-
-    $("#id_pqrsf_up").val(id_pqrsf);
-    $("#mensaje_pqrsf_nuevo").val("");
-    
-    openDropDownNotificaciones(true);
-
-    $("#dropdown-notificaciones").removeClass('show');
-    buscarNotificaciones();
-}
-
 function cerrarNotificacion(id_data, id_notificacion) {
     leerNotificaciones(id_notificacion);    
     openDropDownNotificaciones(true);
@@ -1578,13 +1441,6 @@ function changeEstadoPqrst() {
     },10);
 }
 
-function tipoNotificacion(tipo) {
-    if (tipo == '1') return 'info'; 
-    if (tipo == '2') return 'warning'; 
-    if (tipo == '3') return 'error'; 
-    return 'success';
-}
-
 function initSwipers() {
     new Swiper(".mySwiper", {
         effect: "cards",
@@ -1681,37 +1537,23 @@ function findDataPqrsf(id) {
         minutos = 0;
         segundos = 0;
    
-        if (data.tipo == 5) {
-            if (id_usuario_logeado == data.id_usuario) {
-                if (data.nit) {
-                    if (data.nit.logo_nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
-                    $("#id_name_person_pqrsf").text(data.nit.nombre_completo);
-                    permisoAgregarTiempos = false;
-                }
-            } else {
-                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
-                if (data.usuario) $("#id_name_person_pqrsf").text(data.usuario.firstname);
-                permisoAgregarTiempos = true;
-            }
+        if (id_usuario_logeado == data.id_usuario) {
+            if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
+            else $("#id_name_person_pqrsf").text(data.creador.firstname);
+            if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+            else if (data.nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
+            permisoAgregarTiempos = true;
         } else {
-            if (id_usuario_logeado == data.id_usuario) {
-                if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
-                else $("#id_name_person_pqrsf").text(data.creador.firstname);
-                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
-                else if (data.nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
-                permisoAgregarTiempos = true;
-            } else {
 
-                if (data.usuario) {
-                    if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
-                    else $("#id_name_person_pqrsf").text(data.usuario.firstname);
-                    if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
-                } else if (data.creador) {
-                    if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
-                }
-                
-                permisoAgregarTiempos = false;
+            if (data.usuario) {
+                if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+                else $("#id_name_person_pqrsf").text(data.usuario.firstname);
+                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+            } else if (data.creador) {
+                if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
             }
+            
+            permisoAgregarTiempos = false;
         }
 
         mostrarAgregarTiempos = false;

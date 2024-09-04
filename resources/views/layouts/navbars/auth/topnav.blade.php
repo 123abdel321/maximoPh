@@ -17,7 +17,7 @@
                 </li>
 
                 <li class="nav-item px-2 d-flex align-items-center">
-                    <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarNotificacion" onclick="openDropDownNotificaciones()">
+                    <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarNotificacion" onclick="openDropDownNotificaciones(true)">
                         <div>
                             <p id="number_notification" class="number_notification" style="z-index: 99; display: none;"></p>
                             <i id="bell_notification" class="fas fa-bell" style="font-size: 15px;"></i>

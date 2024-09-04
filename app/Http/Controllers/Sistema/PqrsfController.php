@@ -61,7 +61,7 @@ class PqrsfController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $pqrsf = Pqrsf::with('archivos', 'usuario', 'nit')
+            $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -160,30 +160,24 @@ class PqrsfController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $id_usuario_pqrsf = $request->get('id_usuario_pqrsf');
-            $id_nit = null;
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
 
-            if (!$id_usuario_pqrsf || $request->get('tipo_pqrsf') == 5) {
-                $empresa = Empresa::find(request()->user()->id_empresa);
-                $id_usuario_pqrsf = $empresa->id_usuario_owner;
-            }
-
-            $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', request()->user()->id)
+            $usuarioEmpresa = UsuarioEmpresa::with('usuario', 'nit')
+                ->where('id_usuario', request()->user()->id)
                 ->where('id_empresa', request()->user()->id_empresa)
                 ->first();
 
-            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2) {
-                $id_nit = $usuarioEmpresa->id_nit;
-            } else if ($request->get('tipo_pqrsf') == 5) {
-                $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->get('id_usuario_pqrsf'))
-                    ->where('id_empresa', request()->user()->id_empresa)
-                    ->first();
-                $id_nit = $usuarioEmpresa ? $usuarioEmpresa->id_nit : null;
+            if (!$usuarioEmpresa->id_nit) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>'El usuario '.$nombreUsuario.' no tiene nit asociado en la empresa'
+                ], 422);
             }
 
             $pqrsf = Pqrsf::create([
-                'id_usuario' => $id_usuario_pqrsf,
-                'id_nit' => $id_nit,
+                'id_usuario' => null,
+                'id_nit' => $usuarioEmpresa->id_nit,
                 'tipo' => $request->get("tipo_pqrsf"),
                 'area' => $request->get("area_pqrsf"),
                 'dias' => $this->getDiasString($request),
@@ -211,23 +205,15 @@ class PqrsfController extends Controller
                     $pqrsf->archivos()->save($archivo);
                 }
             }
-
-            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
-            $mensaje = 'Ha recibido una nueva '.$this->tipoPqrsf($pqrsf->tipo).' de '.$nombreUsuario;
+            
+            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido una nueva '.$this->tipoPqrsf($pqrsf->tipo).' de '.$nombreUsuario.' '.$usuarioEmpresa->nit->apartamentos;
+            
             $notificacion = (new NotificacionGeneral(
                 request()->user()->id,
                 $request->get('id_usuario_pqrsf'),
                 $pqrsf
             ));
             $idUsuarioNotificacion = $pqrsf->id_usuario;
-
-            if ($request->get('tipo_pqrsf') == 5) {
-                $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->get('id_usuario_pqrsf'))
-                    ->where('id_empresa', request()->user()->id_empresa)
-                    ->first();
-
-                $idUsuarioNotificacion = $usuarioEmpresa->id_usuario;
-            }
             
             $id_notificacion = $notificacion->crear((object)[
                 'id_usuario' =>  $idUsuarioNotificacion,
@@ -235,13 +221,13 @@ class PqrsfController extends Controller
                 'function' => 'abrirPqrsfNotificacion',
                 'data' => $pqrsf->id,
                 'estado' => 0,
+                'id_rol' => 1,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);
             $notificacion->notificar(
                 [
-                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$pqrsf->id_usuario,
-                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
+                    'notificacion-pqrsf-'.$request->user()['has_empresa']
                 ],
                 ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
             );
@@ -285,6 +271,11 @@ class PqrsfController extends Controller
 
             $pqrsf = Pqrsf::find($id);
 
+            $usuarioEmpresa = UsuarioEmpresa::with('usuario', 'nit')
+                ->where('id_usuario', request()->user()->id)
+                ->where('id_empresa', request()->user()->id_empresa)
+                ->first();
+
             $mensajes = PqrsfMensajes::create([
                 'id_pqrsf' => $id,
                 'id_usuario' => $pqrsf->id_usuario,
@@ -322,26 +313,33 @@ class PqrsfController extends Controller
                 $usuarioNotificacion = $pqrsf->created_by;
             }
 
-            $notificacion =(new NotificacionGeneral(
+            $notificacion = (new NotificacionGeneral(
                 request()->user()->id,
                 $usuarioNotificacion,
                 $mensajes
             ));
+
+            $apartamentos = $usuarioEmpresa && $usuarioEmpresa->nit ? $usuarioEmpresa->nit->apartamentos : '';
+            $mensajeText = '<b style="color: gold;">PQRSF</b>: Ha recibido un nuevo <b>MENSAJE</b> de '.$nombreUsuario.' '.$apartamentos;
             
             $id_notificacion = $notificacion->crear((object)[
                 'id_usuario' => $usuarioNotificacion,
-                'mensaje' => 'Ha recibido un nuevo mensaje de '.$nombreUsuario,
+                'mensaje' => $mensajeText,
                 'function' => 'abrirPqrsfNotificacion',
                 'data' => $id,
                 'estado' => 0,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);
+
+            $notificar = 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion;
+
+            if (!$usuarioNotificacion) {
+                $notificar = 'notificacion-pqrsf-'.$request->user()['has_empresa'];
+            }
+
             $notificacion->notificar(
-                [
-                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion,
-                    'pqrsf-mensaje-'.$request->user()['has_empresa'].'_rol_admin'
-                ],
+                $notificar,
                 ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'estado' => 1, 'id_notificacion' => $id_notificacion]
             );
 
@@ -350,6 +348,7 @@ class PqrsfController extends Controller
             return response()->json([
                 'success'=>	true,
                 'data' => $mensaje,
+                'notificar' => $notificar,
                 'message'=> 'Mensaje creado con exito!'
             ]);
             
@@ -449,6 +448,49 @@ class PqrsfController extends Controller
                 'message'=> 'Estado actualizado con exito!'
             ]);
 
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function updateDestinatario (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.pqrsf,id'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('max')->beginTransaction();
+
+            Pqrsf::where('id', $request->get('id'))
+                ->update([
+                    'id_usuario' => request()->user()->id,
+                    'id_rol' => null, //SIN IMPLEMENTAR
+                ]);
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Pqrsf actualizado con exito!'
+            ]);
+            
         } catch (Exception $e) {
             DB::connection('max')->rollback();
             return response()->json([
@@ -648,11 +690,11 @@ class PqrsfController extends Controller
     private function tipoPqrsf ($tipo)
     {
         if ($tipo == '5') return '<b>TAREA</b>';
-        if ($tipo == '1') return '<b>QUEJA</b>';
-        if ($tipo == '2') return '<b>RECLAMO</b>';
-        if ($tipo == '3') return '<b>SOLICITUD</b>';
-        if ($tipo == '4') return '<b>FELICITACION</b>';
+        if ($tipo == '1') return '<b style="color: #ff0000;">QUEJA</b>';
+        if ($tipo == '2') return '<b style="color: #ff0000;">RECLAMO</b>';
+        if ($tipo == '3') return '<b style="color: #00ffe7;">SOLICITUD</b>';
+        if ($tipo == '4') return '<b style="color: #04ff00;">FELICITACION</b>';
 
-        return 'Peticion';
+        return '<b style="color: #00ffe7;">PETICION</b>';
     }
 }

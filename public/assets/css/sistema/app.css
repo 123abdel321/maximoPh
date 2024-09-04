@@ -1087,3 +1087,145 @@ div.dataTables_processing {
 .login-portafolioerp:hover {
     filter: grayscale(0);
 }
+
+.card-notification {
+    background-color: #075260;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.card-notification .card-header {
+    background-color: #075260;
+    padding: .3rem;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+}
+
+.card-notification .card-body {
+    padding: .5rem;
+}
+
+.card-notification .card-footer {
+    padding: .2rem;
+    text-align: center;
+    cursor: pointer;
+    /* background-color: #05424d; */
+    background-image: linear-gradient(to right, #032e36 0%, #075260 51%, #032e36 100%);
+    transition: 0.5s;
+    background-size: 200% auto;
+    display: block;
+    
+}
+
+.card-header.sin_leer {
+    -webkit-animation:boxsinleerheader 2s infinite;
+}
+
+.card-footer.sin_leer {
+    -webkit-animation:boxsinleerfooter 2s infinite;
+}
+
+@keyframes boxsinleerheader {
+    0% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 3px 5px rgb(238 135 0 / 81%)}
+    50% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 3px 8px rgb(255 231 34)}
+    100%{box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 3px 5px rgb(238 135 0 / 81%)}
+}
+
+@keyframes boxsinleerfooter {
+    0% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -3px 5px rgb(238 135 0 / 81%)}
+    50% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -3px 8px rgb(255 231 34)}
+    100%{box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -3px 5px rgb(238 135 0 / 81%)}
+}
+
+.card-header.eliminando {
+    -webkit-animation:boxeliminandoheader 2s infinite;
+}
+
+.card-footer.eliminando {
+    -webkit-animation:boxeliminandofooter 2s infinite;
+}
+
+@keyframes boxeliminandoheader {
+    0% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 5px 8px rgba(190 190 190)}
+    50% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 5px 12px rgb(255, 255, 255)}
+    100%{box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 5px 8px rgba(190 190 190)}
+}
+
+@keyframes boxeliminandofooter {
+    0% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -5px 8px rgba(190 190 190)}
+    50% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -5px 12px rgb(255, 255, 255)}
+    100%{box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -5px 8px rgba(190 190 190)}
+}
+
+.card-header.mensaje {
+    -webkit-animation:boxmensajeheader 2s infinite;
+}
+
+.card-footer.mensaje {
+    -webkit-animation:boxmensajefooter 2s infinite;
+}
+
+@keyframes boxmensajeheader {
+    0% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 3px 5px rgb(0 194 238 / 81%)}
+    50% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 3px 8px rgb(0 208 255)}
+    100%{box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px 3px 5px rgb(0 194 238 / 81%)}
+}
+
+@keyframes boxmensajefooter {
+    0% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -3px 5px rgb(0 194 238 / 81%)}
+    50% {box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -3px 8px rgb(0 208 255)}
+    100%{box-shadow:0px 0px 0px rgba(50, 50, 93, 0.1), 0px -3px 5px rgb(0 194 238 / 81%)}
+}
+
+.card-header.leido {
+    box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 0px 2px 5px rgba(0, 0, 0, 0.81);
+}
+
+.card-footer.leido {
+    box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 0px -2px 5px rgba(0, 0, 0, 0.81);
+}
+
+.card-notification .card-footer:hover {
+    color: #fff;
+    text-decoration: none;
+    background-position: right center;
+}
+
+.notificacion-close-button {
+    float: right;
+    font-size: 15px;
+    margin-top: -1px;
+    height: 10px;
+    margin-right: -8px;
+    cursor: pointer;
+}
+
+.notificacion-close-button-loading {
+    float: right;
+    font-size: 15px;
+    margin-top: -1px;
+    height: 10px;
+    margin-right: -8px;
+    cursor: progress;
+}
+
+.notificacion-close-button:hover {
+    color: red;
+}
+
+.nombre-notificacion {
+    margin-bottom: 0px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align-last: center;
+}
+
+.sin-notificaciones-icon {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+}

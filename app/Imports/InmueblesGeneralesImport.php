@@ -158,7 +158,7 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
                 'porcentaje_aumento' => $row['aumento'],
                 'valor_aumento' => $row['valor_aumento'],
                 'nombre_nit' => $nit ? $nit->nombre_completo : '',
-                'numero_documento' => $nit ? $nit->numero_documento : '',
+                'numero_documento' => $row['cedula_nit'],
                 'tipo' => $row['tipo'],
                 'porcentaje_administracion' => $row['admin'],
                 'valor_administracion' => $valor_admon,

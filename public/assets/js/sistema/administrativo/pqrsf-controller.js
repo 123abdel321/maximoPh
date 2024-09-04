@@ -102,7 +102,13 @@ function pqrsfInit() {
             }},
             {"data": function (row, type, set){
                 if (row.usuario) {
-                    return row.usuario.firstname;
+                    return row.usuario.firstname+' '+row.usuario.lastname;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
+                if (row.creador) {
+                    return row.creador.firstname+' '+row.creador.lastname;
                 }
                 return '';
             }},

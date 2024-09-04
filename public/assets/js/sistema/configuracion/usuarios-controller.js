@@ -85,7 +85,7 @@ function usuariosInit() {
             $("#id_usuarios_up").val(data.id);
             $("#rol_usuario").val(data.id_rol).change();
             $("#usuario").val(data.username);
-            $("#email_usuario").val(data.email);
+            
             $("#firstname_usuario").val(data.firstname);
             $("#lastname_usuario").val(data.lastname);
             $("#address_usuario").val(data.address);
@@ -93,12 +93,16 @@ function usuariosInit() {
             if(data.id_nit) {
                 var dataNit = {
                     id: data.id_nit,
-                    text: data.nombre_completo
+                    text: data.nombre_completo,
+                    email: data.email,
                 };
                 var newOption = new Option(dataNit.text, dataNit.id, false, false);
                 $comboNitUsuario.append(newOption).trigger('change');
                 $comboNitUsuario.val(dataNit.id).trigger('change');
             }
+
+            $("#email_usuario").val(data.email);
+
 
             if (data.id_rol == 1) $("#div-id_nit_usuario").hide();
             else $("#div-id_nit_usuario").show();
@@ -236,7 +240,7 @@ function usuariosInit() {
 
     $(document).on('change', '#id_nit_usuario', function () {
         var data = $('#id_nit_usuario').select2('data');
-
+        
         if (data.length == 0) return;
         data = data[0];
 

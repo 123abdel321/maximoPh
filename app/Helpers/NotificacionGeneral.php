@@ -24,18 +24,22 @@ class NotificacionGeneral
 
     public function crear($data, $recurrentes = null)
     {
+        
         $notificacion = new Notificaciones([
             'id_usuario' => $data->id_usuario,
             'mensaje' => $data->mensaje,
             'function' => $data->function,
             'data' => $data->data,
             'estado' => $data->estado,
+            'id_rol' => property_exists($data, 'id_rol') ? $data->id_rol : 0,
             'created_by' => $data->created_by,
             'updated_by' => $data->updated_by,
         ]);
         
-        $notificacion->notificacion()->associate($this->modelo_padre);
-        $this->modelo_padre->notificacion()->save($notificacion);
+        if ($this->modelo_padre) {
+            $notificacion->notificacion()->associate($this->modelo_padre);
+            $this->modelo_padre->notificacion()->save($notificacion);
+        }
         $notificacion->save();
 
         if ($recurrentes) $this->hideRecurrentes($data);

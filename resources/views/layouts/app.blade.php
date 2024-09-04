@@ -180,8 +180,10 @@
         </svg>
     </div>
     <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
+    <button id="button-open-notificaciones" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificacionesMaximo" aria-controls="notificacionesMaximo" style="display: none;"></button>
 
     @include('components.pqrsf-canv', ['rol_usuario', $rol_usuario])
+    @include('components.notificaciones')
     <!-- FOOTER -->
     @include('layouts.footers.footer')
 
@@ -190,6 +192,7 @@
         var is_owner = JSON.parse('<?php echo $is_owner; ?>');
         var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
         var version_app = '<?php echo config('app.version'); ?>';
+        var pqrsf_notificaciones = '<?php echo $pqrsf_notificaciones; ?>';
     </script>
 
     <!--   Core JS Files   -->
@@ -235,6 +238,7 @@
     <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
     <!-- SISTEMA -->
     <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="assets/js/sistema/notificaciones.js?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
 
     <!-- Include the Quill library -->

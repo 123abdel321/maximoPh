@@ -40,21 +40,45 @@ class NotificacionesController extends Controller
     public function read (Request $request)
     {
         try {
-            $notificaciones = Notificaciones::where('estado', 0)
+            $notificaciones = Notificaciones::orderByRaw("id DESC, estado ASC")
+                ->with('creador')
+                ->where('estado', '!=', 2)
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
                     'created_by',
                     'updated_by'
-                )
-                ->where('id_usuario', request()->user()->id)
-                ->get();
+                );
+
+            if ($request->user()->can('pqrsf notificacion')) {
+                $notificaciones->orWhere('id_rol', 1)
+                    ->orWhereNull('id_usuario');
+            } else {
+                $notificaciones->where('id_usuario', request()->user()->id);
+            }
+
+            $notificacionesCount = Notificaciones::with('creador')
+                ->where('estado', '=', 0)
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
+
+            if ($request->user()->can('pqrsf notificacion')) {
+                $notificacionesCount->orWhere('id_rol', 1)
+                    ->orWhereNull('id_usuario');
+            } else {
+                $notificacionesCount->where('id_usuario', request()->user()->id);
+            }
 
             return response()->json([
                 'success'=>	true,
-                'data' => $notificaciones,
-                'total' => count($notificaciones),
+                'data' => $notificaciones->get(),
+                'total' => $notificacionesCount->count(),
                 'message'=> 'Notificaciones generados con exito!'
             ]);
 
@@ -87,33 +111,105 @@ class NotificacionesController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $notificacion = Notificaciones::where('id', $request->get('id'))
-                ->where('estado', 0)
-                ->update([
-                    'estado' => $request->get('estado'),
-                    'updated_by' => request()->user()->id
-                ]);
-
             $notificacion = Notificaciones::find($request->get('id'));
-            
-            Notificaciones::where('notificacion_type', $notificacion->notificacion_type) 
-                ->where('mensaje', $notificacion->mensaje)
-                ->where('estado', 0)
-                ->update([
-                    'estado' => $request->get('estado'),
-                    'updated_by' => request()->user()->id
-                ]);
+            $notificacion->updated_by = request()->user()->id;
+            $notificacion->estado = $request->get('estado');
+            if (!$notificacion->id_usuario) {
+                $notificacion->id_usuario = request()->user()->id;
+            }
+            $notificacion->save();
+
+            $notificacionesCount = Notificaciones::with('creador')
+                ->where('estado', '=', 0)
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
+                
+
+            if ($request->user()->can('pqrsf notificacion')) {
+                $notificacionesCount->orWhere('id_rol', 1)
+                    ->orWhereNull('id_usuario');
+            } else {
+                $notificacionesCount->where('id_usuario', request()->user()->id);
+            }
+
+            $notificacionesCountTotal = Notificaciones::with('creador')
+                ->where('estado', '!=', 2)
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                );
+                
+
+            if ($request->user()->can('pqrsf notificacion')) {
+                $notificacionesCountTotal->orWhere('id_rol', 1)
+                    ->orWhereNull('id_usuario');
+            } else {
+                $notificacionesCountTotal->where('id_usuario', request()->user()->id);
+            }
 
             DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
                 'data' => $notificacion,
+                'count' => $notificacionesCount->count(),
+                'count_total' => $notificacionesCountTotal->count(),
                 'message'=> 'Notificacion actualizada con exito!'
             ]);
             
         } catch (Exception $e) {
             DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function find (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.notificaciones,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+        
+        try {
+
+            $notificacion = Notificaciones::where('id', $request->get('id'))
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                )
+                ->first();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $notificacion,
+                'message'=> 'Notificacion encontrada con exito!'
+            ]);
+
+        } catch (Exception $e) {
             return response()->json([
                 "success"=>false,
                 'data' => [],

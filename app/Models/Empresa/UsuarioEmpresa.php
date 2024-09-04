@@ -28,7 +28,7 @@ class UsuarioEmpresa extends Model
 
     public function usuario()
     {
-        return $this->belongsTo("App\User", "id_usuario");
+        return $this->belongsTo("App\Models\User", "id_usuario");
     }
 
     public function nit()

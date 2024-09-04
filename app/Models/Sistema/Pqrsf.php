@@ -16,6 +16,7 @@ class Pqrsf extends Model
     protected $fillable = [
         'id_usuario',
         'id_nit',
+        'id_rol',
         'tipo',
         'area',
         'dias',

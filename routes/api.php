@@ -144,6 +144,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('pqrsf-find', 'find');
             Route::post('pqrsf-tiempo', 'tiempo');
             Route::post('pqrsf-estado', 'updateEstado');
+            Route::put('pqrsf-destinatario', 'updateDestinatario');
             Route::post('pqrsf-email', 'sendEmail');
         });
         //ENTORNO
@@ -215,6 +216,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         });
         //NOTIFICACIONES
         Route::controller(NotificacionesController::class)->group(function () {
+            Route::get('notificacion', 'find');
             Route::get('notificaciones', 'read');
             Route::put('notificaciones', 'update');
         });

@@ -697,6 +697,7 @@
             localStorage.setItem("auth_token_erp", '');
             localStorage.setItem("empresa_nombre", '');
             localStorage.setItem("notificacion_code", '');
+            localStorage.setItem("notificacion_code_general", '');
             localStorage.setItem("fondo_sistema", '');
             localStorage.setItem("empresa_logo", '');
 
@@ -724,6 +725,7 @@
                     localStorage.setItem("auth_token_erp", res.token_api_portafolio);
                     localStorage.setItem("empresa_nombre", res.empresa.razon_social);
                     localStorage.setItem("notificacion_code", res.notificacion_code);
+                    localStorage.setItem("notificacion_code_general", res.notificacion_code_general);
                     localStorage.setItem("fondo_sistema", res.fondo_sistema);
                     localStorage.setItem("empresa_logo", res.empresa.logo);                    
 

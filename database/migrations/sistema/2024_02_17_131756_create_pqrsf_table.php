@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('id_usuario')->nullable();
             $table->integer('id_nit')->nullable();
+            $table->integer('id_rol')->nullable();
             $table->integer('id_inmueble')->nullable();
             $table->integer('tipo')->nullable()->default(0)->comment('0 - Pregunta; 1 - Queja; 2 - Reclamo; 3 - Solicitud; 4 - Felicitacion');
             $table->string('dias', 100)->nullable();

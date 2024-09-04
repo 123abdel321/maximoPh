@@ -17,6 +17,7 @@ class Notificaciones extends Model
         'notificacion_id',
         'notificacion_type',
         'id_usuario',
+        'id_rol',
         'mensaje',
         'menu',
         'function',
@@ -30,5 +31,10 @@ class Notificaciones extends Model
     public function notificacion()
     {
         return $this->morphTo();
+    }
+
+    public function creador()
+    {
+        return $this->belongsTo("App\Models\User", "created_by");
     }
 }

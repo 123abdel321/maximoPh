@@ -63,6 +63,7 @@
             <th>Tipo</th>
             <th>Area</th>
             <th>Remitente</th>
+            <th>Destinatario</th>
             <th>Ubicación</th>
             <th>Cedula / Nit</th>
             <th>Asunto</th>
