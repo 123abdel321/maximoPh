@@ -42,6 +42,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             $descuentoProntoPago = 0;
             $anticipo = 0;
             $valorPendiente = 0;
+            $extractoSaldo = 0;
             
             if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
                 continue;
@@ -140,17 +141,19 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                             $anticipo+= $row['valor'];
                         }
                     }
+
+                    $extractoSaldo = (new Extracto(
+                        $nit->id,
+                        [3,7]
+                    ))->completo()->first();
+
+                    $extractoSaldo ? $extractoSaldo->saldo : 0;
                 }
             }
 
             if (!$conceptoFacturacion) {
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
             }
-
-            $extracto = (new Extracto(
-                $nit->id,
-                [3,7]
-            ))->completo()->first();
 
             ConRecibosImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
@@ -166,7 +169,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'email' => $row['email'],
                 'pago' => $row['valor'],
                 'descuento' => $descuentoProntoPago,
-                'saldo' => $extracto->saldo,
+                'saldo' => $extractoSaldo,
                 'saldo_nuevo' => $saldoNuevo,
                 'anticipos' => $anticipo,
                 'observacion' => $estado ? $observacion : 'Listo para importar',
