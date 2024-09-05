@@ -147,7 +147,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                         [3,7]
                     ))->completo()->first();
 
-                    $extractoSaldo ? $extractoSaldo->saldo : 0;
+                    $extractoSaldo = $extractoSaldo ? $extractoSaldo->saldo : 0;
                 }
             }
 
@@ -173,7 +173,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'saldo_nuevo' => $saldoNuevo,
                 'anticipos' => $anticipo,
                 'observacion' => $estado ? $observacion : 'Listo para importar',
-                'estado' => $estado,
+                'estado' => $estado
             ]);
         }
     }
