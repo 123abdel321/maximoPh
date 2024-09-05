@@ -1045,7 +1045,7 @@ class FacturacionController extends Controller
                         ], $facturaPdf));
                     }
 
-                    if ($nit->email_1) {
+                    if ($nit->email_1 && $nit->email != $nit->email_1) {
                         Mail::to($nit->email_1)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
@@ -1056,7 +1056,7 @@ class FacturacionController extends Controller
                         ], $facturaPdf));
                     }
 
-                    if ($nit->email_2) {
+                    if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2) {
                         Mail::to($nit->email_2)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
