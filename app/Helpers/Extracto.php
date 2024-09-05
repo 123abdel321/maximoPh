@@ -253,9 +253,6 @@ class Extracto
             ->when($this->documento_referencia ? $this->documento_referencia : false, function ($query) {
 				$query->where('DG.documento_referencia', $this->documento_referencia);
 			})
-            ->when($this->documento_referencia ? $this->documento_referencia : false, function ($query) {
-				$query->where('DG.documento_referencia', $this->documento_referencia);
-			})
             ->when($this->fecha ? $this->fecha : false, function ($query) {
 				$query->where('DG.fecha_manual', '<=', $this->fecha);
 			})

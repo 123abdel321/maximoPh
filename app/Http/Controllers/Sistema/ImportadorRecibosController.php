@@ -210,7 +210,9 @@ class ImportadorRecibosController extends Controller
                     } else {//AGREGAR PAGOS EN CXP
                         $extractos = (new Extracto(
                             $reciboImport->id_nit,
-                            [3,7]
+                            [3,7],
+                            null,
+                            $this->fechaManual
                         ))->actual()->get();
                         $realizarDescuento = false;
 
@@ -430,11 +432,11 @@ class ImportadorRecibosController extends Controller
 
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
-        $fechaActual = Carbon::now()->format("Y-m-d");
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
 
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
+                FD.id AS id_factura_detalle,
                 FA.pronto_pago AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
@@ -461,6 +463,7 @@ class ImportadorRecibosController extends Controller
             LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
 
             WHERE FD.id_nit = $id_nit
+                AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 AND CF.porcentaje_pronto_pago > 0
                 AND FA.pronto_pago IS NULL
@@ -528,7 +531,9 @@ class ImportadorRecibosController extends Controller
     {
         $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
             $id_nit,
-            [4,8]
+            [4,8],
+            null,
+            $this->fechaManual
         ))->actual()->get();
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR

@@ -25,8 +25,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
     public function collection(Collection $rows)
     {
-        $columna = 2;
-        foreach ($rows as $row) {
+        $columna = 0;
+        foreach ($rows as $key => $row) {
+            // if ($key != 1) {
+            //     continue;
+            // }
             $estado = 0;
             $observacion = '';
 
@@ -51,7 +54,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             } else if ($row['fecha_manual']) {
                 $fechaManual = Date::excelToDateTimeObject($row['fecha_manual']);
             }
-
 
             if ($row['inmueble']) {
                 $inmueble = Inmueble::with('zona')
@@ -80,7 +82,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
                 $nitConcepto = Nits::where('email', $row['email'])->first();
 
-
                 if ($concepto && $nitConcepto) {
                     $conceptoFacturacion = $concepto;
                     $nit = $nitConcepto;
@@ -100,7 +101,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
             if ($row['valor']) {
                 if ($nit) {
-                    
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
                     $inicioMes = $inicioMes.'-01';
                     $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
@@ -112,12 +112,17 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                         $extracto = (new Extracto(
                             $nit->id,
                             [3,7],
+                            null,
+                            $fechaManual
                         ))->completo()->first();
 
                         $extractoCXC = (new Extracto(
                             $nit->id,
                             [4,8],
+                            null,
+                            $fechaManual
                         ))->completo()->first();
+
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
 
                         if ($extracto && $extracto->saldo) {
@@ -142,6 +147,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
             }
 
+            $extracto = (new Extracto(
+                $nit->id,
+                [3,7]
+            ))->completo()->first();
+
             ConRecibosImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
                 'id_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->id : null,
@@ -156,7 +166,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'email' => $row['email'],
                 'pago' => $row['valor'],
                 'descuento' => $descuentoProntoPago,
-                'saldo' => $saldoTotal,
+                'saldo' => $extracto->saldo,
                 'saldo_nuevo' => $saldoNuevo,
                 'anticipos' => $anticipo,
                 'observacion' => $estado ? $observacion : 'Listo para importar',
@@ -193,11 +203,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
-        $fechaActual = Carbon::now()->format("Y-m-d");
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
         
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
+                FD.id AS id_factura_detalle,
                 FA.pronto_pago AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
@@ -222,6 +232,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
 
             WHERE FD.id_nit = $id_nit
+                AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 AND CF.porcentaje_pronto_pago > 0
                 AND FA.pronto_pago IS NULL
