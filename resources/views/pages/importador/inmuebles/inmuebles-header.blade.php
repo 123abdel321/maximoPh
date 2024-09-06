@@ -23,29 +23,37 @@
                     <p style="font-size: 14px !important; margin-bottom: 0px; color: black;" ><b>4.</b> Valida los registros que seran cargados y haz click en "Cargar pagos"</p>
                 </div>
                 <br>
-                <div class="row">
-                    <form id="form-importador-inmuebles" enctype="multipart/form-data">
-                        {{ csrf_field() }}
+                <form id="form-importador-inmuebles" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                    <div class="row">
                         <div class="col-6">
                             <input class="form-control form-control-sm" id="file_import_inmuebles" name="file_import_inmuebles" type="file" style="box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 2px 2px 2px rgb(0 0 0 / 57%); font-size: 15px; color: black; font-weight: bold;">
                         </div>
-                        <br/>
-                        <div class="col-12">
-                            <button id="cargarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-success">
-                                <i class="far fa-file-excel" style="font-size: 17px;"></i>&nbsp;
-                                <b style="vertical-align: text-top;">Cargar plantilla</b>
-                            </button>
-                            <button id="actualizarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none;">
-                                <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
-                                <b style="vertical-align: text-top;">Cargar cuotas extras</b>
-                            </button>&nbsp;
-                            <button id="cargarPlantillaInmueblesLoagind" class="btn btn-sm badge bg-gradient-primary" style="display:none; float: left;" disabled>
-                                <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
-                                <b style="vertical-align: text-top;">Cargando</b>
-                            </button>
+    
+                        <div class="form-check form-switch col-4">
+                            <input class="form-check-input" type="checkbox" name="actualizar_valores" id="actualizar_valores" style="height: 20px;">
+                            <label class="form-check-label" for="actualizar_valores">
+                                Actualizar valores inmuebles
+                            </label>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <br/>
+                    <div class="col-12">
+                        <button id="cargarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-success">
+                            <i class="far fa-file-excel" style="font-size: 17px;"></i>&nbsp;
+                            <b style="vertical-align: text-top;">Cargar plantilla</b>
+                        </button>
+                        <button id="actualizarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none;">
+                            <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
+                            <b style="vertical-align: text-top;">Cargar cuotas extras</b>
+                        </button>&nbsp;
+                        <button id="cargarPlantillaInmueblesLoagind" class="btn btn-sm badge bg-gradient-primary" style="display:none; float: left;" disabled>
+                            <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
+                            <b style="vertical-align: text-top;">Cargando</b>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

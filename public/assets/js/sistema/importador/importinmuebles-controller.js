@@ -147,6 +147,7 @@ btnImportRecibo.addEventListener('click', event => {
         method: 'POST',
         url: base_url + 'inmuebles-cargar-import',
         headers: headers,
+        data: JSON.stringify({actualizar_valores: $("input[type='checkbox']#actualizar_valores").is(':checked') ? '1' : '0'}),
         dataType: 'json',
     }).done((res) => {
         $('#cargarPlantillaInmuebles').show();
