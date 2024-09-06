@@ -53,7 +53,7 @@ class ConceptoFacturacionController extends Controller
 
             $searchValue = $search_arr['value']; // Search value
 
-            $conceptoFacturacion = ConceptoFacturacion::orderBy('id', 'ASC')
+            $conceptoFacturacion = ConceptoFacturacion::orderBy('codigo', 'ASC')
                 ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
                 ->where('nombre_concepto', 'like', '%' .$searchValue . '%')
                 ->select(
