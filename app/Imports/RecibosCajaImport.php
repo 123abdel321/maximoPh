@@ -27,9 +27,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
     {
         $columna = 0;
         foreach ($rows as $key => $row) {
-            // if ($key != 1) {
-            //     continue;
-            // }
+            
             $estado = 0;
             $observacion = '';
 

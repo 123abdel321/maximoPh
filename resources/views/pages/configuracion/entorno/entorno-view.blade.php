@@ -90,13 +90,19 @@
                             <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Tasa interes pronto pago</label>
                                 <input type="number" class="form-control form-control-sm" name="tasa_pronto_pago" id="tasa_pronto_pago">
+                            </div> -->
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="exampleFormControlSelect1">Concepto pago sin identificar</label>
+                                <select name="id_concepto_pago_none" id="id_concepto_pago_none" class="form-control form-control-sm">
+                                </select>
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">
-                                <label for="exampleFormControlSelect1">Cuenta pronto pago</label>
-                                <select name="id_cuenta_pronto_pago" id="id_cuenta_pronto_pago" class="form-control form-control-sm">
+                                <label for="exampleFormControlSelect1">Nit por defecto</label>
+                                <select name="id_nit_por_defecto" id="id_nit_por_defecto" class="form-control form-control-sm">
                                 </select>
-                            </div> -->
+                            </div>
 
                             <div class="form-check form-switch col-12 col-sm-4 col-md-3">
                                 <input class="form-check-input" type="checkbox" name="validacion_estricta" id="validacion_estricta" style="height: 20px;">

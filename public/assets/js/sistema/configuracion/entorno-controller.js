@@ -1,30 +1,65 @@
-$comboCuentaProntoPago = null;
+var $nitPorDefecto = null;
+var $comboConceptoFacturacion = null;
 
 function entornoInit() {
 
-    // $comboCuentaProntoPago = $('#id_cuenta_pronto_pago').select2({
-    //     theme: 'bootstrap-5',
-    //     delay: 250,
-    //     placeholder: "Seleccione una cuenta",
-    //     allowClear: true,
-    //     ajax: {
-    //         url: 'api/plan-cuenta/combo-cuenta',
-    //         headers: headers,
-    //         dataType: 'json',
-    //         data: function (params) {
-    //             var query = {
-    //                 search: params.term,
-    //                 auxiliar: true,
-    //             }
-    //             return query;
-    //         },
-    //         processResults: function (data) {
-    //             return {
-    //                 results: data.data
-    //             };
-    //         }
-    //     }
-    // });
+    $comboConceptoFacturacion = $('#id_concepto_pago_none').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un concepto de facturación",
+        allowClear: true,
+        ajax: {
+            url: 'api/concepto-facturacion-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $nitPorDefecto = $('#id_nit_por_defecto').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 
     for (let index = 0; index < variablesEntorno.length; index++) {
         const variable = variablesEntorno[index];
@@ -60,9 +95,10 @@ function entornoInit() {
             'documento_referencia_agrupado',
         ];
 
-        // var select2 = [
-        //     'id_cuenta_pronto_pago',
-        // ];
+        var select2 = [
+            'id_concepto_pago_none',
+            'id_nit_por_defecto',
+        ];
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
@@ -85,15 +121,26 @@ function entornoInit() {
             $('#'+variable.nombre).val(variable.valor);
         }
 
-        // if (select2.indexOf(variable.nombre) + 1) {
-        //     var dataCuenta = {
-        //         id: variable.cuenta_contable.id,
-        //         text: variable.cuenta_contable.cuenta + ' - ' + variable.cuenta_contable.nombre
-        //     };
-        //     var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
-        //     $comboCuentaProntoPago.append(newOption).trigger('change');
-        //     $comboCuentaProntoPago.val(dataCuenta.id).trigger('change');
-        // }
+        if (select2.indexOf(variable.nombre) + 1) {
+            if (variable.nombre == 'id_concepto_pago_none') {
+                var dataConceptoFacturacion = {
+                    id: variable.concepto_facturacion.id,
+                    text: variable.concepto_facturacion.codigo + ' - ' + variable.concepto_facturacion.nombre_concepto
+                };
+                var newOption = new Option(dataConceptoFacturacion.text, dataConceptoFacturacion.id, false, false);
+                $comboConceptoFacturacion.append(newOption).trigger('change');
+                $comboConceptoFacturacion.val(dataConceptoFacturacion.id).trigger('change');
+            }
+            if (variable.nombre == 'id_nit_por_defecto') {
+                var dataNit = {
+                    id: variable.nit.id,
+                    text: variable.nit.razon_social ? variable.nit.razon_social : variable.nit.nombre_completo
+                };
+                var newOption = new Option(dataNit.text, dataNit.id, false, false);
+                $nitPorDefecto.append(newOption).trigger('change');
+                $nitPorDefecto.val(dataNit.id).trigger('change');
+            }
+        }
     }
 }
 
@@ -119,7 +166,8 @@ $(document).on('click', '#updateEntorno', function () {
         'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
         'documento_referencia_agrupado': $('#documento_referencia_agrupado').val(),
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
-        // 'id_cuenta_pronto_pago': $('#id_cuenta_pronto_pago').val(),
+        'id_concepto_pago_none': $('#id_concepto_pago_none').val(),
+        'id_nit_por_defecto': $('#id_nit_por_defecto').val(),
     };
 
     if (stringToNumberFloat($('#dias_pronto_pago').val() > 30)) {

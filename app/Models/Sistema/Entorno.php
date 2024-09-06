@@ -20,8 +20,13 @@ class Entorno extends Model
         'updated_by'
     ];
 
-    public function cuenta_contable()
+    public function concepto_facturacion()
     {
-        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'valor');
+        return $this->belongsTo(ConceptoFacturacion::class, 'valor');
+    }
+
+    public function nit()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'valor');
     }
 }

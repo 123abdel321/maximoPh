@@ -16,7 +16,7 @@ class EntornoController extends Controller
     public function index(Request $request)
     {
         $data = [
-            'variables_entorno' => Entorno::with('cuenta_contable')->get()
+            'variables_entorno' => Entorno::with('concepto_facturacion', 'nit')->get()
         ];
         
         return view('pages.configuracion.entorno.entorno-view', $data);
@@ -37,6 +37,8 @@ class EntornoController extends Controller
                 'id_cuenta_ingreso_recibos_caja',
                 'id_cuenta_egreso_pagos',
                 'id_cuenta_ingreso_pasarela',
+                'id_concepto_pago_none',
+                'id_nit_por_defecto',
                 'area_total_m2',
                 'numero_total_unidades',
                 'valor_total_presupuesto_year_actual',
