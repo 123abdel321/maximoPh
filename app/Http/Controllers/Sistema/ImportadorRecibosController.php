@@ -175,6 +175,12 @@ class ImportadorRecibosController extends Controller
                     //AGREGAR PAGOS EN CONCEPTOS
                     if ($reciboImport->id_concepto_facturacion) {
                         $conceptoFacturacion = ConceptoFacturacion::find($reciboImport->id_concepto_facturacion);
+                        $extractos = (new Extracto(
+                            $reciboImport->id_nit,
+                            [3,7]
+                        ))->actual()->get();
+                        $countTotal = count($extractos) ? '-'.count($extractos) : '';
+                        $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual)).$countTotal;
 
                         $cuentaIngreso = PlanCuentas::find($conceptoFacturacion->id_cuenta_ingreso);
                         $cuentaCobro = PlanCuentas::find($conceptoFacturacion->id_cuenta_cobrar);

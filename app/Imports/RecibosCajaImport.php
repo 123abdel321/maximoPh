@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithProgressBar;
 use Maatwebsite\Excel\Concerns\WithMappedCells;
 //MODELS
 use App\Models\Portafolio\Nits;
+use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ConRecibosImport;
@@ -26,8 +27,12 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
     public function collection(Collection $rows)
     {
         $columna = 0;
-        foreach ($rows as $key => $row) {
-            
+        $conceptoFacturacionSinIdentificar = Entorno::where('nombre', 'id_concepto_pago_none')->first();
+        $conceptoFacturacionSinIdentificar = $conceptoFacturacionSinIdentificar ? $conceptoFacturacionSinIdentificar->valor : 0;
+        $nitPorDefecto = Entorno::where('nombre', 'id_nit_por_defecto')->first();
+        $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
+
+        foreach ($rows as $key => $row) {            
             $estado = 0;
             $observacion = '';
 
@@ -44,6 +49,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             
             if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
                 continue;
+            }
+
+            if (!$row['inmueble'] && !$row['cedula_nit'] && $row['valor']) {
+                $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
+                $nit = Nits::where('id', $nitPorDefecto)->first();
             }
 
             $fechaManual = Carbon::now();
@@ -163,7 +173,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'nombre_inmueble' => $inmueble ? $inmueble->nombre : '',
                 'nombre_zona' => $inmueble ? $inmueble->zona->nombre : '',
                 'nombre_nit' => $nit ? $nit->nombre_completo : '',
-                'numero_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->nombre_concepto : '',
+                'numero_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->codigo.' - '.$conceptoFacturacion->nombre_concepto : '',
                 'email' => $row['email'],
                 'pago' => $row['valor'],
                 'descuento' => $descuentoProntoPago,
