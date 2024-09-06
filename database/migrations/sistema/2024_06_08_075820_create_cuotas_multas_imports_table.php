@@ -16,8 +16,8 @@ return new class extends Migration
             $table->integer('id_nit')->nullable();
             $table->integer('id_inmueble')->nullable();
             $table->integer('id_concepto_facturacion')->nullable();
-            $table->integer('numero_documento')->nullable();
-            $table->integer('nombre_inmueble')->nullable();
+            $table->string('numero_documento', 200)->nullable();
+            $table->string('nombre_inmueble', 200)->nullable();
             $table->string('nombre_nit', 100)->nullable();
             $table->integer('codigo_concepto')->nullable();
             $table->string('fecha_inicio', 10)->nullable();

@@ -23,9 +23,11 @@ class CutasExtrasImport implements ToCollection, WithHeadingRow, WithProgressBar
     use Importable;
 
     public function collection(Collection $rows)
+    
     {
         $columna = 2;
         foreach ($rows as $row) {
+            
             $estado = 0;
             $observacion = '';
 
@@ -85,6 +87,19 @@ class CutasExtrasImport implements ToCollection, WithHeadingRow, WithProgressBar
                 } else if ($nitDocumento && $nit->id != $nitDocumento->id) {
                     $estado = 1;
                     $observacion.= 'El numero de documento: '.$row['cedula_nit'].', no coincide con el propietario!<br>';
+                }
+
+                if (!$inmueble && $nit) {
+                    $inmuebleNit = InmuebleNit::with('inmueble')
+                        ->where('id_nit', $nit->id)
+                        ->first();
+
+                    if (!$inmuebleNit) {
+                        $estado = 1;
+                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', no tiene inmuebles asociados!<br>';
+                    } else {
+                        $inmueble = $inmuebleNit->inmueble;
+                    }                    
                 }
             }
             
