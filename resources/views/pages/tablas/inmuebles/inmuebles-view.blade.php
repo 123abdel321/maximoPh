@@ -23,6 +23,10 @@
                     <button type="button" class="btn btn-dark btn-sm" id="volverInmuebles" style="display: none;"><i class="fas fa-step-backward back-icon-button"></i>&nbsp;Volver</button>
                     <button type="button" class="btn btn-primary btn-sm" id="createInmueblesNit" style="display: none; margin-left: 5px;">Agregar cédula / nit</button>
                 @endcan
+                <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadInmueble">
+                    <i id="reloadInmuebleIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                    <i id="reloadInmuebleIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                </button>
             </div>
             <div class="col-12 col-md-6 col-sm-6" >
                 <h4 id="nombre_inmueble_nit" style="display: none; float: inline-end; color: white;"></h4>

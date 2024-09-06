@@ -19,7 +19,7 @@
     </div>
 
     <div class="form-group col-12 col-sm-6 col-md-3" >
-        <label for="example-text-input" class="form-control-label">Buscar</label>
+        <label for="example-text-input" class="form-control-label">Nombre inmueble</label>
         <input type="text" id="searchInputInmuebles" class="form-control form-control-sm" placeholder="Buscar" onkeydown="searchInmuebles(event)">
     </div>
 </div>

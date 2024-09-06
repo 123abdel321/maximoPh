@@ -77,13 +77,6 @@ class InmuebleController extends Controller
                     'created_by',
                     'updated_by'
                 );
-            
-            if ($request->get('search')) {
-                
-                $inmueble->where('nombre', 'LIKE', '%'.$request->get('search').'%')
-                    ->orWhere('area', 'LIKE', '%'.$request->get('search').'%')
-                    ->orWhere('coeficiente', 'LIKE', '%'.$request->get('search').'%');
-            }
 
             if ($request->get('id_nit')) {
                 $inmueble->whereHas('personas',  function ($query) use($request) {
@@ -101,6 +94,10 @@ class InmuebleController extends Controller
                 $inmueble->whereHas('concepto',  function ($query) use($request) {
                     $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
                 });
+            }
+
+            if ($request->get('search')) {
+                $inmueble->where('nombre', 'LIKE', '%'.$request->get('search').'%');
             }
 
             $inmuebleTotals = $inmueble->get();

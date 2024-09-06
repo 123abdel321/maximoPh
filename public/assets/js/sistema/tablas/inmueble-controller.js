@@ -38,7 +38,7 @@ function inmuebleInit() {
                 d.id_nit = $('#id_nit_inmueble_filter').val(),
                 d.id_zona = $('#id_zona_inmueble_filter').val(),
                 d.id_concepto_facturacion = $('#id_concepto_facturacion_inmueble_filter').val(),
-                d.search = searchValueInmuebles;
+                d.search = $('#searchInputInmuebles').val();
             }
         },
         columns: [
@@ -322,6 +322,7 @@ function inmuebleInit() {
             $('#tablas_inmuebles_nits').show();
             $('#nombre_inmueble_nit').show();
             
+            $('#reloadInmueble').hide();
             $('#createInmuebles').hide();
             $('#tablas_inmuebles').hide();
             $('#totales_inmuebles_view').hide();
@@ -581,6 +582,21 @@ function inmuebleInit() {
                 };
             }
         }
+    });
+    
+    $(document).on('change', '#id_nit_inmueble_filter', function () {
+        inmueble_table.ajax.reload();
+        getTotalesInmuebles();
+    });
+    
+    $(document).on('change', '#id_zona_inmueble_filter', function () {
+        inmueble_table.ajax.reload();
+        getTotalesInmuebles();
+    });
+    
+    $(document).on('change', '#id_concepto_facturacion_inmueble_filter', function () {
+        inmueble_table.ajax.reload();
+        getTotalesInmuebles();
     });
 
     let column = inmueble_table.column(7);
@@ -846,6 +862,7 @@ $(document).on('click', '#volverInmuebles', function () {
     $('#nombre_inmueble_nit').hide();            
     $('#tablas_inmuebles_nits').hide();
     
+    $('#reloadInmueble').show();
     $('#createInmuebles').show();
     $('#tablas_inmuebles').show();
     $('#searchInputInmuebles').show();
@@ -964,21 +981,6 @@ function clearFormInmuebleNit(){
     $comboInmuebleNit.val('').trigger('change');
 }
 
-function searchInmuebles (event) {
-    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
-        return;
-    }
-    var botonPrecionado = event.key.length == 1 ? event.key : '';
-    searchValueInmuebles = $('#searchInputInmuebles').val();
-    searchValueInmuebles = searchValueInmuebles+botonPrecionado;
-    if(event.key == 'Backspace') searchValueInmuebles = searchValueInmuebles.slice(0, -1);
-
-    inmueble_table.context[0].jqXHR.abort();
-    inmueble_table.ajax.reload(function () {
-        getTotalesInmuebles();
-    });
-}
-
 $('.form-control').keyup(function() {
     $(this).val($(this).val().toUpperCase());
 });
@@ -994,17 +996,22 @@ $("input[data-type='currency']").on({
     }
 });
 
-$(document).on('change', '#id_nit_inmueble_filter', function () {
-    inmueble_table.ajax.reload();
-    getTotalesInmuebles();
-});
+function searchInmuebles (event) {
+    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
+        return;
+    }
 
-$(document).on('change', '#id_zona_inmueble_filter', function () {
-    inmueble_table.ajax.reload();
-    getTotalesInmuebles();
-});
+    if(event.key == 'Backspace') searchValuePorteria = searchValuePorteria.slice(0, -1);
 
-$(document).on('change', '#id_concepto_facturacion_inmueble_filter', function () {
+    inmueble_table.context[0].jqXHR.abort();
     inmueble_table.ajax.reload();
-    getTotalesInmuebles();
+}
+
+$(document).on('click', '#reloadInmueble', function () {
+    $("#reloadInmuebleIconNormal").hide();
+    $("#reloadInmuebleIconLoading").show();
+    inmueble_table.ajax.reload(function (res) {
+        $("#reloadInmuebleIconNormal").show();
+        $("#reloadInmuebleIconLoading").hide();
+    }); 
 });
