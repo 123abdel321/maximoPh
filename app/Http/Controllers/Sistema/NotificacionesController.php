@@ -114,6 +114,7 @@ class NotificacionesController extends Controller
             $notificacion = Notificaciones::find($request->get('id'));
             $notificacion->updated_by = request()->user()->id;
             $notificacion->estado = $request->get('estado');
+            $notificacion->id_rol = 0;
             if (!$notificacion->id_usuario) {
                 $notificacion->id_usuario = request()->user()->id;
             }
