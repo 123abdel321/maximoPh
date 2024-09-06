@@ -10,10 +10,10 @@
 // const base_web_erp = 'http://localhost:8000/';
 // const base_url_erp = 'http://localhost:8000/api/';
 //DEV
-const base_url = 'https://maximoph.com/api/';
-const base_web = 'https://maximoph.com/';
-const base_web_erp = 'https://test.portafolioerp.com/';
-const base_url_erp = 'https://test.portafolioerp.com/api/';
+    const base_url = 'https://maximoph.com/api/';
+    const base_web = 'https://maximoph.com/';
+    const base_web_erp = 'https://test.portafolioerp.com/';
+    const base_url_erp = 'https://test.portafolioerp.com/api/';
 
 //PRO
 // const base_url = 'https://app.portafolioerp.com/api/';
@@ -1297,8 +1297,10 @@ function iniciarCronometroPqrsf(data) {
 function actualizarBotonesMensaje(cabezaMensaje) {
     if (idRolUsuario == 1 || idRolUsuario == 2) {
         $('#content-button-status-pqrsf').show();
+        $("#content-button-time-pqrsf-disabled").hide();
     } else {
         $('#content-button-status-pqrsf').hide();
+        $("#content-button-time-pqrsf-disabled").show();
     }
 
     actualizarEstadosPqrsf(cabezaMensaje.estado);
@@ -1554,7 +1556,6 @@ function findDataPqrsf(id) {
             
             permisoAgregarTiempos = false;
         }
-
         mostrarAgregarTiempos = false;
         $("#content-button-time-pqrsf-disabled").show();
         $("#content-button-time-pqrsf").hide();
