@@ -53,7 +53,8 @@ class ImportadorInmuebles extends Controller
 
             InmueblesImport::truncate();
 
-            $import = new InmueblesGeneralesImport();
+            $actualizarValores = $request->has('actualizar_valores') ? true : false;
+            $import = new InmueblesGeneralesImport($actualizarValores);
             $import->import($file);
 
             return response()->json([
@@ -137,6 +138,7 @@ class ImportadorInmuebles extends Controller
                         ]);
                     $inmueble = Inmueble::find($inmuebleIm->id_inmueble);
                 } else {
+                    
                     $inmueble = Inmueble::create([
                         'nombre' => $inmuebleIm->nombre_inmueble,
                         'area' => $inmuebleIm->area,

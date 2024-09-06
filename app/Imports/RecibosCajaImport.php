@@ -24,13 +24,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 {
     use Importable;
 
-    protected $actualizar_valores = null;
-
-    public function __construct(string $actualizar_valores)
-    {
-        $this->actualizar_valores = $actualizar_valores;
-    }
-
     public function collection(Collection $rows)
     {
         $columna = 0;
@@ -169,11 +162,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             if (!$conceptoFacturacion) {
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
             }
-
-            if ($this->actualizar_valores && !$inmueble) {
-                $estado = 1;
-                $observacion.= 'El inmueble no existe para actualizar precio!<br>'; 
-            } 
 
             ConRecibosImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,

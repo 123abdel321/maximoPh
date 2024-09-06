@@ -72,8 +72,7 @@ class ImportadorRecibosController extends Controller
             $file = $request->file('file_import_recibos');
 
             ConRecibosImport::truncate();
-
-            $import = new RecibosCajaImport($request->get('actualizar_valores'));
+            $import = new RecibosCajaImport();
             $import->import($file);
 
             return response()->json([

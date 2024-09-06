@@ -24,6 +24,13 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
 {
     use Importable;
 
+    protected $actualizar_valores = null;
+
+    public function __construct(string $actualizar_valores)
+    {
+        $this->actualizar_valores = $actualizar_valores;
+    }
+
     public function collection(Collection $rows)
     {
         $columna = 2;
@@ -105,7 +112,7 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
                 $concepto = ConceptoFacturacion::where('id', $inmueble->id_concepto_facturacion)
                     ->first();
             }
-            // dd($concepto);
+
             if ($row['tipo']) {
                 if ($row['tipo'] != '0' &&  $row['tipo'] != '1' && $row['tipo'] != '2') {
                     $estado = 1;
@@ -144,6 +151,11 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
             } else if ($inmueble) {
                 $coheficiente = $inmueble->coheficiente;
             }
+
+            if ($this->actualizar_valores && !$inmueble) {
+                $estado = 1;
+                $observacionMala.= 'El inmueble no existe para actualizar precio!<br>'; 
+            } 
 
             InmueblesImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : '',
