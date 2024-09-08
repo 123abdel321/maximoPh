@@ -478,6 +478,7 @@ class PqrsfController extends Controller
             DB::connection('max')->beginTransaction();
 
             Pqrsf::where('id', $request->get('id'))
+                ->whereNull('id_usuario')
                 ->update([
                     'id_usuario' => request()->user()->id,
                     'id_rol' => null, //SIN IMPLEMENTAR

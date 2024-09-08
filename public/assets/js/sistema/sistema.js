@@ -383,27 +383,39 @@ function buscarNotificaciones() {
         }
     }).fail((res) => {
         let timerInterval;
-        // setTimeout(() => {
-        //     window.location.href = '/login';
-        // }, 2200)
-        // Swal.fire({
-        //     title: "Sesión caducada!",
-        //     html: "En un momento será redirigido al inicio de sesión.",
-        //     timer: 2000,
-        //     timerProgressBar: true,
-        //     didOpen: () => {
-        //         Swal.showLoading();
-        //         const timer = Swal.getPopup().querySelector("b");
-        //         timerInterval = setInterval(() => {
-        //         timer.textContent = `${Swal.getTimerLeft()}`;
-        //         }, 100);
-        //     },
-        //     willClose: () => {
-        //         clearInterval(timerInterval);
-        //     }
-        //     }).then((result) => {
-        //     closeSessionProfile();
-        // });
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 2200)
+        Swal.fire({
+            title: "Sesión caducada!",
+            html: "En un momento será redirigido al inicio de sesión.",
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+            }).then((result) => {
+            closeSessionProfile();
+        });
+    });
+}
+
+function leerNotificaciones(id) {
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'PUT',
+        headers: headers,
+        data: JSON.stringify({id: id, estado: 2}),
+        dataType: 'json',
+    }).done((res) => {
+    }).fail((res) => {
     });
 }
 
@@ -1157,9 +1169,7 @@ function createMensajePqrsf() {
         $("#button-send-pqrsf-loading").hide();
 
         if (responseData.success) {
-            if (idRolUsuario != 1 && idRolUsuario != 2) {
-                mostrarMensajesPqrsf(responseData.data);
-            }
+            mostrarMensajesPqrsf(responseData.data);
             $("#mensaje_pqrsf_nuevo").val("");
             setTimeout(function(){
                 $("#mensaje_pqrsf_nuevo").focus().select();
