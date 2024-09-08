@@ -597,6 +597,7 @@ function inmuebleInit() {
     $(document).on('change', '#id_concepto_facturacion_inmueble_filter', function () {
         inmueble_table.ajax.reload();
         getTotalesInmuebles();
+
     });
 
     let column = inmueble_table.column(7);
@@ -997,14 +998,10 @@ $("input[data-type='currency']").on({
 });
 
 function searchInmuebles (event) {
-    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
-        return;
+    if (event.keyCode == 13) {
+        inmueble_table.ajax.reload();
     }
 
-    if(event.key == 'Backspace') searchValuePorteria = searchValuePorteria.slice(0, -1);
-
-    inmueble_table.context[0].jqXHR.abort();
-    inmueble_table.ajax.reload();
 }
 
 $(document).on('click', '#reloadInmueble', function () {
