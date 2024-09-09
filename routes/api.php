@@ -55,6 +55,7 @@ Route::controller(ApiController::class)->group(function () {
     Route::get('register', 'register');
     Route::get('usuario-accion', 'getUsuario');
     Route::post('create-empresa', 'createEmpresa');
+    Route::post('validate-email', 'validateEmail');
     Route::get('/', function (Request $request) {
         return response()->json('MaximoPH API');
     });
