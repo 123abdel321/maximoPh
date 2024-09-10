@@ -917,7 +917,7 @@ function getTotalesInmuebles(){
             var countB = new CountUp('area2_registrados_inmueble', 0, res.data.area_registro_m2, 2);
                 countB.start();
 
-            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente, 2);
+            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente, 5);
                 countC.start();
 
             var countD = new CountUp('presupuesto_registrados_inmueble', 0, res.data.valor_registro_presupuesto);
