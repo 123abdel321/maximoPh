@@ -447,7 +447,7 @@ class InmuebleNitController extends Controller
 
         if (count($inmueblesNits)) {
             foreach ($inmueblesNits as $key => $inmuebleNit) {
-                $apartamentos.= $inmuebleNit->inmueble->zona->nombre.' - '.$inmuebleNit->inmueble->nombre.', ';
+                $apartamentos.= $inmuebleNit->inmueble->nombre.' - '.$inmuebleNit->inmueble->zona->nombre.', ';
             }
         }
         $nit->apartamentos = rtrim($apartamentos, ", ");
