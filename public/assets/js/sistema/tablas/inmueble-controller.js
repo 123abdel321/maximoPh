@@ -44,6 +44,12 @@ function inmuebleInit() {
         columns: [
             {"data":'nombre'},
             {"data": function (row, type, set){
+                if (row.zona) {
+                    return row.zona.nombre;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
                 if (row.personas && row.personas.length) {
                     var persona = row.personas[0].nit;
                     return persona.numero_documento;
@@ -63,12 +69,7 @@ function inmuebleInit() {
                     return '';
                 }
             },
-            {"data": function (row, type, set){
-                if (row.zona) {
-                    return row.zona.nombre;
-                }
-                return '';
-            }},
+            
             {"data": function (row, type, set){  
                 if (row.concepto) {
                     return row.concepto.nombre_concepto;

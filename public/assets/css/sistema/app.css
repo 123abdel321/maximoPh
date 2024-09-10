@@ -147,12 +147,11 @@ thead tr:first-child th {
 }
 
 .footer-navigation {
+    margin: 0;
     position: fixed;
-    left: 0;
-    bottom: -1px;
-    width: 100%;
-    z-index: 999;
-    text-align: center;
+    top: 97.5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .footer-navigation .nav {

@@ -28,9 +28,9 @@
     <thead style="background-color: #7ea1ff2b;">
         <tr>
             <th style="border-radius: 15px 0px 0px 0px !important;">Inmueble</th>
+            <th>Zona</th>
             <th>Cédula</th>
             <th>Nombre</th>
-            <th>Zona</th>
             <th>Concepto</th>
             <th>Total %</th>
             <th>Area M2</th>
