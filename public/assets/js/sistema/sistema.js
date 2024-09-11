@@ -10,10 +10,10 @@
 // const base_web_erp = 'http://localhost:8000/';
 // const base_url_erp = 'http://localhost:8000/api/';
 //DEV
-    const base_url = 'https://maximoph.com/api/';
-    const base_web = 'https://maximoph.com/';
-    const base_web_erp = 'https://test.portafolioerp.com/';
-    const base_url_erp = 'https://test.portafolioerp.com/api/';
+const base_url = 'https://maximoph.com/api/';
+const base_web = 'https://maximoph.com/';
+const base_web_erp = 'https://test.portafolioerp.com/';
+const base_url_erp = 'https://test.portafolioerp.com/api/';
 
 //PRO
 // const base_url = 'https://app.portafolioerp.com/api/';
@@ -115,6 +115,7 @@ var moduloCreado = {
     'facturaciones': false,
     'cartera': false,
     'impuestoiva': false,
+    'estadisticas': false,
 };
 
 var moduloRoute = {
@@ -139,6 +140,8 @@ var moduloRoute = {
     'importinmuebles': 'importador',
     'cartera': 'informes',
     'impuestosiva': 'informes',
+    'estadisticas': 'informes',
+
 }
 
 $('.water').show();

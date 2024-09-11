@@ -24,6 +24,7 @@ use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\ImpuestosIvaController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
+use App\Http\Controllers\Informes\EstadisticasController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\NotificacionesController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
@@ -128,6 +129,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(ImpuestosIvaController::class)->group(function () {
             Route::get('impuestosiva', 'read');
         });
+        
         //CUOTAS EXTRA & MULTAS
         Route::controller(CuotasMultasController::class)->group(function () {
             Route::get('cuotasmultas', 'read');
@@ -137,6 +139,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('cuotasmultas-total', 'totales');
             Route::delete('cuotasmultas-delete', 'deleteMasivo');
             Route::get('cuotasmultas-concepto', 'comboConcepto');
+        });
+        //ESTADISTICAS
+        Route::controller(EstadisticasController::class)->group(function () {
+            Route::get('estadisticas', 'generate');
+            Route::get('estadisticas-show', 'show');
         });
         Route::controller(ReciboController::class)->group(function () {
             Route::get('recibo', 'read');

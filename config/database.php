@@ -43,6 +43,27 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
+        'informes' => [
+            'driver' => 'mysql',
+            'url' => env('INFORMES_DB_URL'),
+            'host' => env('INFORMES_DB_HOST', '127.0.0.1'),
+            'port' => env('INFORMES_DB_PORT', '3306'),
+            'database' => env('INFORMES_DB_DATABASE', 'forge'),
+            'username' => env('INFORMES_DB_USERNAME', 'forge'),
+            'password' => env('INFORMES_DB_PASSWORD', ''),
+            'unix_socket' => env('INFORMES_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::ATTR_TIMEOUT => 120,
+            ]) : [],
+		],
+
         'clientes' => [
             'driver' => 'mysql',
             'url' => env('CLIENTES_DB_URL'),

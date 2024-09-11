@@ -38,6 +38,7 @@ use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
 //INFORMES
 use App\Http\Controllers\Sistema\ImpuestosIvaController;
+use App\Http\Controllers\Informes\EstadisticasController;
 
 
 //MODELOS
@@ -163,7 +164,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/cartera', [CarteraController::class, 'index']);
 		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);
 		Route::get('/impuestosiva', [ImpuestosIvaController::class, 'index']);
-		
+		Route::get('/estadisticas', [EstadisticasController::class, 'index']);
+				
 	});
 	
 });
