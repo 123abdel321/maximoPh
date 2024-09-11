@@ -36,7 +36,9 @@ class User extends Authenticatable
         'telefono',
         'created_by',
         'updated_by',
-        'fondo_sistema'
+        'fondo_sistema',
+        'code_general',
+        'limit_general',
     ];
 
     /**

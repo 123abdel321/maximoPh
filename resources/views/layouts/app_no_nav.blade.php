@@ -646,6 +646,7 @@
         //LOCAL
         // const base_url = 'http://127.0.0.1:8090/api/';
         // const base_web = 'http://127.0.0.1:8090/';
+        
         //LOCAL PUBLIC
         // const base_url = 'http://192.168.1.6:80/api/';
         // const base_web = 'http://192.168.1.6:80/';
@@ -656,16 +657,224 @@
         // const base_url = 'https://app.portafolioerp.com/api/';
         // const base_web = 'https://app.portafolioerp.com/';
 
+        const buttonResend = document.getElementById('button-resend-disabled');
+        var estadoCambioPass = true;
+        let timeLeft = 20;
+
         $("#button-login").click(function(event){
             sendDataLogin();
         });
 
-        // function onClick(e) {
-        //     e.preventDefault();
-        //     grecaptcha.enterprise.ready(async () => {
-        //     const token = await grecaptcha.enterprise.execute('6LdrmRwqAAAAAPoXC1Sa2jo6zwGHW0V4lX0HYDgc', {action: 'LOGIN'});
-        //     });
-        // }
+        $("#link-recover").click(function(event){
+            $("#texto-login").hide();
+            $("#texto-recover").show();
+
+            $("#link-recover").hide();
+            $("#link-login").show();
+            
+            $("#button-login").hide();
+            $("#button-recover").show();
+
+            $("#input-password").hide();
+
+            $('#error-recover').hide();
+            $('#error-login').hide();
+            
+        });
+
+        $("#link-login").click(function(event){
+            linkLogin();
+        });
+
+        function linkLogin() {
+            estadoCambioPass = false;
+            $("#texto-login").show();
+            $("#texto-recover").hide();
+
+            $("#link-recover").show();
+            $("#link-login").hide();
+            
+            $("#button-login").show();
+            $("#button-recover").hide();
+
+            $("#input-password").show();
+
+            $('#error-recover').hide();
+            $('#error-login').hide();
+
+            $("#input-new-password").hide();
+            $("#input-retry-password").hide();
+
+            $("#cambiar-password").hide();
+            $("#button-resend").hide();
+            $("#input_code_login").hide();
+            $("#input_email_login").show();
+            $("#button-confir-code").hide();
+            $("#button-resend-disabled").hide();
+            $("#button-recover").hide();
+            $("#button-recover-loading").hide();
+        }
+
+        $("#button-recover").click(function(event){
+            recuperarContra();
+        });
+
+        $("#button-confir-code").click(function(event){
+            $("#button-resend").hide();
+            $("#button-confir-code").hide();
+            $("#button-login-loading").show();
+            $("#button-resend-disabled").hide();
+            
+            $.ajax({
+                url: base_url + 'validate-code',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                data: {
+                    "email": $('#email_login').val(),
+                    "code_general": $('#code_login').val()
+                },
+                dataType: 'json',
+            }).done((res) => {
+                $("#button-recover-loading").hide();
+                if(res.success){
+                    estadoCambioPass = false;
+                    $('#error-recover').hide();
+                    $("#input-new-password").show();
+                    $("#input-retry-password").show();
+                    $("#button-resend").hide();
+                    $("#input_code_login").hide();
+                    $("#button-confir-code").hide();
+                    $("#button-login-loading").hide();
+                    $("#cambiar-password").show();
+                } else {
+                    $('#error-recover').text(res.message);
+                    $('#error-recover').show();
+                    $("#button-recover").hide();
+                    $("#button-confir-code").show();
+                    $("#button-login-loading").hide();
+                    $("#button-login-loading").hide();
+                }
+            }).fail((err) => {
+                err = err.responseJSON
+                $('#error-recover').text(err.message);
+                $('#error-recover').show();
+                $("#button-recover").hide();
+                $("#button-confir-code").show();
+                $("#button-login-loading").hide();
+                $("#button-login-loading").hide();
+                if (timeLeft) {
+                    $("#button-resend").hide();
+                    $("#button-resend-disabled").show();
+                } else {
+                    $("#button-resend").show();
+                    $("#button-resend-disabled").hide();
+                }
+            });
+        });
+
+        $("#cambiar-password").click(function(event){
+
+            var contraNueva = $("#new_password_login").val();
+            var contraAgain = $("#new_password_retry_login").val();
+
+            if (contraNueva != contraAgain) {
+                $('#error-recover').text("Las contraseñas no coinciden!");
+                $('#error-recover').show();
+                return;
+            }
+
+            $("#cambiar-password").hide();
+            $("#button-login-loading").show();
+
+            $.ajax({
+                url: base_url + 'change-password',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                data: {
+                    "email": $('#email_login').val(),
+                    "new_password": $('#new_password_login').val()
+                },
+                dataType: 'json',
+            }).done((res) => {
+                $("#button-recover-loading").hide();
+                if(res.success){
+                    linkLogin();
+                    $("#success-recover").show();
+                    $("#button-login-loading").hide();
+                } else {
+                    $('#error-recover').text(res.message);
+                    $('#error-recover').show();
+                    $("#cambiar-password").show();
+                    $("#button-login-loading").hide();
+                }
+            }).fail((err) => {
+                err = err.responseJSON
+                $('#error-recover').text(err.message);
+                $('#error-recover').show();
+                $("#cambiar-password").show();
+                $("#button-login-loading").hide();
+            });
+        });
+        
+
+        function recuperarContra() {
+            $("#error-recover").hide();
+            $("#button-recover").hide();
+            $("#button-recover-loading").show();
+
+            $.ajax({
+                url: base_url + 'validate-email',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                data: {
+                    "email": $('#email_login').val()
+                },
+                dataType: 'json',
+            }).done((res) => {
+                $("#button-recover-loading").hide();
+                $("#button-recover").show();
+                if(res.success){
+                    $('#error-recover').hide();
+                    $("#input_code_login").show();
+                    $("#input_email_login").hide();
+                    $("#button-confir-code").show();
+                    $("#button-resend-disabled").show();
+                    $("#button-recover").hide();
+                    $("#button-recover-loading").hide();
+
+                    const countdown = setInterval(() => {
+                    timeLeft--;
+                    buttonResend.textContent = `Volver a enviar email (${timeLeft})`;
+
+                    // Habilitar el botón cuando el tiempo llegue a 0
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        if (estadoCambioPass) {
+                            buttonResend.textContent = 'Volver a enviar email (60)';
+                            buttonResend.disabled = false;
+                            $("#button-resend").show();
+                            $("#button-resend-disabled").hide();
+                        }
+                    }
+                    }, 1000); // Actualizar cada segun
+                } else {
+                    $('#error-recover').text(res.message);
+                    $('#error-recover').show();
+                }
+            }).fail((err) => {
+                err = err.responseJSON
+                $('#error-recover').text(err.message);
+                $("#button-recover-loading").hide();
+                $("#button-recover").show();
+                $('#error-recover').show();
+            });
+        }
 
         function changePassWord(event) {
             if(event.keyCode == 13) {
@@ -702,6 +911,7 @@
             localStorage.setItem("empresa_logo", '');
 
             $('#error-login').hide();
+            $("#success-recover").hide();
             $("#button-login-loading").show();
             $("#button-login").hide();
             $.ajax({

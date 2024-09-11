@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Empresa;
 
 use DB;
 use Exception;
+use App\Mail\GeneralEmail;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Jobs\ProcessProvisionedDatabase;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\InstaladorEmpresa;
@@ -231,6 +234,211 @@ class ApiController extends Controller
         }
     }
 
+    public function validateEmail(Request $request)
+    {
+        $rules = [
+            'email' => 'required|email'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            $usuario = User::where('email', $request->get('email'))
+                ->first();
+
+            if (!$usuario) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => '',
+                    "message"=>'El email no fue encontrado en nuestra base de datos!'
+                ], 422);
+            }
+
+            if ($usuario->code_general) {
+                $start = new Carbon($usuario->limit_general);
+                $end = Carbon::now();
+                $diff = (int)$start->diff($end)->format('%H%I%S');
+                if ($diff <= 59) {
+                    return response()->json([
+                        "success"=>false,
+                        'data' => '',
+                        "message"=>'El tiempo esperado es menor a 60 segundos!'
+                    ], 422);
+                }
+            }
+
+            $usuario->code_general = $this->generateRandomString(5);
+            $limit_general = Carbon::now()->format('Y-m-d H:i:s');
+            $limit_general = Carbon::parse($limit_general);
+            $limit_general = $limit_general->addHours(1);
+            $usuario->limit_general = $limit_general;
+            $usuario->save();
+
+            $nombreUsuario = $usuario->firstname;
+            $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
+
+            // Mail::to($usuario->email)
+            //     ->cc('noreply@maximoph.com')
+            //     ->bcc('bcc@maximoph.com')
+            //     ->queue(new GeneralEmail('MAXIMOPH', 'emails.recover', [
+            //         'nombre' => $nombreUsuario,
+            //         'code_general' => $usuario->code_general
+            //     ]));
+
+            return response()->json([
+                "success"=>true,
+                "data" => '',
+                "message" => '',
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => $e->getLine(),
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function validateCode(Request $request)
+    {
+        $rules = [
+            'email' => 'required|email',
+            'code_general' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            $usuario = User::where('email', $request->get('email'))
+                ->first();
+
+            if (!$usuario) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => '',
+                    "message"=>'El email no fue encontrado en nuestra base de datos!'
+                ], 422);
+            }
+
+            if (!$usuario->code_general) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => '',
+                    "message"=>'El usuario no tiene codigo asignado, volver a enviar el email!'
+                ], 422);
+            }
+
+            $start = new Carbon($usuario->limit_general);
+            $end = Carbon::now();
+
+            if ($start->gte($end) && $usuario->code_general == $request->get('code_general')) {
+                return response()->json([
+                    "success"=>true,
+                    'data' => [],
+                ], 200);
+            }
+
+            return response()->json([
+                "success"=>false,
+                'data' => '',
+                "message"=>'Error al validar código de seguridad!'
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => $e->getLine(),
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function changePassword(Request $request)
+    {
+        $rules = [
+            'email' => 'required|email',
+            'new_password' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            $usuario = User::where('email', $request->get('email'))
+                ->first();
+
+            if (!$usuario) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => '',
+                    "message"=>'El email no fue encontrado en nuestra base de datos!'
+                ], 422);
+            }
+
+            if (!$usuario->code_general) {
+                return response()->json([
+                    "success"=>false,
+                    'data' => '',
+                    "message"=>'El usuario no tiene codigo asignado, volver a enviar el email!'
+                ], 422);
+            }
+
+            $start = new Carbon($usuario->limit_general);
+            $end = Carbon::now();
+            
+            if ($start->gte($end)) {
+                $usuario->update([
+                    'password' => $request->get('new_password')
+                ]);
+
+                return response()->json([
+                    "success" => 200,
+                    'data' => '',
+                    "message" => 'Contraseña actualizada con exito'
+                ], 200);
+            }
+
+            return response()->json([
+                "success"=>false,
+                'data' => '',
+                "message"=>'Error el código de seguridad ah caducado!'
+            ], 422);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => $e->getLine(),
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     private function generateUniqueNameDb($empresa)
 	{
 		$razonSocial = str_replace(" ", "_", strtolower($empresa->razon_social));
@@ -267,4 +475,14 @@ class ApiController extends Controller
             "data"=>$usuario
         ], 200);
     }
+
+    private function generateRandomString($length = 20) {
+		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$randomString = '';
+		for ($i = 0; $i < $length; $i++) {
+			$randomString .= $characters[rand(0, $charactersLength - 1)];
+		}
+		return $randomString;
+	}
 }

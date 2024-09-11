@@ -87,23 +87,28 @@
                     </div>
                     <div class="card-body" style="text-align: center; background-color: #081329; align-self: center;">
                         <div style="width: 300px;">
-                        <p id="error-login" style="color: red; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡Usuario o contraseña incorrectos!</p>
-                            <h4 class="mt-1 text-white font-weight-bolder position-relative" style="font-size: 17px; padding-top: 7px; padding-bottom: 15px;">
+                            <p id="error-login" style="color: red; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡Usuario o contraseña incorrectos!</p>
+                            <p id="error-recover" style="color: red; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡El correo electronico no existe!</p>
+                            <p id="success-recover" style="color: green; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡Se ha cambiado la contraseña con exito!</p>
+                            <h4 id="texto-login" class="mt-1 text-white font-weight-bolder position-relative" style="font-size: 17px; padding-top: 7px; padding-bottom: 15px;">
                                 INICIAR SESION
                             </h4>
-                            <!-- <div class="flex flex-col mb-3">
-                                <input type="email" id="email_login" name="email" class="form-control form-control-lg" value="" aria-label="Email" placeholder="Correo">
-                            </div> -->
-                            <div class="mb-3" style="margin-bottom: 0.5rem !important;">
+
+                            <h4 id="texto-recover" class="mt-1 text-white font-weight-bolder position-relative" style="font-size: 17px; padding-top: 7px; padding-bottom: 15px;" style="display: none;">
+                                RECUPERAR CONTRASEÑA
+                            </h4>
+
+                            <div id="input_email_login" class="mb-3" style="margin-bottom: 0.5rem !important;">
                                 <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Correo electronico</label>
                                 <input type="email" class="form-control form-control-sm" id="email_login" name="email_login">
                             </div>
-                            <!-- <div class="mb-3" style="margin-bottom: 1.3rem !important;">
-                                <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Contraseña</label>
-                                <input type="password" id="password_login" name="password" class="form-control form-control-sm" aria-label="Password" value="" onkeypress="changePassWord(event)">
-                            </div> -->
 
-                            <div class="form-group" style="margin-bottom: 1.3rem !important;">
+                            <div id="input_code_login" class="mb-3" style="margin-bottom: 0.5rem !important; display: none;">
+                                <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Codigo de verificación</label>
+                                <input type="text" maxlength="5" class="form-control form-control-sm" id="code_login" name="code_login" placeholder="5-sigit-code">
+                            </div>
+
+                            <div id="input-password" class="form-group">
                                 <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Contraseña</label>
                                 <div class="input-group" id="show_hide_password">
                                     <input class="form-control form-control-sm" type="password" id="password_login" name="password_login">
@@ -113,12 +118,52 @@
                                 </div>
                             </div>
 
-                            <button id="button-login" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%;">Iniciar sesion</button>
-                            <button id="button-login-loading" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none;" disabled>
+                            <div id="input-new-password" class="form-group" style="display: none;">
+                                <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Contraseña nueva</label>
+                                <div class="input-group" id="show_hide_new_password">
+                                    <input class="form-control form-control-sm" type="password" id="new_password_login" name="new_password_login">
+                                    <div class="input-group-addon button-password">
+                                        <a ><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="input-retry-password" class="form-group" style="display: none;">
+                                <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Repetir contraseña</label>
+                                <div class="input-group" id="show_hide_new_password_retry">
+                                    <input class="form-control form-control-sm" type="password" id="new_password_retry_login" name="new_password_retry_login">
+                                    <div class="input-group-addon button-password">
+                                        <a ><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="button-login" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; margin-top: 1.5rem;">Iniciar sesion</button>
+                            <button id="button-login-loading" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.5rem;" disabled>
                                 Cargando
                                 <i class="fas fa-spinner fa-spin"></i>
                             </button>
-                            <p><a class="link-opacity-100 link-item-login" href="#">¿Has olvidado la contraseña?</a></p>
+
+                            <button id="button-recover" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;">Buscar</button>
+                            <button id="button-recover-loading" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;" disabled>
+                                Buscando
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </button>
+
+                            <button id="cambiar-password" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;">Actualizar contraseña</button>
+                            <button id="button-confir-code" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;">Validar</button>
+                            <button id="button-resend" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;">Volver a enviar email</button>
+                            <button id="button-resend-disabled" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;" disabled>Volver a enviar email (60)</button>
+                            <button id="button-resend-loading" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; display: none; margin-top: 1.1rem;" disabled>
+                                Enviando correo
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </button>
+
+                            <p>
+                                <a id="link-recover" class="link-opacity-100 link-item-login" style="cursor: pointer;">¿Has olvidado la contraseña?</a>
+                                <a id="link-login" class="link-opacity-100 link-item-login" style="display: none; cursor: pointer;">Iniciar sesion</a>
+                            </p>
+
                             <p class="text-white position-relative" style="margin-bottom: 0px; font-size: 12px;">VERSION {{ config('app.version') }}</p>
                         </div>
                     </div>
@@ -132,51 +177,6 @@
                 </div>
             </div>
 
-            <!-- <div class="page-header min-vh-100">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-                            <div class="card card-plain">
-                                <div class="card-header pb-0 text-start">
-                                    <h4 class="font-weight-bolder">Iniciar sesión</h4>
-                                    <p class="mb-0">Ingrese correo y contraseña para continuar</p>
-                                </div>
-                                <div class="card-body">
-
-                                    <p id="error-login" style="color: red; display:none;">¡Usuario o contraseña incorrectos!</p>
-
-                                    <div class="flex flex-col mb-3">
-                                        <input type="email" id="email_login" name="email" class="form-control form-control-lg" value="" aria-label="Email" placeholder="Correo">
-                                        @error('email') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-                                    </div>
-                                    <div class="flex flex-col mb-3">
-                                        <input type="password" id="password_login" name="password" class="form-control form-control-lg" aria-label="Password" value="" onkeypress="changePassWord(event)" placeholder="Contraseña">
-                                        @error('password') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-                                    </div>
-                                        
-                                    <button type="submit" id="button-login" class="btn btn-lg btn-primary btn-lg w-100 mb-0">Ingresar</button>
-                                    <button id="button-login-loading" class="btn btn-lg btn-primary btn-lg w-100 mb-0" style="display:none; float: left;" disabled>
-                                        Cargando
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                    </button>
-                           
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
-                            <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
-                                style="background-image: url('/img/edificios.webp');
-              background-size: cover;">
-                                <span class="mask bg-gradient-primary opacity-4"></span>
-                                <img src="/img/logo_base_sin_texto.png" class="navbar-brand-img h-20 position-relative" style="width: 55px; align-self: center;" alt="main_logo-login">
-                                <h4 class="mt-1 text-white font-weight-bolder position-relative">MAXIMO PH</h4>
-                                <p class="text-white position-relative">VERSION {{ config('app.version') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
             <script type="module">
                 async function onGet() {
                     let url = "https://api.ipify.org?format=json";
@@ -204,7 +204,36 @@
                         }
                     });
                 });
+                $(document).ready(function() {
+                    $("#show_hide_new_password a").on('click', function(event) {
+                        event.preventDefault();
+                        if($('#show_hide_new_password input').attr("type") == "text"){
+                            $('#show_hide_new_password input').attr('type', 'password');
+                            $('#show_hide_new_password i').addClass( "fa-eye-slash" );
+                            $('#show_hide_new_password i').removeClass( "fa-eye" );
+                        }else if($('#show_hide_new_password input').attr("type") == "password"){
+                            $('#show_hide_new_password input').attr('type', 'text');
+                            $('#show_hide_new_password i').removeClass( "fa-eye-slash" );
+                            $('#show_hide_new_password i').addClass( "fa-eye" );
+                        }
+                    });
+                });
+                $(document).ready(function() {
+                    $("#show_hide_new_password_retry a").on('click', function(event) {
+                        event.preventDefault();
+                        if($('#show_hide_new_password_retry input').attr("type") == "text"){
+                            $('#show_hide_new_password_retry input').attr('type', 'password');
+                            $('#show_hide_new_password_retry i').addClass( "fa-eye-slash" );
+                            $('#show_hide_new_password_retry i').removeClass( "fa-eye" );
+                        }else if($('#show_hide_new_password_retry input').attr("type") == "password"){
+                            $('#show_hide_new_password_retry input').attr('type', 'text');
+                            $('#show_hide_new_password_retry i').removeClass( "fa-eye-slash" );
+                            $('#show_hide_new_password_retry i').addClass( "fa-eye" );
+                        }
+                    });
+                });
                 onGet();
+
             </script>
         </section>
     </main>
