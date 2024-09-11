@@ -80,16 +80,17 @@ function estadisticasInit() {
             }},
             {"data": function (row, type, set){
                 if (row.nit) {
-                    return row.nit.apartamentos
+                    return row.nit.apartamentos.slice(0,30);
                 }
                 return '';
             }},
+            
             {data: 'total_area', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             {data: 'total_coheficiente', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
-            {data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
-            {data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
-            {data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             {data: 'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
+            {data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
+            {data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
+            {data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
         ]
     });
 

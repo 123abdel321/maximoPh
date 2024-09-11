@@ -242,15 +242,16 @@ class ProcessInformeEstadisticas implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            ->leftJoin('inmuebles AS IMN', 'IN.id_inmueble', 'IMN.id');
+            ->leftJoin('inmuebles AS IMN', 'IN.id_inmueble', 'IMN.id')
+            ->leftJoin('zonas AS Z', 'IMN.id_zona', 'Z.id');
 
         if ($this->request['id_nit']) {
             $inmueble->where('IN.id_nit', $this->request['id_nit']);
         }
 
-        // if ($this->request['id_zona']) {
-        //     $inmueble->where('Z.id', $this->request['id_zona']);
-        // }
+        if ($this->request['id_zona']) {
+            $inmueble->where('Z.id', $this->request['id_zona']);
+        }
 
         return $inmueble;
     }
@@ -261,15 +262,16 @@ class ProcessInformeEstadisticas implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            ->leftJoin('inmuebles AS IMN', 'CM.id_inmueble', 'IMN.id');
+            ->leftJoin('inmuebles AS IMN', 'CM.id_inmueble', 'IMN.id')
+            ->leftJoin('zonas AS Z', 'IMN.id_zona', 'Z.id');
 
         if ($this->request['id_nit']) {
             $cuotas->where('CM.id_nit', $this->request['id_nit']);
         }
 
-        // if ($this->request['id_zona']) {
-        //     $cuotas->where('Z.id', $this->request['id_zona']);
-        // }
+        if ($this->request['id_zona']) {
+            $cuotas->where('Z.id', $this->request['id_zona']);
+        }
 
         return $cuotas;
     }
