@@ -415,9 +415,11 @@ class CuotasMultasController extends Controller
 
             CuotasMultas::when($request->get('id_concepto_facturacion'), function ($query) use ($request) {
                     $query->where('id_concepto_facturacion', $request->get('id_concepto_facturacion'));
-                }) 
+                })
                 ->when($request->get('id_zona'), function ($query) use ($request) {
-                    $query->where('id_zona', $request->get('id_zona'));
+                    $query->whereHas('inmueble', function ($q) use ($request) {
+                        $q->where('id_zona', $request->get('id_zona'));
+                    });
                 })
                 ->when($request->get('id_inmueble'), function ($query) use ($request) {
                     $query->where('id_inmueble', $request->get('id_inmueble'));
