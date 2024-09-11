@@ -9,6 +9,7 @@ use App\Jobs\ProcessInformeEstadisticas;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Empresa\Empresa;
+use App\Models\Portafolio\PlanCuentas;
 use App\Models\Informes\InfEstadisticas;
 use App\Models\Sistema\ConceptoFacturacion;
 use App\Models\Informes\InfEstadisticaDetalle;
