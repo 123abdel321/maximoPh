@@ -250,7 +250,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
         }
 
         if ($this->request['id_zona']) {
-            $inmueble->where('Z.id', $this->request['id_zona']);
+            $inmueble->where('Z.id', $this->request['id_zona'])
+                ->where('IMN.id_concepto_facturacion', 1);
         }
 
         return $inmueble;
@@ -270,7 +271,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
         }
 
         if ($this->request['id_zona']) {
-            $cuotas->where('Z.id', $this->request['id_zona']);
+            $cuotas->where('Z.id', $this->request['id_zona'])
+                ->where('CM.id_concepto_facturacion', 1);
         }
 
         return $cuotas;
