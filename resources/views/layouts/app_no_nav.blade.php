@@ -953,10 +953,9 @@
                 $("#button-login-loading").hide();
                 $("#button-login").show();
                 $('#error-login').show();
-                // setTimeout(function(){
-                //     window.location.href = '/login';
-                // },1000);
-                
+                setTimeout(function(){
+                    window.location.href = '/login';
+                },1000);
             });
         }
     </script>
