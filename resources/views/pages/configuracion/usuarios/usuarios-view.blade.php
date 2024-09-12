@@ -27,6 +27,7 @@
                 <div class="col-12 col-md-6 col-sm-6">
                     @can('usuarios create')
                         <button type="button" class="btn btn-primary btn-sm" id="createUsuarios">Agregar usuario</button>
+                        <button type="button" class="btn btn-warning btn-sm" id="sincronizarInmueblesNitsUsuarios">Sincronizar Inmuebles nits &nbsp;<i class="fas fa-users"></i></button>
                     @endcan
                 </div>
                 <div class="col-12 col-md-6 col-sm-6">
@@ -45,6 +46,7 @@
         </div>
     </div>
 
+    @include('pages.configuracion.usuarios.usuarios-sync')
     @include('pages.configuracion.usuarios.usuarios-form', ['roles' => $roles, 'usuario_nit' => $usuario_nit])
     
 </div>

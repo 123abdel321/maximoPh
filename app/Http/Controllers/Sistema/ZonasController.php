@@ -267,6 +267,6 @@ class ZonasController extends Controller
             $zonas->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
         }
 
-        return $zonas->paginate(40);
+        return $zonas->orderBy('nombre', 'ASC')->paginate(40);
     }
 }

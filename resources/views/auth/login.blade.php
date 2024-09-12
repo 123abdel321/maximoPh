@@ -94,7 +94,7 @@
                                 INICIAR SESION
                             </h4>
 
-                            <h4 id="texto-recover" class="mt-1 text-white font-weight-bolder position-relative" style="font-size: 17px; padding-top: 7px; padding-bottom: 15px;" style="display: none;">
+                            <h4 id="texto-recover" class="mt-1 text-white font-weight-bolder position-relative" style="font-size: 17px; padding-top: 7px; padding-bottom: 15px; display: none;" >
                                 RECUPERAR CONTRASEÑA
                             </h4>
 

@@ -267,6 +267,89 @@ function usuariosInit() {
         }
     });
 
+    $('#id_nit_sync_usuario').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        dropdownParent: $('#usuariosSyncFormModal'),
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";          
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_zona_sync_usuario').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#usuariosSyncFormModal'),
+        delay: 250,
+        placeholder: "Seleccione una zona",
+        allowClear: true,
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_inmueble_sync_usuario').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#usuariosSyncFormModal'),
+        delay: 250,
+        placeholder: "Seleccione un inmueble",
+        allowClear: true,
+        ajax: {
+            url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
     $(document).on('change', '#rol_usuario', function () {
         var id_rol = $('#rol_usuario').val();
         if (id_rol == 1) $("#div-id_nit_usuario").hide();
@@ -309,6 +392,55 @@ $(document).on('click', '#createUsuarios', function () {
     $("#updateUsuarios").hide();
     $("#saveUsuarios").show();
     $("#usuariosFormModal").modal('show');
+});
+
+$(document).on('click', '#saveSyncUsuarios', function () {
+    $("#saveSyncUsuariosLoading").show();
+    $("#saveSyncUsuarios").hide();
+
+    let data = {
+        id_nit: $("#id_nit_sync_usuario").val(),
+        id_zona: $("#id_zona_sync_usuario").val(),
+        id_inmueble: $("#id_inmueble_sync_usuario").val(),
+    };
+
+    $.ajax({
+        url: base_url + 'usuarios-sync',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            $("#saveSyncUsuarios").show();
+            $("#saveSyncUsuariosLoading").hide();
+            agregarToast('exito', 'Sincronización exitosa', 'Usuario creados con exito!', true);
+        }
+    }).fail((err) => {
+        $('#saveSyncUsuarios').show();
+        $('#saveSyncUsuariosLoading').hide();
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+});
+
+$(document).on('click', '#sincronizarInmueblesNitsUsuarios', function () {
+    $("#id_nit_sync_usuario").val('').change();
+    $("#id_zona_sync_usuario").val('').change();
+    $("#id_inmueble_sync_usuario").val('').change();
+
+    $("#usuariosSyncFormModal").modal('show');
 });
 
 function clearFormUsuarios(){

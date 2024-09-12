@@ -202,7 +202,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('usuarios', 'create');
             Route::put('usuarios', 'update');
             Route::delete('usuarios', 'delete');
+            Route::post('usuarios-sync', 'sync');
             Route::get('usuarios/combo', 'combo');
+            
         });
         //IMPORTADOR PAGOS
         Route::controller(ImportadorRecibosController::class)->group(function () {
