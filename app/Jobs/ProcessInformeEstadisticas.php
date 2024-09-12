@@ -83,6 +83,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
 
             foreach ($nits as $id_nit => $cuentas) {
                 $query = $this->carteraDocumentosQuery($id_nit, $cuentas);
+
                 $query->unionAll($this->carteraAnteriorQuery($id_nit, $cuentas));
 
                 $cabeza = DB::connection('sam')
@@ -228,9 +229,9 @@ class ProcessInformeEstadisticas implements ShouldQueue
             ->when($id_nit, function ($query) use($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
 			})
-            ->when($id_cuentas, function ($query) use($id_cuentas) {
-				$query->whereIn('DG.id_cuenta', $id_cuentas);
-			})
+            // ->when($id_cuentas, function ($query) use($id_cuentas) {
+			// 	$query->whereIn('DG.id_cuenta', $id_cuentas);
+			// })
             ->when($this->request['fecha_desde'] ? true : false, function ($query) {
 				$query->where('DG.fecha_manual', '>=', $this->request['fecha_desde']);
 			}) 
@@ -273,9 +274,9 @@ class ProcessInformeEstadisticas implements ShouldQueue
             ->when($id_nit, function ($query) use($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
 			}) 
-            ->when($id_cuentas, function ($query) use($id_cuentas) {
-				$query->whereIn('DG.id_cuenta', $id_cuentas);
-			})
+            // ->when($id_cuentas, function ($query) use($id_cuentas) {
+			// 	$query->whereIn('DG.id_cuenta', $id_cuentas);
+			// })
             ->when($this->request['fecha_desde'] ? true : false, function ($query) {
 				$query->where('DG.fecha_manual', '<', $this->request['fecha_desde']);
 			});
