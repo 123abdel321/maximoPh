@@ -89,10 +89,10 @@ function estadisticasInit() {
             
             // {data: 'total_area', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             // {data: 'total_coheficiente', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
-            {data: 'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
-            {data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             {data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             {data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
+            {data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
+            {data: 'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
         ]
     });
 
@@ -207,12 +207,12 @@ $(document).on('click', '#generarEstadisticas', function () {
 
     var url = base_url + 'estadisticas';
     url+= '?id_zona='+$('#id_zona_estadisticas').val();
-    url+= '?id_concepto_facturacion='+$('#id_concepto_estadisticas').val();
-    url+= '?id_nit='+$('#id_nit_estadisticas').val();
-    url+= '?fecha_desde='+$('#fecha_desde_estadisticas').val();
-    url+= '?fecha_hasta='+$('#fecha_hasta_estadisticas').val();
-    url+= '?agrupar='+$('#agrupado_estadisticas').val();
-    url+= '?detalle='+getDellarEstadisticas();
+    url+= '&id_concepto_facturacion='+$('#id_concepto_estadisticas').val();
+    url+= '&id_nit='+$('#id_nit_estadisticas').val();
+    url+= '&fecha_desde='+$('#fecha_desde_estadisticas').val();
+    url+= '&fecha_hasta='+$('#fecha_hasta_estadisticas').val();
+    url+= '&agrupar='+$('#agrupado_estadisticas').val();
+    url+= '&detalle='+getDellarEstadisticas();
     url+= '&generar='+generarEstadoActual;
 
     estadisticas_table.ajax.url(url).load(function(res) {

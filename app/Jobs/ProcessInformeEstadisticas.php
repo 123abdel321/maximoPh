@@ -52,7 +52,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
         DB::connection('informes')->beginTransaction();
 
         try {
-
+            
             $estadistica = InfEstadisticas::create([
 				'id_empresa' => $this->id_empresa,
 				'id_nit' => $this->request['id_nit'],
@@ -82,8 +82,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
             $nits = $this->getInmueblesMemo();
 
             foreach ($nits as $id_nit => $cuentas) {
+                
                 $query = $this->carteraDocumentosQuery($id_nit, $cuentas);
-
                 $query->unionAll($this->carteraAnteriorQuery($id_nit, $cuentas));
 
                 $cabeza = DB::connection('sam')
@@ -108,7 +108,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
                         DB::raw('SUM(credito) AS credito'),
                         DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
                         DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
-                        DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas")
+                        DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
                     )
                     ->groupByRaw($this->request['agrupar'])
                     ->orderByRaw('created_at')
@@ -225,7 +225,9 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
+            ->leftJoin('plan_cuentas_tipos AS PCT', 'PC.id', 'PCT.id_cuenta')
             ->where('anulado', 0)
+            ->whereIn('PCT.id_tipo_cuenta', [3,7,4,8])
             ->when($id_nit, function ($query) use($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
 			})
@@ -247,6 +249,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
 
     private function carteraAnteriorQuery($id_nit = NULL, $id_cuentas = NULL)
     {
+
         $anterioresQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
                 "DG.id_nit",
@@ -263,14 +266,16 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 "DG.created_by",
                 "DG.updated_by",
                 "DG.anulado",
-                DB::raw("0 AS saldo_anterior"),
-                DB::raw("DG.debito AS debito"),
-                DB::raw("DG.credito AS credito"),
-                DB::raw("DG.debito - DG.credito AS saldo_final"),
+                DB::raw("debito - credito AS saldo_anterior"),
+                DB::raw("0 AS debito"),
+                DB::raw("0 AS credito"),
+                DB::raw("0 AS saldo_final"),
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
+            ->leftJoin('plan_cuentas_tipos AS PCT', 'PC.id', 'PCT.id_cuenta')
             ->where('anulado', 0)
+            ->whereIn('PCT.id_tipo_cuenta', [3,7,4,8])
             ->when($id_nit, function ($query) use($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
 			}) 
@@ -290,9 +295,16 @@ class ProcessInformeEstadisticas implements ShouldQueue
 
         $inmuebles = Inmueble::where('id_zona', $this->request['id_zona'])
             ->with('personas')
-            ->where('id_concepto_facturacion', 1)
-            ->get();
+            ->where('id_concepto_facturacion', 1);
 
+        if ($this->request['id_nit']) {
+            $inmuebles->whereHas('personas', function ($q) {
+                $q->where('id_nit', $this->request['id_nit']);
+            });
+        }
+
+        $inmuebles = $inmuebles->get();
+        
         foreach ($inmuebles as $inmueble) {
 
             $id_nit = $inmueble->personas ? $inmueble->personas[0]->id_nit : null;
