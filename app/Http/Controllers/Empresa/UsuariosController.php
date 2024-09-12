@@ -377,6 +377,55 @@ class UsuariosController extends Controller
         }
     }
 
+    public function delete (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:App\Models\User,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('clientes')->beginTransaction();
+
+            $totalEmpresas = UsuarioEmpresa::where('id_usuario', $request->get('id'))->count();
+
+            if ($totalEmpresas == 1) User::where('id', $request->get('id'))->delete();
+            
+            UsuarioEmpresa::where('id_usuario', $request->get('id'))
+                ->where('id_empresa', request()->user()->id_empresa)
+                ->delete();
+
+            UsuarioPermisos::where('id_user', $request->get('id'))
+                ->where('id_empresa', request()->user()->id_empresa)
+                ->delete();
+
+            DB::connection('clientes')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Zona eliminada con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('clientes')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
     public function combo (Request $request)
     {
         $totalRows = $request->has("totalRows") ? $request->get("totalRows") : 40;

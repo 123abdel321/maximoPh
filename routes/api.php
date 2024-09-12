@@ -201,6 +201,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('usuarios', 'generate');
             Route::post('usuarios', 'create');
             Route::put('usuarios', 'update');
+            Route::delete('usuarios', 'delete');
             Route::get('usuarios/combo', 'combo');
         });
         //IMPORTADOR PAGOS

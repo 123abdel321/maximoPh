@@ -37,7 +37,11 @@ function usuariosInit() {
             {"data":'username'},
             {"data":'nombre_rol'},
             {"data":'nombre_completo'},
-            {"data":'firstname'},
+            {"data": function (row, type, set){  
+                var nombre = row.firstname;
+                nombre+= row.lastname ? ' '+row.lastname : '';
+                return nombre;
+            }},
             {"data":'email'},
             {"data":'telefono'},
             {"data":'address'},
@@ -57,7 +61,7 @@ function usuariosInit() {
                 "data": function (row, type, set){
                     var html = '';
                     html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                    // if (eliminarUsuarios) html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    if (eliminarUsuarios && row.id_rol != 1) html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
             },
@@ -108,6 +112,45 @@ function usuariosInit() {
             else $("#div-id_nit_usuario").show();
     
             $("#usuariosFormModal").modal('show');
+        });
+
+        usuarios_table.on('click', '.drop-usuarios', function() {
+            var trUsuario = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_table);
+            var nombre = data.firstname;
+            nombre+= data.lastname ? ' '+data.lastname : '';
+
+            Swal.fire({
+                title: 'Eliminar usuario: '+nombre+'?',
+                html: "No se podrá revertir!",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Borrar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'usuarios',
+                        method: 'DELETE',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            usuarios_table.row(trUsuario).remove().draw();
+                            agregarToast('exito', 'Eliminación exitosa', 'Usuario eliminada con exito!', true );
+                        } else {
+                            agregarToast('error', 'Eliminación errada', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Eliminación errada', res.message);
+                    });
+                }
+            })
         });
     }
 
