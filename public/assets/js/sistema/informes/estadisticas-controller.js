@@ -80,7 +80,9 @@ function estadisticasInit() {
             }},
             {"data": function (row, type, set){
                 if (row.nit) {
-                    return row.nit.apartamentos.slice(0,30);
+                    if (row.nit.apartamentos) {
+                        return row.nit.apartamentos.slice(0,30);
+                    }
                 }
                 return '';
             }},

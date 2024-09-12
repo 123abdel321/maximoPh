@@ -10,6 +10,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 //MODELS
+use App\Models\Sistema\Inmueble;
+use App\Models\Sistema\InmuebleNit;
 use App\Models\Empresa\Empresa;
 use App\Models\Informes\InfEstadisticas;
 
@@ -61,157 +63,76 @@ class ProcessInformeEstadisticas implements ShouldQueue
 				'agrupar' => $this->request['agrupar'],
 				'detalle' => $this->request['detalle'],
 			]);
-            
-            $this->id_estadistica = $estadistica->id;
 
-            $query = $this->getInmueblesNitsQuery();
-            $query->unionAll($this->getCuotasMultasNitsQuery());
-
-            DB::connection('max')
-                ->table(DB::raw("({$query->toSql()}) AS nits"))
-                ->mergeBindings($query)
-                ->select(
-                    'id_nit'
-                )
-                ->groupByRaw('id_nit')
-                ->orderByRaw('id_nit')
-                ->chunk(233, function ($nits) {
-                    $nits->each(function ($nit) {
-                        
-                        $query = $this->carteraDocumentosQuery($nit->id_nit);
-                        $query->unionAll($this->carteraAnteriorQuery($nit->id_nit));
-
-                        $cabeza = DB::connection('sam')
-                            ->table(DB::raw("({$query->toSql()}) AS cartera"))
-                            ->mergeBindings($query)
-                            ->select(
-                                'id_nit',
-                                'id_cuenta',
-                                'documento_referencia',
-                                'id_centro_costos',
-                                'consecutivo',
-                                'concepto',
-                                'fecha_manual',
-                                'created_at',
-                                'fecha_creacion',
-                                'fecha_edicion',
-                                'created_by',
-                                'updated_by',
-                                'anulado',
-                                DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
-                                DB::raw('SUM(debito) AS debito'),
-                                DB::raw('SUM(credito) AS credito'),
-                                DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
-                                DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
-                                DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas")
-                            )
-                            ->groupByRaw($this->request['agrupar'])
-                            ->orderByRaw('created_at')
-                        ->first();
-
-                        $this->estadisticaCollection[] = [
-                            'id_estadisticas' => $this->id_estadistica,
-                            'id_nit' => $nit->id_nit,
-                            'id_cuenta' => $cabeza->id_cuenta,
-                            'total_area' => 0,
-                            'total_coheficiente' => 0,
-                            'saldo_anterior' => $cabeza->saldo_anterior,
-                            'total_facturas' => $cabeza->total_facturas,
-                            'total_abono' => $cabeza->total_abono,
-                            'saldo' => $cabeza->saldo_final,
-                            'total' => 1,
-                        ];
-
-                        if ($this->request['detalle']) {
-                            $detalle = DB::connection('sam')
-                                ->table(DB::raw("({$query->toSql()}) AS cartera"))
-                                ->mergeBindings($query)
-                                ->select(
-                                    'id_nit',
-                                    'id_cuenta',
-                                    'documento_referencia',
-                                    'id_centro_costos',
-                                    'consecutivo',
-                                    'concepto',
-                                    'fecha_manual',
-                                    'created_at',
-                                    'fecha_creacion',
-                                    'fecha_edicion',
-                                    'created_by',
-                                    'updated_by',
-                                    'anulado',
-                                    DB::raw('saldo_anterior'),
-                                    DB::raw('debito'),
-                                    DB::raw('credito'),
-                                    DB::raw('saldo_anterior + debito - credito AS saldo_final'),
-                                    DB::raw("IF(naturaleza_cuenta = 0, credito, debito) AS total_abono"),
-                                    DB::raw("IF(naturaleza_cuenta = 0, debito, credito) AS total_facturas")
-                                )
-                                // ->groupByRaw('id_nit, id_cuenta, documento_referencia')
-                                ->orderByRaw('created_at')
-                                ->chunk(233, function ($documentos) {
-                                    $documentos->each(function ($documento) {
-                                        $this->estadisticaCollection[] = [
-                                            'id_estadisticas' => $this->id_estadistica,
-                                            'id_nit' => $documento->id_nit,
-                                            'id_cuenta' => $documento->id_cuenta,
-                                            'total_area' => 0,
-                                            'total_coheficiente' => 0,
-                                            'saldo_anterior' => $documento->saldo_anterior,
-                                            'total_facturas' => $documento->total_facturas,
-                                            'total_abono' => $documento->total_abono,
-                                            'saldo' => $documento->saldo_final,
-                                            'total' => 0,
-                                        ];
-                                    });
-                                });
-                        }
-                });
-            });
-
-            //TOTALES
-            $queryTotal = $this->carteraDocumentosQuery();
-            $queryTotal->unionAll($this->carteraAnteriorQuery());
-            
-            $totales = DB::connection('sam')
-                ->table(DB::raw("({$queryTotal->toSql()}) AS cartera"))
-                ->mergeBindings($queryTotal)
-                ->select(
-                    'id_nit',
-                    'id_cuenta',
-                    'documento_referencia',
-                    'id_centro_costos',
-                    'consecutivo',
-                    'concepto',
-                    'fecha_manual',
-                    'created_at',
-                    'fecha_creacion',
-                    'fecha_edicion',
-                    'created_by',
-                    'updated_by',
-                    'anulado',
-                    DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
-                    DB::raw('SUM(debito) AS debito'),
-                    DB::raw('SUM(credito) AS credito'),
-                    DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
-                    DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
-                    DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas")
-                )
-                ->orderByRaw('created_at')
-                ->first();
-
-            $this->estadisticaCollection[] = [
+            $dataTotal = [
                 'id_estadisticas' => $this->id_estadistica,
                 'id_nit' => '',
                 'id_cuenta' => '',
-                'total_area' => 0,
-                'total_coheficiente' => 0,
-                'saldo_anterior' => $totales->saldo_anterior,
-                'total_facturas' => $totales->total_facturas,
-                'total_abono' => $totales->total_abono,
-                'saldo' => $totales->saldo_final,
+                'total_area' => '',
+                'total_coheficiente' => '',
+                'saldo_anterior' => 0,
+                'total_facturas' => 0,
+                'total_abono' => 0,
+                'saldo' => 0,
                 'total' => 2,
             ];
+            
+            $this->id_estadistica = $estadistica->id;
+
+            $nits = $this->getInmueblesMemo();
+
+            foreach ($nits as $id_nit => $cuentas) {
+                $query = $this->carteraDocumentosQuery($id_nit, $cuentas);
+                $query->unionAll($this->carteraAnteriorQuery($id_nit, $cuentas));
+
+                $cabeza = DB::connection('sam')
+                    ->table(DB::raw("({$query->toSql()}) AS cartera"))
+                    ->mergeBindings($query)
+                    ->select(
+                        'id_nit',
+                        'id_cuenta',
+                        'documento_referencia',
+                        'id_centro_costos',
+                        'consecutivo',
+                        'concepto',
+                        'fecha_manual',
+                        'created_at',
+                        'fecha_creacion',
+                        'fecha_edicion',
+                        'created_by',
+                        'updated_by',
+                        'anulado',
+                        DB::raw('SUM(saldo_anterior) AS saldo_anterior'),
+                        DB::raw('SUM(debito) AS debito'),
+                        DB::raw('SUM(credito) AS credito'),
+                        DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
+                        DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
+                        DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas")
+                    )
+                    ->groupByRaw($this->request['agrupar'])
+                    ->orderByRaw('created_at')
+                ->first();
+
+                $this->estadisticaCollection[] = [
+                    'id_estadisticas' => $this->id_estadistica,
+                    'id_nit' => $id_nit,
+                    'id_cuenta' => $cabeza->id_cuenta,
+                    'total_area' => 0,
+                    'total_coheficiente' => 0,
+                    'saldo_anterior' => $cabeza->saldo_anterior,
+                    'total_facturas' => $cabeza->total_facturas,
+                    'total_abono' => $cabeza->total_abono,
+                    'saldo' => $cabeza->saldo_final,
+                    'total' => 1,
+                ];
+
+                $dataTotal['saldo_anterior']+=$cabeza->saldo_anterior;
+                $dataTotal['total_facturas']+=$cabeza->total_facturas;
+                $dataTotal['total_abono']+=$cabeza->total_abono;
+                $dataTotal['saldo']+=$cabeza->saldo_final;
+            }
+
+            $this->estadisticaCollection[] = $dataTotal;
 
             foreach (array_chunk($this->estadisticaCollection,233) as $estadisticaCollection){
                 DB::connection('informes')
@@ -278,7 +199,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
         return $cuotas;
     }
 
-    private function carteraDocumentosQuery($id_nit = NULL)
+    private function carteraDocumentosQuery($id_nit = NULL, $id_cuentas = NULL)
     {
         $documentosQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
@@ -307,9 +228,9 @@ class ProcessInformeEstadisticas implements ShouldQueue
             ->when($id_nit, function ($query) use($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
 			})
-            ->when(!$id_nit && $this->request['id_nit'], function ($query) {
-                $query->where('id_nit', $this->request['id_nit']);
-            })
+            ->when($id_cuentas, function ($query) use($id_cuentas) {
+				$query->whereIn('DG.id_cuenta', $id_cuentas);
+			})
             ->when($this->request['fecha_desde'] ? true : false, function ($query) {
 				$query->where('DG.fecha_manual', '>=', $this->request['fecha_desde']);
 			}) 
@@ -323,7 +244,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
         return $documentosQuery;
     }
 
-    private function carteraAnteriorQuery($id_nit = NULL)
+    private function carteraAnteriorQuery($id_nit = NULL, $id_cuentas = NULL)
     {
         $anterioresQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
@@ -352,16 +273,91 @@ class ProcessInformeEstadisticas implements ShouldQueue
             ->when($id_nit, function ($query) use($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
 			}) 
-            ->when(!$id_nit && $this->request['id_nit'], function ($query) {
-                $query->where('id_nit', $this->request['id_nit']);
-            })
+            ->when($id_cuentas, function ($query) use($id_cuentas) {
+				$query->whereIn('DG.id_cuenta', $id_cuentas);
+			})
             ->when($this->request['fecha_desde'] ? true : false, function ($query) {
 				$query->where('DG.fecha_manual', '<', $this->request['fecha_desde']);
-			})
-            ->when(array_key_exists('id_cuenta', $this->request), function ($query) {
-				$query->where('DG.id_cuenta', $this->request['id_cuenta']);
 			});
 
         return $anterioresQuery;
     }
+
+    private function getInmueblesMemo()
+    {
+        $dataInforme = [];
+
+        $inmuebles = Inmueble::where('id_zona', $this->request['id_zona'])
+            ->with('personas')
+            ->where('id_concepto_facturacion', 1)
+            ->get();
+
+        foreach ($inmuebles as $inmueble) {
+
+            $id_nit = $inmueble->personas ? $inmueble->personas[0]->id_nit : null;
+            if (!$id_nit) continue;
+
+            $inmueblesNit = InmuebleNit::where('id_nit', $id_nit)
+                ->with('inmueble.concepto')
+                ->get();
+
+            foreach ($inmueblesNit as $inmuebleNit) {
+                if ($inmuebleNit->inmueble->id_zona == $this->request['id_zona']) {
+                    $cuentaFiltro = $inmuebleNit->inmueble->concepto->id_cuenta_cobrar;
+                    $dataInforme[$id_nit][] = [
+                        'id_cuenta' => $cuentaFiltro
+                    ];
+                }
+            }
+        }
+
+        $inmueblesNo = Inmueble::where('id_zona', $this->request['id_zona'])
+            ->with('personas')
+            ->whereNot('id_concepto_facturacion', 1)
+            ->get();
+
+        foreach ($inmueblesNo as $inmuebleNo) {
+            $id_nit = $inmueble->personas ? $inmueble->personas[0]->id_nit : null;
+            if (!$id_nit) continue;
+
+            $existeEnOtraTorre = false;
+            $inmueblesNit = InmuebleNit::where('id_nit', $id_nit)
+                ->with('inmueble.concepto')
+                ->get();
+
+            //VALIDAR SI EXISTE
+            foreach ($inmueblesNit as $inmuebleNit) {
+                $zonaItem = $inmuebleNit->inmueble->id_zona;
+                $concepto = $inmuebleNit->inmueble->id_concepto_facturacion;
+
+                if ($zonaItem != $this->request['id_zona'] && $concepto == 1) {
+                    $existeEnOtraTorre = true;
+                }
+            }
+
+            if (!$existeEnOtraTorre) continue;
+            //IF EXISTE
+            foreach ($inmueblesNit as $inmuebleNit) {
+                if ($inmuebleNit->inmueble->id_zona == $this->request['id_zona']) {
+                    $cuentaFiltro = $inmuebleNit->inmueble->concepto->id_cuenta_cobrar;
+                    $dataInforme[$id_nit][] = [
+                        'id_cuenta' => $cuentaFiltro
+                    ];
+                }
+            }
+        }
+
+        $dataReal = [];
+        foreach ($dataInforme as $id_nit => $nitCuentas) {
+            $cuentas = [];
+            foreach ($nitCuentas as $cuenta) {
+                if (!in_array($cuenta['id_cuenta'], $cuentas)) {
+                    $cuentas[] = $cuenta['id_cuenta'];
+                }
+            }
+            $dataReal[$id_nit] = $cuentas;
+        }
+        return $dataReal;
+    }
+
 }
