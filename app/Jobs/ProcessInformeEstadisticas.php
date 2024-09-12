@@ -63,6 +63,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
 				'agrupar' => $this->request['agrupar'],
 				'detalle' => $this->request['detalle'],
 			]);
+            
+            $this->id_estadistica = $estadistica->id;
 
             $dataTotal = [
                 'id_estadisticas' => $this->id_estadistica,
@@ -76,8 +78,6 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 'saldo' => 0,
                 'total' => 2,
             ];
-            
-            $this->id_estadistica = $estadistica->id;
 
             $nits = $this->getInmueblesMemo();
 
@@ -131,7 +131,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 $dataTotal['total_abono']+=$cabeza->total_abono;
                 $dataTotal['saldo']+=$cabeza->saldo_final;
             }
-
+            
             $this->estadisticaCollection[] = $dataTotal;
 
             foreach (array_chunk($this->estadisticaCollection,233) as $estadisticaCollection){
