@@ -1656,6 +1656,8 @@
                                         data-build-delay="500"></div>
                                 </div>
 
+                                <img alt="" aria-hidden="true" width="626" height="626" class="position-absolute height-auto d-none d-md-block col-6 events-none home-shape-rotate" style="top: 0; right: 70%;" loading="lazy" decoding="async" src="https://github.githubassets.com/assets/shape-0-df97fa6b0c27.svg">
+
                                 <div class="col-11 col-lg-8 ml-2 ml-md-0 mb-6 mb-md-10 pr-lg-3">
                                     <h3 class="h5-mktg mb-4 text-medium js-build-in-item build-in-slideX-left"
                                         style="transition-delay: 200ms;">Contactenos</h3>
