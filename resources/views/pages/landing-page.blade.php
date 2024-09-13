@@ -1616,19 +1616,33 @@
 								</card-skew>
 							</div>
 
-						</div>
-						
+						</div>						
 
-						<div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
-							<div class="home-campaign-git-line mt-n3 mt-md-n4 mb-n8 rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 160px; background: linear-gradient(transparent, #F778BA 40%);">
-							</div>
-						</div>
+                        <div class="home-campaign-footer position-relative js-section overflow-hidden" data-color-mode="dark" data-light-theme="light" data-dark-theme="dark">
+                            <div class="container-xl position-relative z-2 px-3">
+                                <div class="d-flex js-build-in-trigger build-in-animate" data-build-in-stagger="100">
+                                    <div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
+                                        <div class="home-campaign-git-line rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 100%; background: linear-gradient(transparent, rgb(102, 57, 186) 10%, rgb(163, 113, 247), rgb(210, 168, 255)); transition-delay: 0ms;"></div>
+                                    </div>
+
+                                    <div class="col-11 ml-2 ml-md-0">
+                                        <div class="col-md-11 col-lg-9 py-8">
+                                        <h2 class="h2-mktg mb-5">¿Tienes un plan? Hagámoslo realidad juntos.</h2>
+                                        <p class="f3-mktg color-fg-muted">
+                                            Somos un equipo dinámico y creativo, impulsados por la pasión por conceptos originales. Nos dedicamos a colaborar con empresas digitales y tecnológicas de vanguardia, ayudándoles a forjar identidades impactantes mediante el diseño de interfaces de usuario (UI) y experiencias de usuario (UX) excepcionales.
+                                            Nuestra especialidad es el desarrollo de aplicaciones que redefinen la manera en que los usuarios interactúan con tu marca, potenciando el crecimiento y la innovación de tu negocio.
+                                        </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
 
 						<br/>
 						<br/>
                     </div>
-
-					
 
                     <div class="home-campaign-collaboration js-section pt-5 px-3 overflow-hidden" data-color-mode="dark"
                         data-light-theme="light" data-dark-theme="dark" id="collaboration">
