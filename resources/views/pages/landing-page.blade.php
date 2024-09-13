@@ -1629,8 +1629,8 @@
                                         <div class="col-md-11 col-lg-9 py-8">
                                         <h2 class="h2-mktg mb-5">¿Tienes un plan? Hagámoslo realidad juntos.</h2>
                                         <p class="f3-mktg color-fg-muted">
-                                            Somos un equipo dinámico y creativo, impulsados por la pasión por conceptos originales. Nos dedicamos a colaborar con empresas digitales y tecnológicas de vanguardia, ayudándoles a forjar identidades impactantes mediante el diseño de interfaces de usuario (UI) y experiencias de usuario (UX) excepcionales.
-                                            Nuestra especialidad es el desarrollo de aplicaciones que redefinen la manera en que los usuarios interactúan con tu marca, potenciando el crecimiento y la innovación de tu negocio.
+                                            Somos un equipo dinámico y creativo, impulsados por la pasión por conceptos originales. Nos dedicamos a colaborar con empresas digitales y tecnológicas de vanguardia, ayudándoles a forjar identidades impactantes mediante el diseño de <em style="color: white; font-weight: 400;"> interfaces de usuario (UI) y experiencias de usuario (UX) excepcionales.</em>
+                                            Nuestra especialidad es el <em style="color: white; font-weight: 400;"> Desarrollo de aplicaciones</em> que redefinen la manera en que los usuarios interactúan con tu marca, potenciando el crecimiento y la innovación de tu negocio.
                                         </p>
                                         </div>
 
