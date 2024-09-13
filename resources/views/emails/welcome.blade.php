@@ -86,24 +86,24 @@
 
         <!-- Contenido -->
         <div class="content">
-            <h2>¡Hola, Abdel Cartagena!</h2>
+            <h2>¡Hola, {{ $nombre }}!</h2>
             <p>
-                A continuación encontrarás tu usuario y contraseña que te fue asignado para ingresar a la plataforma, tendrás acceso a todos los beneficios para realizar tus pagos directos online, podrás revisar tu estado de cuenta y gestionar tus PQRS.
+                Para comenzar, solo necesitas hacer clic en el botón Confirmar Correo y estarás dentro en cuestión de segundos. <br/>
+                Obtendras todos los beneficios para realizar tus pagos directos online, podrás revisar tu estado de cuenta y gestionar tus PQRS.
                 Gracias por elegirnos, esperamos que lo disfrutes.
             </p>
 
-            <h3>Usuario: </h3>
-            <h3>Contraseña: </h3>
             <div class="center">
-                <a href="https://maximoph.com/" class="button">Visitanos</a>
+                <a href="https://maximoph.com/{{ $url }}" class="button">Confirmar Correo</a>
             </div>
         </div>
 
         <!-- Pie de página -->
         <div class="footer">
-            <!-- <p>
-                ¿Tienes alguna pregunta? <a href="mailto:soporte@ejemplo.com">Contáctanos</a>.
-            </p> -->
+            <p>
+            350 8973 619
+                ¿Tienes alguna pregunta? <a href="https://wa.me/3508973619?text=Hola,%20necesito%20más%20información%20sobre%20maximoph">Contáctanos</a>.
+            </p>
             <p>
                 © 2024 MaximoPh. Todos los derechos reservados.
             </p>

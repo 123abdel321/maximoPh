@@ -60,8 +60,27 @@ function usuariosInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                    if (eliminarUsuarios && row.id_rol != 1) html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    if (correoUsuarios) {
+                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
+                            html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>';
+                        } else if (row.id_rol != 1) {
+                            html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>';
+                        }
+                    }
+                    if (editarUsuarios) {
+                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
+                            html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                        } else if (row.id_rol != 1) {
+                            html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                        }
+                    }
+                    if (eliminarUsuarios) {
+                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
+                            html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                        } else if (row.id_rol != 1) {
+                            html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                        }
+                    }
                     return html;
                 }
             },
@@ -148,6 +167,45 @@ function usuariosInit() {
                         }
                     }).fail((res) => {
                         agregarToast('error', 'Eliminación errada', res.message);
+                    });
+                }
+            })
+        });
+
+        usuarios_table.on('click', '.correo-usuarios', function() {
+            var trUsuario = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_table);
+            var nombre = data.firstname;
+            nombre+= data.lastname ? ' '+data.lastname : '';
+
+            Swal.fire({
+                title: 'Enviar correo ?',
+                html: "Desea enviar el correo de bienvenida a "+nombre+'?',
+                type: 'info',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Enviar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'usuarios-welcome',
+                        method: 'POST',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            usuarios_table.row(trUsuario).remove().draw();
+                            agregarToast('exito', 'Envio exitoso', 'Correo enviado con exito!', true );
+                        } else {
+                            agregarToast('error', 'Envio errado', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Envio errado', res.message);
                     });
                 }
             })

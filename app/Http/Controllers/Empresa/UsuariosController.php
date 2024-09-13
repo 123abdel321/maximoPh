@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Empresa;
 
 use DB;
 use Exception;
+use App\Mail\GeneralEmail;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
@@ -574,4 +576,67 @@ class UsuariosController extends Controller
             ], 422);
         }
     }
+
+    public function welcome (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:App\Models\User,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            $usuario = User::find($request->get('id'));
+            $usuario->code_general = $this->generateRandomString(5);
+            $usuario->limit_general = Carbon::now()->format('Y-m-d H:i:s');
+            $usuario->save();
+
+            $code = $request->get('id').'$'.$usuario->code_general;
+            $url_welcome = 'welcome/?code='.base64_encode($code);
+
+            $nombreUsuario = $usuario->firstname;
+            $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
+
+            Mail::to($usuario->email)
+                ->cc('noreply@maximoph.com')
+                ->bcc('bcc@maximoph.com')
+                ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+                    'nombre' => $nombreUsuario,
+                    'url' => $url_welcome,
+                ]));
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Email enviado con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('clientes')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    private function generateRandomString($length = 20) {
+		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen($characters);
+		$randomString = '';
+		for ($i = 0; $i < $length; $i++) {
+			$randomString .= $characters[rand(0, $charactersLength - 1)];
+		}
+		return $randomString;
+	}
 }

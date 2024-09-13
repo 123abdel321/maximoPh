@@ -48,6 +48,54 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
+    public function welcome(Request $request)
+    {
+        $rules = [
+            'code' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            $codigo = $request->get('code');
+            $codigo = base64_decode($codigo);
+            $id = explode('$', $codigo)[0];
+            $code_general = explode('$', $codigo)[1];
+
+            $usuario = User::where('id', $id)
+                ->where('code_general', $code_general)
+                ->first();
+
+            if (!$usuario) abort(404);
+
+            $data = [
+                'id_usuario' => $id,
+                'code_general' => $code_general
+            ];
+
+            return view('auth.welcome', $data);
+
+        } catch (Exception $e) {
+
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+
+        return view('auth.login');
+    }
+
     public function validateSession (Request $request)
     {
         return view('auth.login');

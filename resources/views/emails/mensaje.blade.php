@@ -97,9 +97,9 @@
 
         <!-- Pie de página -->
         <div class="footer">
-            <!-- <p>
-                ¿Tienes alguna pregunta? <a href="mailto:soporte@ejemplo.com">Contáctanos</a>.
-            </p> -->
+            <p>
+                ¿Tienes alguna pregunta? <a href="https://wa.me/3508973619?text=Hola,%20necesito%20más%20información%20sobre%20maximoph">Contáctanos</a>.
+            </p>
             <p>
                 © 2024 MaximoPh. Todos los derechos reservados.
             </p>

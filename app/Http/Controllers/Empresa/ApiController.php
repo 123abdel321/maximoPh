@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Empresa;
 
 use DB;
+use Config;
 use Exception;
 use App\Mail\GeneralEmail;
 use Illuminate\Http\Request;
@@ -15,13 +16,19 @@ use Illuminate\Support\Facades\Mail;
 use App\Jobs\ProcessProvisionedDatabase;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\InstaladorEmpresa;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 //MODELS
 use App\Models\User;
+use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
 use App\Models\Empresa\UsuarioEmpresa;
+use App\Models\Empresa\UsuarioPermisos;
+use Spatie\Permission\Models\Permission;
 
 class ApiController extends Controller
 {
+    use AuthenticatesUsers;
+
     protected $messages = null;
 
     public function __construct()
@@ -286,13 +293,13 @@ class ApiController extends Controller
             $nombreUsuario = $usuario->firstname;
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
-            // Mail::to($usuario->email)
-            //     ->cc('noreply@maximoph.com')
-            //     ->bcc('bcc@maximoph.com')
-            //     ->queue(new GeneralEmail('MAXIMOPH', 'emails.recover', [
-            //         'nombre' => $nombreUsuario,
-            //         'code_general' => $usuario->code_general
-            //     ]));
+            Mail::to($usuario->email)
+                ->cc('noreply@maximoph.com')
+                ->bcc('bcc@maximoph.com')
+                ->queue(new GeneralEmail('MAXIMOPH', 'emails.recover', [
+                    'nombre' => $nombreUsuario,
+                    'code_general' => $usuario->code_general
+                ]));
 
             return response()->json([
                 "success"=>true,
@@ -304,6 +311,54 @@ class ApiController extends Controller
             return response()->json([
                 "success"=>false,
                 'data' => $e->getLine(),
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function confirmPass(Request $request)
+    {
+        $rules = [
+            'codigo' => 'required',
+            'password' => 'required',
+            'id_usuario' => 'required|exists:App\Models\User,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            $user = User::where('id', $request->get('id_usuario'))
+                ->where('code_general', $request->get('codigo'))
+                ->first();
+
+            if ($user) {
+                $user->update([
+                    'password' => $request->get('password'),
+                    'code_general' => ''
+                ]);
+            }
+            
+            return response()->json([
+                'success'=>	true,
+                'data' => '',
+                'message'=> ''
+            ], 200);
+            
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
                 "message"=>$e->getMessage()
             ], 422);
         }
