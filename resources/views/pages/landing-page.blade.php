@@ -1625,6 +1625,8 @@
                                         <div class="home-campaign-git-line rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 100%; background: linear-gradient(transparent, rgb(102, 57, 186) 10%, rgb(163, 113, 247), rgb(210, 168, 255)); transition-delay: 0ms;"></div>
                                     </div>
 
+                                    <img alt="" aria-hidden="true" width="584" height="584" class="position-absolute height-auto d-none d-md-block col-7 events-none home-shape-rotate" style="bottom: -50%; right: -20%; animation-duration: 300s;" loading="lazy" decoding="async" src="https://github.githubassets.com/assets/shape-1-c219318e479a.svg">
+
                                     <div class="col-11 ml-2 ml-md-0">
                                         <div class="col-md-11 col-lg-9 py-8">
                                         <h2 class="h2-mktg mb-5">¿Tienes un plan? Hagámoslo realidad juntos.</h2>
@@ -1649,6 +1651,7 @@
                         <div class="container-xl">
 
                             <div class="d-flex js-build-in-trigger position-relative" data-build-in-stagger="100">
+                                
                                 <div class="col-1 d-flex flex-column flex-items-center">
                                     <div class="mb-4 position-relative home-campaign-glowing-icon js-build-in-item build-in-scale-fade"
                                         style="transition-delay: 0ms;">
@@ -1691,11 +1694,6 @@
                                     </h2>
                                 </div>
 
-                                <img alt="" aria-hidden="true" width="502" height="735"
-                                    class="position-absolute height-auto d-none d-md-block col-5 events-none js-build-in-item build-in-fade"
-                                    style="top: -9%; right: -12%; transition-delay: 400ms;" loading="lazy"
-                                    decoding="async"
-                                    src="https://github.githubassets.com/assets/shape-3-9e542b5c31b8.svg">
                             </div>
 
                         </div>
