@@ -281,6 +281,13 @@ class PqrsfController extends Controller
 
             $pqrsf = Pqrsf::find($id);
 
+            if ($pqrsf->id_usuario == request()->user()->id) {
+                if ($pqrsf->estado == 3 || $pqrsf->estado == 0) {
+                    $pqrsf->estado = 1;
+                    $pqrsf->save();
+                }
+            }
+
             $usuarioEmpresa = UsuarioEmpresa::with('usuario', 'nit')
                 ->where('id_usuario', request()->user()->id)
                 ->where('id_empresa', request()->user()->id_empresa)
