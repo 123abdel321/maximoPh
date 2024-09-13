@@ -1357,7 +1357,7 @@
                                     <div
                                         class="d-md-flex flex-column flex-1 p-5 p-sm-6 py-lg-8 pl-lg-8 pr-lg-12 col-md-6 flex-justify-between">
                                         <p class="f2-mktg text-medium color-fg-muted">
-                                            <em>Extras esclusivos</em>
+                                            <h2 class="h5-mktg mb-4 text-medium">EXTRAS EXCLUSIVOS</h2><br/>
                                             <h3 class="text-medium">
                                                 <span class="text-accent-primary d-block">Gestión de IVA, ICA y certificados de retención.</span>
                                                 PQR, mensajería, tareas, clasificados y asambleas.
