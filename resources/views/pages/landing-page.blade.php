@@ -1332,10 +1332,10 @@
                             <div class="col-11 col-lg-8 ml-2 ml-md-0 mb-6 mb-md-10">
                                 <h2 class="h5-mktg mb-4 text-medium">BENEFICIOS</h2>
                                 <h3 class="h3-mktg mb-4 text-medium">
-                                    <span class="text-accent-primary d-block">Enterese de todo en tiempo real.</span>
-                                    Optimizacion de procesos.
-                                    <span class="text-accent-primary d-block">Soporte en linea y telefonico.</span>
-                                    Migración de la información
+                                    <span class="text-accent-primary d-block">Acceso a información en tiempo real.</span>
+                                    Optimización de procesos operativos.
+                                    <span class="text-accent-primary d-block">Soporte técnico disponible en línea y por teléfono.</span>
+                                    Migración de datos eficiente y segura.
                                 </h3>
                             </div>
 
@@ -1358,9 +1358,12 @@
                                         class="d-md-flex flex-column flex-1 p-5 p-sm-6 py-lg-8 pl-lg-8 pr-lg-12 col-md-6 flex-justify-between">
                                         <p class="f2-mktg text-medium color-fg-muted mb-4">
                                             <em>Extras esclusivos</em>
-											<br/>
-											<br/>
-											IVA, ICA, Certificados de retención, PQR - Mensajeria - Tareas Clasificados y asambleas, Repositorio de actas, Medios magneticos & Activos fijos
+                                            <h3 class="text-medium">
+                                                <span class="text-accent-primary d-block">Gestión de IVA, ICA y certificados de retención.</span>
+                                                PQR, mensajería, tareas, clasificados y asambleas.
+                                                <span class="text-accent-primary d-block">Repositorio de actas.</span>
+                                                Administración de medios magnéticos y activos fijos.
+                                            </h3>
                                         </p>
                                         <div>
                                             <a class="link-mktg text-semibold color-fg-default py-1 f3-mktg"
@@ -1402,122 +1405,6 @@
                                 </div>
                             </card-skew>
                         </div>
-
-                        <!-- TWO ITEMS -->
-                        <!-- <div class="d-flex flex-column flex-md-row gutter js-build-in-trigger">
-
-                            <div class="col-md-6 d-flex">
-                                <card-skew class="overflow-hidden rounded-3 mb-3 mb-md-5" data-catalyst=""
-                                    data-perspective="700"
-                                    style="transform: perspective(700px) rotateX(-0.03deg) rotateY(-0.03deg);">
-                                    <div class="feature-card-mktg d-md-flex rounded-3 color-bg-subtle border position-relative flex-justify-between z-1 height-full flex-column"
-                                        data-target="card-skew.bounding">
-                                        <div
-                                            class="d-md-flex flex-column flex-1 p-5 p-sm-6 py-lg-8 pl-lg-8 pr-lg-12 flex-justify-start">
-                                            <p class="f2-mktg text-medium color-fg-muted mb-4">
-                                                <em>GitHub Codespaces</em>
-                                                offers a complete dev environment in seconds. Code, build, test, and
-                                                open pull requests from any repo.
-                                            </p>
-
-                                            <div>
-                                                <a class="link-mktg text-semibold color-fg-default py-1 f3-mktg"
-                                                    href="/features/codespaces">
-                                                    Check out GitHub Codespaces
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="octicon arrow-symbol-mktg" width="16" height="16"
-                                                        viewBox="0 0 16 16" fill="none">
-                                                        <path fill="currentColor"
-                                                            d="M7.28033 3.21967C6.98744 2.92678 6.51256 2.92678 6.21967 3.21967C5.92678 3.51256 5.92678 3.98744 6.21967 4.28033L7.28033 3.21967ZM11 8L11.5303 8.53033C11.8232 8.23744 11.8232 7.76256 11.5303 7.46967L11 8ZM6.21967 11.7197C5.92678 12.0126 5.92678 12.4874 6.21967 12.7803C6.51256 13.0732 6.98744 13.0732 7.28033 12.7803L6.21967 11.7197ZM6.21967 4.28033L10.4697 8.53033L11.5303 7.46967L7.28033 3.21967L6.21967 4.28033ZM10.4697 7.46967L6.21967 11.7197L7.28033 12.7803L11.5303 8.53033L10.4697 7.46967Z">
-                                                        </path>
-                                                        <path class="octicon-chevrow-stem" stroke="currentColor"
-                                                            d="M1.75 8H11" stroke-width="1.5" stroke-linecap="round">
-                                                        </path>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="overflow-hidden rounded-bottom-3">
-                                            <picture>
-                                                <source
-                                                    srcset="https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=1209&amp;format=webpll 1209w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=967&amp;format=webpll 967w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=725&amp;format=webpll 725w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=604&amp;format=webpll 604w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=483&amp;format=webpll 483w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=241&amp;format=webpll 241w"
-                                                    sizes="(max-width: 768px) 90vw, (max-width: 1280px) 50vw, 604px"
-                                                    type="image/webp">
-                                                <source
-                                                    srcset="https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png 1209w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=604 604w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=483 483w,https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png?width=302 302w"
-                                                    sizes="(max-width: 768px) 90vw, (max-width: 1280px) 50vw, 604px"
-                                                    type="image/png">
-                                                <img class="width-full d-block height-auto js-build-in-item build-in-scale-fade"
-                                                    width="1209" height="890" loading="lazy" decoding="async" alt=""
-                                                    aria-hidden="true"
-                                                    src="https://github.githubassets.com/assets/illu-codespaces-1d2d17e8b2b7.png">
-                                            </picture>
-                                        </div>
-
-                                        <div data-target="card-skew.shine"
-                                            class="position-absolute bottom-0 right-0 events-none z-n1"
-                                            style="transform: translate(249.33px, -58.485px);">
-                                        </div>
-                                    </div>
-                                </card-skew>
-                            </div>
-
-                            <div class="col-md-6 d-flex">
-                                <card-skew class="overflow-hidden rounded-3 mb-3 mb-md-5" data-catalyst=""
-                                    data-perspective="700"
-                                    style="transform: perspective(700px) rotateX(-0.03deg) rotateY(0.03deg);">
-
-                                    <div class="feature-card-mktg d-md-flex rounded-3 color-bg-subtle border position-relative flex-justify-between z-1 height-full flex-column"
-                                        data-target="card-skew.bounding">
-
-                                        <div
-                                            class="d-md-flex flex-column flex-1 p-5 p-sm-6 py-lg-8 pl-lg-8 pr-lg-12 flex-justify-start">
-                                            <p class="f2-mktg text-medium color-fg-muted mb-4">
-                                                <em>GitHub Mobile and Copilot</em>
-                                                now let you manage projects and converse with your AI pair programmer on
-                                                the&nbsp;go.
-                                            </p>
-                                            <div>
-                                                <a class="link-mktg text-semibold color-fg-default py-1 f3-mktg"
-                                                    href="/mobile">
-                                                    Download GitHub Mobile
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                        class="octicon arrow-symbol-mktg" width="16" height="16"
-                                                        viewBox="0 0 16 16" fill="none">
-                                                        <path fill="currentColor"
-                                                            d="M7.28033 3.21967C6.98744 2.92678 6.51256 2.92678 6.21967 3.21967C5.92678 3.51256 5.92678 3.98744 6.21967 4.28033L7.28033 3.21967ZM11 8L11.5303 8.53033C11.8232 8.23744 11.8232 7.76256 11.5303 7.46967L11 8ZM6.21967 11.7197C5.92678 12.0126 5.92678 12.4874 6.21967 12.7803C6.51256 13.0732 6.98744 13.0732 7.28033 12.7803L6.21967 11.7197ZM6.21967 4.28033L10.4697 8.53033L11.5303 7.46967L7.28033 3.21967L6.21967 4.28033ZM10.4697 7.46967L6.21967 11.7197L7.28033 12.7803L11.5303 8.53033L10.4697 7.46967Z">
-                                                        </path>
-                                                        <path class="octicon-chevrow-stem" stroke="currentColor"
-                                                            d="M1.75 8H11" stroke-width="1.5" stroke-linecap="round">
-                                                        </path>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <div class="overflow-hidden rounded-bottom-3">
-                                            <picture>
-                                                <source
-                                                    srcset="https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp 1244w,https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp?width=995 995w,https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp?width=746 746w,https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp?width=622 622w,https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp?width=497 497w,https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp?width=248 248w"
-                                                    sizes="(max-width: 768px) 90vw, (max-width: 1280px) 50vw, 622px"
-                                                    type="image/webp">
-                                                <img class="width-full d-block height-auto js-build-in-item build-in-scale-fade"
-                                                    width="1244" height="1029" loading="lazy" decoding="async" alt=""
-                                                    aria-hidden="true"
-                                                    src="https://github.githubassets.com/assets/illu-mobile-chat-9e7549906574.webp">
-                                            </picture>
-                                        </div>
-
-                                        <div data-target="card-skew.shine"
-                                            class="position-absolute bottom-0 right-0 events-none z-n1"
-                                            style="transform: translate(-295.5px, -200.5px);">
-                                        </div>
-                                    </div>
-                                </card-skew>
-
-                            </div>
-
-                        </div> -->
 
                         <div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger">
                             <div class="home-campaign-git-line mt-n3 mt-md-n4 mb-n8 rounded js-build-in-item build-in-scale-top"
@@ -1579,9 +1466,10 @@
                                             <div class="d-md-flex flex-column flex-1 p-5 p-sm-6 py-lg-8 pl-lg-8 pr-lg-12 flex-justify-start" style="padding: 40px !important;">
                                                 <p class="f2-mktg text-medium color-fg-muted mb-4">
 													<em>Facturación y Cartera Automática</em>
-												</p><br/>
+												</p>
+                                                <br/>
 												<p class="f2-mktg text-medium color-fg-muted mb-4" style="font-size: 20px !important;">
-													Conexión en tiempo real con la contabilidad, causación de intereses por saldos morosos y cruce automático de anticipos, Cuotas extras o multas particulares o masivas con rango de fechas.
+                                                    La funcionalidad de Facturación y Cartera Automática permite una conexión en tiempo real con el sistema contable, facilitando la causación automática de intereses por saldos morosos. Además, ofrece el cruce automático de anticipos, cuotas extras o multas, tanto individuales como masivas, con la posibilidad de aplicar filtros por rango de fechas para un mayor control y precisión en la gestión.
 												</p>
                                             </div>
                                             <div class="overflow-hidden rounded-bottom-3">
@@ -1605,7 +1493,7 @@
 													<em>Control Operativo & Personal</em>
 												</p><br/>
 												<p class="f2-mktg text-medium color-fg-muted mb-4" style="font-size: 20px !important;">
-													Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+                                                    La funcionalidad de Control Operativo & Personal incluye una minuta documentada, control exhaustivo de visitas, domicilios y paquetes, así como una conexión constante entre propietarios y portería, garantizando notificaciones en tiempo real sobre el estado de los procesos.
 												</p>
                                             </div>
                                             <div class="overflow-hidden rounded-bottom-3">
@@ -1629,7 +1517,7 @@
 													<em>Control En Linea Presupuesto</em>
 												</p><br/>
 												<p class="f2-mktg text-medium color-fg-muted mb-4" style="font-size: 20px !important;">
-													Al realizar un gasto que sobrepasa el límite del presupuesto establecido, el sistema no permite causar el gasto. (permiso modificable por usuario)
+                                                    El Control en Línea de Presupuesto asegura que, al intentar realizar un gasto que exceda el límite del presupuesto establecido, el sistema bloqueará automáticamente la operación. Esta restricción puede ser modificada por el usuario, según los permisos asignados.
 												</p>
                                             </div>
                                             <div class="overflow-hidden rounded-bottom-3">
@@ -1665,7 +1553,7 @@
 												<em>Control De Portería</em>
 											</p><br/>
 											<p class="f2-mktg text-medium color-fg-muted mb-4" style="font-size: 20px !important;">
-											Minuta documentada, control de visitas, domicilios y paquetes, conexión contraste entre propietario y portería con notificaciones de los procesos, monitorio vehículos y mascotas
+											    Incluye una minuta documentada y un control detallado de visitas, domicilios y paquetes. Además, ofrece una conexión constante entre propietarios y portería, con notificaciones en tiempo real sobre los procesos, así como el monitoreo de vehículos y mascotas.
 											</p>
 										</div>
 										<div class="overflow-hidden rounded-bottom-3">
@@ -1689,7 +1577,7 @@
 												<em>Tesorería Inteligente</em>
 											</p><br/>
 											<p class="f2-mktg text-medium color-fg-muted mb-4" style="font-size: 20px !important;">
-											Importador de pagos, conciliación bancaria, pasarela de pagos, ingresos, egresos y anticipos en tiempo real, abonando en orden de prioridades
+                                                La funcionalidad de Tesorería Inteligente ofrece un importador de pagos eficiente y una conciliación bancaria precisa. Incluye una pasarela de pagos integrada y gestiona ingresos, egresos y anticipos en tiempo real, asegurando que los abonos se realicen según el orden de prioridades establecido.
 											</p>
 										</div>
 										<div class="overflow-hidden rounded-bottom-3">
@@ -1713,7 +1601,7 @@
 												<em>Gestión de Proveedores</em>
 											</p><br/>
 											<p class="f2-mktg text-medium color-fg-muted mb-4" style="font-size: 20px !important;">
-											Negociaciones en plataforma con proveedores servicios y productos
+											    Facilita las negociaciones con proveedores de servicios y productos a través de la plataforma, optimizando el proceso de contratación y gestión de acuerdos.
 											</p>
 										</div>
 										<div class="overflow-hidden rounded-bottom-3">
