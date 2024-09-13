@@ -243,14 +243,12 @@ function iniciarCanalesDeNotificacion () {
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
 
     if (pqrsf_notificaciones) {
-        console.log(pqrsf_notificaciones);
         channelPqrsfGeneral = pusher.subscribe('notificacion-pqrsf-'+localStorage.getItem("notificacion_code_general"));
     }
 }
 
 if (channelPqrsfGeneral) {
     channelPqrsfGeneral.bind('notificaciones', function(data) {
-        console.log('channelPqrsfGeneral: ',data);
         openDropDownNotificaciones(true);
     });
 }

@@ -665,6 +665,54 @@
             sendDataLogin();
         });
 
+        $("#button-welcome").click(function(event){
+            var contraNueva = $("#welcome_password_login").val();
+            var contraAgain = $("#welcome_password_retry_login").val();
+
+            localStorage.setItem("token_db_portafolio", '');
+            localStorage.setItem("auth_token", '');
+            localStorage.setItem("auth_token_erp", '');
+            localStorage.setItem("empresa_nombre", '');
+            localStorage.setItem("notificacion_code", '');
+            localStorage.setItem("notificacion_code_general", '');
+            localStorage.setItem("fondo_sistema", '');
+            localStorage.setItem("empresa_logo", '');
+
+            if (contraNueva != contraAgain) {
+                $('#error-welcome').text("Las contraseñas no coinciden!");
+                $('#error-welcome').show();
+                return;
+            } else {
+                $('#error-welcome').hide();
+            }
+
+            $("#button-welcome").hide();
+            $("#button-welcome-loading").show();
+
+            $.ajax({
+                url: base_url + 'confirm-pass',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                data: {
+                    "password": $('#welcome_password_login').val(),
+                    "codigo": $('#welcome_codigo').val(),
+                    "id_usuario": $('#welcome_id_usuario').val(),
+                },
+                dataType: 'json',
+            }).done((res) => {
+                $("#button-welcome").show();
+                $("#button-welcome-loading").hide();
+
+                window.location.href = '/login';
+
+            }).fail((err) => {
+                $("#button-welcome").show();
+                $("#button-welcome-loading").hide();
+            });
+        });
+
         $("#link-recover").click(function(event){
             $("#texto-login").hide();
             $("#texto-recover").show();

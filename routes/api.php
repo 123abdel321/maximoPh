@@ -55,6 +55,7 @@ Route::controller(ApiController::class)->group(function () {
     Route::get('login', 'login');
     Route::get('register', 'register');
     Route::get('usuario-accion', 'getUsuario');
+    Route::post('confirm-pass', 'confirmPass');
     Route::post('validate-code', 'validateCode');
     Route::post('create-empresa', 'createEmpresa');
     Route::post('validate-email', 'validateEmail');
@@ -203,6 +204,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('usuarios', 'update');
             Route::delete('usuarios', 'delete');
             Route::post('usuarios-sync', 'sync');
+            Route::post('usuarios-welcome', 'welcome');
             Route::get('usuarios/combo', 'combo');
             
         });

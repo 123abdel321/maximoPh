@@ -52,6 +52,8 @@
 </div>
 
 <script>
+    var usuario_nit = JSON.parse('<?php echo $usuario_nit; ?>');
+    var correoUsuarios = '<?php echo auth()->user()->can('usuarios correo'); ?>';
     var editarUsuarios = '<?php echo auth()->user()->can('usuarios update'); ?>';
     var eliminarUsuarios = '<?php echo auth()->user()->can('usuarios delete'); ?>';
 </script>

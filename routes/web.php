@@ -72,44 +72,15 @@ Route::get('/', function (Request $request) {
 
 Auth::routes();
 
-Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login');
-Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login.perform');
+Route::get('/login', [LoginController::class, 'show'])->middleware('guest');
+Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
+Route::get('/welcome', [LoginController::class, 'welcome'])->middleware('guest');
+
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
 	Route::group(['middleware' => ['clientconnectionweb']], function () {
-
-		// Route::get('/actualizar-nits-apartamentos', [InmuebleNitController::class, 'fast']);
-		// Route::get('/crear-porteria-items', function (Request $request) {
-		// 	$inmuebleNit = InmuebleNit::with('nit')->groupBy('id_nit')->get();
-			
-		// 	if (count($inmuebleNit)) {
-		// 		foreach ($inmuebleNit as $nit) {
-		// 			$usuarioNit = UsuarioEmpresa::where('id_empresa', request()->user()->id_empresa)
-		// 				->where('id_nit', $nit->id)
-		// 				->first();
-
-		// 			if ($usuarioNit) {
-		// 				Porteria::create([
-		// 					'id_nit' => $nit->id,
-		// 					'id_usuario' => $usuarioNit->id_usuario,
-		// 					'tipo_porteria' => $nit->tipo,
-		// 					'tipo_vehiculo' => null,
-		// 					'tipo_mascota' => null,
-		// 					'nombre' => $nit->nit->nombre_completo,
-		// 					'dias' => null,
-		// 					'placa' => null,
-		// 					'hoy' => null,
-		// 					'observacion' => null,
-		// 					'created_by' => request()->user()->id,
-		// 					'updated_by' => request()->user()->id
-		// 				]);
-		// 			}
-		// 		}
-		// 	}
-		// 	return json_encode('items de porteria creados con exito');
-		// });
 
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');

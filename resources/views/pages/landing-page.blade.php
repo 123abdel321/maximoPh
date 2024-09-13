@@ -2031,7 +2031,7 @@
 	<script>
 
 		function openWhatSapp() {
-            window.open("https://wa.me/3183899872?text=Hola,%20necesito%20más%20información%20sobre%20maximoph%2020listing`", "_blank");
+            window.open("https://wa.me/3508973619?text=Hola,%20necesito%20más%20información%20sobre%20maximoph%2020listing`", "_blank");
         }
 
         function reloadLogin() {
