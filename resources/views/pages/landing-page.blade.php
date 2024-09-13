@@ -1433,9 +1433,9 @@
                                 </h2>
                             </div>
 
-                            <img alt="" aria-hidden="true" width="595" height="595"
-                                class="position-absolute height-auto d-none d-md-block col-8 events-none"
-                                style="top: -10%; right: -25%;" loading="lazy" decoding="async"
+                            <img alt="" aria-hidden="true" width="1500" height="1500"
+                                class="position-absolute height-auto d-none d-md-block events-none"
+                                style="top: -10%;" loading="lazy" decoding="async"
                                 src="https://github.githubassets.com/assets/shape-2-f30dcc9bd35c.svg">
                         </div>
 
