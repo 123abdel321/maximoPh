@@ -1168,6 +1168,16 @@ function createMensajePqrsf() {
 
         var responseData = JSON.parse(res.currentTarget.response);
         
+        mostrarAgregarImagenes = false;
+        $("#button-add-img").removeClass('button-add-img-select');
+        $("#button-add-img").addClass('button-add-img');
+        $("#input-images-mensaje").hide();
+
+        openStatusPqrsf = false;
+        $(".update-status-pqrsf").hide();
+        $("#content-button-change-status").addClass('button-change-status');
+        $("#content-button-change-status").removeClass('button-change-status-select');
+        
         $("#button-send-pqrsf").show();
         $("#button-send-pqrsf-loading").hide();
 
@@ -1329,7 +1339,7 @@ function actualizarEstadosPqrsf (estado) {
     $("#butonActionProceso").hide();
     $("#butonActionCerrado").hide();
 
-    if (estado == 0) {
+    if (estado == 0 || estado == 3) {
         $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-activo');
         $("#butonActionProceso").show();
         $("#butonActionCerrado").show();
@@ -1553,16 +1563,27 @@ function findDataPqrsf(id) {
         segundos = 0;
    
         if (id_usuario_logeado == data.id_usuario) {
-            if (data.creador.lastname) $("#id_name_person_pqrsf").text(data.creador.firstname+' '+data.creador.lastname);
-            else $("#id_name_person_pqrsf").text(data.creador.firstname);
-            if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
-            else if (data.nit) $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
+            var nombreCreador = data.creador.firstname;
+            nombreCreador+= data.creador.lastname ? ' '+data.creador.lastname : '';
+            if (data.nit) nombreCreador+= ' '+data.nit.apartamentos;
+            
+            $("#id_name_person_pqrsf").text(nombreCreador);
+
+            if (data.creador.avatar) {
+                $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+            } else if (data.nit.logo_nit) {
+                $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
+            }
             permisoAgregarTiempos = true;
         } else {
             if (data.usuario) {
-                if (data.usuario.lastname) $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
-                else $("#id_name_person_pqrsf").text(data.usuario.firstname);
-                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+                
+                if (data.usuario.lastname) {
+                    $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+                } else {
+                    $("#id_name_person_pqrsf").text(data.usuario.firstname);
+                }
             } else if (data.creador) {
                 if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
             }

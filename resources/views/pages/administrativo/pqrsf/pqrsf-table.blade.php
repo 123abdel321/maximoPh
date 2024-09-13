@@ -12,7 +12,7 @@
         <label for="exampleFormControlSelect1">Tipo<span style="color: red">*</span></label>
         <select class="form-control form-control-sm" id="tipo_pqrsf_filter" name="tipo_pqrsf_filter">
             <option value="">TODOS</option>
-            <option value="5">TAREA</option>
+            <!-- <option value="5">TAREA</option> -->
             <option value="0">PETICIONES</option>
             <option value="1">QUEJAS</option>
             <option value="2">RECLAMOS</option>
@@ -37,7 +37,8 @@
         <label for="exampleFormControlSelect1">Estado</label>
         <select class="form-control form-control-sm" id="estado_pqrsf_filter" name="estado_pqrsf_filter">
             <option value="">TODOS</option>
-            <option value="0">ACTIVOS</option>
+            <option value="0">SIN LEER</option>
+            <option value="3">VISTOS</option>
             <option value="1">EN PROCESO</option>
             <option value="2">CERRADOS</option>
         </select>

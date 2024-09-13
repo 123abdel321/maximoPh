@@ -3,7 +3,7 @@
     <div class="row">
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
-            <div class="col-12 col-md-6 col-sm-6">
+            <div class="col-12 col-md-12 col-sm-12">
                 @can('pqrsf create')
                     <button type="button" class="btn btn-primary btn-sm" id="generatePqrsfNuevo">
                         Agregar pqrsf
@@ -21,9 +21,9 @@
                     <i id="reloadPqrsfIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
                 </button>
             </div>
-            <div class="col-12 col-md-6 col-sm-6">
+            <!-- <div class="col-12 col-md-6 col-sm-6">
                 <input type="text" id="searchInputPqrsf" class="form-control form-control-sm search-table" onkeydown="searchPqrsf(event)" placeholder="Buscar">
-            </div>
+            </div> -->
         </div>
 
         <div id="items-tabla-pqrsf" class="card mb-4" style="content-visibility: auto; overflow: auto;">

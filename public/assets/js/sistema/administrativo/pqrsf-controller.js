@@ -59,7 +59,10 @@ function pqrsfInit() {
                 if (row.estado == '2') {
                     return `<span class="badge bg-success">CERRADO</span><br/>`;
                 }
-                return `<span class="badge bg-warning">ACTIVO</span><br/>`;
+                if (row.estado == '3') {
+                    return `<span class="badge bg-dark">VISTO</span><br/>`;
+                }
+                return `<span class="badge bg-danger">SIN LEER</span><br/>`;
             }},
             {"data": function (row, type, set){
                 if (row.tipo == 0) {
@@ -149,7 +152,6 @@ function pqrsfInit() {
             var id = this.id.split('_')[1];
             $("#id_pqrsf_up").val(id);
             $("#mensaje_pqrsf_nuevo").val("");
-            loadingDataPqrsf();
             findDataPqrsf(id);
         });
     }

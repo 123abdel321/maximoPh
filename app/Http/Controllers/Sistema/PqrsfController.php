@@ -74,7 +74,7 @@ class PqrsfController extends Controller
             if ($request->get('fecha_desde')) $pqrsf->where('created_at', '>=', $request->get('fecha_desde'));
             if ($request->get('fecha_hasta')) $pqrsf->where('created_at', '<=', $request->get('fecha_hasta').' 23:59:59');
             if ($request->get('id_nit')) $pqrsf->where('id_nit', $request->get('id_nit'));
-            if ($request->get('tipo')) $pqrsf->where('tipo', $request->get('tipo'));
+            if ($request->get('tipo') || $request->get('tipo') == '0') $pqrsf->where('tipo', $request->get('tipo'));
             if ($request->get('area')) $pqrsf->where('area', $request->get('area'));
             if ($request->get('estado') || $request->get('estado') == '0') $pqrsf->where('estado', $request->get('estado'));
 
@@ -119,6 +119,16 @@ class PqrsfController extends Controller
             $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos', 'tiempos', 'mensajes.archivos')
                 ->where('id', $request->get('id'))
                 ->first();
+
+            if (!$pqrsf->id_usuario) {
+                Pqrsf::where('id', $request->get('id'))
+                    ->whereNull('id_usuario')
+                    ->update([
+                        'id_usuario' => request()->user()->id,
+                        'estado' => 3,
+                        'id_rol' => null, //SIN IMPLEMENTAR
+                    ]);
+            }
 
             return response()->json([
                 'success'=>	true,
@@ -302,21 +312,38 @@ class PqrsfController extends Controller
                 }
             }
 
+            $notificacionesEnEspera = Notificaciones::where('notificacion_id', $id)
+                ->where('notificacion_type', 12)
+                ->where('estado', 0)
+                ->count();
+            
             $mensaje = PqrsfMensajes::where('id', $mensajes->id)
                 ->with('archivos')
                 ->get();
-            
-            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
-            $usuarioNotificacion = $pqrsf->id_usuario;
 
+            $usuarioNotificacion = $pqrsf->id_usuario;
             if ($pqrsf->id_usuario == $request->user()['id']) {
                 $usuarioNotificacion = $pqrsf->created_by;
             }
 
+            $notificar = 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion;
+
+            if ($notificacionesEnEspera) {
+                DB::connection('max')->commit();
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $mensaje,
+                    'notificar' => $notificar,
+                    'message'=> 'Mensaje creado con exito!'
+                ]);
+            }
+            
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
+
             $notificacion = (new NotificacionGeneral(
                 request()->user()->id,
                 $usuarioNotificacion,
-                $mensajes
+                $pqrsf
             ));
 
             $apartamentos = $usuarioEmpresa && $usuarioEmpresa->nit ? $usuarioEmpresa->nit->apartamentos : '';
@@ -331,8 +358,6 @@ class PqrsfController extends Controller
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);
-
-            $notificar = 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion;
 
             if (!$usuarioNotificacion) {
                 $notificar = 'notificacion-pqrsf-'.$request->user()['has_empresa'];
@@ -481,6 +506,7 @@ class PqrsfController extends Controller
                 ->whereNull('id_usuario')
                 ->update([
                     'id_usuario' => request()->user()->id,
+                    'estado' => 3,
                     'id_rol' => null, //SIN IMPLEMENTAR
                 ]);
 

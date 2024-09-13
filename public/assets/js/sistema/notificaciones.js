@@ -213,7 +213,7 @@ function pintarSinNotificaciones() {
 
 function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
     findDataPqrsf(id_pqrsf);
-    actualizarNotificaciones(id_notificacion, 1);
+    actualizarNotificaciones(id_notificacion, 2);
     actualizarPqrsfRemitente(id_pqrsf);
 
     $("#id_pqrsf_up").val(id_pqrsf);
