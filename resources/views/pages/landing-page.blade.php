@@ -1602,7 +1602,7 @@
 							</div>
 
 						</div>						
-
+                        
                         <div class="home-campaign-footer position-relative js-section overflow-hidden" data-color-mode="dark" data-light-theme="light" data-dark-theme="dark">
                             <div class="container-xl position-relative z-2 px-3">
                                 <div class="d-flex js-build-in-trigger build-in-animate" data-build-in-stagger="100">
@@ -1613,6 +1613,7 @@
                                     <img alt="" aria-hidden="true" width="584" height="584" class="position-absolute height-auto d-none d-md-block col-7 events-none home-shape-rotate" style="bottom: -50%; right: -20%; animation-duration: 300s;" loading="lazy" decoding="async" src="https://github.githubassets.com/assets/shape-1-c219318e479a.svg">
 
                                     <div class="col-11 ml-2 ml-md-0">
+                                        <br/><br/><br/>
                                         <div class="col-md-11 col-lg-9 py-8">
                                         <h2 class="h2-mktg mb-5">¿Tienes un plan? Hagámoslo realidad juntos.</h2>
                                         <p class="f3-mktg color-fg-muted">
@@ -1620,7 +1621,6 @@
                                             Nuestra especialidad es el <em style="color: white; font-weight: 400;"> Desarrollo de aplicaciones</em> que redefinen la manera en que los usuarios interactúan con tu marca, potenciando el crecimiento y la innovación de tu negocio.
                                         </p>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
