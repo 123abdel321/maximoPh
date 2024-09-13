@@ -1147,6 +1147,9 @@
 										<a class="HeaderMenu-link no-underline px-0 px-lg-2 py-3 py-lg-2 d-block d-lg-inline-block" href="#security">
 											Premium
 										</a>
+                                        <a class="HeaderMenu-link no-underline px-0 px-lg-2 py-3 py-lg-2 d-block d-lg-inline-block" href="#software">
+											Desarrollo de software
+										</a>
 										<a class="HeaderMenu-link no-underline px-0 px-lg-2 py-3 py-lg-2 d-block d-lg-inline-block" href="#collaboration">
 											Contacto
 										</a>
@@ -1297,6 +1300,8 @@
                                     href="#productivity">Beneficios</a>
                                 <a class="sub-nav-mktg-link Link--primary no-underline py-1 py-lg-2 js-scrollnav-item selected"
                                     href="#security">Premium</a>
+                                <a class="sub-nav-mktg-link Link--primary no-underline py-1 py-lg-2 js-scrollnav-item selected"
+                                    href="#software">Desarrollo de software</a>
                                 <a class="sub-nav-mktg-link Link--primary no-underline py-1 py-lg-2 js-scrollnav-item"
                                     href="#collaboration">Contacto</a>
                             </div>
@@ -1601,34 +1606,34 @@
 								</card-skew>
 							</div>
 
-						</div>						
-                        
-                        <div class="home-campaign-footer position-relative js-section overflow-hidden" data-color-mode="dark" data-light-theme="light" data-dark-theme="dark">
-                            <div class="container-xl position-relative z-2 px-3">
-                                <div class="d-flex js-build-in-trigger build-in-animate" data-build-in-stagger="100">
-                                    <div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
-                                        <div class="home-campaign-git-line rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 100%; background: linear-gradient(transparent, rgb(102, 57, 186) 10%, rgb(163, 113, 247), rgb(210, 168, 255)); transition-delay: 0ms;"></div>
-                                    </div>
+						</div>
+                    </div>
 
-                                    <img alt="" aria-hidden="true" width="584" height="584" class="position-absolute height-auto d-none d-md-block col-7 events-none home-shape-rotate" style="bottom: -50%; right: -20%; animation-duration: 300s;" loading="lazy" decoding="async" src="https://github.githubassets.com/assets/shape-1-c219318e479a.svg">
+                    <br/>
+                    <br/>
 
-                                    <div class="col-11 ml-2 ml-md-0">
-                                        <br/><br/><br/>
-                                        <div class="col-md-11 col-lg-9 py-8">
-                                        <h2 class="h2-mktg mb-5">¿Tienes un plan? Hagámoslo realidad juntos.</h2>
-                                        <p class="f3-mktg color-fg-muted">
-                                            Somos un equipo dinámico y creativo, impulsados por la pasión por conceptos originales. Nos dedicamos a colaborar con empresas digitales y tecnológicas de vanguardia, ayudándoles a forjar identidades impactantes mediante el diseño de <em style="color: white; font-weight: 400;"> interfaces de usuario (UI) y experiencias de usuario (UX) excepcionales.</em>
-                                            Nuestra especialidad es el <em style="color: white; font-weight: 400;"> Desarrollo de aplicaciones</em> que redefinen la manera en que los usuarios interactúan con tu marca, potenciando el crecimiento y la innovación de tu negocio.
-                                        </p>
-                                        </div>
+                    <div class="home-campaign-footer position-relative js-section overflow-hidden" data-color-mode="dark" data-light-theme="light" data-dark-theme="dark" id="software">
+                        <div class="container-xl position-relative z-2 px-3">
+                            <div class="d-flex js-build-in-trigger build-in-animate" data-build-in-stagger="100">
+                                <div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
+                                    <div class="home-campaign-git-line rounded js-build-in-item build-in-scale-top build-in-animate" style="height: 100%; background: linear-gradient(transparent, rgb(102, 57, 186) 10%, rgb(163, 113, 247), rgb(210, 168, 255)); transition-delay: 0ms;"></div>
+                                </div>
+
+                                <img alt="" aria-hidden="true" width="584" height="584" class="position-absolute height-auto d-none d-md-block col-7 events-none home-shape-rotate" style="bottom: -50%; right: -20%; animation-duration: 300s;" loading="lazy" decoding="async" src="https://github.githubassets.com/assets/shape-1-c219318e479a.svg">
+
+                                <div class="col-11 ml-2 ml-md-0">
+                                    <br/><br/><br/>
+                                    <div class="col-md-11 col-lg-9 py-8">
+                                    <h2 class="h2-mktg mb-5">¿Tienes un plan? Hagámoslo realidad juntos.</h2>
+                                    <p class="f3-mktg color-fg-muted">
+                                        Somos un equipo dinámico y creativo, impulsados por la pasión por conceptos originales. Nos dedicamos a colaborar con empresas digitales y tecnológicas de vanguardia, ayudándoles a forjar identidades impactantes mediante el diseño de <em style="color: white; font-weight: 400;"> interfaces de usuario (UI) y experiencias de usuario (UX) excepcionales.</em>
+                                        Nuestra especialidad es el <em style="color: white; font-weight: 400;"> Desarrollo de aplicaciones</em> que redefinen la manera en que los usuarios interactúan con tu marca, potenciando el crecimiento y la innovación de tu negocio.
+                                    </p>
                                     </div>
                                 </div>
                             </div>
-                            
                         </div>
-
-						<br/>
-						<br/>
+                        
                     </div>
 
                     <div class="home-campaign-collaboration js-section pt-5 px-3 overflow-hidden" data-color-mode="dark"
