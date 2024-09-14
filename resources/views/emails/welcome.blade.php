@@ -4,110 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Correo Electrónico</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-        }
-        .header {
-            background-color: #075260;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 20px;
-        }
-        .content h2 {
-            font-size: 20px;
-            color: #333333;
-        }
-
-        .content h3 {
-            font-size: 15px;
-            color: #333333;
-        }
-        
-        .content p {
-            font-size: 16px;
-            color: #555555;
-            line-height: 1.5;
-        }
-        .content a {
-            color: white;
-            text-decoration: none;
-        }
-        .button {
-            display: inline-block;
-            background-color: #075260;
-            color: #ffffff;
-            padding: 10px 20px;
-            text-align: center;
-            border-radius: 5px;
-            text-decoration: none;
-            margin-top: 20px;
-            box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 2px 2px 2px rgb(0 0 0 / 57%);
-        }
-        .footer {
-            background-color: #f4f4f4;
-            color: #777777;
-            padding: 10px;
-            text-align: center;
-            font-size: 14px;
-        }
-        .footer a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .center {
-            text-align: center;
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Encabezado -->
-        <div class="header">
-            <img src="https://maximoph.com/img/logo_blanco.png" alt="Logo" style="max-width: 200px;">
-        </div>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f4;">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="margin: 0 auto; background-color: #ffffff; border: 1px solid #dddddd;">
+                    <!-- Encabezado -->
+                    <tr>
+                        <td style="background-color: #075260; padding: 20px; text-align: center;">
+                            <img src="https://maximoph.com/img/logo_blanco.png" alt="Logo" style="max-width: 200px;">
+                        </td>
+                    </tr>
 
-        <!-- Contenido -->
-        <div class="content">
-            <h2>¡Hola, {{ $nombre }}!</h2>
-            <p>
-                Para comenzar, solo necesitas hacer clic en el botón Confirmar Correo y estarás dentro en cuestión de segundos. <br/>
-                Obtendras todos los beneficios para realizar tus pagos directos online, podrás revisar tu estado de cuenta y gestionar tus PQRS.
-                Gracias por elegirnos, esperamos que lo disfrutes.
-            </p>
+                    <!-- Contenido -->
+                    <tr>
+                        <td style="padding: 20px; color: #555555;">
+                            <h2 style="font-size: 20px; color: #333333; margin: 0 0 10px;">¡Hola, {{ $nombre }}!</h2>
+                            <p style="font-size: 16px; line-height: 1.5; margin: 0 0 20px;">
+                                Para comenzar, solo necesitas hacer clic en el botón Confirmar Correo y estarás dentro en cuestión de segundos. <br/>
+                                Obtendrás todos los beneficios para realizar tus pagos directos online, podrás revisar tu estado de cuenta y gestionar tus PQRS. Gracias por elegirnos, esperamos que lo disfrutes.
+                            </p>
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <a href="https://maximoph.com/{{ $url }}" style="display: inline-block; background-color: #075260; color: #ffffff; padding: 10px 20px; text-align: center; border-radius: 5px; text-decoration: none; margin-top: 20px; box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);">
+                                            Confirmar Correo
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-            <div class="center">
-                <a href="https://maximoph.com/{{ $url }}" class="button">Confirmar Correo</a>
-            </div>
-        </div>
-
-        <!-- Pie de página -->
-        <div class="footer">
-            <p>
-            350 8973 619
-                ¿Tienes alguna pregunta? <a href="https://wa.me/3508973619?text=Hola,%20necesito%20más%20información%20sobre%20maximoph">Contáctanos</a>.
-            </p>
-            <p>
-                © 2024 MaximoPh. Todos los derechos reservados.
-            </p>
-        </div>
-    </div>
+                    <!-- Pie de página -->
+                    <tr>
+                        <td style="background-color: #f4f4f4; padding: 10px; text-align: center; font-size: 14px; color: #777777;">
+                            <p style="margin: 0;">
+                                ¿Tienes alguna pregunta? <a href="https://wa.me/3508973619?text=Hola,%20necesito%20más%20información%20sobre%20maximoph" style="color: #007bff; text-decoration: none;">Contáctanos</a>.
+                            </p>
+                            <p style="margin: 0;">
+                                © 2024 MaximoPh. Todos los derechos reservados.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

@@ -1612,7 +1612,7 @@
                     <br/>
                     <br/>
 
-                    <div class="home-campaign-footer position-relative js-section overflow-hidden" data-color-mode="dark" data-light-theme="light" data-dark-theme="dark" id="software">
+                    <div class="home-campaign-collaboration js-section pt-5 px-3 overflow-hidden" data-color-mode="dark" data-light-theme="light" data-dark-theme="dark" id="software">
                         <div class="container-xl position-relative z-2 px-3">
                             <div class="d-flex js-build-in-trigger build-in-animate" data-build-in-stagger="100">
                                 <div class="col-1 d-flex flex-column flex-items-center js-build-in-trigger build-in-animate">
