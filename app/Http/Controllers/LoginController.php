@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Http\Controllers\Traits\BegReCaptchaValidateTrait AS validateReCaptcha;
 //MODELS
 use App\Models\User;
 use App\Models\Empresa\Empresa;
@@ -27,7 +28,10 @@ use Spatie\Permission\Models\Permission;
 
 class LoginController extends Controller
 {
+    use validateReCaptcha;
     use AuthenticatesUsers;
+    protected $maxAttempts = 3; // Amount of bad attempts user can make
+	protected $decayMinutes = 1; // Time for which user is going to be blocked in seconds
 
     protected $messages = null;
 
@@ -103,14 +107,32 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        if ($this->hasTooManyLoginAttempts($request)) {
+			$this->fireLockoutEvent($request);
+            return response()->json([
+                'success' => false,
+                'message' => 'Numero maximo de intentos permitidos, vuelva a intentarlo en 1 minuto'
+            ], 401);
+		}
 
-        // if ($this->hasTooManyLoginAttempts($request)) {
-		// 	$this->fireLockoutEvent($request);
-		// 	return $this->sendLockoutResponse($request);
-		// }
-        
+        $captcha_token = $request->get("g-recaptcha-response");
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
+
+        if($captcha_token){
+			$captcha_response = $this->validateReCaptcha($captcha_token);
+			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
+				return response()->json([
+					'success' => false,
+					'message' => 'Falló la validación de reCAPTCHA'
+				], 401);
+			}
+		}else{
+			return response()->json([
+                'success' => false,
+				'message' => 'Falló la validación de reCAPTCHA'
+			], 401);
+		}
 
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         $browser        = "Desconocido";
@@ -284,6 +306,8 @@ class LoginController extends Controller
             ], 200);
         }
 
+        $this->incrementLoginAttempts($request);
+
         if ($responseGeo) {
             $data = [
                 'id_usuario' => $request->user() ? $request->user()->id : null,
@@ -306,7 +330,7 @@ class LoginController extends Controller
         return response()->json([
     		'success'=>	false,
     		'data' => '',
-    		'message'=> 'The provided credentials do not match our records.'
+    		'message'=> 'Las credenciales proporcionadas no coinciden con nuestros registros.'
     	], 422);
     }
 

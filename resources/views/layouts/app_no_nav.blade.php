@@ -604,7 +604,7 @@
     })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
     <!-- End Google Tag Manager -->
 
-    <!-- <script src="https://www.google.com/recaptcha/enterprise.js?render=6LdrmRwqAAAAAPoXC1Sa2jo6zwGHW0V4lX0HYDgc"></script> -->
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lfmb0MqAAAAAHqhT6_aktU9V6ycmpn5FMG9zfQ_"></script>
 </head>
 
 <body class="{{ $class ?? '' }} ">
@@ -658,6 +658,8 @@
         // const base_web = 'https://app.portafolioerp.com/';
 
         const buttonResend = document.getElementById('button-resend-disabled');
+        const tokenRecaptcha = '6Lfmb0MqAAAAAHqhT6_aktU9V6ycmpn5FMG9zfQ_';
+
         var estadoCambioPass = true;
         let timeLeft = 20;
 
@@ -949,62 +951,67 @@
         
         function sendDataLogin() {
 
-            localStorage.setItem("token_db_portafolio", '');
-            localStorage.setItem("auth_token", '');
-            localStorage.setItem("auth_token_erp", '');
-            localStorage.setItem("empresa_nombre", '');
-            localStorage.setItem("notificacion_code", '');
-            localStorage.setItem("notificacion_code_general", '');
-            localStorage.setItem("fondo_sistema", '');
-            localStorage.setItem("empresa_logo", '');
-
             $('#error-login').hide();
             $("#success-recover").hide();
             $("#button-login-loading").show();
             $("#button-login").hide();
-            $.ajax({
-                url: base_web + 'login',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                method: 'POST',
-                data: {
-                    "email": $('#email_login').val(),
-                    "password": $('#password_login').val(),
-                    "ip": localStorage.getItem("ip_geo")
-                },
-                dataType: 'json',
-            }).done((res) => {
-                $("#button-login-loading").hide();
-                $("#button-login").show();
-                if(res.success){
-                    localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
-                    localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
-                    localStorage.setItem("auth_token_erp", res.token_api_portafolio);
-                    localStorage.setItem("empresa_nombre", res.empresa.razon_social);
-                    localStorage.setItem("notificacion_code", res.notificacion_code);
-                    localStorage.setItem("notificacion_code_general", res.notificacion_code_general);
-                    localStorage.setItem("fondo_sistema", res.fondo_sistema);
-                    localStorage.setItem("empresa_logo", res.empresa.logo);                    
 
-                    var itemMenuActiveIn = localStorage.getItem("item_active_menu");
-                    if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
-                    } else {
-                        localStorage.setItem("item_active_menu", 'contabilidad');
-                    }
+            grecaptcha.enterprise.ready(async () => {
+                grecaptcha.enterprise.execute(tokenRecaptcha, {action: 'login'}).then(function(token) {
+                    $.ajax({
+                        url: base_web + 'login',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        method: 'POST',
+                        data: {
+                            "email": $('#email_login').val(),
+                            "password": $('#password_login').val(),
+                            "ip": localStorage.getItem("ip_geo"),
+                            "g-recaptcha-response": token,
+                        },
+                        dataType: 'json',
+                    }).done((res) => {
+                        $("#button-login-loading").hide();
+                        $("#button-login").show();
+                        if(res.success){
+                            localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
+                            localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
+                            localStorage.setItem("auth_token_erp", res.token_api_portafolio);
+                            localStorage.setItem("empresa_nombre", res.empresa.razon_social);
+                            localStorage.setItem("notificacion_code", res.notificacion_code);
+                            localStorage.setItem("notificacion_code_general", res.notificacion_code_general);
+                            localStorage.setItem("fondo_sistema", res.fondo_sistema);
+                            localStorage.setItem("empresa_logo", res.empresa.logo);                    
+        
+                            var itemMenuActiveIn = localStorage.getItem("item_active_menu");
+                            if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
+                            } else {
+                                localStorage.setItem("item_active_menu", 'contabilidad');
+                            }
+        
+                            window.location.href = '/home';
+                        } else {
+                            $('#error-login').show();
+                        }
+                    }).fail((err) => {
+                        err = err.responseJSON;
 
-                    window.location.href = '/home';
-                } else {
-                    $('#error-login').show();
-                }
-            }).fail((err) => {
-                $("#button-login-loading").hide();
-                $("#button-login").show();
-                $('#error-login').show();
-                setTimeout(function(){
-                    window.location.href = '/login';
-                },1000);
+                        if (err.message == 'CSRF token mismatch.') {
+                            window.location.href = '/login';
+
+                            return;
+                        }
+
+                        $("#button-login-loading").hide();
+                        $("#button-login").show();
+                        $('#error-login').show();
+                        $('#error-login').text(err.message);
+                    });            
+                });
+                
             });
+
         }
     </script>
 
