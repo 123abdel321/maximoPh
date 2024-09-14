@@ -17,6 +17,7 @@ use App\Jobs\ProcessProvisionedDatabase;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PortafolioERP\InstaladorEmpresa;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\Http\Controllers\Traits\BegReCaptchaValidateTrait AS validateReCaptcha;
 //MODELS
 use App\Models\User;
 use App\Models\Portafolio\Nits;
@@ -27,7 +28,10 @@ use Spatie\Permission\Models\Permission;
 
 class ApiController extends Controller
 {
+    use validateReCaptcha;
     use AuthenticatesUsers;
+    protected $maxAttempts = 3; // Amount of bad attempts user can make
+	protected $decayMinutes = 1; // Time for which user is going to be blocked in seconds
 
     protected $messages = null;
 
@@ -243,6 +247,31 @@ class ApiController extends Controller
 
     public function validateEmail(Request $request)
     {
+        if ($this->hasTooManyLoginAttempts($request)) {
+			$this->fireLockoutEvent($request);
+            return response()->json([
+                'success' => false,
+                'message' => 'Numero maximo de intentos permitidos, vuelva a intentarlo en 1 minuto'
+            ], 401);
+		}
+
+        $captcha_token = $request->get("g-recaptcha-response");
+
+        if($captcha_token){
+			$captcha_response = $this->validateReCaptcha($captcha_token);
+			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'validateEmail') {
+				return response()->json([
+					'success' => false,
+					'message' => 'Falló la validación de reCAPTCHA'
+				], 401);
+			}
+		}else{
+			return response()->json([
+                'success' => false,
+				'message' => 'Falló la validación de reCAPTCHA'
+			], 401);
+		}
+
         $rules = [
             'email' => 'required|email'
         ];
@@ -250,6 +279,7 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(), $rules, $this->messages);
 
         if ($validator->fails()){
+            $this->incrementLoginAttempts($request);
             return response()->json([
                 "success"=>false,
                 'data' => [],
@@ -263,6 +293,7 @@ class ApiController extends Controller
                 ->first();
 
             if (!$usuario) {
+                $this->incrementLoginAttempts($request);
                 return response()->json([
                     "success"=>false,
                     'data' => '',
@@ -275,6 +306,7 @@ class ApiController extends Controller
                 $end = Carbon::now();
                 $diff = (int)$start->diff($end)->format('%H%I%S');
                 if ($diff <= 59) {
+                    $this->incrementLoginAttempts($request);
                     return response()->json([
                         "success"=>false,
                         'data' => '',
@@ -308,6 +340,7 @@ class ApiController extends Controller
             ], 200);
 
         } catch (Exception $e) {
+            $this->incrementLoginAttempts($request);
             return response()->json([
                 "success"=>false,
                 'data' => $e->getLine(),

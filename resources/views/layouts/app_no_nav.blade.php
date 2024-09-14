@@ -875,55 +875,78 @@
             $("#error-recover").hide();
             $("#button-recover").hide();
             $("#button-recover-loading").show();
+            console.log('tokenRecaptcha: ',tokenRecaptcha);
+            grecaptcha.enterprise.ready(async () => {
+                grecaptcha.enterprise.execute(tokenRecaptcha, {action: 'validateEmail'}).then(function(token) {
+                    $.ajax({
+                        url: base_url + 'validate-email',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        method: 'POST',
+                        data: {
+                            "email": $('#email_login').val(),
+                            "g-recaptcha-response": token,
+                        },
+                        dataType: 'json',
+                    }).done((res) => {
+                        $("#button-recover-loading").hide();
+                        $("#button-recover").show();
+                        if(res.success){
+                            $('#error-recover').hide();
+                            $("#input_code_login").show();
+                            $("#input_email_login").hide();
+                            $("#button-confir-code").show();
+                            $("#button-resend-disabled").show();
+                            $("#button-recover").hide();
+                            $("#button-recover-loading").hide();
 
-            $.ajax({
-                url: base_url + 'validate-email',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                method: 'POST',
-                data: {
-                    "email": $('#email_login').val()
-                },
-                dataType: 'json',
-            }).done((res) => {
-                $("#button-recover-loading").hide();
-                $("#button-recover").show();
-                if(res.success){
-                    $('#error-recover').hide();
-                    $("#input_code_login").show();
-                    $("#input_email_login").hide();
-                    $("#button-confir-code").show();
-                    $("#button-resend-disabled").show();
-                    $("#button-recover").hide();
-                    $("#button-recover-loading").hide();
+                            const countdown = setInterval(() => {
+                            timeLeft--;
+                            buttonResend.textContent = `Volver a enviar email (${timeLeft})`;
 
-                    const countdown = setInterval(() => {
-                    timeLeft--;
-                    buttonResend.textContent = `Volver a enviar email (${timeLeft})`;
-
-                    // Habilitar el botón cuando el tiempo llegue a 0
-                    if (timeLeft <= 0) {
-                        clearInterval(countdown);
-                        if (estadoCambioPass) {
-                            buttonResend.textContent = 'Volver a enviar email (60)';
-                            buttonResend.disabled = false;
-                            $("#button-resend").show();
-                            $("#button-resend-disabled").hide();
+                            // Habilitar el botón cuando el tiempo llegue a 0
+                            if (timeLeft <= 0) {
+                                clearInterval(countdown);
+                                if (estadoCambioPass) {
+                                    buttonResend.textContent = 'Volver a enviar email (60)';
+                                    buttonResend.disabled = false;
+                                    $("#button-resend").show();
+                                    $("#button-resend-disabled").hide();
+                                }
+                            }
+                            }, 1000); // Actualizar cada segun
+                        } else {
+                            $('#error-recover').text(res.message);
+                            $('#error-recover').show();
                         }
-                    }
-                    }, 1000); // Actualizar cada segun
-                } else {
-                    $('#error-recover').text(res.message);
-                    $('#error-recover').show();
-                }
-            }).fail((err) => {
-                err = err.responseJSON
-                $('#error-recover').text(err.message);
-                $("#button-recover-loading").hide();
-                $("#button-recover").show();
-                $('#error-recover').show();
-            });
+                    }).fail((err) => {
+                        err = err.responseJSON
+
+                        if (err.message == 'CSRF token mismatch.') {
+                            window.location.href = '/login';
+                            return;
+                        }
+                        var mensaje = err.message;
+                        var errorsMsg = '';                        
+
+                        if (typeof mensaje === 'object') {
+                            Object.keys(mensaje).forEach(function(k){
+                                errorsMsg +=k + ': ' + mensaje[k]+" <br>";
+                            });
+                        }
+                        
+                        else if (typeof mensaje === 'string') {
+                            errorsMsg = mensaje;
+                        }
+
+                        $('#error-recover').html(errorsMsg);
+                        $("#button-recover-loading").hide();
+                        $("#button-recover").show();
+                        $('#error-recover').show();
+                    });       
+                });
+            });            
         }
 
         function changePassWord(event) {
