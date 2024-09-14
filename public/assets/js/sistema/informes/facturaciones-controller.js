@@ -141,21 +141,35 @@ $("#enviarEmailFacturas").on('click', function(event) {
     $("#enviarEmailFacturas").hide();
     $("#enviarEmailFacturasLoading").show();
 
-    $.ajax({
-        url: base_url + 'facturacion-email',
-        method: 'GET',
-        data: data,
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        $("#enviarEmailFacturas").show();
-        $("#enviarEmailFacturasLoading").hide();
-        agregarToast('exito', 'Email enviados', 'Emails enviados con exito!');
-    }).fail((err) => {
-        var mensaje = err.responseJSON.message;
-        var errorsMsg = arreglarMensajeError(mensaje);
-        agregarToast('error', 'Creación errada', errorsMsg);
-    });
+    Swal.fire({
+        title: 'Enviar facturas?',
+        text: "Desea enviar las facturas a todas las personas filtradas?",
+        type: 'warning',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Enviar facturas!',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.value){
+            $.ajax({
+                url: base_url + 'facturacion-email',
+                method: 'GET',
+                data: data,
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                $("#enviarEmailFacturas").show();
+                $("#enviarEmailFacturasLoading").hide();
+                agregarToast('exito', 'Email enviados', 'Emails enviados con exito!');
+            }).fail((err) => {
+                var mensaje = err.responseJSON.message;
+                var errorsMsg = arreglarMensajeError(mensaje);
+                agregarToast('error', 'Creación errada', errorsMsg);
+            });
+        }
+    })
 });
 
 function formatoFechaFacturacion() {
