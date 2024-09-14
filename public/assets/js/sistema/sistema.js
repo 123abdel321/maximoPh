@@ -177,7 +177,7 @@ $imagenes = [
 
 var urlImgFondo = $imagenes[getRandomInt(5)];
 
-if (localStorage.getItem("fondo_sistema") != 'null') {
+if (localStorage.getItem("fondo_sistema") != 'null' && localStorage.getItem("fondo_sistema") != '') {
     urlImgFondo = bucketUrl + localStorage.getItem("fondo_sistema");
 }
 setTimeout(function(){
