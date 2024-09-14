@@ -168,14 +168,19 @@ $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 
 $imagenes = [
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/Dubai_arab_emirates_skyscrapers_HD_desktop_wallpaper_2560x1600.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/free-photo-of-ciudad-viaje-viajar-dubai.jpeg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/img1.wallspic.com-area_urbana-paisaje_urbano-edificio-area_metropolitana-skyline_de_chicago-4305x2865.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/ai-generated-dubai-skyline-at-night-with-reflection-in-the-water-united-arab-emirates-dubai-panoramic-night-view-ai-generated-free-photo.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/ai-generated-dubai-skyline-at-night-united-arab-emirates-dubai-is-the-fastest-growing-city-in-the-world-dubai-city-by-night-ai-generated-free-photo.jpg'
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_1.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_2.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_3.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_4.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_5.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_6.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_7.jpeg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_8.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_9.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_10.jpg'
 ];
 
-var urlImgFondo = $imagenes[getRandomInt(5)];
+var urlImgFondo = $imagenes[getRandomInt(10)];
 
 if (localStorage.getItem("fondo_sistema") != 'null' && localStorage.getItem("fondo_sistema") != '') {
     urlImgFondo = bucketUrl + localStorage.getItem("fondo_sistema");
