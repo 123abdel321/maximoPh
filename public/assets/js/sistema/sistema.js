@@ -159,11 +159,24 @@ $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownErr
     }
 });
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
 $("#nombre-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 
-var urlImgFondo = 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo-defecto-maximo.png';
+$imagenes = [
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/Dubai_arab_emirates_skyscrapers_HD_desktop_wallpaper_2560x1600.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/free-photo-of-ciudad-viaje-viajar-dubai.jpeg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/img1.wallspic.com-area_urbana-paisaje_urbano-edificio-area_metropolitana-skyline_de_chicago-4305x2865.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/ai-generated-dubai-skyline-at-night-with-reflection-in-the-water-united-arab-emirates-dubai-panoramic-night-view-ai-generated-free-photo.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/ai-generated-dubai-skyline-at-night-united-arab-emirates-dubai-is-the-fastest-growing-city-in-the-world-dubai-city-by-night-ai-generated-free-photo.jpg'
+];
+
+var urlImgFondo = $imagenes[getRandomInt(5)];
+
 if (localStorage.getItem("fondo_sistema") != 'null') {
     urlImgFondo = bucketUrl + localStorage.getItem("fondo_sistema");
 }
