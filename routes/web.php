@@ -42,9 +42,9 @@ use App\Http\Controllers\Informes\EstadisticasController;
 
 
 //MODELOS
-use App\Models\Empresa\Visitantes;
+use App\Models\Portafolio\Nits;
 // use App\Models\Sistema\Porteria;
-// use App\Models\Sistema\InmuebleNit;
+use App\Models\Sistema\InmuebleNit;
 // use App\Models\Empresa\UsuarioEmpresa;
 
 //ANOTHERS
@@ -52,23 +52,8 @@ use App\Models\Empresa\Visitantes;
 // use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function (Request $request) {
-
-	
-	
 	return view('pages.landing-page');
 });
-
-// Route::get('/mail', function (Request $request) {
-// 	Mail::to('abdel_123@hotmail.es')
-// 		->cc('cc@maximoph.com')
-// 		->bcc('bcc@maximoph.com')
-// 		->send(new GeneralEmail('FACTURA FLORIDA NORTEAMERICA', 'emails.factura', [
-// 			'nombre' => 'CARTA GENA',
-// 			'factura' => 123,
-// 			'valor' => 321,
-// 		]));
-// 	return 'MAIL';
-// });
 
 Auth::routes();
 
@@ -81,6 +66,29 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
 	Route::group(['middleware' => ['clientconnectionweb']], function () {
+
+		Route::get('/change-inmuebles/{id_nit}/{code}', function (Request $request, $id_nit, $code) {
+			$nit = Nits::where('id',$id_nit)->first();
+			if ($code != 'acartaca') {
+				abort(404);
+			}
+			if ($nit) {
+				$inmueblesNit = InmuebleNit::where('id_nit', $id_nit)
+					->with('inmueble')
+					->get();
+					
+				foreach ($inmueblesNit as $key => $inmuebleNit) {
+					$nombreInmueble = $inmuebleNit->inmueble->nombre;
+					$nitConDocumentoIgual = Nits::where('numero_documento', $nombreInmueble)->first();
+
+					if ($nitConDocumentoIgual) {
+						$inmuebleNit->id_nit = $nitConDocumentoIgual->id;
+						$inmuebleNit->save();
+					}
+				}
+			}
+			return 'actualizado con exito!';
+		});
 
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
