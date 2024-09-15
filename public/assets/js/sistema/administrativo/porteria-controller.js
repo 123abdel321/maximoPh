@@ -131,9 +131,10 @@ function porteriaInit() {
                 if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5 || porteria.tipo_porteria == 6) {
                     if (porteria.dias) {
                         var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
-                        var numeroDia = new Date(dayNow).getDay();
+                        var numeroDia = new Date(dayNow).getDay() + 1;
                         var diasText = '';
                         var dias = porteria.dias.split(',');
+
                         dias.forEach(dia => {
                             if (diasText) {
                                 if (numeroDia == dia) diasText+=', <b style="color: #59bded;">'+semanaPorteria[dia]+'</b>';
@@ -161,6 +162,11 @@ function porteriaInit() {
                 if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5 || porteria.tipo_porteria == 6) {
                     var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                     var numeroDia = new Date(dayNow).getDay();
+                    var hoyDia = new Date(porteria.hoy).getDay();
+                    
+                    if (porteria.hoy && numeroDia == hoyDia) {
+                        return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
+                    }
             
                     if (porteria.dias) {
                         var diasArray = porteria.dias.split(",");
@@ -168,9 +174,7 @@ function porteriaInit() {
                             return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
                         }
                     }
-                    if (porteria.hoy && numeroDia == new Date(porteria.hoy).getDay()) {
-                        return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
-                    }
+                    
                     return `<span class="badge badge-sm bg-gradient-danger">NO AUTORIZADO</span>`;
                 }
                 return ``;
@@ -340,7 +344,6 @@ function porteriaInit() {
             
             changeTipoPorteria(data.tipo_porteria);
             
-            console.log('data.tipo_vehiculo', data);
             var tipoVehiculo = data.tipo_vehiculo;
             if (!tipoVehiculo && tipoVehiculo!=0) $("#input_placa_persona_porteria").hide();
             else $("#input_placa_persona_porteria").show();
@@ -470,13 +473,66 @@ function porteriaInit() {
         porteria_table.on('click', '.detalle-imagen', function() {
             var id = this.id.split('_')[1];
             var data = getDataById(id, porteria_table);
+
+            if (data.propietario.logo_nit) {
+                $("#preview_header_img_porteria").attr("src",bucketUrl + data.propietario.logo_nit);
+            } else if (data.usuario.avatar) {
+                $("#preview_header_img_porteria").attr("src",bucketUrl + data.usuario.avatar);
+            } else {
+                $("#preview_header_img_porteria").attr("src", "/img/no-photo.jpg");
+            }
+
+            $("#textPorteriaPreview").text(data.propietario.nombre_completo);
+            $("#porteria-preview-ubicacion").text(data.propietario.apartamentos);
+
+            var texto = 'CARRO';
+            if (data.tipo_porteria == 3) {
+                if (data.tipo_vehiculo == 1) texto = 'MOTO';
+                if (data.tipo_vehiculo == 2) texto = 'MOTO ELECTRICA';
+                if (data.tipo_vehiculo == 2) texto = 'BICICLETA ELECTRICA';
+                if (data.tipo_vehiculo == 4) texto = 'OTROS';
+                
+            }
+            if (data.tipo_porteria == 4) texto = 'VISITANTE';
+            if (data.tipo_porteria == 5) texto = 'PAQUETE';
+            if (data.tipo_porteria == 6) texto = 'DOMICILIO';
+
+            $("#porteria-preview-tipo").text(texto);
+            $("#porteria-preview-nombre").text(data.nombre ? data.nombre : data.placa);
+
+            if (data.tipo_porteria == 1 || data.tipo_porteria == 3) {
+                $("#porteria-preview-autorizado").show();
+                $("#porteria-preview-noautorizado").hide();
+            } else if (data.tipo_porteria == 4 || data.tipo_porteria == 0 || data.tipo_porteria == 5 || data.tipo_porteria == 6) {
+                var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+                var numeroDia = new Date(dayNow).getDay();
+                var hoyDia = new Date(data.hoy).getDay();
+                
+                if (data.hoy && numeroDia == hoyDia) {
+                    $("#porteria-preview-autorizado").show();
+                    $("#porteria-preview-noautorizado").hide();
+                }
+        
+                if (data.dias) {
+                    var diasArray = data.dias.split(",");
+                    if (diasArray.includes((numeroDia)+"")) {
+                        $("#porteria-preview-autorizado").show();
+                        $("#porteria-preview-noautorizado").hide();
+                    }
+                }
+                
+            }else {
+                $("#porteria-preview-autorizado").hide();
+                $("#porteria-preview-noautorizado").show();
+            }
+            
             if (data.archivos.length) {
                 var texto = data.nombre;
                 var img = bucketUrl+data.archivos[0].url_archivo;
                 if (data.tipo_porteria == 3 || data.tipo_porteria == 4 && data.placa) texto = data.placa;
 
                 $("#imagen-porteria-preview").css("background-image", "url("+img+")");
-                $("#textPorteriaPreview").text(texto);
+                
                 $("#porteriaPreviewModal").modal('show');
             }
         });
@@ -675,6 +731,12 @@ function porteriaInit() {
         xhr.open("POST", "porteria");
         xhr.send(data);
         xhr.onload = function(res) {
+            
+            var data = res.currentTarget.responseURL;
+            if (data == 'https://maximoph.com/login') {
+                caduqueSession();
+            }
+
             var responseData = JSON.parse(res.currentTarget.response);
             $('#savePorteria').show();
             $('#savePorteriaLoading').hide();
@@ -708,6 +770,12 @@ function porteriaInit() {
         xhr.open("POST", "porteriaevento");
         xhr.send(data);
         xhr.onload = function(res) {
+
+            var data = res.currentTarget.responseURL;
+            if (data == 'https://maximoph.com/login') {
+                caduqueSession();
+            }
+
             $('#savePorteriaEvento').show();
             $('#savePorteriaEventoLoading').hide();
     

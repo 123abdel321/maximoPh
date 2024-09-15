@@ -180,7 +180,7 @@ $imagenes = [
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_10.jpg'
 ];
 
-var urlImgFondo = $imagenes[getRandomInt(10)];
+var urlImgFondo = $imagenes[getRandomInt($imagenes.length)];
 
 if (localStorage.getItem("fondo_sistema") != 'null' && localStorage.getItem("fondo_sistema") != '') {
     urlImgFondo = bucketUrl + localStorage.getItem("fondo_sistema");
@@ -405,24 +405,28 @@ function buscarNotificaciones() {
         setTimeout(() => {
             window.location.href = '/login';
         }, 2200)
-        Swal.fire({
-            title: "Sesión caducada!",
-            html: "En un momento será redirigido al inicio de sesión.",
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-                const timer = Swal.getPopup().querySelector("b");
-                timerInterval = setInterval(() => {
-                timer.textContent = `${Swal.getTimerLeft()}`;
-                }, 100);
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            }
-            }).then((result) => {
-            closeSessionProfile();
-        });
+        caduqueSession();
+    });
+}
+
+function caduqueSession() {
+    Swal.fire({
+        title: "Sesión caducada!",
+        html: "En un momento será redirigido al inicio de sesión.",
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            const timer = Swal.getPopup().querySelector("b");
+            timerInterval = setInterval(() => {
+            timer.textContent = `${Swal.getTimerLeft()}`;
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        }
+        }).then((result) => {
+        closeSessionProfile();
     });
 }
 

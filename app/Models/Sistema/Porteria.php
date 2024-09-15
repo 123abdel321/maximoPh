@@ -39,8 +39,14 @@ class Porteria extends Model
 		return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
 	}
 
-    public function eventos(){
+    public function eventos()
+    {
 		return $this->hasMany(PorteriaEvento::class, "id_porteria", "id");
+	}
+
+    public function usuario()
+    {
+		return $this->belongsTo("App\Models\User", 'id_usuario');
 	}
 
 }

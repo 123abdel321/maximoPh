@@ -435,7 +435,12 @@ $("#form-pqrsf").submit(function(e) {
     xhr.open("POST", "pqrsf");
     xhr.send(data);
     xhr.onload = function(res) {
-        console.log('res: ',res);
+
+        var data = res.currentTarget.responseURL;
+        if (data == 'https://maximoph.com/login') {
+            caduqueSession();
+        }
+
         var responseData = JSON.parse(res.currentTarget.response);
         $('#savePqrsf').show();
         $('#savePqrsfLoading').hide();
