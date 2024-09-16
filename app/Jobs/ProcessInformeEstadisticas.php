@@ -114,23 +114,25 @@ class ProcessInformeEstadisticas implements ShouldQueue
                     ->orderByRaw('created_at')
                 ->first();
 
-                $this->estadisticaCollection[] = [
-                    'id_estadisticas' => $this->id_estadistica,
-                    'id_nit' => $id_nit,
-                    'id_cuenta' => $cabeza->id_cuenta,
-                    'total_area' => 0,
-                    'total_coheficiente' => 0,
-                    'saldo_anterior' => $cabeza->saldo_anterior,
-                    'total_facturas' => $cabeza->total_facturas,
-                    'total_abono' => $cabeza->total_abono,
-                    'saldo' => $cabeza->saldo_final,
-                    'total' => 1,
-                ];
-
-                $dataTotal['saldo_anterior']+=$cabeza->saldo_anterior;
-                $dataTotal['total_facturas']+=$cabeza->total_facturas;
-                $dataTotal['total_abono']+=$cabeza->total_abono;
-                $dataTotal['saldo']+=$cabeza->saldo_final;
+                if ($cabeza) {
+                    $this->estadisticaCollection[] = [
+                        'id_estadisticas' => $this->id_estadistica,
+                        'id_nit' => $id_nit,
+                        'id_cuenta' => $cabeza->id_cuenta,
+                        'total_area' => 0,
+                        'total_coheficiente' => 0,
+                        'saldo_anterior' => $cabeza->saldo_anterior,
+                        'total_facturas' => $cabeza->total_facturas,
+                        'total_abono' => $cabeza->total_abono,
+                        'saldo' => $cabeza->saldo_final,
+                        'total' => 1,
+                    ];
+    
+                    $dataTotal['saldo_anterior']+=$cabeza->saldo_anterior;
+                    $dataTotal['total_facturas']+=$cabeza->total_facturas;
+                    $dataTotal['total_abono']+=$cabeza->total_abono;
+                    $dataTotal['saldo']+=$cabeza->saldo_final;
+                }
             }
             
             $this->estadisticaCollection[] = $dataTotal;
