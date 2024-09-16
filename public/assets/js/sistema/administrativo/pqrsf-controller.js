@@ -66,7 +66,7 @@ function pqrsfInit() {
             }},
             {"data": function (row, type, set){
                 if (row.tipo == 0) {
-                    return `PREGUNTA`;
+                    return `PETICIONES`;
                 }
                 if (row.tipo == 1) {
                     return `QUEJA`;
@@ -79,9 +79,6 @@ function pqrsfInit() {
                 }
                 if (row.tipo == 4) {
                     return `FELICITACIONES`;
-                }
-                if (row.tipo == 5) {
-                    return `TAREA`;
                 }
                 return `NINGUNO`;
             }},

@@ -83,9 +83,7 @@ class PqrsfController extends Controller
                 ->first();
 
             if ($usuario_empresa->id_rol == 3 || $usuario_empresa->id_rol == 4) {
-                $pqrsf->where('id_usuario', $request->user()['id'])
-                    ->orWhere('created_by', $request->user()['id'])
-                    ->orWhere('id_nit', $usuario_empresa->id_nit);
+                $pqrsf->where('created_by', $request->user()['id']);
             }
 
             $pqrsfTotals = $pqrsf->get();
