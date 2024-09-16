@@ -78,7 +78,7 @@ class InmuebleNitController extends Controller
                 ))->completo()->first();
 
                 $dataInmueblesNits[$key] = $inmueblesNits;
-                $dataInmueblesNits[$key]->saldo_final = $extracto ? $extracto->saldo_final : 0;
+                $dataInmueblesNits[$key]->saldo_final = $extracto ? $extracto->saldo : 0;
                 $key++;
             }
             
