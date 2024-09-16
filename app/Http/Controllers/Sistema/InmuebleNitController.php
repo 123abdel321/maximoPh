@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Sistema;
 
 use DB;
+use App\Helpers\Extracto;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -63,17 +64,31 @@ class InmuebleNitController extends Controller
                 $inmuebleNit->where('id_inmueble', $request->get('id_inmueble'));
             }
 
+            $dataInmueblesNits = [];
             $inmuebleNitTotals = $inmuebleNit->get();
-
             $inmuebleNitPaginate = $inmuebleNit->skip($start)
                 ->take($rowperpage);
+
+            $key = 0;
+            foreach ($inmuebleNitPaginate->get() as $inmueblesNits) {
+
+                $extracto = (new Extracto(
+                    $inmueblesNits->id_nit,
+                    [3,7]
+                ))->completo()->first();
+
+                $dataInmueblesNits[$key] = $inmueblesNits;
+                $dataInmueblesNits[$key]->saldo_final = $extracto ? $extracto->saldo_final : 0;
+                $key++;
+            }
+            
 
             return response()->json([
                 'success'=>	true,
                 'draw' => $draw,
                 'iTotalRecords' => $inmuebleNitTotals->count(),
                 'iTotalDisplayRecords' => $inmuebleNitTotals->count(),
-                'data' => $inmuebleNitPaginate->get(),
+                'data' => $dataInmueblesNits,
                 'perPage' => $rowperpage,
                 'message'=> 'Inmuebles nits generados con exito!'
             ]);

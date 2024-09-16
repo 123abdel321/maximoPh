@@ -5,6 +5,7 @@
             <th>Cédula / nit</th>
             <th>Tipo</th> 
             <th>Valor admon</th>
+            <th>Saldo final</th>
             <th>Notificación mail</th>
             <th>Notificación fisica</th>
             <th>Creación registro</th>

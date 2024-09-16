@@ -185,6 +185,7 @@ function inmuebleInit() {
                 return '';
             }},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'saldo_final', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  
                 if (row.enviar_notificaciones_mail) {
                     return 'SI';
