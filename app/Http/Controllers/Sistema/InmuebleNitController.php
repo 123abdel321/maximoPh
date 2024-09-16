@@ -51,7 +51,7 @@ class InmuebleNitController extends Controller
             $searchValue = $search_arr['value']; // Search value
 
             $inmuebleNit = InmuebleNit::orderBy('id', 'DESC')
-                ->with('nit')
+                ->with('nit','inmueble.zona')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -72,9 +72,12 @@ class InmuebleNitController extends Controller
             $key = 0;
             foreach ($inmuebleNitPaginate->get() as $inmueblesNits) {
 
+                $documentoReferencia = $inmueblesNits->inmueble->nombre.'-'.$inmueblesNits->inmueble->zona->nombre;
+                
                 $extracto = (new Extracto(
                     $inmueblesNits->id_nit,
-                    [3,7]
+                    [3,7],
+                    $documentoReferencia
                 ))->completo()->first();
 
                 $dataInmueblesNits[$key] = $inmueblesNits;
