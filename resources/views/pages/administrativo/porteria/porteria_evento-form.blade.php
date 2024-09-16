@@ -11,16 +11,15 @@
 
                 {{ csrf_field() }}
 
-                <div class="justify-content-center col-12 col-sm-12 col-md-12">
+                <div class="justify-content-center col-12 col-sm-6 col-md-6">
                     <div style="text-align: -webkit-center; height: 120px;">
-                        <img id="default_avatar_evento" onclick="document.getElementById('imagen_evento').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 110px; height: auto; cursor: pointer; border-radius: 5%;">
-                        <img id="new_avatar_evento" onclick="document.getElementById('imagen_evento').click();" src="" class="img-fluid border border-2 border-white" style="width: 110px; height: auto; cursor: pointer; border-radius: 5%;">
+                        <img id="img_porteria_evento"  src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="height: 130px; border-radius: 5%;">
                     </div>
                 </div>
 
-                <input type="file" name="imagen_evento" id="imagen_evento" onchange="readURLEvento(this);" style="display: none" />
+                <!-- <input type="file" name="imagen_evento" id="imagen_evento" onchange="readURLEvento(this);" style="display: none" /> -->
 
-                <div class="form-group form-group col-12 col-sm-12 col-md-6">
+                <div class="form-group form-group col-12 col-sm-6 col-md-6">
                     <label for="exampleFormControlSelect1">Tipo evento<span style="color: red">*</span></label>
                     <select class="form-control form-control-sm" name="tipo_evento" id="tipo_evento">
                         <option value="0">Visita</option>
@@ -56,6 +55,11 @@
                 <div class="form-group col-12 col-sm-12 col-md-12" >
                     <label for="observacion_porteria_evento-input" class="form-control-label">Observación</label>
                     <textarea class="form-control form-control-sm" id="observacion_porteria_evento" name="observacion_porteria_evento" rows="2"></textarea>
+                </div>
+
+                <div class="input-field">
+                    <label class="active">Imagenes</label>
+                    <div class="input-images-porteria" style="padding-top: .5rem;"></div>
                 </div>
 
             </div>

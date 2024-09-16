@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Notificaciones;
+use App\Models\Empresa\UsuarioEmpresa;
 
 class NotificacionesController extends Controller
 {
@@ -51,9 +52,15 @@ class NotificacionesController extends Controller
                     'updated_by'
                 );
 
+            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
             if ($request->user()->can('pqrsf notificacion')) {
-                $notificaciones->orWhere('id_rol', 1)
+                $notificaciones->where('notificacion_type', '!=', 11)
+                    ->orWhere('id_rol', 1)
                     ->orWhereNull('id_usuario');
+
             } else {
                 $notificaciones->where('id_usuario', request()->user()->id);
             }
@@ -69,7 +76,8 @@ class NotificacionesController extends Controller
                 );
 
             if ($request->user()->can('pqrsf notificacion')) {
-                $notificacionesCount->orWhere('id_rol', 1)
+                $notificacionesCount->where('notificacion_type', '!=', 11)
+                    ->orWhere('id_rol', 1)
                     ->orWhereNull('id_usuario');
             } else {
                 $notificacionesCount->where('id_usuario', request()->user()->id);

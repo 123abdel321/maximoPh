@@ -120,8 +120,6 @@ class PorteriaEventoController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $file = $request->file('imagen_evento');
-
             $evento = PorteriaEvento::Create([
                 'tipo' => $request->get('tipo_evento'),
                 'id_inmueble' => $request->get('inmueble_porteria_evento'),
@@ -133,40 +131,42 @@ class PorteriaEventoController extends Controller
                 'updated_by' => request()->user()->id
             ]);
 
+            $itemPorteria = Porteria::find($request->get('persona_porteria_evento'));
+
             if ($request->get('persona_porteria_evento')) {
-                $porteria = Porteria::find($request->get('persona_porteria_evento'));
-                if ($porteria->tipo == 5 || $porteria->tipo == 6) {
-                    $porteria->estado = false;
+                
+                if ($itemPorteria->tipo == 5 || $itemPorteria->tipo == 6) {
+                    $itemPorteria->estado = false;
                 }
             }
 
-            if ($file) {
-                $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
-                $url = Storage::disk('do_spaces')->put($nameFile, $file, 'public');
-
-                $archivo = new ArchivosGenerales([
-                    'tipo_archivo' => 'imagen',
-                    'url_archivo' => $url,
-                    'estado' => 1,
-                    'created_by' => request()->user()->id,
-                    'updated_by' => request()->user()->id
-                ]);
+            if ($request->file('photos')) {
+                foreach ($request->file('photos') as $photos) {
+                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
+                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
     
-                $archivo->relation()->associate($evento);
-                $evento->archivos()->save($archivo);
+                    $archivo = new ArchivosGenerales([
+                        'tipo_archivo' => 'imagen',
+                        'url_archivo' => $url,
+                        'estado' => 1,
+                        'created_by' => request()->user()->id,
+                        'updated_by' => request()->user()->id
+                    ]);
+        
+                    $archivo->relation()->associate($evento);
+                    $evento->archivos()->save($archivo);
+                }
             }
 
             $evento->load('archivos');
 
             $notificacion =(new NotificacionGeneral(
-                null,
-                null,
+                request()->user()->id,
+                $itemPorteria->id_usuario,
                 $evento
             ));
 
-            $itemPorteria = null;
             $dataMensaje = 'Se ha grabado evento en ';
-            $itemPorteria = Porteria::find($request->get('persona_porteria_evento'));
             $dataMensaje.= $itemPorteria->nombre ? $itemPorteria->nombre : $itemPorteria->placa;
 
             $id_notificacion = $notificacion->crear((object)[

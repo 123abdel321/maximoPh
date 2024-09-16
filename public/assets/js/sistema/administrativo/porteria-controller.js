@@ -418,18 +418,26 @@ function porteriaInit() {
             }).done((res) => {
                 itemPorteria = res.data;
                 clearFormEventoPorteria();
-
+                
                 var dataPersona = {
                     id: itemPorteria.id,
                     text: itemPorteria.nombre
                 };
-        
+                var id_tipo_evento_porteria = 1;
                 if (itemPorteria.tipo_porteria == 3) {
                     dataPersona = {
                         id: itemPorteria.id,
                         text: itemPorteria.placa
                     };
                 }
+                if (itemPorteria.tipo_porteria == 4) id_tipo_evento_porteria = 4;
+                if (itemPorteria.tipo_porteria == 5) id_tipo_evento_porteria = 1;
+                if (itemPorteria.tipo_porteria == 6) id_tipo_evento_porteria = 3;
+
+                $("#tipo_evento").val(id_tipo_evento_porteria).change();
+                if (itemPorteria.archivos.length) {
+                    $("#img_porteria_evento").attr("src",bucketUrl + itemPorteria.archivos[0].url_archivo);
+                }                
             
                 var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
                 $comboPorteriaEventos.append(newOption).trigger('change');
@@ -865,6 +873,13 @@ $(document).on('change', '#tipo_porteria_create', function () {
     var tipoPorteria = $("#tipo_porteria_create").val();
     hideInputPorteria();
     changeTipoPorteria(tipoPorteria);
+});
+
+var dataImagenes = $('.input-images-porteria').imageUploader({
+    imagesInputName: 'photos',
+    preloadedInputName: 'old',
+    // maxSize: 2 * 1024 * 1024,
+    maxFiles: 10
 });
 
 function changeTipoPorteria(tipoPorteria) {
