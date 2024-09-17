@@ -92,6 +92,7 @@
                             <input type="text" class="form-control" name="welcome_codigo" id="welcome_codigo" value="{{ $code_general }}" style="display: none;">
 
                             <p id="error-welcome" style="color: red; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡Usuario o contraseña incorrectos!</p>
+                            <p id="succes-welcome" style="color: #00ff00; margin-bottom: 0.3rem; font-size: 14px; display: block;">¡Email confirmado con exito!</p>
                             <h4 id="texto-login" class="mt-1 text-white font-weight-bolder position-relative" style="font-size: 17px; padding-top: 7px; padding-bottom: 15px;">
                                 ELEGIR CONTRASEÑA
                             </h4>
