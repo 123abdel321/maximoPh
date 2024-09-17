@@ -13,18 +13,18 @@
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="{{ asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ secure_asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="{{ asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
+    <link id="pagestyle" href="{{ secure_asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="{{ asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="{{ asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
     <style>
         .select2-selection{
             font-size: 13px !important;
@@ -619,28 +619,28 @@
     @endguest
 
     <!--   Core JS Files   -->
-    <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
-    <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/core/bootstrap.min.js') }}"></script>
     <!-- <script src="assets/js/plugins/perfect-scrollbar.min.js"></script> -->
-    <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js') }}"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/argon-dashboard.js') }}"></script>
     <!-- JQUERY -->
-    <script src="{{ asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="{{ asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
     <!-- SELECT 2  -->
-    <script src="{{ asset('assets/js/sistema/select2.full.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="{{ asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="{{ asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
 
     <script type="module">
         //LOCAL
