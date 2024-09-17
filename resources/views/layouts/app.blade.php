@@ -25,8 +25,8 @@
     <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
     <link href="{{ secure_asset('assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="{{ secure_asset('assets/css/sistema/select2.min.css" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
     <!-- UPLOAD IMG -->
     <link href="{{ secure_asset('assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
     <!-- SWIPER -->
