@@ -128,42 +128,53 @@ class FacturacionPdf extends AbstractPrinterPdf
 			)
 			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw('id_nit, id_cuenta, documento_referencia')->get();
+            ->groupByRaw('id_nit, id_cuenta, documento_referencia')
+        ->get();
 
         $dataCuentas = [];
+        $dataDescuento = [];
         $totalDescuento = 0;
         $tieneDescuentoProntoPago = false;
         foreach ($facturaciones as $facturacion) {
+
+            $descuento = 0;
             $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
+
             $conceptoFactura = DB::connection('max')
                 ->table('concepto_facturacions')
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
 
+            
             if ($conceptoFactura && $conceptoFactura->pronto_pago) {
-                $tieneDescuentoProntoPago = true;
-                $descuento = $facturacion->saldo_final * ($conceptoFactura->porcentaje_pronto_pago / 100);
-                $totalDescuento+= $descuento;
-                $dataCuentas[] = (object)[
-                    'concepto' =>  $concepto,
-                    'saldo_anterior' => $facturacion->saldo_anterior,
-                    'total_facturas' => $facturacion->total_facturas,
-                    'total_abono' => $facturacion->total_abono,
-                    'descuento' => $descuento,
-                    'porcentaje_descuento' => $conceptoFactura->porcentaje_pronto_pago,
-                    'saldo_final' => $facturacion->saldo_final,
-                ];
-            } else {
-                $dataCuentas[] = (object)[
-                    'concepto' =>  $concepto,
-                    'saldo_anterior' => $facturacion->saldo_anterior,
-                    'total_facturas' => $facturacion->total_facturas,
-                    'total_abono' => $facturacion->total_abono,
-                    'descuento' => 0,
-                    'porcentaje_descuento' => ' ',
-                    'saldo_final' => $facturacion->saldo_final,
-                ];
+            // if (!$totales->saldo_anterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
+                $diaHoy = intval(Carbon::now()->format('d'));
+                //VALIDAMOS FECHA LIMITE DE PRONTO PAGO
+                if ($conceptoFactura->dias_pronto_pago >= $diaHoy) {
+                    $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
+                    $tieneDescuentoProntoPago = true;
+                    $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
+                    $totalDescuento+= $descuento;
+                    if (array_key_exists($keyDescuento, $dataDescuento)) {
+                        $dataDescuento[$keyDescuento]->descuento+= $descuento;
+                    } else {
+                        $dataDescuento[$keyDescuento] = [
+                            'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
+                            'descuento' => $totales->saldo_final - $descuento
+                        ];
+                    }
+                }
             }
+
+            $dataCuentas[] = (object)[
+                'concepto' =>  $concepto,
+                'saldo_anterior' => $facturacion->saldo_anterior,
+                'total_facturas' => $facturacion->total_facturas,
+                'total_abono' => $facturacion->total_abono,
+                'descuento' => $descuento,
+                'porcentaje_descuento' => $conceptoFactura->porcentaje_pronto_pago,
+                'saldo_final' => $facturacion->saldo_final,
+            ];
         }
         $totalData = (object)[
             'saldo_anterior' => $totales->saldo_anterior,
@@ -186,6 +197,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'texto_1' => $texto1 ? $texto1->valor : '',
             'texto_2' => $texto2 ? $texto2->valor : '',
             'pronto_pago' => $tieneDescuentoProntoPago,
+            'descuentos' => $dataDescuento,
 			'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
 			'usuario' => request()->user() ? request()->user()->username : 'MaximoPH'
 		];

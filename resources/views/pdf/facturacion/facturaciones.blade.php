@@ -54,6 +54,12 @@
 				color: white;
 			}
 
+			.header-factura-descuento > th {
+				border: 1px solid #ddd;
+				background-color: #ebebeb;
+				color: black;
+			}
+
 			thead {
 				display: table-header-group
 			}
@@ -260,9 +266,9 @@
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">ANTICIPOS</th>
-					<!-- @if ($pronto_pago)
+					@if ($pronto_pago)
 					<th class="padding5">PRONTO PAGO</th>
-					@endif -->
+					@endif
 					<th class="padding5">SALDO FINAL</th>
 				</tr>
 			</thead>
@@ -273,37 +279,97 @@
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
-						<!-- @if ($cuenta->descuento)
+						@if ($cuenta->descuento)
 							<td class="padding5 valor">{{ $cuenta->porcentaje_descuento.'% - '.number_format($cuenta->descuento) }}</td>
 						@elseif ($pronto_pago)
 							<td class="padding5 valor"></td>
-						@endif -->
+						@endif
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
 					</tr>
 				@endforeach
 					
 					<tr style="background-color: #58978423;">
-						<td class="padding5 	">TOTAL</td>
+						<td class="padding5">
+							<b>TOTAL
+							@if ($pronto_pago)
+								SIN DESCUENTO
+							@endif
+							</b>
+						</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
-						<!-- @if ($pronto_pago)
-							<td class="padding5 valor"></td>
-						@endif -->
-						<td class="padding5 valor">{{ number_format($totales->saldo_final + $totales->descuento) }}</td>
-					</tr>
-					@if ($pronto_pago)
-					<tr style="background-color: #009b6c23;">
-						<td class="padding5 detalle-factura-descripcion"></td>
-						<td class="padding5 valor">Descuento pronto pago</td>
-						<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
-						<td class="padding5 valor">0</td>
+						@if ($pronto_pago)
+							<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
+						@endif
 						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
 					</tr>
-					@endif
 
 			</tbody>
 		</table>
+
+		@if ($pronto_pago)
+
+			<table>
+				<thead class="">
+					<tr>
+						<td colspan="8 padding5">
+							&nbsp;
+						</td>
+						<td class="table-total-factura padding5">
+							<table>
+								<thead class="">
+									<tr>
+										<td class="spacer"></td>
+									</tr>
+									<tr class="header-factura-descuento padding5">
+										<th class="padding5">FECHA LIMITE PAGO</th>
+										<th class="padding5">VALOR FACTURA</th>
+									</tr>
+								</thead>
+								<tbody class="detalle-factura">
+									@foreach ($descuentos as $descuento)
+										<tr>
+											<td class="padding5">{{ $descuento['fecha_limite'] }}</td>
+											<td class="padding5 valor">{{ number_format($descuento['descuento']) }}</td>
+										</tr>
+									@endforeach
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</thead>
+			</table>			
+		@endif
+
+		@if ($texto_1 || $texto_2)
+			<table>
+				<tr>
+					@if ($texto_1)
+					<td class="aling-top padding5">
+						<table>
+							<thead>
+								<tr>
+									<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
+								</tr>
+							</thead>
+						</table>
+					</td>
+					@endif
+					@if ($texto_2)
+					<td class="table-total-factura padding5">
+						<table>
+							<thead>
+								<tr>
+									<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
+								</tr>
+							</thead>
+						</table>
+					</td>
+					@endif
+				</tr>
+			</table>
+		@endif
 				
 		<script type="text/php">
 			if ( isset($pdf) ) {
@@ -313,35 +379,6 @@
 				');
 			}
 		</script>
-
-		@if ($texto_1 || $texto_2)
-		<table>
-			<tr>
-				@if ($texto_1)
-				<td class="aling-top padding5">
-					<table>
-						<thead>
-							<tr>
-								<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
-							</tr>
-						</thead>
-					</table>
-				</td>
-				@endif
-				@if ($texto_2)
-				<td class="table-total-factura padding5">
-					<table>
-						<thead>
-							<tr>
-								<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
-							</tr>
-						</thead>
-					</table>
-				</td>
-				@endif
-			</tr>
-		</table>
-		@endif
 
 		<table class="footer">
 			<tr>

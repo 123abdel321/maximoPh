@@ -277,6 +277,7 @@ class EstadoCuentaController extends Controller
                 ->when($request->get('fecha_desde') && $request->get('fecha_hasta'), function ($query) use($request) {
                     $query->whereBetween('fecha_manual', [$request->get('fecha_desde'), $request->get('fecha_hasta')]);
                 })
+                ->orderBy('id', 'DESC')
                 ->get()
                 ->toArray();
 
