@@ -92,7 +92,8 @@ class ImportadorCuotasMultas extends Controller
         $columnSortOrder = $order_arr[0]['dir']; // asc or desc
         $searchValue = $search_arr['value']; // Search value
 
-        $recibos = CuotasMultasImport::orderBy($columnName,$columnSortOrder)
+        $recibos = CuotasMultasImport::orderBy('estado', 'DESC')
+            ->orderBy('id', 'ASC')
             ->with('concepto');
 
         $recibosTotals = $recibos->get();

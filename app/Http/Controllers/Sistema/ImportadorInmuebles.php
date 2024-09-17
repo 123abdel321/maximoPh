@@ -89,7 +89,8 @@ class ImportadorInmuebles extends Controller
         $columnSortOrder = $order_arr[0]['dir']; // asc or desc
         $searchValue = $search_arr['value']; // Search value
 
-        $recibos = InmueblesImport::orderBy($columnName,$columnSortOrder);
+        $recibos = InmueblesImport::orderBy('estado', 'DESC')
+            ->orderBy('id', 'ASC');
 
         $recibosTotals = $recibos->get();
 

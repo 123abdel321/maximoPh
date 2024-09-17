@@ -107,7 +107,8 @@ class ImportadorRecibosController extends Controller
         $columnSortOrder = $order_arr[0]['dir']; // asc or desc
         $searchValue = $search_arr['value']; // Search value
 
-        $recibos = ConRecibosImport::orderBy($columnName,$columnSortOrder);
+        $recibos = ConRecibosImport::orderBy('estado', 'DESC')
+            ->orderBy('id', 'ASC');
 
         $recibosTotals = $recibos->get();
 
