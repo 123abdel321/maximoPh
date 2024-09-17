@@ -23,6 +23,7 @@ use App\Models\Sistema\ConceptoFacturacion;
 class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 {
     use Importable;
+    public $redondeo = null;
 
     public function collection(Collection $rows)
     {
@@ -30,6 +31,8 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
         $conceptoFacturacionSinIdentificar = Entorno::where('nombre', 'id_concepto_pago_none')->first();
         $conceptoFacturacionSinIdentificar = $conceptoFacturacionSinIdentificar ? $conceptoFacturacionSinIdentificar->valor : 0;
         $nitPorDefecto = Entorno::where('nombre', 'id_nit_por_defecto')->first();
+        $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
+        $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
 
         foreach ($rows as $key => $row) {            
@@ -114,6 +117,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     $inicioMes = $inicioMes.'-01';
                     $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
                     $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes, $fechaManual);
+
                     $pagoTotal = floatval($row['valor']);
 
                     if (!$conceptoFacturacion) {
@@ -131,7 +135,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                             null,
                             $fechaManual
                         ))->completo()->first();
-
+                            
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
 
                         if ($extracto && $extracto->saldo) {
@@ -139,7 +143,6 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                             $prontoPago = 0;
 
                             $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
-
                             $pagoTotal+= $descuentoProntoPago;
                             $pagoTotal+= $extractoCXC;
                             if (($valorPendiente - $pagoTotal) < 0) {
@@ -272,7 +275,17 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
         }
 
+        $data->descuento = $this->roundNumber($data->descuento);
+
         return $data;
+    }
+
+    private function roundNumber($number)
+    {
+        if ($this->redondeo) {
+            return round($number / $this->redondeo) * $this->redondeo;
+        }
+        return $number;
     }
 
 }
