@@ -156,7 +156,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                     $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
                     $totalDescuento+= $descuento;
                     if (array_key_exists($keyDescuento, $dataDescuento)) {
-                        $dataDescuento[$keyDescuento]->descuento+= $descuento;
+                        $dataDescuento[$keyDescuento]['descuento']+= $descuento;
                     } else {
                         $dataDescuento[$keyDescuento] = [
                             'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
