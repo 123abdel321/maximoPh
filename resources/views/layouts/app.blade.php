@@ -10,30 +10,31 @@
     <title>
         Maximo PH
     </title>
-    <!--     Fonts and icons     -->
+    <!--     Fonts and icons 
+             -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="./assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="assets/js/sistema/42d5adcbca.js" crossorigin="anonymous"></script>
+    <script src="{{ asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="assets/css/argon-dashboard.css" rel="stylesheet" />
+    <link id="pagestyle" href="{{ asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="assets/css/sistema/dataTables.bootstrap5.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/responsive.bootstrap5.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/app.css?v={{ config('app.version') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="assets/css/sistema/select2.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/select2.min.css" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <!-- UPLOAD IMG -->
-    <link href="assets/css/sistema/image-uploader.min.css" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
     <!-- SWIPER -->
-    <link rel="stylesheet" href="assets/css/sistema/swiper-bundle.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
     <!-- ANIMATE CSS -->
-    <link rel="stylesheet" href="assets/css/sistema/animate.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
 
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css') }}" rel="stylesheet" />
     
 
     <!-- Google Tag Manager -->
@@ -206,39 +207,39 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="assets/js/argon-dashboard.js"></script>
-    <!-- JQUERY --> 
-    <script src="assets/js/sistema/jquery-3.5.1.js"></script>
+    <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
+    <!-- JQUERY -->
+    <script src="{{ asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="assets/js/sistema/jquery.dataTables.min.js"></script>
-    <script src="assets/js/sistema/dataTables.bootstrap5.min.js"></script>
-    <script src="assets/js/sistema/dataTables.responsive.min.js"></script>
-    <script src="assets/js/sistema/responsive.bootstrap5.min.js"></script>
-    <script src="assets/js/sistema/dataTables.fixedHeader.min.js"></script>
-    <script src="assets/js/sistema/dataTables.fixedColumns.min.js"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
     
     <!-- SELECT 2  -->
-    <script src="assets/js/sistema/select2.full.min.js"></script>
+    <script src="{{ asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="assets/js/sistema/jquery.validate.min.js"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="assets/js/sistema/sweetalert2.all.min.js"></script>
+    <script src="{{ asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
     <!-- countUp -->
     <script src="https://cdn.jsdelivr.net/npm/countup@1.8.2/dist/countUp.min.js"></script>
     <!-- PUSHER -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js" rel="stylesheet"></script> -->
     <!-- WIZARD -->
-    <script src="assets/js/sistema/jquery.bootstrap-wizard.js"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.bootstrap-wizard.js') }}"></script>
     <!-- UPLOADER IMG -->
-    <script src="assets/js/sistema/image-uploader.js"></script>
+    <script src="{{ asset('assets/js/sistema/image-uploader.js') }}"></script>
     <!-- SWIPER -->
-    <script src="assets/js/sistema/swiper-bundle.min.js"></script>
+    <script src="{{ asset('assets/js/sistema/swiper-bundle.min.js') }}"></script>
     <!-- MDB -->
-    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <!-- SISTEMA -->
-    <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}" rel="stylesheet"></script>
-    <script src="assets/js/sistema/notificaciones.js?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
 
     <!-- Include the Quill library -->
