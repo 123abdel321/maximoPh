@@ -31,6 +31,7 @@ class ImportadorRecibosController extends Controller
     use BegConsecutiveTrait;
 
     protected $id_recibo = 0;
+    protected $redondeo = null;
     protected $messages = null;
     protected $fechaManual = null;
     protected $consecutivo = null;
@@ -148,6 +149,8 @@ class ImportadorRecibosController extends Controller
             $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
             $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
             $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
+            $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
+            $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
             $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
 
             if ($recibosImport->count()) {
@@ -498,6 +501,8 @@ class ImportadorRecibosController extends Controller
             $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
         }
 
+        $data->descuento = $this->roundNumber($data->descuento);
+
         return $data;
     }
 
@@ -594,6 +599,14 @@ class ImportadorRecibosController extends Controller
             'updated_by' => request()->user()->id
         ]);
         return $recibo;
+    }
+
+    private function roundNumber($number)
+    {
+        if ($this->redondeo) {
+            return round($number / $this->redondeo) * $this->redondeo;
+        }
+        return $number;
     }
 
 }
