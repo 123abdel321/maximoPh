@@ -144,6 +144,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                                 $naturaleza = PlanCuentas::DEBITO;
                                 $docGeneral['debito'] = $doc->valor;
                             } else if ($doc->naturaleza_opuesta) {
+
                                 $documentoReferencia = $this->generarDocumentoReferenciaAnticipos($cuentaContable, $doc);
     
                                 if ($cuentaContable->naturaleza_cuenta == PlanCuentas::DEBITO) {
@@ -250,6 +251,9 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 
 	public function failed($exception)
 	{
-		Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+		Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
+            'message' => $exception->getMessage(),
+            'line' => $exception->getLine()
+        ]);
 	}
 }
