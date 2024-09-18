@@ -144,7 +144,6 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                                 $naturaleza = PlanCuentas::DEBITO;
                                 $docGeneral['debito'] = $doc->valor;
                             } else if ($doc->naturaleza_opuesta) {
-    
                                 $documentoReferencia = $this->generarDocumentoReferenciaAnticipos($cuentaContable, $doc);
     
                                 if ($cuentaContable->naturaleza_cuenta == PlanCuentas::DEBITO) {
@@ -187,7 +186,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             'message'=> $documentoGeneral->getErrors()
                         ], 401);
                     }
-        
+                    
                     $this->updateConsecutivo($docGroup[0]->id_comprobante, $consecutivo);
                 }
             }
@@ -222,14 +221,13 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
 
-    private function generarDocumentoReferenciaAnticipos($cuenta, $doc)
+    private function generarDocumentoReferenciaAnticipos($cuenta = null, $doc)
 	{
-		$tiposCuenta = $cuenta->tipos_cuenta;
-        foreach ($tiposCuenta as $tipoCuenta) {
-            if ($tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
-                return $doc->documento_referencia_anticipo;
-            }
+        $tipoCuenta = $cuenta->tipos_cuenta;
+        if ($tipoCuenta && $tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
+            return $doc->documento_referencia_anticipo;
         }
+
 		return $doc->documento_referencia;
 	}
 
