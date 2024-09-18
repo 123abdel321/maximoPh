@@ -98,7 +98,10 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
             ]));
 
 		} catch (Exception $exception) {
-			Log::error('ProcessFacturacionGeneralDelete al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+			Log::error('ProcessFacturacionGeneralDelete al enviar facturación a PortafolioERP', [
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine()
+            ]);
 		}
     }
 

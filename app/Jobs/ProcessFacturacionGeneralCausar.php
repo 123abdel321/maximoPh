@@ -200,7 +200,10 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             ]));
 
 		} catch (Exception $exception) {
-			Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+			Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine()
+            ]);
 		}
     }
 
@@ -224,11 +227,12 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 
     private function generarDocumentoReferenciaAnticipos($cuenta = null, $doc)
 	{
-        $tipoCuenta = $cuenta->tipos_cuenta;
-        if ($tipoCuenta && $tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
-            return $doc->documento_referencia_anticipo;
+        $tiposCuenta = $cuenta->tipos_cuenta;
+        foreach ($tiposCuenta as $tipoCuenta) {
+            if ($tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
+                return $doc->documento_referencia_anticipo;
+            }
         }
-
 		return $doc->documento_referencia;
 	}
 
