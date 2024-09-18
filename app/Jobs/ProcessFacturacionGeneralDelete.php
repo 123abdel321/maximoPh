@@ -19,6 +19,7 @@ use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Facturacion;
 use App\Models\Portafolio\FacDocumentos;
+use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Portafolio\DocumentosGeneral;
 
 class ProcessFacturacionGeneralDelete implements ShouldQueue
@@ -85,6 +86,7 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
                                     ->delete();
                                 $facturaPortafolio->delete();
                             }
+                            FacturacionDetalle::where('id_factura', $facturaEliminar->id)->delete();
                             $facturaEliminar->delete();
                         }
                     });
