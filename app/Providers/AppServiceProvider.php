@@ -11,6 +11,7 @@ use App\Models\Sistema\Porteria;
 use App\Models\Portafolio\ConRecibos;
 use App\Models\Sistema\PqrsfMensajes;
 use App\Models\Sistema\PorteriaEvento;
+use App\Models\Portafolio\FacDocumentos;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         Relation::morphMap([
+            '2' => FacDocumentos::class,
             '6' => ConRecibos::class,
             '10' => Porteria::class,
             '11' => PorteriaEvento::class,

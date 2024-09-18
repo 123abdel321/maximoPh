@@ -262,6 +262,7 @@ function facturarRapidamente() {
     bar.style.width = 100 + "%";
 
     $("#progress_bar").show();
+    getFacturacionData();
     
     facturandoPersona = $.ajax({
         url: base_url + 'facturacion-general-delete',
