@@ -30,8 +30,11 @@ use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\CuotasMultas;
 use App\Models\Portafolio\PlanCuentas;
 use App\Models\Portafolio\CentroCostos;
+use App\Models\Portafolio\FacDocumentos;
 use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Sistema\ConceptoFacturacion;
+use App\Models\Portafolio\DocumentosGeneral;
+
 class FacturacionController extends Controller
 {
     protected $facturas = null;
@@ -40,6 +43,7 @@ class FacturacionController extends Controller
     protected $countIntereses = 0;
     protected $extractosAgrupados = [];
     protected $valoresBaseProximaAdmin = 0;
+    protected $documento_referencia_agrupado = 0;
     
     public function index ()
     {
@@ -54,6 +58,8 @@ class FacturacionController extends Controller
         $presupuesto_mensual = Entorno::where('nombre', 'presupuesto_mensual')->first();
         $valor_total_presupuesto = $valor_total_presupuesto && $valor_total_presupuesto->valor ? $valor_total_presupuesto->valor : 0;
         $presupuesto_mensual = $presupuesto_mensual && $presupuesto_mensual->valor ? $presupuesto_mensual->valor : 0;
+        $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
+        $this->documento_referencia_agrupado = $this->documento_referencia_agrupado ? $this->documento_referencia_agrupado->valor : 0;
 
         if (!$presupuesto_mensual) $valor_total_presupuesto = $valor_total_presupuesto / 12;
 
@@ -195,6 +201,7 @@ class FacturacionController extends Controller
     public function generarIndividual (Request $request)
     {
         try {
+
             DB::connection('max')->beginTransaction();
 
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
@@ -203,6 +210,12 @@ class FacturacionController extends Controller
 
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
+
+            $dataGeneral = [
+                'inmuebles' => [],
+                'extras' => []
+            ];
+
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
             $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
             $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
@@ -218,11 +231,6 @@ class FacturacionController extends Controller
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id,
             ]);
-
-            $dataGeneral = [
-                'inmuebles' => [],
-                'extras' => []
-            ];
 
             $valoresExtra = 0;
             $valoresAdmon = 0;
@@ -242,6 +250,7 @@ class FacturacionController extends Controller
             foreach ($extractos as $extracto) {
                 $extracto = (object)$extracto;
                 if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
+
                 $this->countIntereses++;
                 if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
                     $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
@@ -253,6 +262,7 @@ class FacturacionController extends Controller
                         'concepto' => $extracto->concepto,
                         'total_abono' => $extracto->total_abono,
                         'total_facturas' => $extracto->total_facturas,
+                        'documento_referencia' => $extracto->documento_referencia,
                         'saldo' => $extracto->saldo,
                     ];
                 }
@@ -260,6 +270,7 @@ class FacturacionController extends Controller
 
             $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
             [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble, request()->user()->id_empresa, $periodo_facturacion);
+
             $valoresIntereses+= $valores;
 
             if ($valoresIntereses) {
@@ -297,7 +308,6 @@ class FacturacionController extends Controller
             }
 
             $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
-
             if ($anticiposDisponibles > 0 && $valoresIntereses) {
                 $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
             }
@@ -325,6 +335,7 @@ class FacturacionController extends Controller
             
             //RECORREMOS INMUEBLES DEL NIT
             foreach ($inmueblesFacturar as $inmuebleFactura) {
+
                 if (count($inmueblesFacturar) > 1) $totalInmuebles++;
                 if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->items+= 1;
@@ -339,7 +350,7 @@ class FacturacionController extends Controller
                 }
                 $valoresAdmon+= $inmuebleFactura->valor_total;
                 $documentoReferencia = $this->generarFacturaInmueble($factura, $inmuebleFactura, $totalInmuebles);
-
+                
                 if ($anticiposDisponibles > 0) {
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                 }
@@ -1137,7 +1148,8 @@ class FacturacionController extends Controller
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-        $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
+
+        $documentoReferenciaNumeroInmuebles = $this->generarDocumentoReferencia($inmuebleFactura, $totalInmuebles, $inicioMes);
 
         $this->valoresBaseProximaAdmin+= 0;
 
@@ -1150,14 +1162,14 @@ class FacturacionController extends Controller
             'id_comprobante' => $id_comprobante_ventas,
             'id_centro_costos' => $inmuebleFactura->id_centro_costos,
             'fecha_manual' => $inicioMes.'-01',
-            'documento_referencia' => $inicioMes.$documentoReferenciaNumeroInmuebles,
+            'documento_referencia' => $documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
             'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Coef:'.$inmuebleFactura->coeficiente,
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,
         ]);
-        return $inicioMes.$documentoReferenciaNumeroInmuebles;
+        return $documentoReferenciaNumeroInmuebles;
     }
 
     private function generarCruceIntereses (Facturacion $factura, $detalleFacturas, $totalAnticipos)
@@ -1301,11 +1313,12 @@ class FacturacionController extends Controller
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($this->extractosAgrupados)) return;
 
-        $valorTotalIntereses = 0;
         $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
         $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
+
+        $valorTotalIntereses = 0;
         $detalleIntereses = [];
 
         foreach ($this->extractosAgrupados as $extracto) {
@@ -1314,9 +1327,11 @@ class FacturacionController extends Controller
             
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
+
             $valorTotal = $saldo * ($porcentaje_intereses_mora / 100);
             $valorTotal = $this->roundNumber($valorTotal);
             $valorTotalIntereses+= $valorTotal;
+            
             //DEFINIR CONCEPTO DE INTERESES
             $concepto = $extracto->concepto;
             $validateConcepto = explode('INTERESES ', $concepto );
@@ -1637,18 +1652,15 @@ class FacturacionController extends Controller
             ->first();
 
         if ($facturaEliminar) {
-            $reponse = (new EliminarFactura(
-                $facturaEliminar->token_factura
-            ))->send(request()->user()->id_empresa);
-            
-            if ($reponse['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                DB::connection('max')->rollback();
-                return response()->json([
-                    "success"=>true,
-                    "message"=>'Error al eliminar factura: '.$facturaEliminar->token_factura
-                ], 422);
-            }
 
+            $facturaPortafolio = FacDocumentos::where('token_factura', $facturaEliminar->token_factura)->first();
+            if ($facturaPortafolio) {
+                $documento = DocumentosGeneral::where('relation_id', $facturaPortafolio->id)
+                    ->where('relation_type', 2)
+                    ->delete();
+                $facturaPortafolio->delete();
+            }
+            FacturacionDetalle::where('id_factura', $facturaEliminar->id)->delete();
             $facturaEliminar->delete();
         }
     }
@@ -1857,6 +1869,15 @@ class FacturacionController extends Controller
         if (!$descuentoParcial && $anticiposDisponibles >= $deudaTotal) return true;
         if ($descuentoParcial) return true;
         return false;
+    }
+
+    private function generarDocumentoReferencia($inmuebleFactura, $totalInmuebles, $inicioMes)
+    {
+        if ($this->documento_referencia_agrupado) {
+            return $inmuebleFactura->documento_referencia_group;
+        }
+        $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
+        return $inicioMes.'_'.$countItems;
     }
 
 }
