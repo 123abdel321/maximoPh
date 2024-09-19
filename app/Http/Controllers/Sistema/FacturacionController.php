@@ -58,8 +58,6 @@ class FacturacionController extends Controller
         $presupuesto_mensual = Entorno::where('nombre', 'presupuesto_mensual')->first();
         $valor_total_presupuesto = $valor_total_presupuesto && $valor_total_presupuesto->valor ? $valor_total_presupuesto->valor : 0;
         $presupuesto_mensual = $presupuesto_mensual && $presupuesto_mensual->valor ? $presupuesto_mensual->valor : 0;
-        $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
-        $this->documento_referencia_agrupado = $this->documento_referencia_agrupado ? $this->documento_referencia_agrupado->valor : 0;
 
         if (!$presupuesto_mensual) $valor_total_presupuesto = $valor_total_presupuesto / 12;
 
@@ -207,6 +205,8 @@ class FacturacionController extends Controller
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
             $id_cuenta_pronto_pago = Entorno::where('nombre', 'id_cuenta_pronto_pago')->first();
+            $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
+            $this->documento_referencia_agrupado = $this->documento_referencia_agrupado ? $this->documento_referencia_agrupado->valor : 0;
 
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
@@ -1150,7 +1150,7 @@ class FacturacionController extends Controller
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
 
         $documentoReferenciaNumeroInmuebles = $this->generarDocumentoReferencia($inmuebleFactura, $totalInmuebles, $inicioMes);
-
+        
         $this->valoresBaseProximaAdmin+= 0;
 
         $facturaDetalle = FacturacionDetalle::create([
@@ -1548,7 +1548,8 @@ class FacturacionController extends Controller
                 'CFA.id_cuenta_anticipo',
                 'CFA.porcentaje_pronto_pago',
                 'ZO.id_centro_costos',
-                'ZO.nombre AS nombre_zona'
+                'ZO.nombre AS nombre_zona',
+                DB::raw("CONCAT(INM.nombre, '-', ZO.nombre) as documento_referencia_group")
             )
             ->leftJoin('inmuebles AS INM', 'inmueble_nits.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
@@ -1877,7 +1878,7 @@ class FacturacionController extends Controller
             return $inmuebleFactura->documento_referencia_group;
         }
         $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
-        return $inicioMes.'_'.$countItems;
+        return $inicioMes.$countItems;
     }
 
 }

@@ -332,6 +332,7 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
         $("#text_progress_bar").html(``);
         $("#reloadFacturacion").show();
         $("#generateFacturacion").show();
+        $("#confirmarFacturacion").show();
         $("#generateFacturacionLoading").hide();
         agregarToast('exito', 'Facturación exitosa', 'Facturación rapida finalizada con exito!', true);
     }
@@ -427,6 +428,7 @@ function actualizarTotales(data, factura) {
         var index = inmueblesData.findIndex(item => item.id_concepto_facturacion == key);
         var total = inmueblesData.findIndex(item => item.id_concepto_facturacion == "total_inmuebles");
         if (index == 0 || index) {
+            
             inmueblesData[index].items_causados+= parseFloat(value.items);
             inmueblesData[index].total_causados+= parseFloat(value.valor_causado);
             inmueblesData[total].items_causados+= parseFloat(value.items);
