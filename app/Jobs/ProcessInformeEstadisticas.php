@@ -297,7 +297,9 @@ class ProcessInformeEstadisticas implements ShouldQueue
 
         $inmuebles = Inmueble::where('id_zona', $this->request['id_zona'])
             ->with('personas')
-            ->where('id_concepto_facturacion', 1);
+            ->whereHas('concepto', function ($query) {
+                $query->where('tipo_concepto', 0);
+            });
 
         if ($this->request['id_nit']) {
             $inmuebles->whereHas('personas', function ($q) {
@@ -328,7 +330,9 @@ class ProcessInformeEstadisticas implements ShouldQueue
 
         $inmueblesNo = Inmueble::where('id_zona', $this->request['id_zona'])
             ->with('personas')
-            ->whereNot('id_concepto_facturacion', 1)
+            ->whereHas('concepto', function ($query) {
+                $query->where('tipo_concepto', 1);
+            })
             ->get();
 
         foreach ($inmueblesNo as $inmuebleNo) {
