@@ -19,6 +19,8 @@ return new class extends Migration
             $table->decimal('total_area', 15)->nullable();
             $table->decimal('total_coheficiente', 15)->nullable();
             $table->decimal('saldo_anterior', 15)->nullable();
+            $table->decimal('valor_intereses', 15)->nullable();
+            $table->decimal('factura', 15)->nullable();
             $table->decimal('total_facturas', 15)->nullable();
             $table->decimal('total_abono', 15)->nullable();
             $table->decimal('saldo', 15)->nullable();

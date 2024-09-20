@@ -21,6 +21,8 @@ class InfEstadisticaDetalle extends Model
         'total_area',
         'total_coheficiente',
         'saldo_anterior',
+        'valor_intereses',
+        'factura',
         'total_facturas',
         'total_abono',
         'saldo',

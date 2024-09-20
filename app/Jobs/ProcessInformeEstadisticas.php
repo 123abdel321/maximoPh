@@ -10,10 +10,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 //MODELS
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
-use App\Models\Empresa\Empresa;
 use App\Models\Informes\InfEstadisticas;
+use App\Models\Sistema\ConceptoFacturacion;
 
 
 class ProcessInformeEstadisticas implements ShouldQueue
@@ -24,6 +25,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
     public $id_usuario;
 	public $id_empresa;
     public $id_estadistica = 0;
+    public $cuentasIntereses = [];
     public $estadisticaCollection = [];
 
     /**
@@ -34,6 +36,15 @@ class ProcessInformeEstadisticas implements ShouldQueue
         $this->request = $request;
         $this->id_usuario = $id_usuario;
 		$this->id_empresa = $id_empresa;
+        $this->cuentasIntereses = [];
+        $conceptosIntereses = ConceptoFacturacion::select('id_cuenta_interes')
+            ->whereNotNull('id_cuenta_interes')
+            ->groupBy('id_cuenta_interes')
+            ->get();
+
+        foreach ($conceptosIntereses as $conceptosInteres) {
+            $this->cuentasIntereses[] = $conceptosInteres->id_cuenta_interes;
+        }
     }
 
     /**
@@ -73,6 +84,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 'total_area' => '',
                 'total_coheficiente' => '',
                 'saldo_anterior' => 0,
+                'valor_intereses' => 0,
+                'factura' => 0,
                 'total_facturas' => 0,
                 'total_abono' => 0,
                 'saldo' => 0,
@@ -109,6 +122,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                         DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
                         DB::raw("IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono"),
                         DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
+                        DB::raw("SUM(valor_intereses) AS valor_intereses"),
+                        DB::raw("SUM(factura) AS factura")
                     )
                     ->groupByRaw($this->request['agrupar'])
                     ->orderByRaw('created_at')
@@ -122,6 +137,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                         'total_area' => 0,
                         'total_coheficiente' => 0,
                         'saldo_anterior' => $cabeza->saldo_anterior,
+                        'valor_intereses' => $cabeza->valor_intereses,
+                        'factura' => $cabeza->factura,
                         'total_facturas' => $cabeza->total_facturas,
                         'total_abono' => $cabeza->total_abono,
                         'saldo' => $cabeza->saldo_final,
@@ -129,6 +146,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                     ];
     
                     $dataTotal['saldo_anterior']+=$cabeza->saldo_anterior;
+                    $dataTotal['valor_intereses']+=$cabeza->valor_intereses;
+                    $dataTotal['factura']+=$cabeza->factura;
                     $dataTotal['total_facturas']+=$cabeza->total_facturas;
                     $dataTotal['total_abono']+=$cabeza->total_abono;
                     $dataTotal['saldo']+=$cabeza->saldo_final;
@@ -224,6 +243,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 DB::raw("DG.debito AS debito"),
                 DB::raw("DG.credito AS credito"),
                 DB::raw("DG.debito - DG.credito AS saldo_final"),
+                DB::raw("CASE WHEN DG.id_cuenta IN (" . implode(',', $this->cuentasIntereses) . ") THEN IF(PC.naturaleza_cuenta = 0, DG.debito, DG.credito) ELSE 0 END AS valor_intereses"),
+                DB::raw("CASE WHEN DG.id_cuenta NOT IN (" . implode(',', $this->cuentasIntereses) . ") THEN IF(PC.naturaleza_cuenta = 0, DG.debito, DG.credito) ELSE 0 END AS factura"),
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
@@ -272,6 +293,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 DB::raw("0 AS debito"),
                 DB::raw("0 AS credito"),
                 DB::raw("0 AS saldo_final"),
+                DB::raw("0 AS valor_intereses"),
+                DB::raw("0 AS factura"),
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')

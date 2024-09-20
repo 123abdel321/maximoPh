@@ -7,6 +7,8 @@
             <!-- <th>Total Area</th> -->
             <!-- <th>Total Coheficiente</th> -->
             <th>Saldo anterior</th>
+            <th>Intereses</th>
+            <th>Factura</th>
             <th>Total factura</th>
             <th>Total abono</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Saldo final</th>
