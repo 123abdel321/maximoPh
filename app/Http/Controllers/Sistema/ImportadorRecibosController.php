@@ -224,7 +224,7 @@ class ImportadorRecibosController extends Controller
                             $this->fechaManual
                         ))->actual()->get();
                         $realizarDescuento = false;
-                            
+                        
                         $deudaTotal = $this->sumarDeudaTotal($extractos);
                         $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
                         $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
@@ -242,6 +242,9 @@ class ImportadorRecibosController extends Controller
                             $valorDescuento = 0;
 
                             if ($realizarDescuento) {
+                                if (!array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
+                                    continue;
+                                }
                                 $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
 
                                 $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
