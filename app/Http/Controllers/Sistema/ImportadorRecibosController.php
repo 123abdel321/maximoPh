@@ -240,7 +240,7 @@ class ImportadorRecibosController extends Controller
                             $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                             $valorPendiente = $extracto->saldo;
                             $valorDescuento = 0;
-
+                            
                             if ($realizarDescuento) {
                                 if (!array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
                                     continue;
@@ -264,14 +264,15 @@ class ImportadorRecibosController extends Controller
                                 ]);
                                 $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
                             }
+                            
                             $totalAnticipar = 0;
                             if ($anticiposDisponibles > 0) {
                                 [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
                             }
-
-                            $valorPago = $valorDisponible - $valorPendiente - $valorDescuento ? $valorPendiente : $valorPendiente;
+                            $validarPago = $valorDisponible - $valorPendiente - $valorDescuento;
+                            $valorPago = $valorDisponible - $valorPendiente - $valorDescuento > 0 ? $valorPendiente : $valorDisponible;
                             $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
-
+                            
                             if ($valorPago) {
                                 ConReciboDetalles::create([
                                     'id_recibo' => $recibo->id,
