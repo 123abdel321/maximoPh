@@ -224,7 +224,7 @@ class ImportadorRecibosController extends Controller
                             $this->fechaManual
                         ))->actual()->get();
                         $realizarDescuento = false;
-
+                            
                         $deudaTotal = $this->sumarDeudaTotal($extractos);
                         $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
                         $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
@@ -312,6 +312,7 @@ class ImportadorRecibosController extends Controller
 
                         //AGREGAR ANTICIPO
                         if ($valorDisponible > 0) {
+                            $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual));
                             $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
     
                             ConReciboDetalles::create([
@@ -349,7 +350,7 @@ class ImportadorRecibosController extends Controller
                         //GREGAR PAGO
                         $formaPago = FacFormasPago::where('id_cuenta', $id_cuenta_ingreso)
                             ->with('cuenta.tipos_cuenta')
-                            ->first();
+                        ->first();
     
                         $pagoRecibo = ConReciboPagos::create([
                             'id_recibo' => $recibo->id,
