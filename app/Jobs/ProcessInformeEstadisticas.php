@@ -223,6 +223,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
 
     private function carteraDocumentosQuery($id_nit = NULL, $id_cuentas = NULL)
     {
+        $cuentasIntereses = !empty($this->cuentasIntereses) ? implode(',', $this->cuentasIntereses) : 'NULL';
+        
         $documentosQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
                 "DG.id_nit",
@@ -243,8 +245,8 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 DB::raw("DG.debito AS debito"),
                 DB::raw("DG.credito AS credito"),
                 DB::raw("DG.debito - DG.credito AS saldo_final"),
-                DB::raw("CASE WHEN DG.id_cuenta IN (" . implode(',', $this->cuentasIntereses) . ") THEN IF(PC.naturaleza_cuenta = 0, DG.debito, DG.credito) ELSE 0 END AS valor_intereses"),
-                DB::raw("CASE WHEN DG.id_cuenta NOT IN (" . implode(',', $this->cuentasIntereses) . ") THEN IF(PC.naturaleza_cuenta = 0, DG.debito, DG.credito) ELSE 0 END AS factura"),
+                DB::raw("CASE WHEN DG.id_cuenta IN ($cuentasIntereses) THEN IF(PC.naturaleza_cuenta = 0, DG.debito, DG.credito) ELSE 0 END AS valor_intereses"),
+                DB::raw("CASE WHEN DG.id_cuenta NOT IN ($cuentasIntereses) THEN IF(PC.naturaleza_cuenta = 0, DG.debito, DG.credito) ELSE 0 END AS factura"),
                 DB::raw("1 AS total_columnas")
             )
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
