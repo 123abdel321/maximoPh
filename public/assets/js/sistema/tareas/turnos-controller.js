@@ -133,6 +133,58 @@ $(document).on('click', '#createProyecto', function () {
     $("#turnoFormModal").modal('show');
 });
 
+$(document).on('click', '#reloadTurnos', function () {
+
+    $("#reloadTurnosIconNormal").hide();
+    $("#reloadTurnosIconLoading").show();
+
+    setTimeout(function(){
+        $("#reloadTurnosIconNormal").show();
+        $("#reloadTurnosIconLoading").hide();
+    },500);
+
+    calendarioTurnos.removeAllEvents();
+    calendarioTurnos.refetchEvents();
+});
+
+$(document).on('click', '#deleteTurno', function () {
+    var idItem = $("#id_turno_evento").val();
+
+    $("#turnoEventoFormModal").modal('hide');
+
+    Swal.fire({
+        title: 'Eliminar evento ?',
+        text: "No se podrá revertir!",
+        type: 'warning',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Borrar!',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.value){
+            $.ajax({
+                url: base_url + 'turnos',
+                method: 'DELETE',
+                data: JSON.stringify({id: idItem}),
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                if(res.success){
+                    calendarioTurnos.removeAllEvents();
+                    calendarioTurnos.refetchEvents();
+                    agregarToast('exito', 'Eliminación exitosa', 'Evento eliminada con exito!', true );
+                } else {
+                    agregarToast('error', 'Eliminación errada', res.message);
+                }
+            }).fail((res) => {
+                agregarToast('error', 'Eliminación errada', res.message);
+            });
+        }
+    })
+});
+
 function clearFormTurno () {
     
     $("#id_usuario_turno").val('').change();
@@ -482,10 +534,6 @@ function agregarEventoSecundario (eventos) {
     
         document.getElementById('view-contenido-eventos').insertBefore(mentaje, null);
     });
-    
-
-
-
 }
 
 function armarFecha (fecha) {

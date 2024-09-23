@@ -58,7 +58,15 @@ class TurnosController extends Controller
             $horaInicio = Carbon::parse($turno->fecha_inicio)->format('H:i:s');
             $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
 
+            $color = "#055ebe";
+
+            // if ($turno->estado == 1) {
+
+            // }
+
             array_push($data, array(
+                // 'backgroundColor' => $color,
+                // 'borderColor' => $color,
                 'id' => $turno->id,
                 'title' => $turno->asunto,
                 'start' => $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio,
@@ -327,4 +335,43 @@ class TurnosController extends Controller
         }
     }
 
+    public function delete (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.turnos,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('max')->beginTransaction();
+
+            Turno::where('id', $request->get('id'))->delete();
+            TurnoEvento::where('id_turno', $request->get('id'))->delete();
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Zona eliminada con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
 }

@@ -249,6 +249,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(TurnosController::class)->group(function () {
             Route::get('turnos', 'find');
             Route::put('turnos', 'update');
+            Route::delete('turnos', 'delete');
         });
         
     });

@@ -2,10 +2,17 @@
     <div class="row">
         <div class="row" style="z-index: 9;">
             <div class="row" style="z-index: 9;">
-                <div class="col-12 col-md-6 col-sm-6">
+                <div class="col-12 col-md-12 col-sm-12">
                     @can('turnos create')
                         <button type="button" class="btn btn-primary btn-sm" id="createProyecto">Agregar turnos</button>
                     @endcan
+                    <!-- @can('turnos delete')
+                        <button type="button" class="btn btn-danger btn-sm" id="createProyecto">Eliminar turnos</button>
+                    @endcan -->
+                    <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadTurnos">
+                        <i id="reloadTurnosIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                        <i id="reloadTurnosIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                    </button>
                 </div>
             </div>
         </div>

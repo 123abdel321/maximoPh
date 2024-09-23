@@ -42,7 +42,13 @@
             </div>
             
             <div class="modal-footer">
-                <span href="javascript:void(0)" class="btn bg-gradient-danger btn-sm" data-bs-dismiss="modal">
+                @if (auth()->user()->can('turnos delete'))
+                    <span id="deleteTurno" href="javascript:void(0)" class="btn bg-gradient-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                        Eliminar
+                    </span>
+                @endif
+                <span href="javascript:void(0)" class="btn bg-gradient-warning btn-sm" data-bs-dismiss="modal">
                     Cancelar
                 </span>
                 <button id="saveEventoTurno" href="javascript:void(0)" class="btn bg-gradient-success btn-sm">Guardar</button>
