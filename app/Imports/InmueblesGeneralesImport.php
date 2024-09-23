@@ -53,17 +53,6 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
             $valor_admon = null;
             $coheficiente = null;
 
-            if ($row['zona']) {
-                $zona = Zonas::where('nombre', $row['zona'])->first();
-
-                if (!$inmueble && !$zona) {
-                    $estado = 1;
-                    $observacionMala.= 'La zona: '.$row['zona'].', no fue encontrada! <br>';
-                }
-            } else if ($inmueble) {
-                $zona = Zonas::find($inmueble->id_zona)->first();
-            }
-
             if ($row['inmueble']) {
                 //BUSCAR INMUEBLE
                 if ($zona) {
@@ -86,6 +75,17 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
             } else {
                 $estado = 1;
                 $observacionMala.= 'El inmueble es requerido! <br>';
+            }
+
+            if ($row['zona']) {
+                $zona = Zonas::where('nombre', $row['zona'])->first();
+
+                if (!$inmueble && !$zona) {
+                    $estado = 1;
+                    $observacionMala.= 'La zona: '.$row['zona'].', no fue encontrada! <br>';
+                }
+            } else if ($inmueble) {
+                $zona = Zonas::find($inmueble->id_zona)->first();
             }
 
             if ($row['cedula_nit']) {
