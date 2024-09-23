@@ -32,7 +32,9 @@ use App\Http\Controllers\Sistema\ConceptoFacturacionController;
 use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
 use App\Http\Controllers\Sistema\ImportadorRecibosController;
-
+//TAREAS
+use App\Http\Controllers\Sistema\TurnosController;
+use App\Http\Controllers\Sistema\ProyectosController;
 
 
 /*
@@ -235,6 +237,18 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('notificacion', 'find');
             Route::get('notificaciones', 'read');
             Route::put('notificaciones', 'update');
+        });
+        //TAREAS
+        Route::controller(ProyectosController::class)->group(function () {
+            Route::get('proyectos', 'read');
+            Route::post('proyectos', 'create');
+            Route::put('proyectos', 'update');
+            Route::delete('proyectos', 'delete');
+            Route::get('proyectos-combo', 'combo');
+        });
+        Route::controller(TurnosController::class)->group(function () {
+            Route::get('turnos', 'find');
+            Route::put('turnos', 'update');
         });
         
     });

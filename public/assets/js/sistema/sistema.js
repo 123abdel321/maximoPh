@@ -116,6 +116,8 @@ var moduloCreado = {
     'cartera': false,
     'impuestoiva': false,
     'estadisticas': false,
+    'proyectos': false,
+    'turnos': false,
 };
 
 var moduloRoute = {
@@ -141,7 +143,8 @@ var moduloRoute = {
     'cartera': 'informes',
     'impuestosiva': 'informes',
     'estadisticas': 'informes',
-
+    'proyectos': 'tareas',
+    'turnos': 'tareas',
 }
 
 $('.water').show();
@@ -401,11 +404,11 @@ function buscarNotificaciones() {
             setNotificaciones(res.total);
         }
     }).fail((res) => {
-        let timerInterval;
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 2200)
-        caduqueSession();
+        // let timerInterval;
+        // setTimeout(() => {
+        //     window.location.href = '/login';
+        // }, 2200)
+        // caduqueSession();
     });
 }
 

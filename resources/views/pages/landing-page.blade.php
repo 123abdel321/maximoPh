@@ -1,4 +1,4 @@
-<html lang="en" data-color-mode="light" data-light-theme="light" data-dark-theme="dark"
+<html lang="es" data-color-mode="light" data-light-theme="light" data-dark-theme="dark"
     data-a11y-animated-images="system" data-a11y-link-underlines="true" data-turbo-loaded="">
 
 <head>

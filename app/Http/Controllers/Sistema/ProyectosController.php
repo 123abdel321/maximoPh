@@ -7,10 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
-use App\Models\Sistema\Zonas;
-use App\Models\Sistema\InmuebleNit;
+use App\Models\Sistema\Proyecto;
 
-class ZonasController extends Controller
+class ProyectosController extends Controller
 {
     protected $messages = null;
 
@@ -28,7 +27,7 @@ class ZonasController extends Controller
 
     public function index ()
     {
-        return view('pages.tablas.zonas.zonas-view');
+        return view('pages.tareas.proyectos.proyectos-view');
     }
 
     public function read (Request $request)
@@ -45,30 +44,31 @@ class ZonasController extends Controller
 
             $searchValue = $search_arr['value']; // Search value
 
-            $zonas = Zonas::orderBy('id', 'DESC')
-                ->with('cecos')
+            $proyectos = Proyecto::orderBy('id', 'DESC')
                 ->where('nombre', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') AS fecha_inicio"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d') AS fecha_fin"),
                     'created_by',
                     'updated_by'
                 );
 
-            $zonasTotals = $zonas->get();
+            $proyectosTotals = $proyectos->get();
 
-            $zonasPaginate = $zonas->skip($start)
+            $proyectosPaginate = $proyectos->skip($start)
                 ->take($rowperpage);
 
             return response()->json([
                 'success'=>	true,
                 'draw' => $draw,
-                'iTotalRecords' => $zonasTotals->count(),
-                'iTotalDisplayRecords' => $zonasTotals->count(),
-                'data' => $zonasPaginate->get(),
+                'iTotalRecords' => $proyectosTotals->count(),
+                'iTotalDisplayRecords' => $proyectosTotals->count(),
+                'data' => $proyectosPaginate->get(),
                 'perPage' => $rowperpage,
-                'message'=> 'Zonas generados con exito!'
+                'message'=> 'Proyectos generados con exito!'
             ]);
 
 
@@ -84,9 +84,10 @@ class ZonasController extends Controller
     public function create (Request $request)
     {
         $rules = [
-            'nombre' => 'required|min:1|max:200|unique:max.zonas,nombre',
-            'id_centro_costos' => 'nullable|exists:sam.centro_costos,id',
-            'tipo' => 'nullable'
+            'nombre' => 'required|min:1|max:200|unique:max.proyectos,nombre',
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'valor_total' => 'required',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -102,10 +103,11 @@ class ZonasController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $zona = Zonas::create([
+            $proyecto = Proyecto::create([
                 'nombre' => $request->get('nombre'),
-                'id_centro_costos' => $request->get('id_centro_costos'),
-                'tipo' => $request->get('tipo'),
+                'fecha_inicio' => $request->get('fecha_inicio'),
+                'fecha_fin' => $request->get('fecha_fin'),
+                'valor_total' => $request->get('valor_total'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
@@ -114,8 +116,8 @@ class ZonasController extends Controller
 
             return response()->json([
                 'success'=>	true,
-                'data' => $zona,
-                'message'=> 'Zona creada con exito!'
+                'data' => $proyecto,
+                'message'=> 'Proyecto creadO con exito!'
             ]);
             
         } catch (Exception $e) {
@@ -131,21 +133,22 @@ class ZonasController extends Controller
     public function update (Request $request)
     {
         $rules = [
-            'id' => 'required|exists:max.zonas,id',
+            'id' => 'required|exists:max.proyectos,id',
             'nombre' => ['required','min:1','max:200',
                 function($attribute, $value, $fail) use ($request) {
-                    $zonaOld = Zonas::find($request->get('id'));
-                    if ($zonaOld->nombre != $request->get('nombre')) {
-                        $zonaNew = Zonas::where('nombre', $request->get('nombre'));
-                        if ($zonaNew->count()) {
-                            $fail("La nombre de la zona ".$value." ya existe.");
+                    $proyectoOld = Proyecto::find($request->get('id'));
+                    if ($proyectoOld->nombre != $request->get('nombre')) {
+                        $proyectoNew = Proyecto::where('nombre', $request->get('nombre'));
+                        if ($proyectoNew->count()) {
+                            $fail("La nombre de la proyecto ".$value." ya existe.");
                         }
                     }
                 }],
-            'id_centro_costos' => 'nullable|exists:sam.centro_costos,id',
-            'tipo' => 'nullable'
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'valor_total' => 'required',
         ];
-
+        
         $validator = Validator::make($request->all(), $rules, $this->messages);
 
 		if ($validator->fails()){
@@ -159,52 +162,21 @@ class ZonasController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $zona = Zonas::where('id', $request->get('id'))
+            $proyecto = Proyecto::where('id', $request->get('id'))
                 ->update([
                     'nombre' => $request->get('nombre'),
-                    'id_centro_costos' => $request->get('id_centro_costos'),
-                    'tipo' => $request->get('tipo'),
+                    'fecha_inicio' => $request->get('fecha_inicio'),
+                    'fecha_fin' => $request->get('fecha_fin'),
+                    'valor_total' => $request->get('valor_total'),
                     'updated_by' => request()->user()->id
                 ]);
-
-            //ACTUAIZAR DATOS EN NITS
-            $nitsInmuebles = InmuebleNit::with('inmueble.zona')
-                ->whereHas('inmueble', function ($query) use ($request) {
-                    $query->whereHas('zona', function ($q) use ($request) {
-                        $q->where('id_zona', $request->get('id'));
-                    });
-                })
-                ->groupBy('id_nit')
-                ->get();
-    
-            foreach ($nitsInmuebles as $nit) {
-    
-                $inmueblesNits = InmuebleNit::with('inmueble.zona')
-                    ->whereHas('inmueble', function ($query) use ($request) {
-                        $query->whereHas('zona', function ($q) use ($request) {
-                            $q->where('id_zona', $request->get('id'));
-                        });
-                    })
-                    ->where('id_nit', $nit->id_nit)
-                    ->get();
-
-                $apartamentos = '';
-    
-                if (count($inmueblesNits)) {
-                    foreach ($inmueblesNits as $key => $inmuebleNit) {
-                        $apartamentos.= $inmuebleNit->inmueble->nombre.'-'.$inmuebleNit->inmueble->zona->nombre.', ';
-                    }
-                }
-                $nit->nit->apartamentos = rtrim($apartamentos, ", ");
-                $nit->nit->save();
-            }
 
             DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
-                'data' => $zona,
-                'message'=> 'Zona actualizada con exito!'
+                'data' => $proyecto,
+                'message'=> 'Proyecto actualizada con exito!'
             ]);
                 
         } catch (Exception $e) {
@@ -220,7 +192,7 @@ class ZonasController extends Controller
     public function delete (Request $request)
     {
         $rules = [
-            'id' => 'required|exists:max.zonas,id',
+            'id' => 'required|exists:max.proyectos,id',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -236,14 +208,14 @@ class ZonasController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            Zonas::where('id', $request->get('id'))->delete();
+            Proyecto::where('id', $request->get('id'))->delete();
 
             DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Zona eliminada con exito!'
+                'message'=> 'Proyecto eliminada con exito!'
             ]);
 
         } catch (Exception $e) {
@@ -258,15 +230,15 @@ class ZonasController extends Controller
 
     public function combo (Request $request)
     {
-        $zonas = Zonas::select(
+        $proyectos = Proyecto::select(
             \DB::raw('*'),
             \DB::raw("nombre as text")
         );
 
         if ($request->get("q")) {
-            $zonas->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
+            $proyectos->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
         }
 
-        return $zonas->orderBy('nombre', 'ASC')->paginate(40);
+        return $proyectos->orderBy('nombre', 'ASC')->paginate(40);
     }
 }

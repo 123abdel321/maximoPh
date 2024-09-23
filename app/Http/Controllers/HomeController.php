@@ -20,7 +20,7 @@ class HomeController extends Controller
         $menus = ComponentesMenu::whereNotNull('id_componente')
             ->where('estado', 1)
             ->with('padre')
-            ->orderBy('orden_menu')
+            ->orderBy('orden_menu', 'ASC')
             ->get();
 
         $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->user()->id)

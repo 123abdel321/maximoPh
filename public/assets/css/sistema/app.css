@@ -1228,3 +1228,7 @@ div.dataTables_processing {
     width: 100%;
     text-align: center;
 }
+
+.fc .fc-col-header-cell-cushion {
+    color: white;
+}

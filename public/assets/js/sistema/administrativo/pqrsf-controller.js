@@ -1,6 +1,6 @@
 var swiper = null;
 var pqrsf_table = null;
-var $comboUsuarioPqrsf = null
+var $comboUsuarioPqrsf = null;
 var quill = null;
 var diaPqrsf = [
     "diaPqrsf0",

@@ -39,7 +39,9 @@ use App\Http\Controllers\Sistema\ImportadorRecibosController;
 //INFORMES
 use App\Http\Controllers\Sistema\ImpuestosIvaController;
 use App\Http\Controllers\Informes\EstadisticasController;
-
+//TAREAS
+use App\Http\Controllers\Sistema\TurnosController;
+use App\Http\Controllers\Sistema\ProyectosController;
 
 //MODELOS
 use App\Models\Portafolio\Nits;
@@ -144,9 +146,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);
 		Route::get('/impuestosiva', [ImpuestosIvaController::class, 'index']);
 		Route::get('/estadisticas', [EstadisticasController::class, 'index']);
-				
+		//TAREAS
+		Route::get('/proyectos', [ProyectosController::class, 'index']);
+
+		Route::get('/turnos', [TurnosController::class, 'index']);
+		Route::post('/turnos', [TurnosController::class, 'create']);
+		Route::get('/turnos-event', [TurnosController::class, 'read']);
+		Route::post('/turnos-evento', [TurnosController::class, 'createEvento']);
 	});
 	
 });
-            
-
