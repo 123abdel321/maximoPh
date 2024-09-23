@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="html-basic">
 
 <head>
     <meta charset="utf-8" />
@@ -33,8 +33,8 @@
     <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
     <!-- ANIMATE CSS -->
     <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
-
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css') }}" rel="stylesheet" />
+    <!-- FULL CALENDAR -->
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.0.0/main.min.css' rel='stylesheet' />
     
 
     <!-- Google Tag Manager -->
@@ -47,7 +47,7 @@
 
 </head>
 
-<body class="{{ $class ?? '' }}" style="background-color: #060e26;">
+<body class="body-basic" style="background-color: #060e26;">
 
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NPDX42D8"
@@ -87,17 +87,17 @@
                 <div class="row">  
 
                     <div class="form-group col-12">
-                        <label for="example-text-input" class="form-control-label">Usuario</label>
+                        <label for="usuario_accion" class="form-control-label">Usuario</label>
                         <input id="usuario_accion" class="form-control form-control-sm" type="text" disabled>
                     </div>
 
                     <div class="form-group col-12">
-                        <label for="example-text-input" class="form-control-label">Correo</label>
+                        <label for="correo_accion" class="form-control-label">Correo</label>
                         <input id="correo_accion" class="form-control form-control-sm" type="text" disabled>
                     </div>
 
                     <div class="form-group col-12">
-                        <label for="example-text-input" class="form-control-label">Fecha acción</label>
+                        <label for="fecha_accion" class="form-control-label">Fecha acción</label>
                         <input id="fecha_accion" class="form-control form-control-sm" type="text" disabled>
                     </div>
 
@@ -127,36 +127,36 @@
                             </div>
                         </div>
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Nombre completo</label>
+                            <label for="nombre_completo_nit" class="form-control-label">Nombre completo</label>
                             <input id="nombre_completo_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Documento</label>
+                            <label for="numero_documento_nit" class="form-control-label">Documento</label>
                             <input id="numero_documento_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Direccion</label>
+                            <label for="direccion_nit" class="form-control-label">Direccion</label>
                             <input id="direccion_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Telefono</label>
+                            <label for="telefono_1_nit" class="form-control-label">Telefono</label>
                             <input id="telefono_1_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Correo</label>
+                            <label for="email_nit" class="form-control-label">Correo</label>
                             <input id="email_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Ciudad</label>
+                            <label class="form-control-label">Ciudad</label>
                             <input id="ciudad_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Observaciones</label>
+                            <label for="observaciones_nit" class="form-control-label">Observaciones</label>
                             <input id="observaciones_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
@@ -241,7 +241,8 @@
     <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <script src="{{ secure_asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
-
+    <!-- FULL CALENDER -->
+    <script src="{{ secure_asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
     <!-- Include the Quill library -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     
