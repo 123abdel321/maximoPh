@@ -778,6 +778,7 @@ class FacturacionController extends Controller
             ->groupByRaw('id_nit')
             ->get();
 
+        // dd($facturarNit);
         $saldo_anterior = 0;
         $count_saldo_anterior = 0;
         $saldo_base = 0;
@@ -787,13 +788,14 @@ class FacturacionController extends Controller
 
             if (!$causacion_mensual_rapida) {
                 $nits = Nits::find($nit->id_nit);
-    
-                $inmuebleNitData[] = (object)[
-                    'id_nit' => $nits->id,
-                    'nombre_nit' => $nits->nombre_completo,
-                    'documento_nit' => $nits->numero_documento,
-                    'facturado' => false
-                ];
+                if($nits) {
+                    $inmuebleNitData[] = (object)[
+                        'id_nit' => $nits->id,
+                        'nombre_nit' => $nits->nombre_completo,
+                        'documento_nit' => $nits->numero_documento,
+                        'facturado' => false
+                    ];
+                }
             }
 
             $sumaRapida = 0;
@@ -1581,6 +1583,7 @@ class FacturacionController extends Controller
             }
             
             if ($tipoCuenta != 4 && $tipoCuenta != 8) {
+                dd($extraCxC['inmueble']);
                 array_push($dataArray, (object)[
                     'id_nit' => $extraCxC['id_nit'],
                     'id_inmueble' => $extraCxC['id_inmueble'],
