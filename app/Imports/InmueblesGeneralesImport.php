@@ -79,15 +79,13 @@ class InmueblesGeneralesImport implements ToCollection, WithHeadingRow, WithProg
 
             if ($row['zona']) {
                 $zona = Zonas::where('nombre', $row['zona'])->first();
-
                 if (!$inmueble && !$zona) {
                     $estado = 1;
                     $observacionMala.= 'La zona: '.$row['zona'].', no fue encontrada! <br>';
                 }
             } else if ($inmueble) {
-                $zona = Zonas::find($inmueble->id_zona)->first();
+                $zona = Zonas::find($inmueble->id_zona);
             }
-
             if ($row['cedula_nit']) {
                 $nit = Nits::where('numero_documento', $row['cedula_nit'])->first();
                 if ($nit) {
