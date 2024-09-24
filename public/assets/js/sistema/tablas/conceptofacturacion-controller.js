@@ -583,7 +583,6 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
 });
 
 $("#pronto_pago_concepto_facturacion").on('change', function(event) {
-    console.log('change');
     if ($("input[type='checkbox']#pronto_pago_concepto_facturacion").is(':checked')) {
         $('#input-id_cuenta_pronto_pago_gasto').show();
         $('#input-id_cuenta_pronto_pago_anticipo').show();

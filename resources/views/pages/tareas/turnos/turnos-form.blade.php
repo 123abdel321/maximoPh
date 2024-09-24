@@ -55,7 +55,14 @@
                     <input type="time" class="form-control form-control-sm" name="hora_fin_turno" id="hora_fin_turno">
                 </div>
 
-                <!-- <div id="input_dias_turno" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: center; text-align: -webkit-center;">
+                <div class="form-check form-switch col-12 col-sm-6 col-md-6">
+                    <input class="form-check-input" type="checkbox" name="multiple_tarea_turno" id="multiple_tarea_turno" style="height: 20px;">
+                    <label class="form-check-label" for="multiple_tarea_turno">
+                        Multiple tarea
+                    </label>
+                </div>
+
+                <div id="input_dias_turno" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: center; text-align: -webkit-center; display: none;">
                     <label for="exampleFormControlSelect1">Días </label><br/>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno1" name="diaTurno1">
@@ -85,7 +92,7 @@
                         <input class="form-check-input" type="checkbox" id="diaTurno7" name="diaTurno7">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno7">Domingo</label>
                     </div>
-                </div> -->
+                </div>
 
                 <div id="" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
                     <label for="example-text-input" class="form-control-label">Asunto</label>

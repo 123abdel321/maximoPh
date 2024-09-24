@@ -116,38 +116,93 @@ class TurnosController extends Controller
                     "message"=>'El usuario no tiene nit asociado en la empresa'
                 ], 422);
             }
-
-            $fechaInicio = $request->get("fecha_inicio_turno").' '.$request->get("hora_inicio_turno");
-            $fechaFin = $request->get("fecha_fin_turno").' '.$request->get("hora_fin_turno");
-
-            $turno = Turno::create([
-                'id_usuario' => $request->get('id_usuario_turno'),
-                'id_nit' => $usuarioEmpresa->id_nit,
-                'id_proyecto' => $request->get('id_proyecto_turno'),
-                'tipo' => $request->get("tipo_turno"),
-                'fecha_inicio' => $fechaInicio,
-                'fecha_fin' => $fechaFin,
-                'asunto' => $request->get("asunto_turno"),
-                'descripcion' => $request->get("mensaje_turno"),
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id
-            ]);
-
+            
+            $urlArchivos = [];
             if ($request->file('photos')) {
                 foreach ($request->file('photos') as $photos) {
                     $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
                     $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
-    
-                    $archivo = new ArchivosGenerales([
-                        'tipo_archivo' => 'imagen',
-                        'url_archivo' => $url,
-                        'estado' => 1,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-        
-                    $archivo->relation()->associate($turno);
-                    $turno->archivos()->save($archivo);
+
+                    array_push($urlArchivos, $url);
+                }
+            }
+
+            if ($request->get('multiple_tarea_turno') == 'on') {
+                $dias = $this->getDiasString($request);
+
+                $inicio = Carbon::parse($request->get('fecha_inicio_turno'));
+                $fin = Carbon::parse($request->get('fecha_fin_turno'));
+
+                while ($inicio->lte($fin)) {
+                    $numero_dia = $inicio->isoWeekday();
+
+                    if (in_array($numero_dia, $dias)) {
+
+                        $fechaInicio = $inicio->format('Y-m-d').' '.$request->get('hora_inicio_turno');
+                        $fechaFin = $inicio->format('Y-m-d').' '.$request->get('hora_fin_turno');
+
+                        $turno = Turno::create([
+                            'id_usuario' => $request->get('id_usuario_turno'),
+                            'id_nit' => $usuarioEmpresa->id_nit,
+                            'id_proyecto' => $request->get('id_proyecto_turno'),
+                            'tipo' => $request->get("tipo_turno"),
+                            'fecha_inicio' => $fechaInicio,
+                            'fecha_fin' => $fechaFin,
+                            'asunto' => $request->get("asunto_turno"),
+                            'descripcion' => $request->get("mensaje_turno"),
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+
+                        if (count($urlArchivos)) {
+                            foreach ($urlArchivos as $url) {
+                                $archivo = new ArchivosGenerales([
+                                    'tipo_archivo' => 'imagen',
+                                    'url_archivo' => $url,
+                                    'estado' => 1,
+                                    'created_by' => request()->user()->id,
+                                    'updated_by' => request()->user()->id
+                                ]);
+                    
+                                $archivo->relation()->associate($turno);
+                                $turno->archivos()->save($archivo);
+                            }
+                        }
+                    }
+
+                    $inicio->addDay();
+                }
+            } else {
+                
+                $fechaInicio = $request->get("fecha_inicio_turno").' '.$request->get("hora_inicio_turno");
+                $fechaFin = $request->get("fecha_fin_turno").' '.$request->get("hora_fin_turno");
+
+                $turno = Turno::create([
+                    'id_usuario' => $request->get('id_usuario_turno'),
+                    'id_nit' => $usuarioEmpresa->id_nit,
+                    'id_proyecto' => $request->get('id_proyecto_turno'),
+                    'tipo' => $request->get("tipo_turno"),
+                    'fecha_inicio' => $fechaInicio,
+                    'fecha_fin' => $fechaFin,
+                    'asunto' => $request->get("asunto_turno"),
+                    'descripcion' => $request->get("mensaje_turno"),
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+
+                if (count($urlArchivos)) {
+                    foreach ($urlArchivos as $url) {
+                        $archivo = new ArchivosGenerales([
+                            'tipo_archivo' => 'imagen',
+                            'url_archivo' => $url,
+                            'estado' => 1,
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+            
+                        $archivo->relation()->associate($turno);
+                        $turno->archivos()->save($archivo);
+                    }
                 }
             }
 
@@ -374,4 +429,16 @@ class TurnosController extends Controller
             ], 422);
         }
     }
+
+    private function getDiasString ($request)
+    {
+        $dias = [];
+        for ($i = 1; $i <= 7; $i++) {
+            if ($request->get('diaTurno'.$i)) {
+                array_push($dias, $i);
+            }
+        }
+        return $dias;
+    }
+
 }

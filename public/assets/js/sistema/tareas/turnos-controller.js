@@ -185,6 +185,15 @@ $(document).on('click', '#deleteTurno', function () {
     })
 });
 
+
+$("#multiple_tarea_turno").on('change', function(event) {
+    if ($("input[type='checkbox']#multiple_tarea_turno").is(':checked')) {
+        $("#input_dias_turno").show();
+    } else {
+        $("#input_dias_turno").hide();
+    }
+});
+
 function clearFormTurno () {
     
     $("#id_usuario_turno").val('').change();
@@ -311,7 +320,16 @@ $("#form-turno").submit(function(e) {
         $('#saveTurno').show();
         $('#saveTurnoLoading').hide();
 
-        calendarioTurnos.addEvent(responseData.data);
+        $("#reloadTurnosIconNormal").hide();
+        $("#reloadTurnosIconLoading").show();
+
+        setTimeout(function(){
+            $("#reloadTurnosIconNormal").show();
+            $("#reloadTurnosIconLoading").hide();
+        },500);
+
+        calendarioTurnos.removeAllEvents();
+        calendarioTurnos.refetchEvents();
 
         if (responseData.success) {
             agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
@@ -385,6 +403,8 @@ function seleccionarRangoDeTurnos(info) {
 
     $('#hora_inicio_turno').val(horaInicio);
     $('#hora_fin_turno').val(horaFin);
+
+    recorrerFechas(fechaInicio, fechaFin);
 
     $("#turnoFormModal").modal('show');
 }
