@@ -93,7 +93,7 @@
                 <div id="input_dias_porteria" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: center;">
                     <label for="exampleFormControlSelect1">Días </label><br/>
                     <div class="form-check form-check-inline col-2">
-                        <input class="form-check-input" type="checkbox" id="diaPorteria0" name="diaPorteria0">
+                        <input class="form-check-input" type="checkbox" id="diaPorteria0" name="diaPorteria0" checked>
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria0">Hoy</label>
                     </div>
                     <div class="form-check form-check-inline col-2">

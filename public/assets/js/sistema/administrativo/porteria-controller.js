@@ -161,13 +161,13 @@ function porteriaInit() {
                 }
                 if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5 || porteria.tipo_porteria == 6) {
                     var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
-                    var numeroDia = new Date(dayNow).getDay();
+                    var numeroDia = new Date(dayNow).getDay() + 1;
                     var hoyDia = new Date(porteria.hoy).getDay();
                     
                     if (porteria.hoy && numeroDia == hoyDia) {
                         return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
                     }
-            
+                    
                     if (porteria.dias) {
                         var diasArray = porteria.dias.split(",");
                         if (diasArray.includes((numeroDia)+"")) {
@@ -207,10 +207,10 @@ function porteriaInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-
+                    if (row.eventos.length) html+= '<span class="btn disabled badge bg-gradient-success evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmado</span>&nbsp;';
                     if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
                     else if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
-                    if (updatePorteria) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-warning edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    if (updatePorteria && !row.eventos.length) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-warning edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (deletePorteria && !row.eventos.length) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
@@ -955,7 +955,7 @@ function clearFormPorteria() {
     $("#textPorteriaUpdate").hide();
 
     $("#id_porteria_up").val("");
-    $("#tipo_porteria_create").val(1);
+    $("#tipo_porteria_create").val(4);
     $("#nombre_persona_porteria").val("");
     $("#documento_persona_porteria").val("");
     $("#tipo_vehiculo_porteria").val("");
@@ -968,8 +968,10 @@ function clearFormPorteria() {
     diaPorteria.forEach(dia => {
         $('#'+dia).prop('checked', false);
     });
+
+    $('#diaPorteria0').prop('checked', true);
     
-    $("#input_dias_porteria").hide();
+    $("#input_dias_porteria").show();
     $("#input_tipo_vehiculo_porteria").hide();
     $("#input_tipo_mascota_porteria").hide();
     $("#input_placa_persona_porteria").hide();
