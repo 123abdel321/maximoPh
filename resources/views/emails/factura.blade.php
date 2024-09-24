@@ -22,7 +22,7 @@
                         <td style="padding: 20px; color: #555555;">
                             <h2 style="font-size: 20px; color: #333333; margin: 0 0 10px;">¡Hola, {{ $nombre }}!</h2>
                             <p style="font-size: 16px; line-height: 1.5; margin: 0 0 20px;">
-                                Hemos generado la factura N.º {{ $factura }} por {{ number_format($valor) }}. Agradecemos su pago antes de la fecha límite.
+                                Hemos generado la factura N.º {{ $factura }} por ${{ number_format($valor) }}. Agradecemos su pago antes de la fecha límite.
                             </p>
 
                             <p style="font-size: 16px; line-height: 1.5;">
