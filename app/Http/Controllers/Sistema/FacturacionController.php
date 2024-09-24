@@ -1583,7 +1583,7 @@ class FacturacionController extends Controller
             }
             
             if ($tipoCuenta != 4 && $tipoCuenta != 8) {
-                dd($extraCxC['inmueble']);
+                
                 array_push($dataArray, (object)[
                     'id_nit' => $extraCxC['id_nit'],
                     'id_inmueble' => $extraCxC['id_inmueble'],
