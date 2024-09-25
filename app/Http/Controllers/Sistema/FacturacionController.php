@@ -199,7 +199,6 @@ class FacturacionController extends Controller
     public function generarIndividual (Request $request)
     {
         try {
-
             DB::connection('max')->beginTransaction();
 
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
@@ -215,11 +214,11 @@ class FacturacionController extends Controller
                 'inmuebles' => [],
                 'extras' => []
             ];
-
+            
             $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
             $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
             $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
-
+            // dd($inmueblesFacturar);
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
             $factura = Facturacion::create([//CABEZA DE FACTURA
@@ -244,7 +243,7 @@ class FacturacionController extends Controller
                 null,
                 $periodo_facturacion
             ))->actual()->get();
-            
+            // dd($periodo_facturacion, $extractos);
             //AGRUPAMOS 
             $this->extractosAgrupados = [];
             foreach ($extractos as $extracto) {
@@ -361,15 +360,16 @@ class FacturacionController extends Controller
                 $request->get('id')
             ))->send(request()->user()->id_empresa);
 
-            if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-                DB::connection('max')->rollback();
+            // if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
+            //     dd($response['response']);
+            //     DB::connection('max')->rollback();
                 
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=> $response['response']->message
-                ], 422);
-            }
+            //     return response()->json([
+            //         "success"=>false,
+            //         'data' => [],
+            //         "message"=> $response['response']->message
+            //     ], 422);
+            // }
 
             $factura->valor = ($valoresExtra + $valoresAdmon + $valoresIntereses);
             $factura->valor_admon = $valoresAdmon;
