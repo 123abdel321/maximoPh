@@ -13,6 +13,7 @@ class Proyecto extends Model
 
     protected $fillable = [
         'nombre',
+        'id_usuario',
         'valor_total',
         'fecha_inicio',
         'fecha_fin',
@@ -20,4 +21,8 @@ class Proyecto extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function responsable(){
+		return $this->belongsTo("App\Models\User", "id_usuario");
+	}
 }

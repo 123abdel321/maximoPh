@@ -45,6 +45,7 @@ class ProyectosController extends Controller
             $searchValue = $search_arr['value']; // Search value
 
             $proyectos = Proyecto::orderBy('id', 'DESC')
+                ->with('responsable')
                 ->where('nombre', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
@@ -105,6 +106,7 @@ class ProyectosController extends Controller
 
             $proyecto = Proyecto::create([
                 'nombre' => $request->get('nombre'),
+                'id_usuario' => $request->get('id_usuario'),
                 'fecha_inicio' => $request->get('fecha_inicio'),
                 'fecha_fin' => $request->get('fecha_fin'),
                 'valor_total' => $request->get('valor_total'),
@@ -165,6 +167,7 @@ class ProyectosController extends Controller
             $proyecto = Proyecto::where('id', $request->get('id'))
                 ->update([
                     'nombre' => $request->get('nombre'),
+                    'id_usuario' => $request->get('id_usuario'),
                     'fecha_inicio' => $request->get('fecha_inicio'),
                     'fecha_fin' => $request->get('fecha_fin'),
                     'valor_total' => $request->get('valor_total'),

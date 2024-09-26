@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('proyectos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
+            $table->integer('id_usuario')->nullable();
             $table->decimal('valor_total', 10, 2);
             $table->dateTime('fecha_inicio');
             $table->dateTime('fecha_fin');

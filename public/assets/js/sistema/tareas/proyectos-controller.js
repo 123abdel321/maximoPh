@@ -1,5 +1,5 @@
 var proyecto_table = null;
-$comboCecosProyecto = null;
+$comboResponsableProyecto = null;
 
 function proyectosInit() {
     proyecto_table = $('#proyectosTable').DataTable({
@@ -26,6 +26,15 @@ function proyectosInit() {
         },
         columns: [
             {"data":'nombre'},
+            {"data": function (row, type, set){  
+                if (row.responsable) {
+                    if (row.responsable.firstname && row.responsable.lastname) {
+                        return row.responsable.firstname+' '+row.responsable.lastname;
+                    }
+                    return row.responsable.firstname;
+                }
+                return '';
+            }},
             {"data": "valor_total",render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'fecha_inicio'},
             {"data":'fecha_fin'},
@@ -64,6 +73,18 @@ function proyectosInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, proyecto_table);
+
+            if(data.responsable){
+                var nombre = data.responsable.firstname;
+                if (data.responsable.lastname) nombre+= ' '+data.responsable.lastname;
+                var dataResponsable = {
+                    id: data.responsable.id,
+                    text: nombre
+                };
+                var newOption = new Option(dataResponsable.text, dataResponsable.id, false, false);
+                $comboResponsableProyecto.append(newOption).trigger('change');
+                $comboResponsableProyecto.val(dataResponsable.id).trigger('change');
+            }
 
             $("#id_proyecto_up").val(data.id);
             $("#nombre_proyecto").val(data.nombre);
@@ -119,6 +140,40 @@ function proyectosInit() {
 
     $('.water').hide();
     proyecto_table.ajax.reload();
+
+    $comboResponsableProyecto = $('#id_responsable_proyecto').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#proyectoFormModal'),
+        delay: 250,
+        placeholder: "Seleccione un usuario",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url + 'usuarios/combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 }
 
 $(document).on('click', '#createProyecto', function () {
@@ -143,6 +198,7 @@ $(document).on('click', '#saveProyecto', function () {
 
     let data = {
         nombre: $("#nombre_proyecto").val(),
+        id_usuario: $("#id_responsable_proyecto").val(),
         fecha_inicio: $("#fecha_inicio_proyecto").val(),
         fecha_fin: $("#fecha_fin_proyecto").val(),
         valor_total: $("#valor_proyecto").val(),
@@ -196,6 +252,7 @@ $(document).on('click', '#updateProyecto', function () {
 
     let data = {
         id: $("#id_proyecto_up").val(),
+        id_usuario: $("#id_responsable_proyecto").val(),
         nombre: $("#nombre_proyecto").val(),
         fecha_inicio: $("#fecha_inicio_proyecto").val(),
         fecha_fin: $("#fecha_fin_proyecto").val(),

@@ -18,6 +18,12 @@
                             <input type="text" class="form-control form-control-sm" name="nombre_proyecto" id="nombre_proyecto" required>
                         </div>
 
+                        <div class="form-group col-12 col-sm-6 col-md-6">
+                            <label for="formZonaLabel">Responsable</label>
+                            <select name="id_responsable_proyecto" id="id_responsable_proyecto" class="form-control form-control-sm">
+                            </select>
+                        </div>
+
                         <div class="form-group col-12 col-sm-6 col-md-6" >
                             <label for="example-text-input" class="form-control-label">Fecha inicio <span style="color: red">*</span></label>
                             <input type="date" class="form-control form-control-sm" name="fecha_inicio_proyecto" id="fecha_inicio_proyecto">
