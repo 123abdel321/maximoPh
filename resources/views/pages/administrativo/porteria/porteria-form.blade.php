@@ -40,9 +40,9 @@
                         @if ($usuario_rol != 5 && $usuario_rol != 3)
                             <option value="0">PROPIETARIO</option>
                         @endif
-                        <option value="4">VISITANTE</option>
-                        <option value="6">DOMICILIO</option>
-                        <option value="5">PAQUETE</option>
+                        <!-- <option value="4">VISITANTE</option> -->
+                        <!-- <option value="6">DOMICILIO</option> -->
+                        <!-- <option value="5">PAQUETE</option> -->
                         <option value="3">VEHICULO</option>
                         <option value="1">INQUILINO</option>
                         <option value="2">MASCOTA</option>

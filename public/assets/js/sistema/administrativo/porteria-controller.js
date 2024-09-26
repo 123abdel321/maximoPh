@@ -503,6 +503,8 @@ function porteriaInit() {
             $("#porteria-preview-ubicacion").text(data.propietario.apartamentos);
 
             var texto = 'CARRO';
+            
+            if (data.tipo_porteria == 1) texto = 'INQUILINO';
             if (data.tipo_porteria == 3) {
                 if (data.tipo_vehiculo == 1) texto = 'MOTO';
                 if (data.tipo_vehiculo == 2) texto = 'MOTO ELECTRICA';
@@ -977,7 +979,7 @@ function clearFormPorteria() {
     $("#textPorteriaUpdate").hide();
 
     $("#id_porteria_up").val("");
-    $("#tipo_porteria_create").val(4);
+    $("#tipo_porteria_create").val(1);
     $("#genero_porteria").val("").change();
     $("#nombre_persona_porteria").val("");
     $("#fecha_nacimiento_porteria").val("");
