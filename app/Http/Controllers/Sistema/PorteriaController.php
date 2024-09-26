@@ -255,6 +255,10 @@ class PorteriaController extends Controller
                         'placa' => $request->get('placa_persona_porteria'),
                         'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                         'observacion' => $request->get('observacion_persona_porteria'),
+                        'email' => $request->get('email_porteria'),
+                        'fecha_nacimiento' => $request->get('fecha_nacimiento_porteria'),
+                        'telefono' => $request->get('telefono_porteria'),
+                        'genero' => $request->get('genero_porteria'),
                         'updated_by' => request()->user()->id
                     ]);
 
@@ -274,6 +278,10 @@ class PorteriaController extends Controller
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
                     'tipo_mascota' => $request->get('tipo_mascota_porteria'),
                     'nombre' => $request->get('nombre_persona_porteria'),
+                    'email' => $request->get('email_porteria'),
+                    'fecha_nacimiento' => $request->get('fecha_nacimiento_porteria'),
+                    'telefono' => $request->get('telefono_porteria'),
+                    'genero' => $request->get('genero_porteria'),
                     'documento' => $request->get('documento_persona_porteria'),
                     'dias' => $this->getDiasString($request),
                     'placa' => $request->get('placa_persona_porteria'),

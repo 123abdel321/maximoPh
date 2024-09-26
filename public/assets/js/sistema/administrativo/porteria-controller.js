@@ -98,6 +98,15 @@ function porteriaInit() {
             }, className: 'dt-body-center'},
             {"data":'nombre'},
             {"data":'documento'},
+            {"data":'telefono'},
+            {"data":'email'},
+            {"data": function (row, type, set){  
+                if (row.genero) {
+                    return 'MASCULIDO';
+                }
+                return 'FEMENINO';
+            }},
+            {"data":'fecha_nacimiento'},
             {"data": function (row, type, set){
                 if (row.tipo_porteria == 1) {
                     return '<span  class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #4048e4;">Residente</span>';
@@ -872,6 +881,7 @@ $(document).on('click', '#volverEventoPorteria', function () {
 $(document).on('change', '#tipo_porteria_create', function () {
     var tipoPorteria = $("#tipo_porteria_create").val();
     hideInputPorteria();
+
     changeTipoPorteria(tipoPorteria);
 });
 
@@ -883,10 +893,15 @@ var dataImagenes = $('.input-images-porteria').imageUploader({
 });
 
 function changeTipoPorteria(tipoPorteria) {
+    console.log('tipoPorteria: ',tipoPorteria);
     if(parseInt(tipoPorteria) == 1 || parseInt(tipoPorteria) == 0) {
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_nombre_persona_porteria").show();
         $("#input_documento_persona_porteria").show();
+        $("#input_genero_porteria").show();
+        $("#input_fecha_inicio_porteria").show();
+        $("#input_telefono_porteria").show();
+        $("#input_email_porteria").show();
     } else if (parseInt(tipoPorteria) == 2) {
         $("#input_tipo_mascota_porteria").show();
         $("#input_nombre_persona_porteria").show();
@@ -899,6 +914,13 @@ function changeTipoPorteria(tipoPorteria) {
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_nombre_persona_porteria").show();
         $("#input_documento_persona_porteria").show();
+    }
+
+    if (parseInt(tipoPorteria) == 4) {
+        $("#input_genero_porteria").show();
+        $("#input_fecha_inicio_porteria").show();
+        $("#input_telefono_porteria").show();
+        $("#input_email_porteria").show();
     }
 }
 
@@ -956,7 +978,11 @@ function clearFormPorteria() {
 
     $("#id_porteria_up").val("");
     $("#tipo_porteria_create").val(4);
+    $("#genero_porteria").val("").change();
     $("#nombre_persona_porteria").val("");
+    $("#fecha_nacimiento_porteria").val("");
+    $("#telefono_porteria").val("");
+    $("#email_porteria").val("");
     $("#documento_persona_porteria").val("");
     $("#tipo_vehiculo_porteria").val("");
     $("#tipo_mascota_porteria").val(0);
@@ -977,6 +1003,11 @@ function clearFormPorteria() {
     $("#input_placa_persona_porteria").hide();
     $("#input_nombre_persona_porteria").show();
     $("#input_documento_persona_porteria").show();
+    $("#input_nombre_persona_porteria").show();
+    $("#input_genero_porteria").show();
+    $("#input_fecha_inicio_porteria").show();
+    $("#input_telefono_porteria").show();
+    $("#input_email_porteria").show();
 }
 
 function mostrarEventoPorteria (id) {
@@ -1072,6 +1103,11 @@ function hideInputPorteria() {
     $("#input_placa_persona_porteria").hide();
     $("#input_nombre_persona_porteria").hide();
     $("#input_documento_persona_porteria").hide();
+
+    $("#input_genero_porteria").hide();
+    $("#input_fecha_inicio_porteria").hide();
+    $("#input_telefono_porteria").hide();
+    $("#input_email_porteria").hide();
 }
 
 function clearFormEventoPorteria() {

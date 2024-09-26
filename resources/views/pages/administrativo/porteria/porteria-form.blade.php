@@ -59,8 +59,32 @@
                     <input type="text" class="form-control form-control-sm" name="nombre_persona_porteria" id="nombre_persona_porteria" onfocus="this.select();">
                 </div>
 
+                <div id="input_genero_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-6">
+                    <label for="genero_porteria">Genero</label>
+                    <select class="form-control form-control-sm" name="genero_porteria" id="genero_porteria">
+                        <option value="" >NINGUNO</option>
+                        <option value="0">FEMENINO</option>
+                        <option value="1">MASCULITO</option>
+                    </select>
+                </div>
+
+                <div id="input_fecha_inicio_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-4" >
+                    <label for="fecha_nacimiento_porteria" class="form-control-label">Fecha nacimiento</label>
+                    <input type="date" class="form-control form-control-sm" name="fecha_nacimiento_porteria" id="fecha_nacimiento_porteria">
+                </div>
+
+                <div id="input_telefono_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-6">
+                    <label for="telefono_porteria" class="form-control-label">Telefono</label>
+                    <input type="text" class="form-control form-control-sm" name="telefono_porteria" id="telefono_porteria" onfocus="this.select();">
+                </div>
+
+                <div id="input_email_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-6">
+                    <label for="email_porteria" class="form-control-label">Email</label>
+                    <input type="text" class="form-control form-control-sm" name="email_porteria" id="email_porteria" onfocus="this.select();">
+                </div>
+
                 <div id="input_tipo_vehiculo_porteria" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="exampleFormControlSelect1">Tipo vehiculo<span style="color: red">*</span></label>
+                    <label for="tipo_vehiculo_porteria">Tipo vehiculo<span style="color: red">*</span></label>
                     <select class="form-control form-control-sm" name="tipo_vehiculo_porteria" id="tipo_vehiculo_porteria">
                         <option value="" >NINGUNO</option>
                         <option value="0">CARRO</option>
@@ -72,7 +96,7 @@
                 </div>
 
                 <div id="input_tipo_mascota_porteria" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="exampleFormControlSelect1">Tipo mascota<span style="color: red">*</span></label>
+                    <label for="tipo_mascota_porteria">Tipo mascota<span style="color: red">*</span></label>
                     <select class="form-control form-control-sm" name="tipo_mascota_porteria" id="tipo_mascota_porteria">
                         <option value="0">CANINO</option>
                         <option value="1">FELINO</option>
@@ -81,17 +105,17 @@
                 </div>
 
                 <div id="input_placa_persona_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Placa</label>
+                    <label for="placa_persona_porteria" class="form-control-label">Placa</label>
                     <input type="text" class="form-control form-control-sm" name="placa_persona_porteria" id="placa_persona_porteria" onfocus="this.select();">
                 </div>
 
                 <div id="input_observacion_persona_porteria" style="display: block;" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Observación</label>
+                    <label for="observacion_persona_porteria" class="form-control-label">Observación</label>
                     <input type="text" class="form-control form-control-sm" name="observacion_persona_porteria" id="observacion_persona_porteria" onfocus="this.select();">
                 </div>
 
                 <div id="input_dias_porteria" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: center;">
-                    <label for="exampleFormControlSelect1">Días </label><br/>
+                    <label for="diaPorteria0">Días </label><br/>
                     <div class="form-check form-check-inline col-2">
                         <input class="form-check-input" type="checkbox" id="diaPorteria0" name="diaPorteria0" checked>
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria0">Hoy</label>

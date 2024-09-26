@@ -159,7 +159,7 @@ class ImportadorRecibosController extends Controller
                     $inicioMes = date('Y-m', strtotime($reciboImport->fecha_manual));
                     $finMes = date('Y-m-t', strtotime($reciboImport->fecha_manual));
                     $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes.'-01', $reciboImport->fecha_manual);
-
+                    
                     $valorDisponible = $reciboImport->pago;
                     $valorRecibido = $reciboImport->pago;
                     $valorPendiente = 0;
@@ -241,14 +241,16 @@ class ImportadorRecibosController extends Controller
                             $valorPendiente = $extracto->saldo;
                             $valorDescuento = 0;
                             
+                            
                             if ($realizarDescuento) {
+                                $realizarDescuento = false;
                                 if (!array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
                                     continue;
                                 }
                                 $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
 
                                 $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
-                                $valorDescuento = $conceptoDescuento->descuento;
+                                $valorDescuento = $facturaDescuento->descuento;
                                 $valorPendiente = $valorPendiente;
 
                                 $doc = new DocumentosGeneral([

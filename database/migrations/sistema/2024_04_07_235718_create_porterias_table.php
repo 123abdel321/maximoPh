@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('dias', 100)->nullable();
             $table->string('placa', 100)->nullable();
             $table->date('hoy', 100)->nullable();
+            $table->string('telefono', 100)->nullable();
+            $table->string('email', 100)->nullable();
             $table->date('fecha_nacimiento', 100)->nullable();
             $table->string('observacion', 100)->nullable();
             $table->boolean('estado')->default(true);

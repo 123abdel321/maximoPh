@@ -42,6 +42,10 @@
             <th style="border-radius: 15px 0px 0px 0px !important;">Img</th>
             <th>Nombre</th>
             <th>Documento</th>
+            <th>Telefono</th>
+            <th>Email</th>
+            <th>Genero</th>
+            <th>Fecha nacimiento</th>
             <th>Tipo</th>
             <th>Placa</th>
             <th>Dias</th>
