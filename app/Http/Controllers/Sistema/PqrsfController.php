@@ -82,7 +82,7 @@ class PqrsfController extends Controller
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
 
-            if ($usuario_empresa->id_rol == 3 || $usuario_empresa->id_rol == 4) {
+            if ($usuario_empresa->id_rol == 3 || $usuario_empresa->id_rol == 4 || $usuario_empresa->id_rol == 11) {
                 $pqrsf->where('created_by', $request->user()['id']);
             }
 
