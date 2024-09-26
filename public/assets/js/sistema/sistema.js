@@ -151,7 +151,7 @@ $('.water').show();
 $("#titulo-view").text('Inicio');
 $('#containner-dashboard').load('/dashboard', function() {
     $('.water').hide();
-    if (idRolUsuario == 3 || idRolUsuario == 5) {
+    if (idRolUsuario == 3 || idRolUsuario == 5 || idRolUsuario == 11) {
         $("#menu-propietarios").show();
     }
 });
