@@ -46,4 +46,9 @@ class Turno extends Model
     {
 		return $this->belongsTo("App\Models\User","created_by");
 	}
+
+    public function responsable()
+    {
+		return $this->belongsTo("App\Models\User","id_usuario");
+	}
 }

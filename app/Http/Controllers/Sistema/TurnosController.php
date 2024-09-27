@@ -41,6 +41,9 @@ class TurnosController extends Controller
         $end = Carbon::parse($request->end);
         
         $data = array();
+        $idResponsable = $request->id_empleado == "null" ? null : $request->id_empleado;
+        $tipo = $request->tipo;
+        $estado = $request->estado;
 
         $turnos = Turno::where(function($query) use ($start, $end) {
             $query->whereBetween('fecha_inicio', [$start, $end])
@@ -49,7 +52,17 @@ class TurnosController extends Controller
                     $query->where('fecha_inicio', '<=', $start)
                         ->where('fecha_fin', '>=', $end);
                 });
-        })->get();
+            })
+            ->when($idResponsable, function ($query) use($idResponsable) {
+				$query->where('id_usuario', $idResponsable);
+			})
+            ->when($tipo, function ($query) use($tipo) {
+				$query->where('tipo', $tipo);
+			})
+            ->when($estado, function ($query) use($estado) {
+				$query->where('estado', $estado);
+			})
+        ->get();
 
         foreach ($turnos as $turno) {
             $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
@@ -307,7 +320,7 @@ class TurnosController extends Controller
         try {
 
             $turno = Turno::where('id', $request->get('id'))
-                ->with('archivos', 'eventos.creador', 'eventos.archivos', 'creador')
+                ->with('responsable', 'archivos', 'eventos.creador', 'eventos.archivos', 'creador')
                 ->first();
 
             return response()->json([

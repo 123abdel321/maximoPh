@@ -1,3 +1,4 @@
+var $comboTurnoUsuarioFilter = null;
 var $comboUsuarioTurno = null;
 var calendarioTurnos = null;
 var $comboTurno = null;
@@ -30,6 +31,13 @@ function turnosInit() {
         events: {
             url: 'turnos-event',
             method: 'GET',
+            extraParams: function() {
+                return {
+                    id_empleado: $("#id_usuario_filter_turno").val(),
+                    tipo: $("#tipo_actividad_filter_turno").val(),
+                    estado: $("#estado_filter_turno").val(),
+                };
+            },
             failure: function() {
                 agregarToast('error', 'Actualización errada', 'Error al cargar los eventos!');
             }
@@ -85,16 +93,16 @@ function turnosInit() {
         timeHint: 'La hora',
         eventHint: 'Evento',
         views: {
-            dayGridMonth: {              // Vista de mes
+            dayGridMonth: {
                 titleFormat: { year: 'numeric', month: 'long' }
             },
-            timeGridWeek: {              // Vista de semana
+            timeGridWeek: {
                 titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }
             },
-            timeGridDay: {               // Vista de día
+            timeGridDay: {
                 titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }
             },
-            listWeek: {                  // Vista de lista por semana
+            listWeek: {
                 titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }
             }
         },
@@ -105,6 +113,18 @@ function turnosInit() {
         }
     });
     calendarioTurnos.render();
+
+    $("#id_usuario_filter_turno").on('change', function(event) {
+        reloadTurnos();
+    });
+
+    $("#tipo_actividad_filter_turno").on('change', function(event) {
+        reloadTurnos();
+    });
+
+    $("#estado_filter_turno").on('change', function(event) {
+        reloadTurnos();
+    });
 }
 
 function applyPerfectScrollbar() {
@@ -134,7 +154,10 @@ $(document).on('click', '#createProyecto', function () {
 });
 
 $(document).on('click', '#reloadTurnos', function () {
+    reloadTurnos();
+});
 
+function reloadTurnos() {
     $("#reloadTurnosIconNormal").hide();
     $("#reloadTurnosIconLoading").show();
 
@@ -145,7 +168,7 @@ $(document).on('click', '#reloadTurnos', function () {
 
     calendarioTurnos.removeAllEvents();
     calendarioTurnos.refetchEvents();
-});
+}
 
 $(document).on('click', '#deleteTurno', function () {
     var idItem = $("#id_turno_evento").val();
@@ -227,6 +250,40 @@ $comboUsuarioTurno = $('#id_usuario_turno').select2({
     dropdownParent: $('#turnoFormModal'),
     delay: 250,
     placeholder: "Seleccione un usuario",
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'usuarios/combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+$comboTurnoUsuarioFilter = $('#id_usuario_filter_turno').select2({
+    theme: 'bootstrap-5',
+    delay: 250,
+    placeholder: "Seleccione un usuario",
+    allowClear: true,
     language: {
         noResults: function() {
             return "No hay resultado";        
@@ -461,6 +518,24 @@ function mostrarModalEvento(info) {
     }).done((res) => {
         $("#id_turno_evento").val(res.data.id);
         $("#texTurnoEvento").text(res.data.asunto);
+        
+        console.log(res.data);
+        var nombreResponsable = 'NINGUNO';
+        if (res.data.responsable) {
+            nombreResponsable = res.data.responsable.firstname
+            if (res.data.responsable.lastname) {
+                nombreResponsable+= ' '+res.data.responsable.lastname;
+            }
+        }
+
+        var estadoTexto = 'SIN LEER';
+        var estadoColor = '#868686';
+
+        // if () {
+            
+        // }
+
+        $("#responsable_turno").val(nombreResponsable);
 
         agregarEventoPrincipal(res.data);
         agregarEventoSecundario(res.data.eventos);
@@ -489,7 +564,7 @@ function agregarEventoPrincipal (data) {
     $("#div-contenido-eventos").html("");
 
     var htmlImagen = '';
-    var imagen = data.creador.avatar ? data.creador.avatar : "/img/no-photo.jpg";
+    var imagen = data.creador && data.creador.avatar ? data.creador.avatar : "/img/no-photo.jpg";
 
     if (data.archivos.length) {
         for (let index = 0; index < data.archivos.length; index++) {

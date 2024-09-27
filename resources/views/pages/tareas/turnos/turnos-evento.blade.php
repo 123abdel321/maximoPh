@@ -13,6 +13,16 @@
 
                 <input type="text" class="form-control" name="id_turno_evento" id="id_turno_evento" style="display: none;">
 
+                <div class="form-group col-12 col-sm-6 col-md-6">
+                    <label for="responsable_turno" class="form-control-label">Responsable</label>
+                    <input type="text" class="form-control form-control-sm" name="responsable_turno" id="responsable_turno" disabled>
+                </div>
+
+                <div class="form-group col-12 col-sm-6 col-md-6">
+                    <p style="margin-bottom: 3px; font-size: 12px; font-weight: bold; color: black;">Estado</p>
+                    <span id="estado_turno" class="badge" style="margin-bottom: 0rem !important; min-width: 50px; background-color: #4048e4;">Estado</span>
+                </div>
+
                 <p id="texto-eventos" style="margin-bottom: 0px; font-size: 13px; color: #445573; font-weight: 700;">Eventos</p>
                 <div id="div-contenido-eventos" class="container col-12">
                     <div id="view-contenido-eventos" style="padding: 10px 25px 10px 25px; border-radius: 5px; border: solid 1px #d3d3d3;">

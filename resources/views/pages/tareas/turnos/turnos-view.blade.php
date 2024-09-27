@@ -20,6 +20,36 @@
         <div class="card mb-4" style="content-visibility: auto; overflow: auto;">
             <div class="card-body">
 
+                <div class="row" style="padding: 4px;">
+
+                    <div class="form-group  col-12 col-sm-4 col-md-4">
+                        <label>Empleado</label>
+                        <select name="id_usuario_filter_turno" id="id_usuario_filter_turno" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
+                        </select>
+                    </div>
+
+                    <div class="form-group col-6 col-sm-4 col-md-4">
+                        <label for="exampleFormControlSelect1">Tipo actividad</label>
+                        <select class="form-control form-control-sm" id="tipo_actividad_filter_turno" name="tipo_actividad_filter_turno">
+                            <option value="">TODAS</option>
+                            <option value="0">TURNO</option>
+                            <option value="1">TAREA</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-6 col-sm-4 col-md-4">
+                        <label for="exampleFormControlSelect1">Estado</label>
+                        <select class="form-control form-control-sm" id="estado_filter_turno" name="estado_filter_turno">
+                            <option value="">TODOS</option>
+                            <option value="0">SIN LEER</option>
+                            <option value="3">VISTOS</option>
+                            <option value="1">EN PROCESO</option>
+                            <option value="2">CERRADOS</option>
+                        </select>
+                    </div>
+
+                </div>
+
                 <div id="turnos-fullcalender" style="flex-grow: 1; position: relative;"></div>
 
             </div>
