@@ -181,11 +181,13 @@ function estadisticasInit() {
 }
 
 channelEstadisticas.bind('notificaciones', function(data) {
+    console.log('entro');
     if(data.url_file){
         setTimeout(function(){
+            console.log('mostro');
             window.open('https://'+data.url_file, "_blank");
             agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
-        },2000);
+        },5000);
         return;
     }
     if(data.id_estadistica){
