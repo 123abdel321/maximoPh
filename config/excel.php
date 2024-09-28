@@ -326,7 +326,7 @@ return [
         | and the create file (file).
         |
         */
-        'local_path'          => storage_path('app/temporary_excel_files'),
+        'local_path'          => storage_path('framework/cache/laravel-excel'),
 
         /*
         |--------------------------------------------------------------------------
@@ -339,8 +339,8 @@ return [
         |
         */
         'local_permissions'   => [
-            'dir'  => 0755,
-            'file' => 0644,
+            'dir'  => 0777,
+            'file' => 0777,
         ],
 
         /*
