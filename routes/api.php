@@ -15,6 +15,7 @@ use App\Http\Controllers\Portafolio\PlanCuentaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
+use App\Http\Controllers\Sistema\RolesController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\PorteriaController;
@@ -251,6 +252,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('turnos', 'update');
             Route::delete('turnos', 'delete');
         });
+        // ROLES
+        Route::controller(RolesController::class)->group(function () {
+            Route::get('roles', 'read');
+            Route::put('roles', 'update');
+            Route::post('roles', 'create');
+            Route::delete('roles', 'delete');
+        });        
         
     });
 });

@@ -15,7 +15,9 @@ class RolesGenerales extends Model
 
     protected $fillable = [
         'nombre',
+        'id_empresa',
         'ids_permission',
-        'tipo'
+        'tipo',
+        'estado'
     ];
 }

@@ -118,6 +118,7 @@ var moduloCreado = {
     'estadisticas': false,
     'proyectos': false,
     'turnos': false,
+    'roles': false,
 };
 
 var moduloRoute = {
@@ -145,6 +146,7 @@ var moduloRoute = {
     'estadisticas': 'informes',
     'proyectos': 'tareas',
     'turnos': 'tareas',
+    'roles': 'configuracion',
 }
 
 $('.water').show();

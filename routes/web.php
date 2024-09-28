@@ -29,6 +29,7 @@ use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 //CONFIGURACION
+use App\Http\Controllers\Sistema\RolesController;
 use App\Http\Controllers\Empresa\PerfilController;
 use App\Http\Controllers\Sistema\EntornoController;
 use App\Http\Controllers\Empresa\UsuariosController;
@@ -141,6 +142,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//CONFIGURACION
 		Route::get('/entorno', [EntornoController::class, 'index']);
 		Route::get('/usuarios', [UsuariosController::class, 'index']);
+		Route::get('/roles', [RolesController::class, 'index']);
 		//INFORMES
 		Route::get('/cartera', [CarteraController::class, 'index']);
 		Route::get('/facturaciones', [FacturacionController::class, 'indexPdf']);

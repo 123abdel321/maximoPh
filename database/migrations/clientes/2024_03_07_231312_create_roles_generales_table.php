@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('roles_generales', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 60)->nullable();
+            $table->integer('id_empresa')->nullable();
             $table->string('ids_permission', 500)->nullable();
             $table->integer('tipo')->comment('0: Estricto, 1: Dinamico');
+            $table->integer('estado')->comment('0: Inactivo, 1: Activo');
             $table->timestamps();
         });
     }
