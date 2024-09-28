@@ -326,7 +326,7 @@ return [
         | and the create file (file).
         |
         */
-        'local_path'          => storage_path('app/tmp'),
+        'local_path'          => storage_path('framework/cache/laravel-excel'),
 
         /*
         |--------------------------------------------------------------------------
@@ -357,8 +357,8 @@ return [
         | in conjunction with queued imports and exports.
         |
         */
-        'remote_disk'         => null,
-        'remote_prefix'       => null,
+        'remote_disk'         => 'do_spaces',
+        'remote_prefix'       => 'laravel-excel',
 
         /*
         |--------------------------------------------------------------------------
