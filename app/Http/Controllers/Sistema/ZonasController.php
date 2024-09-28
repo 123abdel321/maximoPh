@@ -180,11 +180,6 @@ class ZonasController extends Controller
             foreach ($nitsInmuebles as $nit) {
     
                 $inmueblesNits = InmuebleNit::with('inmueble.zona')
-                    ->whereHas('inmueble', function ($query) use ($request) {
-                        $query->whereHas('zona', function ($q) use ($request) {
-                            $q->where('id_zona', $request->get('id'));
-                        });
-                    })
                     ->where('id_nit', $nit->id_nit)
                     ->get();
 
