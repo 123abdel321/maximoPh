@@ -4,8 +4,6 @@
             <th style="border-radius: 15px 0px 0px 0px !important;">Cedula</th>
             <th>Nombre</th>
             <th>Ubicación</th>
-            <!-- <th>Total Area</th> -->
-            <!-- <th>Total Coheficiente</th> -->
             <th>Saldo anterior</th>
             <th>Intereses</th>
             <th>Factura</th>

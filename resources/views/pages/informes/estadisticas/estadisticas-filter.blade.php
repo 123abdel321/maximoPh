@@ -13,7 +13,7 @@
                 <form id="estadisticasInformeForm" style="margin-top: 10px;">
 
                     <div class="row">
-
+                        <input name="id_estadisticas_cargado" id="id_estadisticas_cargado" class="form-control form-control-sm" type="text" style="display: none;">
                         <div class="form-group col-12 col-sm-4 col-md-4">
                             <label for="exampleFormControlSelect1">Zona</label>
                             <select name="id_zona_estadisticas" id="id_zona_estadisticas" class="form-control form-control-sm">
@@ -82,7 +82,7 @@
                         <b style="vertical-align: text-top;">BUSCANDO</b>
                     </span>
                     <!-- BOTON EXCEL -->
-                    <!-- <span id="descargarExcelEstadisticas" class="btn badge bg-gradient-success btn-bg-excel" style="min-width: 40px; display:none;">
+                    <span id="descargarExcelEstadisticas" class="btn badge bg-gradient-success btn-bg-excel" style="min-width: 40px; display:none;">
                         <i class="fas fa-file-excel" style="font-size: 17px;"></i>&nbsp;
                         <b style="vertical-align: text-top;">EXCEL</b>
                     </span>
@@ -90,7 +90,7 @@
                         <i class="fas fa-file-excel" style="font-size: 17px; color: #adadad;"></i>&nbsp;
                         <b style="vertical-align: text-top;">EXCEL</b>
                         <i class="fas fa-lock" style="color: red; position: absolute; margin-top: -10px; margin-left: 4px;"></i>
-                    </span> -->
+                    </span>
                     <!-- BOTON ULTIMO INFORME -->
                     <span id="generarEstadisticasUltimo" href="javascript:void(0)" class="btn badge bg-gradient-info" style="min-width: 40px; margin-right: 3px; float: right; display:none;">
                         <i class="fas fa-history" style="font-size: 17px;"></i>&nbsp;

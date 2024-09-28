@@ -181,7 +181,15 @@ function estadisticasInit() {
 }
 
 channelEstadisticas.bind('notificaciones', function(data) {
+    if(data.url_file){
+        setTimeout(function(){
+            window.open('https://'+data.url_file, "_blank");
+            agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+        },800);
+        return;
+    }
     if(data.id_estadistica){
+        $('#id_estadisticas_cargado').val(data.id_estadistica);
         loadEstadisticaById(data.id_estadistica);
         return;
     }
@@ -194,6 +202,9 @@ function loadEstadisticaById(id_estadistica) {
         if(res.success){
             $("#generarEstadisticas").show();
             $("#generarEstadisticasLoading").hide();
+            $("#descargarExcelEstadisticas").show();
+            $("#descargarExcelEstadisticasDisabled").hide();
+
             agregarToast('exito', 'Estadisticas generales cargado', 'Informe cargado con exito!', true);
             
             // mostrarTotalesCartera(res.totales);
@@ -244,6 +255,38 @@ $(document).on('click', '#generarEstadisticas', function () {
                 agregarToast('info', 'Generando estadisticas generales', 'En un momento se le notificará cuando el informe esté generado...', true );
             }
         }
+    });
+});
+
+$(document).on('click', '#descargarExcelEstadisticas', function () {
+    $.ajax({
+        url: base_url + 'estadisticas-excel',
+        method: 'POST',
+        data: JSON.stringify({id: $('#id_estadisticas_cargado').val()}),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            if(res.url_file){
+                window.open('https://'+res.url_file, "_blank");
+                return; 
+            }
+            agregarToast('info', 'Generando excel', res.message, true);
+        }
+    }).fail((err) => {
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Error al generar excel', errorsMsg);
     });
 });
 

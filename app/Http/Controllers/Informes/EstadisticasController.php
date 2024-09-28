@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Informes;
 
 use DB;
 use Illuminate\Http\Request;
+use App\Exports\EstadisticasExport;
+use App\Events\PrivateMessageEvent;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessInformeEstadisticas;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +15,6 @@ use App\Models\Portafolio\PlanCuentas;
 use App\Models\Informes\InfEstadisticas;
 use App\Models\Sistema\ConceptoFacturacion;
 use App\Models\Informes\InfEstadisticaDetalle;
-
 
 class EstadisticasController extends Controller
 {
@@ -92,5 +93,61 @@ class EstadisticasController extends Controller
             'totales' => $total,
             'message'=> 'Estadisticas generadas con exito!'
         ]);
+    }
+
+    public function excel(Request $request)
+    {
+        try {
+            $informeEstadisticas = InfEstadisticas::find($request->get('id'));
+
+            if($informeEstadisticas && $informeEstadisticas->exporta_excel == 1) {
+                return response()->json([
+                    'success'=>	true,
+                    'url_file' => '',
+                    'message'=> 'Actualmente se esta generando el excel de estadisticas'
+                ]);
+            }
+
+            if($informeEstadisticas && $informeEstadisticas->exporta_excel == 2) {
+                return response()->json([
+                    'success'=>	true,
+                    'url_file' => $informeEstadisticas->archivo_excel,
+                    'message'=> ''
+                ]);
+            }
+
+            $fileName = 'export/estadisticas_'.uniqid().'.xlsx';
+            $url = $fileName;
+
+            $informeEstadisticas->exporta_excel = 1;
+            $informeEstadisticas->archivo_excel = 'porfaolioerpbucket.nyc3.digitaloceanspaces.com/'.$url;
+            $informeEstadisticas->save();
+
+            (new EstadisticasExport($request->get('id')))->store($fileName, 'do_spaces', null, [
+                'visibility' => 'public'
+            ])->chain([
+                event(new PrivateMessageEvent('informe-estadisticas-'.$request->user()['has_empresa'].'_'.$request->user()->id, [
+                    'tipo' => 'exito',
+                    'mensaje' => 'Excel de Estadisticas generado con exito!',
+                    'titulo' => 'Excel generado',
+                    'url_file' => 'porfaolioerpbucket.nyc3.digitaloceanspaces.com/'.$url,
+                    'autoclose' => false
+                ])),
+                $informeEstadisticas->exporta_excel = 2,
+                $informeEstadisticas->save(),
+            ]);
+
+            return response()->json([
+                'success'=>	true,
+                'url_file' => '',
+                'message'=> 'Se le notificará cuando el informe haya finalizado'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
     }
 }

@@ -148,6 +148,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::controller(EstadisticasController::class)->group(function () {
             Route::get('estadisticas', 'generate');
             Route::get('estadisticas-show', 'show');
+            Route::post('estadisticas-excel', 'excel');
+
         });
         Route::controller(ReciboController::class)->group(function () {
             Route::get('recibo', 'read');
