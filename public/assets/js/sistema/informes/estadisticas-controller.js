@@ -185,7 +185,7 @@ channelEstadisticas.bind('notificaciones', function(data) {
         setTimeout(function(){
             window.open('https://'+data.url_file, "_blank");
             agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
-        },1500);
+        },2000);
         return;
     }
     if(data.id_estadistica){
