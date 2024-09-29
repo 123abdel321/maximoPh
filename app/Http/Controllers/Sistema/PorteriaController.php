@@ -299,6 +299,17 @@ class PorteriaController extends Controller
                 $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
                 $url = Storage::disk('do_spaces')->put($nameFile, $file, 'public');
 
+                $archivos = ArchivosGenerales::where('relation_type', 10)
+                    ->where('relation_id', $porteria->id)
+                    ->get();
+    
+                if (count($archivos)) {
+                    foreach ($archivos as $archivo) {
+                        Storage::disk('do_spaces')->delete($archivo->url_archivo);
+                        $archivo->delete();
+                    }
+                }
+
                 $archivo = new ArchivosGenerales([
                     'tipo_archivo' => 'imagen',
                     'url_archivo' => $url,

@@ -16,7 +16,7 @@
                 <div class="justify-content-center col-12 col-sm-6 col-md-6">
                     <div style="text-align: -webkit-center; height: 90px;">
                         <img id="default_avatar_porteria" onclick="document.getElementById('imagen_porteria').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 80px; height: auto; cursor: pointer; border-radius: 5%;">
-                        <img id="new_avatar_porteria" onclick="document.getElementById('imagen_porteria').click();" src="" class="img-fluid border border-2 border-white" style="width: 80px; height: auto; cursor: pointer; border-radius: 5%;">
+                        <img id="new_avatar_porteria" onclick="document.getElementById('imagen_porteria').click();" src="" class="img-fluid border border-2 border-white" style="height: 80px; cursor: pointer; border-radius: 5%;">
                     </div>
                 </div>
 
