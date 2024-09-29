@@ -121,12 +121,16 @@ class PorteriaController extends Controller
                 $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('email', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('telefono', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
             } else if ($request->get("search")) {
                 $porteria->where('id_nit', $usuarioEmpresa->id_nit)
                     ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('email', 'like', '%' .$request->get("search"). '%')
+                    ->orWhere('telefono', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
             }
             

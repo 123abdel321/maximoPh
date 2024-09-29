@@ -64,7 +64,7 @@
                     <select class="form-control form-control-sm" name="genero_porteria" id="genero_porteria">
                         <option value="" >NINGUNO</option>
                         <option value="0">FEMENINO</option>
-                        <option value="1">MASCULITO</option>
+                        <option value="1">MASCULINO</option>
                     </select>
                 </div>
 
@@ -116,35 +116,35 @@
 
                 <div id="input_dias_porteria" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: center;">
                     <label for="diaPorteria0">Días </label><br/>
-                    <div class="form-check form-check-inline col-2">
+                    <!-- <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria0" name="diaPorteria0" checked>
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria0">Hoy</label>
-                    </div>
-                    <div class="form-check form-check-inline col-2">
+                    </div> -->
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria1" name="diaPorteria1">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria1">Lunes</label>
                     </div>
-                    <div class="form-check form-check-inline col-2">
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria2" name="diaPorteria2">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria2">Martes</label>
                     </div>
-                    <div class="form-check form-check-inline col-2">
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria3" name="diaPorteria3">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria3">Miercoles</label>
                     </div>
-                    <div class="form-check form-check-inline col-2">
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria4" name="diaPorteria4">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria4">Jueves</label>
                     </div>
-                    <div class="form-check form-check-inline col-2">
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria5" name="diaPorteria5">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria5">Viernes</label>
                     </div>
-                    <div class="form-check form-check-inline col-2">
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria6" name="diaPorteria6">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria6">Sabado</label>
                     </div>
-                    <div class="form-check form-check-inline col-2">
+                    <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria7" name="diaPorteria7">
                         <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaPorteria7">Domingo</label>
                     </div>

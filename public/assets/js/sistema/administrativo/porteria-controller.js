@@ -102,7 +102,7 @@ function porteriaInit() {
             {"data":'email'},
             {"data": function (row, type, set){  
                 if (row.genero) {
-                    return 'MASCULIDO';
+                    return 'MASCULINO';
                 }
                 return 'FEMENINO';
             }},
@@ -217,9 +217,9 @@ function porteriaInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (row.eventos.length) html+= '<span class="btn disabled badge bg-gradient-success evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmado</span>&nbsp;';
-                    if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
-                    else if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    // if (row.eventos.length) html+= '<span class="btn disabled badge bg-gradient-success evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmado</span>&nbsp;';
+                    // if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
                     if (updatePorteria && !row.eventos.length) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-warning edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (deletePorteria && !row.eventos.length) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
@@ -1002,10 +1002,10 @@ function clearFormPorteria() {
     $("#observacion_persona_porteria").val("");
 
     diaPorteria.forEach(dia => {
-        $('#'+dia).prop('checked', false);
+        $('#'+dia).prop('checked', true);
     });
 
-    $('#diaPorteria0').prop('checked', true);
+    // $('#diaPorteria0').prop('checked', true);
     
     $("#input_dias_porteria").show();
     $("#input_tipo_vehiculo_porteria").show();
