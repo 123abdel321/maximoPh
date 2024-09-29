@@ -1180,9 +1180,12 @@ function daysWeek (date) {
 function createMensajePqrsf() {
 
     var form = document.querySelector('#form-pqrsf-mensajes');
+    $('#mensaje_pqrsf_nuevo').removeClass("is-invalid-textarea");
 
     if(!form.checkValidity()){
         form.classList.add('was-validated');
+        
+        $('#mensaje_pqrsf_nuevo').addClass("is-invalid-textarea");
         return;
     }
 
@@ -1214,7 +1217,7 @@ function createMensajePqrsf() {
         $("#button-send-pqrsf-loading").hide();
 
         if (responseData.success) {
-            // mostrarMensajesPqrsf(responseData.data);
+            resetImageMensajeUploader();
             $("#mensaje_pqrsf_nuevo").val("");
             setTimeout(function(){
                 $("#mensaje_pqrsf_nuevo").focus().select();
@@ -1708,12 +1711,19 @@ function agregarSwiperImg(imagenes) {
     return;
 }
 
-$('.input-images-mensaje').imageUploader({
-    imagesInputName: 'photos',
-    preloadedInputName: 'old',
-    maxSize: 2 * 1024 * 1024,
-    maxFiles: 10
-});
+function resetImageMensajeUploader() {
+    // Destruye el componente
+    $('.input-images-mensaje').html('');
+
+    // // Reinicializa el componente
+    $('.input-images-mensaje').imageUploader({
+        imagesInputName: 'photos',
+        preloadedInputName: 'old',
+        maxFiles: 10
+    });
+}
+
+resetImageMensajeUploader();
 
 var segundos = 0;
 var minutos = 0;

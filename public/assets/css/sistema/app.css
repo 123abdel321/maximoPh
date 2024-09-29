@@ -1232,3 +1232,15 @@ div.dataTables_processing {
 .fc .fc-col-header-cell-cushion {
     color: white;
 }
+
+.is-invalid-textarea {
+    border: solid 1px red;
+}
+
+.is-invalid-textarea:focus {
+    border: solid 1px red;
+}
+
+.is-invalid-textarea:focus-visible {
+    border: solid 1px red;
+}
