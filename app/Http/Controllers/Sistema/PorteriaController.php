@@ -113,18 +113,18 @@ class PorteriaController extends Controller
                     'updated_by'
                 );
 
-            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2) {
+            if (!$request->user()->can('porteria eventos')) {
                 $porteria->where('id_usuario', $request->user()->id);
             }
             
-            if ($usuarioEmpresa->id_rol != 1 && $usuarioEmpresa->id_rol != 2 && $request->get("search")) {
-                $porteria->where('id_nit', $usuarioEmpresa->id_nit)
-                    ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
+            if ($request->user()->can('porteria eventos') && $request->get("search")) {
+                $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
-            } else if ($request->get("search")){
-                $porteria->where('nombre', 'like', '%' .$request->get("search"). '%')
+            } else if ($request->get("search")) {
+                $porteria->where('id_nit', $usuarioEmpresa->id_nit)
+                    ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
                     ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
@@ -135,8 +135,7 @@ class PorteriaController extends Controller
             if ($request->get("fecha") && !$request->get("search")) {
                 $fechaFilter = Carbon::parse($request->get("fecha"));
                 $diaFilter = $fechaFilter->dayOfWeek;
-                $porteria->where('dias', 'LIKE', '%'.$diaFilter)
-                    ->orWhere('hoy', $fechaFilter);
+                $porteria->where('dias', 'LIKE', '%'.$diaFilter);
             }
             $totalData = $porteria->count();
             $porteria->skip($start)->take($rowperpage);

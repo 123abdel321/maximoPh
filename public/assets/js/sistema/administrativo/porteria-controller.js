@@ -356,8 +356,12 @@ function porteriaInit() {
             var tipoVehiculo = data.tipo_vehiculo;
             if (!tipoVehiculo && tipoVehiculo!=0) $("#input_placa_persona_porteria").hide();
             else $("#input_placa_persona_porteria").show();
-
+            console.log('data: ',data);
             $("#id_porteria_up").val(id);
+            
+            $("#email_porteria").val(data.email);
+            $("#telefono_porteria").val(data.telefono);
+            $("#fecha_nacimiento_porteria").val(data.fecha_nacimiento);
             $("#tipo_porteria_create").val(data.tipo_porteria);
             $("#nombre_persona_porteria").val(data.nombre);
             $("#documento_persona_porteria").val(data.documento);
@@ -504,6 +508,7 @@ function porteriaInit() {
 
             var texto = 'CARRO';
             
+            if (data.tipo_porteria == 0) texto = 'PROPIETARIO';
             if (data.tipo_porteria == 1) texto = 'INQUILINO';
             if (data.tipo_porteria == 3) {
                 if (data.tipo_vehiculo == 1) texto = 'MOTO';
@@ -897,6 +902,8 @@ var dataImagenes = $('.input-images-porteria').imageUploader({
 function changeTipoPorteria(tipoPorteria) {
     console.log('tipoPorteria: ',tipoPorteria);
     if(parseInt(tipoPorteria) == 1 || parseInt(tipoPorteria) == 0) {
+        console.log('1');
+        $("#input_dias_porteria").show();
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_nombre_persona_porteria").show();
         $("#input_documento_persona_porteria").show();
@@ -908,9 +915,11 @@ function changeTipoPorteria(tipoPorteria) {
         $("#input_tipo_mascota_porteria").show();
         $("#input_nombre_persona_porteria").show();
         $("#input_documento_persona_porteria").show();
+        $("#input_dias_porteria").hide();
     } else if (parseInt(tipoPorteria) == 3) {
         $("#input_tipo_vehiculo_porteria").show();
         $("#input_placa_persona_porteria").show();
+        $("#input_dias_porteria").hide();
     } else if (parseInt(tipoPorteria) == 4 || parseInt(tipoPorteria) == 5 || parseInt(tipoPorteria) == 6) {
         $("#input_dias_porteria").show();
         $("#input_tipo_vehiculo_porteria").show();
@@ -970,6 +979,7 @@ $(document).on('click', '#updatePorteriaEvento', function () {
 });
 
 function clearFormPorteria() {
+
     $('#imagen_porteria').val('');
     $('#new_avatar_porteria').hide();
     $('#default_avatar_porteria').show();
@@ -1000,7 +1010,7 @@ function clearFormPorteria() {
     $('#diaPorteria0').prop('checked', true);
     
     $("#input_dias_porteria").show();
-    $("#input_tipo_vehiculo_porteria").hide();
+    $("#input_tipo_vehiculo_porteria").show();
     $("#input_tipo_mascota_porteria").hide();
     $("#input_placa_persona_porteria").hide();
     $("#input_nombre_persona_porteria").show();

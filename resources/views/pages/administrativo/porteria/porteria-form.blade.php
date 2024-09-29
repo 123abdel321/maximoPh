@@ -68,7 +68,7 @@
                     </select>
                 </div>
 
-                <div id="input_fecha_inicio_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-4" >
+                <div id="input_fecha_inicio_porteria" style="display: none;" class="form-group col-12 col-sm-6 col-md-6" >
                     <label for="fecha_nacimiento_porteria" class="form-control-label">Fecha nacimiento</label>
                     <input type="date" class="form-control form-control-sm" name="fecha_nacimiento_porteria" id="fecha_nacimiento_porteria">
                 </div>
