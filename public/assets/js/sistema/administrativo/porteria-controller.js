@@ -219,7 +219,7 @@ function porteriaInit() {
                     var html = '';
                     // if (row.eventos.length) html+= '<span class="btn disabled badge bg-gradient-success evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmado</span>&nbsp;';
                     // if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
-                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    // if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
                     if (updatePorteria && !row.eventos.length) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-warning edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (deletePorteria && !row.eventos.length) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
