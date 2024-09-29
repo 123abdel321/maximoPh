@@ -193,7 +193,7 @@
         var is_owner = JSON.parse('<?php echo $is_owner; ?>');
         var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
         var version_app = '<?php echo config('app.version'); ?>';
-        var pqrsf_notificaciones = '<?php echo $pqrsf_notificaciones; ?>';
+        var pqrsf_responder = '<?php echo $pqrsf_responder; ?>';
     </script>
 
     <!--   Core JS Files   -->
