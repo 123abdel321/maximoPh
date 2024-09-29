@@ -47,8 +47,12 @@ function rolesInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (row.id_empresa != 0 && editarRol) html+= '<span id="editrol_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-rol" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                    if (row.id_empresa != 0 && eliminarRol) html+= '<span id="deleterol_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-rol" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    if (idRolUsuario == 1) {
+                        html+= '<span id="editrol_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-rol" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    } else if (row.id_empresa != 0 && editarRol) html+= '<span id="editrol_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-rol" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    if (idRolUsuario == 1) {
+                        html+= '<span id="deleterol_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-rol" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    } else if (row.id_empresa != 0 && eliminarRol) html+= '<span id="deleterol_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-rol" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
             },
