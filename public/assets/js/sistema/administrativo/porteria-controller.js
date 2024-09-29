@@ -510,6 +510,11 @@ function porteriaInit() {
             
             if (data.tipo_porteria == 0) texto = 'PROPIETARIO';
             if (data.tipo_porteria == 1) texto = 'INQUILINO';
+            if (data.tipo_porteria == 2) {
+                texto = 'CANINO';
+                if (data.tipo_mascota == 1) texto = 'FELINO';
+                if (data.tipo_mascota == 2) texto = 'OTROS';
+            };
             if (data.tipo_porteria == 3) {
                 if (data.tipo_vehiculo == 1) texto = 'MOTO';
                 if (data.tipo_vehiculo == 2) texto = 'MOTO ELECTRICA';
@@ -524,7 +529,7 @@ function porteriaInit() {
             $("#porteria-preview-tipo").text(texto);
             $("#porteria-preview-nombre").text(data.nombre ? data.nombre : data.placa);
 
-            if (data.tipo_porteria == 1 || data.tipo_porteria == 3) {
+            if (data.tipo_porteria == 1 || data.tipo_porteria == 2 || data.tipo_porteria == 3) {
                 $("#porteria-preview-autorizado").show();
                 $("#porteria-preview-noautorizado").hide();
             } else if (data.tipo_porteria == 4 || data.tipo_porteria == 0 || data.tipo_porteria == 5 || data.tipo_porteria == 6) {
