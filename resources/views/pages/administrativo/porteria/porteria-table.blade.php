@@ -17,7 +17,7 @@
         </select>
     </div>
 
-    @if ($usuario_rol != 5 && $usuario_rol != 3)
+    @if (auth()->user()->can('porteria eventos'))
         <div class="form-group  col-12 col-sm-4 col-md-4">
             <label>Cédula / Nit</label>
             <select name="id_nit_porteria_filter" id="id_nit_porteria_filter" class="form-control form-control-sm" style="width: 100%; font-size: 13px;" required>
