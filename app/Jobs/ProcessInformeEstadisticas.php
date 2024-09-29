@@ -336,7 +336,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
         
         foreach ($inmuebles as $inmueble) {
 
-            $id_nit = $inmueble->personas ? $inmueble->personas[0]->id_nit : null;
+            $id_nit = count($inmueble->personas) ? $inmueble->personas[0]->id_nit : null;
             if (!$id_nit) continue;
 
             $inmueblesNit = InmuebleNit::where('id_nit', $id_nit)
