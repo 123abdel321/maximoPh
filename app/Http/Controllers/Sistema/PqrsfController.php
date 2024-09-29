@@ -82,7 +82,7 @@ class PqrsfController extends Controller
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
 
-            if ($usuario_empresa->id_rol == 3 || $usuario_empresa->id_rol == 4 || $usuario_empresa->id_rol == 11) {
+            if (!$request->user()->can('pqrsf responder')) {
                 $pqrsf->where('created_by', $request->user()['id']);
             }
 
@@ -326,22 +326,28 @@ class PqrsfController extends Controller
                 ->with('archivos')
                 ->get();
 
+            // CANALES DE NOTIFICACION
+            $canalesNotificacion = [
+                'pqrsf-mensaje-responder-'.$request->user()['has_empresa'], //PERMISO: pqrsf responder
+                'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$pqrsf->created_by
+            ];
+
             $usuarioNotificacion = $pqrsf->id_usuario;
             if ($pqrsf->id_usuario == $request->user()['id']) {
                 $usuarioNotificacion = $pqrsf->created_by;
             }
 
-            $notificar = 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion;
+            // $notificar = 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion;
 
-            if ($notificacionesEnEspera) {
-                DB::connection('max')->commit();
-                return response()->json([
-                    'success'=>	true,
-                    'data' => $mensaje,
-                    'notificar' => $notificar,
-                    'message'=> 'Mensaje creado con exito!'
-                ]);
-            }
+            // if ($notificacionesEnEspera) {
+            //     DB::connection('max')->commit();
+            //     return response()->json([
+            //         'success'=>	true,
+            //         'data' => $mensaje,
+            //         'notificar' => $notificar,
+            //         'message'=> 'Mensaje creado con exito en espera!'
+            //     ]);
+            // }
             
             $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
 
@@ -364,13 +370,19 @@ class PqrsfController extends Controller
                 'updated_by' => request()->user()->id
             ], true);
 
-            if (!$usuarioNotificacion) {
-                $notificar = 'notificacion-pqrsf-'.$request->user()['has_empresa'];
-            }
+            // if (!$usuarioNotificacion) {
+            //     $notificar = 'notificacion-pqrsf-'.$request->user()['has_empresa'];
+            // }
 
             $notificacion->notificar(
-                $notificar,
-                ['id_pqrsf' => $id, 'data' => $mensaje->toArray(), 'estado' => 1, 'id_notificacion' => $id_notificacion]
+                $canalesNotificacion,
+                [
+                    'id_pqrsf' => $id,
+                    'data' => $mensaje->toArray(),
+                    'estado' => 1,
+                    'id_notificacion' => $id_notificacion,
+                    'id_usuario' => $usuarioNotificacion
+                ]
             );
 
             DB::connection('max')->commit();
@@ -378,7 +390,7 @@ class PqrsfController extends Controller
             return response()->json([
                 'success'=>	true,
                 'data' => $mensaje,
-                'notificar' => $notificar,
+                'notificar' => [],
                 'message'=> 'Mensaje creado con exito!'
             ]);
             

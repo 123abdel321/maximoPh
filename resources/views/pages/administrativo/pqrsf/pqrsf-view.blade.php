@@ -9,13 +9,7 @@
                         Agregar pqrsf
                     </button>
                 @endcan
-
-                @can('pqrsf email')
-                    <button type="button" class="btn btn-info btn-sm" id="generateEmailNuevo">
-                        Redactar email
-                    </button>
-                @endcan
-
+                
                 <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadPqrsf">
                     <i id="reloadPqrsfIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
                     <i id="reloadPqrsfIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;

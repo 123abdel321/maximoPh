@@ -56,7 +56,7 @@ class NotificacionesController extends Controller
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
 
-            if ($request->user()->can('pqrsf notificacion')) {
+            if ($request->user()->can('pqrsf responder')) {
                 $notificaciones->where('notificacion_type', '!=', 11)
                     ->orWhere('id_rol', 1)
                     ->orWhereNull('id_usuario');
@@ -75,7 +75,7 @@ class NotificacionesController extends Controller
                     'updated_by'
                 );
 
-            if ($request->user()->can('pqrsf notificacion')) {
+            if ($request->user()->can('pqrsf responder')) {
                 $notificacionesCount->where('notificacion_type', '!=', 11)
                     ->orWhere('id_rol', 1)
                     ->orWhereNull('id_usuario');
@@ -139,7 +139,7 @@ class NotificacionesController extends Controller
                 );
                 
 
-            if ($request->user()->can('pqrsf notificacion')) {
+            if ($request->user()->can('pqrsf responder')) {
                 $notificacionesCount->orWhere('id_rol', 1)
                     ->orWhereNull('id_usuario');
             } else {
@@ -155,9 +155,7 @@ class NotificacionesController extends Controller
                     'created_by',
                     'updated_by'
                 );
-                
-
-            if ($request->user()->can('pqrsf notificacion')) {
+            if ($request->user()->can('pqrsf responder')) {
                 $notificacionesCountTotal->orWhere('id_rol', 1)
                     ->orWhereNull('id_usuario');
             } else {

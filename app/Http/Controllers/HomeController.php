@@ -37,7 +37,7 @@ class HomeController extends Controller
             'menus' => $menus->groupBy('id_padre'),
             'rol_usuario' => $usuarioEmpresa->id_rol,
             'is_owner' => Empresa::where('id_usuario_owner', $request->user()->id)->count(),
-            'pqrsf_notificaciones' => $request->user()->can('pqrsf notificacion')
+            'pqrsf_responder' => $request->user()->can('pqrsf responder')
         ];
 
         return view('layouts.app', $data);

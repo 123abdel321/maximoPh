@@ -265,19 +265,30 @@ function iniciarCanalesDeNotificacion () {
     // }
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
 
-    if (pqrsf_notificaciones) {
-        channelPqrsfGeneral = pusher.subscribe('notificacion-pqrsf-'+localStorage.getItem("notificacion_code_general"));
+    if (pqrsf_responder) {
+        channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
     }
 }
 
 if (channelPqrsfGeneral) {
     channelPqrsfGeneral.bind('notificaciones', function(data) {
-        openDropDownNotificaciones(true);
+        
+        var idPqrsfOpen = $("#id_pqrsf_up").val();
+        if (data.id_pqrsf == idPqrsfOpen) {
+            mostrarMensajesPqrsf(data.data);
+            if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+            initSwipers();
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else if (parseInt(id_usuario_logeado) == data.id_usuario) {
+            openDropDownNotificaciones(true);
+        }
+        
     });
 }
 
 channelPqrsf.bind('notificaciones', function(data) {
-
+    console.log('channelPqrsf');
     var idPqrsfOpen = $("#id_pqrsf_up").val();
 
     if (data.id_pqrsf == idPqrsfOpen) {
@@ -299,7 +310,7 @@ channelPqrsf.bind('notificaciones', function(data) {
 
 if (channelAdminPqrsf) {
     channelAdminPqrsf.bind('notificaciones', function(data) {
-        
+        console.log('channelAdminPqrsf');
         var idPqrsfOpen = $("#id_pqrsf_up").val();
 
         if (data.id_pqrsf == idPqrsfOpen) {
@@ -948,10 +959,6 @@ function loadExcel(data) {
     agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
 }
 
-$(document).on('click', '#descargarPlantilla', function () {
-    
-});
-
 function numberWithCommas(x) {
     x = x.toString();
     var pattern = /(-?\d+)(\d{3})/;
@@ -1207,7 +1214,7 @@ function createMensajePqrsf() {
         $("#button-send-pqrsf-loading").hide();
 
         if (responseData.success) {
-            mostrarMensajesPqrsf(responseData.data);
+            // mostrarMensajesPqrsf(responseData.data);
             $("#mensaje_pqrsf_nuevo").val("");
             setTimeout(function(){
                 $("#mensaje_pqrsf_nuevo").focus().select();

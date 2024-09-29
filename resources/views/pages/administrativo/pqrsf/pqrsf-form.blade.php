@@ -12,7 +12,7 @@
 
                 {{ csrf_field() }}
 
-                <input type="text" class="form-control" name="id_pqrsf_up" id="id_pqrsf_up" style="display: none;">
+                <input type="text" class="form-control" name="id_pqrs_up" id="id_pqrs_up" style="display: none;">
 
                 <div class="form-group col-6 col-sm-6 col-md-6">
                     <label for="exampleFormControlSelect1">Tipo solicitud<span style="color: red">*</span></label>
