@@ -31,6 +31,9 @@ class ReloadPageVersion extends Command
         $nombreVersionActual = config('app.version');
         $versionGuardada = Versiones::where('estado', 1)->first();
         if ($versionGuardada && $versionGuardada->nombre == $nombreVersionActual) {
+            event(new PrivateMessageEvent('canal-general-abdel-cartagena', [
+                'tipo' => 'reloadPage',
+            ]));
         } else {
             Versiones::where('estado', 1)
                 ->update([
