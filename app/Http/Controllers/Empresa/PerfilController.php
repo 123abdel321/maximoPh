@@ -171,6 +171,7 @@ class PerfilController extends Controller
             ->where('id_usuario', $request->user()['id'])
             ->first();
 
+        $notificaciones = null;
         if ($usuarioEmpresa->nit) {
             $notificaciones = DB::connection('max')->select("SELECT
                     enviar_notificaciones_mail,
