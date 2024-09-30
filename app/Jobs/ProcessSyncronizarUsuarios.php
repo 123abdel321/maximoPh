@@ -83,11 +83,13 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
             foreach ($dataInmuebles as $dataInmueble) {
                 $usuario = UsuarioEmpresa::where('id_nit', $dataInmueble->id_nit)
                     ->count();
-                if (!$usuario) {
+
+                $nit = Nits::where('id', $dataInmueble->id_nit)
+                    ->first();
+
+                if (!$usuario && $nit->email) {
                     
                     $totalUsuariosSincronizados++;
-                    $nit = Nits::where('id', $dataInmueble->id_nit)
-                        ->first();
                     
                     $usuarioPropietario = User::create([
                         'id_empresa' => $this->id_empresa,
@@ -123,27 +125,18 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
                         'ids_permission' => $rolPropietario->ids_permission
                     ]);
 
-                    $portero = Porteria::where('id_usuario', $usuarioPropietario->id)
-                        ->whereIn('tipo_porteria', [0,1])
-                        ->first();
+                    Porteria::where('id_usuario', $usuarioPropietario->id)
+                        ->delete();
 
-                    if ($portero) {
-                        $portero->tipo_porteria = $dataInmueble->tipo == 1 ? 1 : 0;
-                        $portero->nombre = $nit->primer_nombre.' '.$nit->primer_apellido;
-                        $portero->dias = $dataInmueble->tipo != 0 ? '1,2,3,4,5,6,7' : null;
-                        $portero->updated_by = $this->id_usuario;
-                        $portero->save();
-                    } else {
-                        $portero = Porteria::create([
-                            'id_usuario' => $usuarioPropietario->id,
-                            'id_nit' => $nit->id,
-                            'tipo_porteria' => $dataInmueble->tipo == 1 ? 1 : 0,
-                            'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
-                            'dias' => !$dataInmueble->tipo ? '1,2,3,4,5,6,7' : null,
-                            'created_by' => $this->id_usuario,
-                            'updated_by' => $this->id_usuario,
-                        ]);
-                    }
+                    $portero = Porteria::create([
+                        'id_usuario' => $usuarioPropietario->id,
+                        'id_nit' => $nit->id,
+                        'tipo_porteria' => $dataInmueble->tipo == 1 ? 1 : 0,
+                        'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                        'dias' => !$dataInmueble->tipo ? '1,2,3,4,5,6,7' : null,
+                        'created_by' => $this->id_usuario,
+                        'updated_by' => $this->id_usuario,
+                    ]);
 
                     $tieneImagen = ArchivosGenerales::where('relation_type', 1)
                         ->where('relation_id', $portero->id);
