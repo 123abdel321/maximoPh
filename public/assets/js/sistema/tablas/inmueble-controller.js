@@ -4,6 +4,11 @@ var inmueble_table = null;
 var inmueble_nit_table = null;
 var $comboInmuebleNit = null;
 var $comboZonaInmueble = null;
+var searchValueInmuebles = null;
+var buscarTotalesInmuebles = false;
+var $comboInmuebleNitFilter = null;
+var $comboInmuebleZonaFilter = null;
+var $comboInmuebleConceptoFilter = null;
 var $comboConceptoFacturacionInmueble = null;
 
 function inmuebleInit() {
@@ -15,8 +20,10 @@ function inmuebleInit() {
         processing: true,
         serverSide: true,
         fixedHeader: true,
+        stateSave: true,
         deferLoading: 0,
         initialLoad: false,
+        ordering: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
         fixedColumns : {
@@ -27,6 +34,12 @@ function inmuebleInit() {
             type: "GET",
             headers: headers,
             url: base_url + 'inmueble',
+            data: function ( d ) {
+                d.id_nit = $('#id_nit_inmueble_filter').val(),
+                d.id_zona = $('#id_zona_inmueble_filter').val(),
+                d.id_concepto_facturacion = $('#id_concepto_facturacion_inmueble_filter').val(),
+                d.search = $('#searchInputInmuebles').val();
+            }
         },
         columns: [
             {"data":'nombre'},
@@ -36,6 +49,27 @@ function inmuebleInit() {
                 }
                 return '';
             }},
+            {"data": function (row, type, set){
+                if (row.personas && row.personas.length) {
+                    var persona = row.personas[0].nit;
+                    return persona.numero_documento;
+                }
+                return '';
+            }},
+            {
+                data: 'id',
+                render: function (row, type, data){
+                    if (data.personas && data.personas.length) {
+                        var persona = data.personas[0].nit;
+                        if (persona.otros_nombres) {
+                            return persona.primer_nombre+' '+persona.otros_nombres+' '+persona.primer_apellido;
+                        }
+                        return persona.primer_nombre+' '+persona.primer_apellido;
+                    }
+                    return '';
+                }
+            },
+            
             {"data": function (row, type, set){  
                 if (row.concepto) {
                     return row.concepto.nombre_concepto;
@@ -57,8 +91,17 @@ function inmuebleInit() {
                 return '<span class="badge rounded-pill bg-danger">0%</span>';
             }, className: 'dt-body-right'},
             {"data":'area', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
-            {"data":'coeficiente', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
-            {"data":'valor_total_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {
+                data: 'coeficiente',
+                render: function (row, type, data){
+                    if (data.coeficiente) {
+                        let coeficiente = parseFloat(data.coeficiente);
+                        return parseFloat(coeficiente).toFixed(5);
+                    }
+                    return '';
+                }, className: 'dt-body-right'
+            },
+            // {"data":'valor_total_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  
                 if (typeof row.personas != "undefined" && row.personas.length) {
                     var totalValor = 0;
@@ -85,7 +128,7 @@ function inmuebleInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (editarInmueble) html+= '<span id="addnitinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary add-nit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Inquilino / Propietario</span>&nbsp;';
+                    if (editarInmueble) html+= '<span id="addnitinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary add-nit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Propietarios</span>&nbsp;';
                     if (editarInmueble) html+= '<span id="editinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (eliminarInmueble) html+= '<span id="deleteinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
@@ -104,6 +147,7 @@ function inmuebleInit() {
         fixedHeader: true,
         deferLoading: 0,
         initialLoad: false,
+        ordering: false,
         language: lenguajeDatatable,
         sScrollX: "100%",
         fixedColumns : {
@@ -126,12 +170,22 @@ function inmuebleInit() {
                 }
             }},
             {"data": function (row, type, set){  
-                if (row.tipo) {
+                if (row.tipo == 0) {
+                    return 'PROPIETARIO';
+                }
+
+                if (row.tipo == 1) {
                     return 'INQUILINO';
                 }
-                return 'PROPIETARIO';
+
+                if (row.tipo == 2) {
+                    return 'INMOBILIARIA';
+                }
+
+                return '';
             }},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'saldo_final', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){  
                 if (row.enviar_notificaciones_mail) {
                     return 'SI';
@@ -202,10 +256,19 @@ function inmuebleInit() {
 
             $("#id_inmueble_up").val(data.id);
             $("#nombre_inmueble").val(data.nombre);
+
+            var area = data.area;
+            var coeficiente = area / area_total_m2 ;
+            var totalInmueble = data.valor_total_administracion;
+
+            if (!editar_valor_admon_inmueble) {
+                var coeficiente = data.area / area_total_m2;
+                totalInmueble = coeficiente * (valor_total_presupuesto_year_actual);
+            }
             
-            $("#area_inmueble").val(new Intl.NumberFormat().format(data.area));
+            $("#area_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.area));
             $("#coeficiente_inmueble").val(data.coeficiente);
-            $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat().format(data.valor_total_administracion));
+            $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(totalInmueble));
 
             $("#inmuebleFormModal").modal('show');
         });
@@ -245,7 +308,7 @@ function inmuebleInit() {
                         agregarToast('error', 'Eliminación errada', res.message);
                     });
                 }
-            })
+            });
         });
         //AGREGAR NIT INMUEBLE
         inmueble_table.on('click', '.add-nit-inmueble', function() {
@@ -261,6 +324,7 @@ function inmuebleInit() {
             $('#tablas_inmuebles_nits').show();
             $('#nombre_inmueble_nit').show();
             
+            $('#reloadInmueble').hide();
             $('#createInmuebles').hide();
             $('#tablas_inmuebles').hide();
             $('#totales_inmuebles_view').hide();
@@ -299,7 +363,7 @@ function inmuebleInit() {
 
             $("#id_inmueble_nit_up").val(data.id);
             $("#tipo_inmueble_nit").val(data.tipo);
-            $("#valor_total_inmueble_nit").val(new Intl.NumberFormat().format(data.valor_total));
+            $("#valor_total_inmueble_nit").val(new Intl.NumberFormat("ja-JP").format(data.valor_total));
             $("#porcentaje_administracion_inmueble_nit").val(data.porcentaje_administracion);
 
             if (data.enviar_notificaciones_mail == '1') $('#enviar_notificaciones_mail').prop('checked', true);
@@ -356,11 +420,51 @@ function inmuebleInit() {
         document.getElementById("valor_total_administracion_inmueble").setAttribute("disabled", true);
     }
 
+    if (editar_coheficiente_admon_inmueble) {
+        document.getElementById("coeficiente_inmueble").removeAttribute("disabled");
+    } else {
+        document.getElementById("coeficiente_inmueble").setAttribute("disabled", true);
+    }
+
     $comboInmuebleNit = $('#id_nit_inmueble_nit').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#inmuebleNitFormModal'),
         delay: 250,
         placeholder: "Seleccione una persona",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+    
+    $comboInmuebleNitFilter = $('#id_nit_inmueble_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
         language: {
             noResults: function() {
                 return "No hay resultado";        
@@ -412,12 +516,13 @@ function inmuebleInit() {
         }
     });
 
-    $comboConceptoFacturacionInmueble = $('#id_concepto_facturacion_inmueble').select2({
+    $comboInmuebleZonaFilter = $('#id_zona_inmueble_filter').select2({
         theme: 'bootstrap-5',
-        dropdownParent: $('#inmuebleFormModal'),
         delay: 250,
+        placeholder: "Seleccione una Zona",
+        allowClear: true,
         ajax: {
-            url: 'api/concepto-facturacion-combo',
+            url: 'api/zona-combo',
             headers: headers,
             dataType: 'json',
             data: function (params) {
@@ -432,6 +537,69 @@ function inmuebleInit() {
                 };
             }
         }
+    });    
+
+    $comboConceptoFacturacionInmueble = $('#id_concepto_facturacion_inmueble').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#inmuebleFormModal'),
+        delay: 250,
+        ajax: {
+            url: 'api/concepto-facturacion-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboInmuebleConceptoFilter = $('#id_concepto_facturacion_inmueble_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un Concepto",
+        allowClear: true,
+        ajax: {
+            url: 'api/concepto-facturacion-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+    
+    $(document).on('change', '#id_nit_inmueble_filter', function () {
+        inmueble_table.ajax.reload();
+        getTotalesInmuebles();
+    });
+    
+    $(document).on('change', '#id_zona_inmueble_filter', function () {
+        inmueble_table.ajax.reload();
+        getTotalesInmuebles();
+    });
+    
+    $(document).on('change', '#id_concepto_facturacion_inmueble_filter', function () {
+        inmueble_table.ajax.reload();
+        getTotalesInmuebles();
+
     });
 
     let column = inmueble_table.column(7);
@@ -460,25 +628,6 @@ $(document).on('click', '#createInmueblesNit', function () {
     $("#inmuebleNitFormModal").modal('show');
 });
 
-function changeArea(){
-    if ($("#id_inmueble_up").val() && editar_valor_admon_inmueble) return;
-    setTimeout(function(){
-        var area = stringToNumberFloat($('#area_inmueble').val());
-
-        var coeficiente = area / area_total_m2 ;
-        var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual / 12);
-    
-        $('#coeficiente_inmueble').val(coeficiente);
-        $('#valor_total_administracion_inmueble').val(totalInmueble);
-        formatCurrency($('#valor_total_administracion_inmueble'));
-    },100);
-}
-
-function changePorcentajeNit(){
-    var totalPorcentajeInmueble = stringToNumberFloat($("#porcentaje_administracion_inmueble_nit").val()) / 100;
-    $('#valor_total_inmueble_nit').val(new Intl.NumberFormat().format(valor_inmueble * totalPorcentajeInmueble));
-}
-
 $(document).on('click', '#saveInmueble', function () {
     var form = document.querySelector('#inmueblesForm');
 
@@ -496,7 +645,7 @@ $(document).on('click', '#saveInmueble', function () {
         id_concepto_facturacion: $("#id_concepto_facturacion_inmueble").val(),
         nombre: $("#nombre_inmueble").val(),
         area: stringToNumberFloat($("#area_inmueble").val()),
-        coeficiente: $("#coeficiente_inmueble").val(),
+        coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
     }
 
@@ -611,7 +760,7 @@ $(document).on('click', '#updateInmueble', function () {
         id_concepto_facturacion: $("#id_concepto_facturacion_inmueble").val(),
         nombre: $("#nombre_inmueble").val(),
         area: stringToNumberFloat($("#area_inmueble").val()),
-        coeficiente: $("#coeficiente_inmueble").val(),
+        coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
     }
 
@@ -627,7 +776,7 @@ $(document).on('click', '#updateInmueble', function () {
             $("#saveInmueble").show();
             $("#saveInmuebleLoading").hide();
             $("#inmuebleFormModal").modal('hide');
-            inmueble_table.row.add(res.data).draw();
+            inmueble_table.ajax.reload(null, false);
             getTotalesInmuebles();
             agregarToast('exito', 'Actualización exitosa', 'Inmueble actualizado con exito!', true);
         }
@@ -716,37 +865,67 @@ $(document).on('click', '#volverInmuebles', function () {
     $('#nombre_inmueble_nit').hide();            
     $('#tablas_inmuebles_nits').hide();
     
+    $('#reloadInmueble').show();
     $('#createInmuebles').show();
     $('#tablas_inmuebles').show();
     $('#searchInputInmuebles').show();
     $('#totales_inmuebles_view').show();
 
-    inmueble_table.ajax.reload();
+    inmueble_table.ajax.reload( null, false );
     getTotalesInmuebles();
 });
 
+function changeArea(){
+    if ($("#id_inmueble_up").val() && editar_valor_admon_inmueble) return;
+    setTimeout(function(){
+        var area = stringToNumberFloat($('#area_inmueble').val());
+
+        var coeficiente = area / area_total_m2 ;
+        var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual);
+    
+        $('#coeficiente_inmueble').val(coeficiente);
+        $('#valor_total_administracion_inmueble').val(totalInmueble);
+        formatCurrency($('#valor_total_administracion_inmueble'));
+    },100);
+}
+
+function changePorcentajeNit(){
+    var totalPorcentajeInmueble = stringToNumberFloat($("#porcentaje_administracion_inmueble_nit").val()) / 100;
+    $('#valor_total_inmueble_nit').val(new Intl.NumberFormat("ja-JP").format(valor_inmueble * totalPorcentajeInmueble));
+}
+
 function getTotalesInmuebles(){
-    $.ajax({
+    if (buscarTotalesInmuebles) {
+        buscarTotalesInmuebles.abort();
+    }
+    buscarTotalesInmuebles = $.ajax({
         url: base_url + 'inmueble-total',
         method: 'GET',
         headers: headers,
+        data: {
+            search: searchValueInmuebles,
+            id_nit: $('#id_nit_inmueble_filter').val(),
+            id_zona: $('#id_zona_inmueble_filter').val(),
+            id_concepto_facturacion: $('#id_concepto_facturacion_inmueble_filter').val()
+        },
         dataType: 'json',
     }).done((res) => {
+        buscarTotalesInmuebles = false;
         if(res.success){
             var countA = new CountUp('inmuebles_registrados_inmueble', 0, res.data.numero_registro_unidades);
                 countA.start();
 
-            var countB = new CountUp('aream2_registrados_inmueble', 0, res.data.area_total_m2);
+            var countB = new CountUp('area2_registrados_inmueble', 0, res.data.area_registro_m2, 2);
                 countB.start();
 
-            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente);
+            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente, 5);
                 countC.start();
 
             var countD = new CountUp('presupuesto_registrados_inmueble', 0, res.data.valor_registro_presupuesto);
                 countD.start();
         }
     }).fail((err) => {
-        agregarToast('error', 'Consulta errada', 'Error al consultar totales!');
+        buscarTotalesInmuebles = false;
     });
 }
 
@@ -771,8 +950,8 @@ function totalPorcentajeNits(){
         $('#status_inmueble_nit_true').hide();
     }
 
-    $('#total_porcentaje_inmueble_nit').text('Total porcentaje: '+new Intl.NumberFormat().format(porcentajeTotal)+'%');
-    $('#total_valor_inmueble_nit').text('Total valor: '+new Intl.NumberFormat().format(valorTotal));
+    $('#total_porcentaje_inmueble_nit').text('Total porcentaje: '+new Intl.NumberFormat("ja-JP").format(porcentajeTotal)+'%');
+    $('#total_valor_inmueble_nit').text('Total valor: '+new Intl.NumberFormat("ja-JP").format(valorTotal));
 }
 
 function clearFormInmueble(){
@@ -797,11 +976,11 @@ function clearFormInmuebleNit(){
 
     $("#id_inmueble_nit_up").val('');
     $("#tipo_inmueble_nit").val(0);
-    $("#porcentaje_administracion_inmueble_nit").val(0);
     $("#valor_total_inmueble_nit").val(0);
-    $("#enviar_notificaciones_mail").prop('checked', false);
-    $("#enviar_notificaciones_fisica").prop('checked', false);
-    
+    $("#porcentaje_administracion_inmueble_nit").val(100);
+    $("#enviar_notificaciones_mail").prop('checked', true);
+    $("#enviar_notificaciones_fisica").prop('checked', true);
+    changePorcentajeNit();
     $comboInmuebleNit.val('').trigger('change');
 }
 
@@ -818,4 +997,20 @@ $("input[data-type='currency']").on({
     blur: function() {
         formatCurrency($(this), "blur");
     }
+});
+
+function searchInmuebles (event) {
+    if (event.keyCode == 13) {
+        inmueble_table.ajax.reload();
+    }
+
+}
+
+$(document).on('click', '#reloadInmueble', function () {
+    $("#reloadInmuebleIconNormal").hide();
+    $("#reloadInmuebleIconLoading").show();
+    inmueble_table.ajax.reload(function (res) {
+        $("#reloadInmuebleIconNormal").show();
+        $("#reloadInmuebleIconLoading").hide();
+    }); 
 });

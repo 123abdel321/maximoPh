@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8" />
@@ -13,18 +13,18 @@
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="./assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="assets/js/sistema/42d5adcbca.js" crossorigin="anonymous"></script>
+    <script src="{{ secure_asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="assets/css/argon-dashboard.css" rel="stylesheet" />
+    <link id="pagestyle" href="{{ secure_asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="assets/css/sistema/dataTables.bootstrap5.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/responsive.bootstrap5.min.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="assets/css/sistema/select2.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
     <style>
         .select2-selection{
             font-size: 13px !important;
@@ -595,99 +595,445 @@
         }
 
     </style>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
+    <!-- End Google Tag Manager -->
+
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lfmb0MqAAAAAHqhT6_aktU9V6ycmpn5FMG9zfQ_"></script>
 </head>
 
 <body class="{{ $class ?? '' }} ">
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NPDX42D8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     @guest
         @yield('content')
     @endguest
 
     <!--   Core JS Files   -->
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="{{ secure_asset('assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/core/bootstrap.min.js') }}"></script>
     <!-- <script src="assets/js/plugins/perfect-scrollbar.min.js"></script> -->
-    <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="{{ secure_asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     
     <!-- Github buttons -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script async defer src="https://buttons.github.io/buttons.js') }}"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="assets/js/argon-dashboard.js"></script>
+    <script src="{{ secure_asset('assets/js/argon-dashboard.js') }}"></script>
     <!-- JQUERY -->
-    <script src="assets/js/sistema/jquery-3.5.1.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="assets/js/sistema/jquery.dataTables.min.js"></script>
-    <script src="assets/js/sistema/dataTables.bootstrap5.min.js"></script>
-    <script src="assets/js/sistema/dataTables.responsive.min.js"></script>
-    <script src="assets/js/sistema/responsive.bootstrap5.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
     <!-- SELECT 2  -->
-    <script src="assets/js/sistema/select2.full.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="assets/js/sistema/jquery.validate.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="assets/js/sistema/sweetalert2.all.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
 
-    <script>
+    <script type="module">
         //LOCAL
-        const base_url = 'http://127.0.0.1:8090/api/';
-        const base_web = 'http://127.0.0.1:8090/';
+        // const base_url = 'http://127.0.0.1:8090/api/';
+        // const base_web = 'http://127.0.0.1:8090/';
+        
+        //LOCAL PUBLIC
+        // const base_url = 'http://192.168.1.6:80/api/';
+        // const base_web = 'http://192.168.1.6:80/';
         //DEV
-        // const base_url = 'https://test.portafolioerp.com/api/';
-        // const base_web = 'https://test.portafolioerp.com/';
+        const base_url = 'https://maximoph.com/api/';
+        const base_web = 'https://maximoph.com/';
         //PRO
         // const base_url = 'https://app.portafolioerp.com/api/';
         // const base_web = 'https://app.portafolioerp.com/';
+
+        const buttonResend = document.getElementById('button-resend-disabled');
+        const tokenRecaptcha = '6Lfmb0MqAAAAAHqhT6_aktU9V6ycmpn5FMG9zfQ_';
+
+        var estadoCambioPass = true;
+        let timeLeft = 20;
 
         $("#button-login").click(function(event){
             sendDataLogin();
         });
 
-        function changePassWord(event) {
-            if(event.keyCode == 13) {
-                sendDataLogin();
+        $("#button-welcome").click(function(event){
+            var contraNueva = $("#welcome_password_login").val();
+            var contraAgain = $("#welcome_password_retry_login").val();
+
+            localStorage.setItem("token_db_portafolio", '');
+            localStorage.setItem("auth_token", '');
+            localStorage.setItem("auth_token_erp", '');
+            localStorage.setItem("empresa_nombre", '');
+            localStorage.setItem("notificacion_code", '');
+            localStorage.setItem("notificacion_code_general", '');
+            localStorage.setItem("fondo_sistema", '');
+            localStorage.setItem("empresa_logo", '');
+
+            if (contraNueva != contraAgain) {
+                $('#error-welcome').text("Las contraseñas no coinciden!");
+                $('#error-welcome').show();
+                return;
+            } else {
+                $('#error-welcome').hide();
             }
-        }
-        
-        function sendDataLogin() {
-            $('#error-login').hide();
-            $("#button-login-loading").show();
-            $("#button-login").hide();
+
+            $("#succes-welcome").hide();
+            $("#button-welcome").hide();
+            $("#button-welcome-loading").show();
+
             $.ajax({
-                url: base_web + 'login',
+                url: base_url + 'confirm-pass',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                data: {
+                    "password": $('#welcome_password_login').val(),
+                    "codigo": $('#welcome_codigo').val(),
+                    "id_usuario": $('#welcome_id_usuario').val(),
+                },
+                dataType: 'json',
+            }).done((res) => {
+                $("#button-welcome").show();
+                $("#button-welcome-loading").hide();
+
+                window.location.href = '/login';
+
+            }).fail((err) => {
+                $("#button-welcome").show();
+                $("#button-welcome-loading").hide();
+            });
+        });
+
+        $("#link-recover").click(function(event){
+            $("#texto-login").hide();
+            $("#texto-recover").show();
+
+            $("#link-recover").hide();
+            $("#link-login").show();
+            
+            $("#button-login").hide();
+            $("#button-recover").show();
+
+            $("#input-password").hide();
+
+            $('#error-recover').hide();
+            $('#error-login').hide();
+            
+        });
+
+        $("#link-login").click(function(event){
+            linkLogin();
+        });
+
+        function linkLogin() {
+            estadoCambioPass = false;
+            $("#texto-login").show();
+            $("#texto-recover").hide();
+
+            $("#link-recover").show();
+            $("#link-login").hide();
+            
+            $("#button-login").show();
+            $("#button-recover").hide();
+
+            $("#input-password").show();
+
+            $('#error-recover').hide();
+            $('#error-login').hide();
+
+            $("#input-new-password").hide();
+            $("#input-retry-password").hide();
+
+            $("#cambiar-password").hide();
+            $("#button-resend").hide();
+            $("#input_code_login").hide();
+            $("#input_email_login").show();
+            $("#button-confir-code").hide();
+            $("#button-resend-disabled").hide();
+            $("#button-recover").hide();
+            $("#button-recover-loading").hide();
+        }
+
+        $("#button-recover").click(function(event){
+            recuperarContra();
+        });
+
+        $("#button-confir-code").click(function(event){
+            $("#button-resend").hide();
+            $("#button-confir-code").hide();
+            $("#button-login-loading").show();
+            $("#button-resend-disabled").hide();
+            
+            $.ajax({
+                url: base_url + 'validate-code',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 method: 'POST',
                 data: {
                     "email": $('#email_login').val(),
-                    "password": $('#password_login').val(),
+                    "code_general": $('#code_login').val()
                 },
                 dataType: 'json',
             }).done((res) => {
-                $("#button-login-loading").hide();
-                $("#button-login").show();
+                $("#button-recover-loading").hide();
                 if(res.success){
-                    localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
-                    localStorage.setItem("auth_token_erp", res.token_api_portafolio);
-                    localStorage.setItem("empresa_nombre", res.empresa.razon_social);
-                    localStorage.setItem("empresa_logo", res.empresa.logo);
-                    localStorage.setItem("notificacion_code", res.notificacion_code);
-                    localStorage.setItem("fondo_sistema", res.fondo_sistema);
-                    var itemMenuActiveIn = localStorage.getItem("item_active_menu");
-                    if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
-                    } else {
-                        localStorage.setItem("item_active_menu", 'contabilidad');
-                    }
-
-                    window.location.href = '/home';
+                    estadoCambioPass = false;
+                    $('#error-recover').hide();
+                    $("#input-new-password").show();
+                    $("#input-retry-password").show();
+                    $("#button-resend").hide();
+                    $("#input_code_login").hide();
+                    $("#button-confir-code").hide();
+                    $("#button-login-loading").hide();
+                    $("#cambiar-password").show();
                 } else {
-                    $('#error-login').show();
+                    $('#error-recover').text(res.message);
+                    $('#error-recover').show();
+                    $("#button-recover").hide();
+                    $("#button-confir-code").show();
+                    $("#button-login-loading").hide();
+                    $("#button-login-loading").hide();
                 }
             }).fail((err) => {
+                err = err.responseJSON
+                $('#error-recover').text(err.message);
+                $('#error-recover').show();
+                $("#button-recover").hide();
+                $("#button-confir-code").show();
                 $("#button-login-loading").hide();
-                $("#button-login").show();
-                $('#error-login').show();
+                $("#button-login-loading").hide();
+                if (timeLeft) {
+                    $("#button-resend").hide();
+                    $("#button-resend-disabled").show();
+                } else {
+                    $("#button-resend").show();
+                    $("#button-resend-disabled").hide();
+                }
             });
+        });
+
+        $("#cambiar-password").click(function(event){
+
+            var contraNueva = $("#new_password_login").val();
+            var contraAgain = $("#new_password_retry_login").val();
+
+            if (contraNueva != contraAgain) {
+                $('#error-recover').text("Las contraseñas no coinciden!");
+                $('#error-recover').show();
+                return;
+            }
+
+            $("#cambiar-password").hide();
+            $("#button-login-loading").show();
+
+            $.ajax({
+                url: base_url + 'change-password',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: 'POST',
+                data: {
+                    "email": $('#email_login').val(),
+                    "new_password": $('#new_password_login').val()
+                },
+                dataType: 'json',
+            }).done((res) => {
+                $("#button-recover-loading").hide();
+                if(res.success){
+                    linkLogin();
+                    $("#success-recover").show();
+                    $("#button-login-loading").hide();
+                } else {
+                    $('#error-recover').text(res.message);
+                    $('#error-recover').show();
+                    $("#cambiar-password").show();
+                    $("#button-login-loading").hide();
+                }
+            }).fail((err) => {
+                err = err.responseJSON
+                $('#error-recover').text(err.message);
+                $('#error-recover').show();
+                $("#cambiar-password").show();
+                $("#button-login-loading").hide();
+            });
+        });
+        
+
+        function recuperarContra() {
+            $("#error-recover").hide();
+            $("#button-recover").hide();
+            $("#button-recover-loading").show();
+            console.log('tokenRecaptcha: ',tokenRecaptcha);
+            grecaptcha.enterprise.ready(async () => {
+                grecaptcha.enterprise.execute(tokenRecaptcha, {action: 'validateEmail'}).then(function(token) {
+                    $.ajax({
+                        url: base_url + 'validate-email',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        method: 'POST',
+                        data: {
+                            "email": $('#email_login').val(),
+                            "g-recaptcha-response": token,
+                        },
+                        dataType: 'json',
+                    }).done((res) => {
+                        $("#button-recover-loading").hide();
+                        $("#button-recover").show();
+                        if(res.success){
+                            $('#error-recover').hide();
+                            $("#input_code_login").show();
+                            $("#input_email_login").hide();
+                            $("#button-confir-code").show();
+                            $("#button-resend-disabled").show();
+                            $("#button-recover").hide();
+                            $("#button-recover-loading").hide();
+
+                            const countdown = setInterval(() => {
+                            timeLeft--;
+                            buttonResend.textContent = `Volver a enviar email (${timeLeft})`;
+
+                            // Habilitar el botón cuando el tiempo llegue a 0
+                            if (timeLeft <= 0) {
+                                clearInterval(countdown);
+                                if (estadoCambioPass) {
+                                    buttonResend.textContent = 'Volver a enviar email (60)';
+                                    buttonResend.disabled = false;
+                                    $("#button-resend").show();
+                                    $("#button-resend-disabled").hide();
+                                }
+                            }
+                            }, 1000); // Actualizar cada segun
+                        } else {
+                            $('#error-recover').text(res.message);
+                            $('#error-recover').show();
+                        }
+                    }).fail((err) => {
+                        err = err.responseJSON
+
+                        if (err.message == 'CSRF token mismatch.') {
+                            window.location.href = '/login';
+                            return;
+                        }
+                        var mensaje = err.message;
+                        var errorsMsg = '';                        
+
+                        if (typeof mensaje === 'object') {
+                            Object.keys(mensaje).forEach(function(k){
+                                errorsMsg +=k + ': ' + mensaje[k]+" <br>";
+                            });
+                        }
+                        
+                        else if (typeof mensaje === 'string') {
+                            errorsMsg = mensaje;
+                        }
+
+                        $('#error-recover').html(errorsMsg);
+                        $("#button-recover-loading").hide();
+                        $("#button-recover").show();
+                        $('#error-recover').show();
+                    });       
+                });
+            });            
+        }
+
+        function changePassWord(event) {
+            if(event.keyCode == 13) {
+                sendDataLogin();
+            }
+        }
+
+        $(document).on('keypress', '#email_login', function (event) {
+            if (event.keyCode == 13) {
+                setTimeout(function(){
+                    $('#password_login').focus();
+                    $('#password_login').select();
+                },10);
+            }
+        });
+
+        $(document).on('keypress', '#password_login', function (event) {
+            if (event.keyCode == 13) {
+                sendDataLogin();
+            }
+        });
+        
+        function sendDataLogin() {
+
+            $('#error-login').hide();
+            $("#success-recover").hide();
+            $("#button-login-loading").show();
+            $("#button-login").hide();
+
+            grecaptcha.enterprise.ready(async () => {
+                grecaptcha.enterprise.execute(tokenRecaptcha, {action: 'login'}).then(function(token) {
+                    $.ajax({
+                        url: base_web + 'login',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        method: 'POST',
+                        data: {
+                            "email": $('#email_login').val(),
+                            "password": $('#password_login').val(),
+                            "ip": localStorage.getItem("ip_geo"),
+                            "g-recaptcha-response": token,
+                        },
+                        dataType: 'json',
+                    }).done((res) => {
+                        $("#button-login-loading").hide();
+                        $("#button-login").show();
+                        if(res.success){
+                            localStorage.setItem("token_db_portafolio", res.token_db_portafolio);
+                            localStorage.setItem("auth_token", res.token_type+' '+res.access_token);
+                            localStorage.setItem("auth_token_erp", res.token_api_portafolio);
+                            localStorage.setItem("empresa_nombre", res.empresa.razon_social);
+                            localStorage.setItem("notificacion_code", res.notificacion_code);
+                            localStorage.setItem("notificacion_code_general", res.notificacion_code_general);
+                            localStorage.setItem("fondo_sistema", res.fondo_sistema);
+                            localStorage.setItem("empresa_logo", res.empresa.logo);                    
+        
+                            var itemMenuActiveIn = localStorage.getItem("item_active_menu");
+                            if (itemMenuActiveIn == 0 || itemMenuActiveIn == 1 || itemMenuActiveIn == 2 || itemMenuActiveIn == 3) {
+                            } else {
+                                localStorage.setItem("item_active_menu", 'contabilidad');
+                            }
+        
+                            window.location.href = '/home';
+                        } else {
+                            $('#error-login').show();
+                        }
+                    }).fail((err) => {
+                        err = err.responseJSON;
+
+                        if (err.message == 'CSRF token mismatch.') {
+                            window.location.href = '/login';
+
+                            return;
+                        }
+
+                        $("#button-login-loading").hide();
+                        $("#button-login").show();
+                        $('#error-login').show();
+                        $('#error-login').text(err.message);
+                    });            
+                });
+                
+            });
+
         }
     </script>
 

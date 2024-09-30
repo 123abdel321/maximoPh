@@ -1,3 +1,4 @@
+
 <style>
     .error {
         color: red;
@@ -19,20 +20,23 @@
             <div class="col-12 col-md-6 col-sm-6">
                 @can('inmueble create')
                     <button type="button" class="btn btn-primary btn-sm" id="createInmuebles">Agregar inmueble</button>
-                    <button type="button" class="btn btn-dark btn-sm" id="volverInmuebles" style="display: none;">Volver</button>
+                    <button type="button" class="btn btn-dark btn-sm" id="volverInmuebles" style="display: none;"><i class="fas fa-step-backward back-icon-button"></i>&nbsp;Volver</button>
                     <button type="button" class="btn btn-primary btn-sm" id="createInmueblesNit" style="display: none; margin-left: 5px;">Agregar cédula / nit</button>
                 @endcan
+                <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadInmueble">
+                    <i id="reloadInmuebleIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                    <i id="reloadInmuebleIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
+                </button>
             </div>
             <div class="col-12 col-md-6 col-sm-6" >
-                <input type="text" id="searchInputInmuebles" class="form-control form-control-sm search-table" placeholder="Buscar">
                 <h4 id="nombre_inmueble_nit" style="display: none; float: inline-end; color: white;"></h4>
             </div>
         </div>
 
         <div id="totales_inmuebles_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
             <div class="row ">
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px;">
-                    <div class="card">
+                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Inmuebles Registrados</p>
                             <div style="display: flex;">
@@ -50,16 +54,16 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px;">
-                    <div class="card">
+                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Área M2 Registrada</p>
                             <div style="display: flex;">
-                                <h5 id="aream2_registrados_inmueble" class="font-weight-bolder">
+                                <h5 id="area2_registrados_inmueble" class="font-weight-bolder">
                                     0
                                 </h5>
                                 <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($area_total_m2) }}
+                                    &nbsp;de {{ number_format($area_total_m2, 2, '.', '') }}
                                 </h5>
                             </div>
                             <div class="icon icon-shape bg-gradient-success shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
@@ -69,8 +73,8 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px;">
-                    <div class="card">
+                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Coeficiente %</p>
                             <div style="display: flex;">
@@ -88,16 +92,17 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px;">
-                    <div class="card">
+                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                    <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Asignado Mensual</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
                             <div style="display: flex;">
                                 <h5 id="presupuesto_registrados_inmueble" class="font-weight-bolder">
                                     0
                                 </h5>
                                 <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($valor_total_presupuesto_year_actual / 12) }}
+
+                                    &nbsp;de {{ number_format($valor_total_presupuesto_year_actual) }}
                                 </h5>
                             </div>
                             <div class="icon icon-shape bg-gradient-danger shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
@@ -153,6 +158,7 @@
     var eliminarInmueble = '<?php echo auth()->user()->can('inmueble delete'); ?>';
     var area_total_m2 = JSON.parse('<?php echo $area_total_m2; ?>');
     var editar_valor_admon_inmueble = JSON.parse('<?php echo $editar_valor_admon_inmueble; ?>');
+    var editar_coheficiente_admon_inmueble = JSON.parse('<?php echo $editar_coheficiente_admon_inmueble; ?>');
     var valor_total_presupuesto_year_actual = JSON.parse('<?php echo $valor_total_presupuesto_year_actual; ?>');
     var numero_total_unidades = JSON.parse('<?php echo $numero_total_unidades; ?>');
 </script>

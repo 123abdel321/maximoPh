@@ -15,7 +15,11 @@ class User extends Authenticatable
 
     protected $guard_name = 'sanctum';
 
+    protected $connection = 'clientes';
+
     protected $fillable = [
+        'id',
+        'rol_maximo',
         'username',
         'firstname',
         'lastname',
@@ -28,11 +32,14 @@ class User extends Authenticatable
         'has_empresa',
         'about',
         'id_empresa',
+        'email_verified_at',
         'avatar',
         'telefono',
         'created_by',
         'updated_by',
-        'fondo_sistema'
+        'fondo_sistema',
+        'code_general',
+        'limit_general',
     ];
 
     /**
@@ -43,15 +50,6 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
     ];
 
     /**
@@ -66,15 +64,19 @@ class User extends Authenticatable
     }
 
     public function empresasExternas(){
-		return $this->hasMany("App\Models\Empresas\UsuarioEmpresa","id_usuario");
+		return $this->hasMany("App\Models\Empresa\UsuarioEmpresa","id_usuario");
 	}
 
 	public function empresasPropias(){
-		return $this->hasMany("App\Models\Empresas\Empresa","id_usuario_owner")->select(["*",DB::raw("1 as propio")]);
+		return $this->hasMany("App\Models\Empresa\Empresa","id_usuario_owner")->select(["*",DB::raw("1 as propio")]);
 	}
 
     public function permisos(){
-        return $this->hasMany("App\Models\Empresas\UsuarioPermisos","id_user");
+        return $this->hasMany("App\Models\Empresa\UsuarioPermisos","id_user");
+    }
+
+    public function empresa_nit($id_empresa = null) {
+        return $this->empresasExternas()->where('id_empresa', $id_empresa);
     }
 
     public function getEmpresasAttribute(){

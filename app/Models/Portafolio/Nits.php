@@ -36,6 +36,7 @@ class Nits extends Model
 		'razon_social',
 		'nombre_comercial',
 		'direccion',
+		'apartamentos',
 		'email',
 		'email_recepcion_factura_electronica',
 		'telefono_1',
@@ -49,6 +50,8 @@ class Nits extends Model
 		'no_calcular_iva',
 		'inactivar',
 		'observaciones',
+		'email_1',
+		'email_2',
 		'logo_nit',
 		'created_by',
 		'updated_by',
@@ -68,6 +71,10 @@ class Nits extends Model
 		if($this->razon_social) return $this->razon_social;
 
 		return "$this->primer_nombre $this->otros_nombres $this->primer_apellido $this->segundo_apellido";
+	}
+
+	public function ciudad() {
+		return $this->belongsTo('App\Models\Empresa\Ciudades', 'id_ciudad', 'id');
 	}
 
 }

@@ -25,7 +25,7 @@
 
                         <br/>
 
-                        <div class="row">
+                        <div class="row" style="padding: 5px;">
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Área total M2</label>
@@ -52,12 +52,92 @@
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="porcentaje_intereses_mora" id="porcentaje_intereses_mora">
                             </div>
 
-                            <div class="form-check form-switch col-12 col-sm-6 col-md-4">
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Redondeo intereses</label>
+                                <input type="number" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="exampleFormControlSelect1">Doc. Ref. agrupado por</label>
+                                <select class="form-control form-control-sm" name="documento_referencia_agrupado" id="documento_referencia_agrupado">
+                                    <option value="0">AÑO-MES_CANTIDAD INMUEBLES</option>
+                                    <option value="1">NOMBRE INMUEBLE-NOMBRE ZONA</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Factura text 1</label>
+                                <input type="text" class="form-control form-control-sm" name="factura_texto1" id="factura_texto1">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Factura text 2</label>
+                                <input type="text" class="form-control form-control-sm" name="factura_texto2" id="factura_texto2">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Días pronto pago</label>
+                                <input type="number" class="form-control form-control-sm" name="dias_pronto_pago" id="dias_pronto_pago">
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="descuento_pago_parcial" id="descuento_pago_parcial" style="height: 20px;">
+                                <label class="form-check-label" for="descuento_pago_parcial">
+                                    Descuento pago parcial
+                                </label>
+                            </div>
+
+                            <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Tasa interes pronto pago</label>
+                                <input type="number" class="form-control form-control-sm" name="tasa_pronto_pago" id="tasa_pronto_pago">
+                            </div> -->
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="exampleFormControlSelect1">Concepto pago sin identificar</label>
+                                <select name="id_concepto_pago_none" id="id_concepto_pago_none" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="exampleFormControlSelect1">Nit por defecto</label>
+                                <select name="id_nit_por_defecto" id="id_nit_por_defecto" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="validacion_estricta" id="validacion_estricta" style="height: 20px;">
+                                <label class="form-check-label" for="validacion_estricta">
+                                    Validar Facturación estricta
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
                                 <input class="form-check-input" type="checkbox" name="editar_valor_admon_inmueble" id="editar_valor_admon_inmueble" style="height: 20px;">
                                 <label class="form-check-label" for="editar_valor_admon_inmueble">
                                     Editar valor inmuebles
                                 </label>
                             </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="editar_coheficiente_admon_inmueble" id="editar_coheficiente_admon_inmueble" style="height: 20px;">
+                                <label class="form-check-label" for="editar_coheficiente_admon_inmueble">
+                                    Editar coheficiente inmuebles
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="causacion_mensual_rapida" id="causacion_mensual_rapida" style="height: 20px;">
+                                <label class="form-check-label" for="causacion_mensual_rapida">
+                                    Causación mensual rapida
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="presupuesto_mensual" id="presupuesto_mensual" style="height: 20px;">
+                                <label class="form-check-label" for="presupuesto_mensual">
+                                    Presupuesto mensual
+                                </label>
+                            </div>                            
 
                         </div>
 

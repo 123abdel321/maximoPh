@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Entorno;
 use App\Models\Sistema\ConceptoFacturacion;
 
 
@@ -28,7 +29,13 @@ class ConceptoFacturacionController extends Controller
 
     public function index ()
     {
-        return view('pages.tablas.concepto_facturacion.concepto_facturacion-view');
+        $diasProntoPago = Entorno::where('nombre', 'dias_pronto_pago')->first();
+        
+        $data = [
+            'dias_pronto_pago' => $diasProntoPago ? $diasProntoPago->valor : '0',
+        ];
+
+        return view('pages.tablas.concepto_facturacion.concepto_facturacion-view', $data);
     }
 
     public function read (Request $request)
@@ -44,13 +51,10 @@ class ConceptoFacturacionController extends Controller
             $order_arr = $request->get('order');
             $search_arr = $request->get('search');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             $searchValue = $search_arr['value']; // Search value
 
-            $conceptoFacturacion = ConceptoFacturacion::orderBy($columnName,$columnSortOrder)
-                ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva')
+            $conceptoFacturacion = ConceptoFacturacion::orderBy('codigo', 'ASC')
+                ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
                 ->where('nombre_concepto', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
@@ -88,11 +92,14 @@ class ConceptoFacturacionController extends Controller
     public function create (Request $request)
     {
         $rules = [
+            'codigo_concepto' => 'required|min:1|max:200|unique:max.concepto_facturacions,nombre_concepto',
             'nombre_concepto' => 'required|min:1|max:200|unique:max.concepto_facturacions,nombre_concepto',
             'id_cuenta_ingreso' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_interes' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_cobrar' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_iva' => 'nullable|exists:sam.plan_cuentas,id',
+            'id_cuenta_gasto' => 'nullable|exists:sam.plan_cuentas,id',
+            'id_cuenta_anticipo' => 'nullable|exists:sam.plan_cuentas,id',
             'intereses' => 'nullable',
             'valor' => 'nullable',
         ];
@@ -109,14 +116,24 @@ class ConceptoFacturacionController extends Controller
         
         try {
             DB::connection('max')->beginTransaction();
-
+            $diasProntoPago = Entorno::where('nombre', 'dias_pronto_pago')->first();
+            $diasProntoPago = $diasProntoPago ? $diasProntoPago->valor : 0;
             $conceptoFacturacion = ConceptoFacturacion::create([
+                'codigo' => $request->get('codigo_concepto'),
                 'nombre_concepto' => $request->get('nombre_concepto'),
                 'id_cuenta_ingreso' => $request->get('id_cuenta_ingreso'),
                 'id_cuenta_interes' => $request->get('id_cuenta_interes'),
                 'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
                 'id_cuenta_iva' => $request->get('id_cuenta_iva'),
+
+                'pronto_pago' => $request->get('pronto_pago'),
+                'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
+                'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
+                'dias_pronto_pago' => $diasProntoPago ? $diasProntoPago : $request->get('dias_pronto_pago'),
+                'porcentaje_pronto_pago' => $request->get('porcentaje_pronto_pago'),
+
                 'intereses' => $request->get('intereses'),
+                'tipo_concepto' => $request->get('tipo_concepto'),
                 'valor' => $request->get('valor'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
@@ -177,12 +194,21 @@ class ConceptoFacturacionController extends Controller
 
             $conceptoFacturacion = ConceptoFacturacion::where('id', $request->get('id'))
                 ->update([
+                    'codigo' => $request->get('codigo_concepto'),
                     'nombre_concepto' => $request->get('nombre_concepto'),
                     'id_cuenta_ingreso' => $request->get('id_cuenta_ingreso'),
                     'id_cuenta_interes' => $request->get('id_cuenta_interes'),
                     'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
                     'id_cuenta_iva' => $request->get('id_cuenta_iva'),
                     'intereses' => $request->get('intereses'),
+
+                    'pronto_pago' => $request->get('pronto_pago'),
+                    'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
+                    'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
+                    'dias_pronto_pago' => $request->get('dias_pronto_pago'),
+                    'porcentaje_pronto_pago' => $request->get('porcentaje_pronto_pago'),
+                    
+                    'tipo_concepto' => $request->get('tipo_concepto'),
                     'valor' => $request->get('valor'),
                     'updated_by' => request()->user()->id
                 ]);
@@ -248,11 +274,20 @@ class ConceptoFacturacionController extends Controller
     {
         $conceptoFacturacion = ConceptoFacturacion::select(
             \DB::raw('*'),
-            \DB::raw("nombre_concepto as text")
+
+            \DB::raw("CONCAT(codigo, ' - ', nombre_concepto) as text")
         );
 
         if ($request->get("q")) {
             $conceptoFacturacion->where('nombre_concepto', 'LIKE', '%' . $request->get("q") . '%');
+        }
+
+        if ($request->get("search")) {
+            $conceptoFacturacion->where('nombre_concepto', 'LIKE', '%' . $request->get("search") . '%');
+        }
+
+        if ($request->has("tipo_concepto")) {
+            $conceptoFacturacion->where('tipo_concepto', $request->get("tipo_concepto"));
         }
 
         return $conceptoFacturacion->paginate(40);

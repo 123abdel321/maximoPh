@@ -19,11 +19,12 @@
                         </select>
                     </div>
 
-                    <div class="form-group form-group col-12 col-sm-6 col-md-6">
+                    <div class="form-group col-12 col-sm-6 col-md-6">
                         <label for="exampleFormControlSelect1">Tipo<span style="color: red">*</span></label>
                         <select class="form-control form-control-sm" id="tipo_inmueble_nit">
                             <option value="0">PROPIETARIO</option>
                             <option value="1">INQUILINO</option>
+                            <option value="2">INMOBILIARIA</option>
                         </select>
                     </div>
 

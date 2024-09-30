@@ -33,7 +33,7 @@
 
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_numero_documento">
                         <label for="example-text-input" class="form-control-label">Numero documento </label>
-                        <input type="number" class="form-control form-control-sm input_decimal only-numbers" name="numero_documento" id="numero_documento" required>
+                        <input type="text" class="form-control form-control-sm input_decimal only-text" name="numero_documento" id="numero_documento" required>
                         <div class="invalid-feedback">
                             El campo es requerido
                         </div>
@@ -121,6 +121,11 @@
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_observaciones">
                         <label for="example-text-input" class="form-control-label">Observaciones</label>
                         <input type="text" class="form-control form-control-sm" name="observaciones" id="observaciones">
+                    </div>
+
+                    <div class="form-check form-switch col-12 col-sm-6 col-12 col-sm-6 col-md-6" id="div_declarante">
+                        <input class="form-check-input" type="checkbox" name="declarante_nit" id="declarante_nit" style="height: 20px;" checked>
+                        <label class="form-check-label" for="declarante_nit">Declara Renta</label>
                     </div>
 
                 </form>

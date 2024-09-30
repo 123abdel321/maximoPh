@@ -1,62 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="html-basic">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="/img/logo_blanco.png">
+    <link rel="icon" type="image/png" href="/img/logo_base.png">
     <title>
         Maximo PH
     </title>
-    <!--     Fonts and icons     -->
+    <!--     Fonts and icons 
+             -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="./assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="assets/js/sistema/42d5adcbca.js" crossorigin="anonymous"></script>
+    <script src="{{ secure_asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="assets/css/argon-dashboard.css" rel="stylesheet" />
+    <link id="pagestyle" href="{{ secure_asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="assets/css/sistema/dataTables.bootstrap5.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/responsive.bootstrap5.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/app.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="assets/css/sistema/select2.min.css" rel="stylesheet" />
-    <link href="assets/css/sistema/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
+    <!-- UPLOAD IMG -->
+    <link href="{{ secure_asset('assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
+    <!-- SWIPER -->
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
+    <!-- ANIMATE CSS -->
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
+    <!-- FULL CALENDAR -->
+    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.0.0/main.min.css' rel='stylesheet' />
+    
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
+    <!-- End Google Tag Manager -->
 
 </head>
 
-<body class="{{ $class ?? '' }} " style="background-color: #060e26;">
+<body class="body-basic" style="background-color: #060e26;">
 
-    @guest
-        @yield('content')
-    @endguest
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NPDX42D8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     @auth
-        @if (in_array(request()->route()->getName(), ['sign-in-static', 'sign-up-static', 'login', 'register', 'recover-password', 'rtl', 'virtual-reality']))
-            @yield('content')
-        @else
-            @if (!in_array(request()->route()->getName(), ['profile', 'profile-static']))
-                <div class="min-height-100 bg-dark position-absolute w-100 fondo-sistema" onclick="closeMenu()">
-                    
-                </div>
-            @elseif (in_array(request()->route()->getName(), ['profile-static', 'profile']))
-                <div class="position-absolute w-100 min-height-300 top-0" style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg'); background-position-y: 50%;">
-                    <span class="mask bg-primary opacity-6"></span>
-                </div>
-            @endif
-            @include('layouts.navbars.auth.sidenav', ['menus', $menus])
-            @include('layouts.navbars.auth.topnav')
-            <div id="contenerdores-views" class="tab-content clearfix" onclick="closeMenu()">
-                <main class="tab-pane main-content border-radius-lg change-view active" style="margin-left: 5px;" id="containner-dashboard">
-                </main>
+        @if (!in_array(request()->route()->getName(), ['profile', 'profile-static']))
+            <div class="min-height-100 bg-dark position-absolute w-100 fondo-sistema" onclick="closeMenu()">
+                
             </div>
-            <br/>
-            @include('components.fixed-plugin')
+        @elseif (in_array(request()->route()->getName(), ['profile-static', 'profile']))
+            <div class="position-absolute w-100 min-height-300 top-0" style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg'); background-position-y: 50%;">
+                <span class="mask bg-primary opacity-6"></span>
+            </div>
         @endif
+        @include('layouts.navbars.auth.sidenav', ['menus', $menus])
+        @include('layouts.navbars.auth.topnav', ['rol_usuario', $rol_usuario])
+        <div id="contenerdores-views" class="tab-content clearfix" onclick="closeMenu()">
+            <main class="tab-pane main-content border-radius-lg change-view active" style="margin-left: 5px;" id="containner-dashboard">
+            </main>
+        </div>
+        <br/>
+        @include('components.fixed-plugin')
     @endauth
 
     <!-- MODAL USUARIO ACCIÓN-->
@@ -72,17 +87,17 @@
                 <div class="row">  
 
                     <div class="form-group col-12">
-                        <label for="example-text-input" class="form-control-label">Usuario</label>
+                        <label for="usuario_accion" class="form-control-label">Usuario</label>
                         <input id="usuario_accion" class="form-control form-control-sm" type="text" disabled>
                     </div>
 
                     <div class="form-group col-12">
-                        <label for="example-text-input" class="form-control-label">Correo</label>
+                        <label for="correo_accion" class="form-control-label">Correo</label>
                         <input id="correo_accion" class="form-control form-control-sm" type="text" disabled>
                     </div>
 
                     <div class="form-group col-12">
-                        <label for="example-text-input" class="form-control-label">Fecha acción</label>
+                        <label for="fecha_accion" class="form-control-label">Fecha acción</label>
                         <input id="fecha_accion" class="form-control form-control-sm" type="text" disabled>
                     </div>
 
@@ -112,36 +127,36 @@
                             </div>
                         </div>
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Nombre completo</label>
+                            <label for="nombre_completo_nit" class="form-control-label">Nombre completo</label>
                             <input id="nombre_completo_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Documento</label>
+                            <label for="numero_documento_nit" class="form-control-label">Documento</label>
                             <input id="numero_documento_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Direccion</label>
+                            <label for="direccion_nit" class="form-control-label">Direccion</label>
                             <input id="direccion_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Telefono</label>
+                            <label for="telefono_1_nit" class="form-control-label">Telefono</label>
                             <input id="telefono_1_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Correo</label>
+                            <label for="email_nit" class="form-control-label">Correo</label>
                             <input id="email_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Ciudad</label>
+                            <label class="form-control-label">Ciudad</label>
                             <input id="ciudad_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
                         <div class="form-group col-12 col-md-6 col-sm-6">
-                            <label for="example-text-input" class="form-control-label">Observaciones</label>
+                            <label for="observaciones_nit" class="form-control-label">Observaciones</label>
                             <input id="observaciones_nit" class="form-control form-control-sm" type="text" disabled>
                         </div>
 
@@ -165,14 +180,26 @@
             <path id="steamR" d="M21 6C21 6 21 8.22727 19 9.5C17 10.7727 17 13 17 13" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
     </div>
+    <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
+    <button id="button-open-notificaciones" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificacionesMaximo" aria-controls="notificacionesMaximo" style="display: none;"></button>
 
+    @include('components.pqrsf-canv', ['rol_usuario', $rol_usuario])
+    @include('components.notificaciones')
     <!-- FOOTER -->
     @include('layouts.footers.footer')
+
+    <script>
+        var idRolUsuario = JSON.parse('<?php echo $rol_usuario; ?>');
+        var is_owner = JSON.parse('<?php echo $is_owner; ?>');
+        var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
+        var version_app = '<?php echo config('app.version'); ?>';
+        var pqrsf_responder = '<?php echo $pqrsf_responder; ?>';
+    </script>
 
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
-    <!-- <script src="assets/js/plugins/perfect-scrollbar.min.js"></script> -->
+    <script src="assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="assets/js/plugins/smooth-scrollbar.min.js"></script>
     <script>
        
@@ -180,30 +207,44 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="assets/js/argon-dashboard.js"></script>
-    <!-- JQUERY --> 
-    <script src="assets/js/sistema/jquery-3.5.1.js"></script>
+    <script src="{{ secure_asset('assets/js/argon-dashboard.js') }}"></script>
+    <!-- JQUERY -->
+    <script src="{{ secure_asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="assets/js/sistema/jquery.dataTables.min.js"></script>
-    <script src="assets/js/sistema/dataTables.bootstrap5.min.js"></script>
-    <script src="assets/js/sistema/dataTables.responsive.min.js"></script>
-    <script src="assets/js/sistema/responsive.bootstrap5.min.js"></script>
-    <script src="assets/js/sistema/dataTables.fixedHeader.min.js"></script>
-    <script src="assets/js/sistema/dataTables.fixedColumns.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
     
     <!-- SELECT 2  -->
-    <script src="assets/js/sistema/select2.full.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="assets/js/sistema/jquery.validate.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="assets/js/sistema/sweetalert2.all.min.js"></script>
+    <script src="{{ secure_asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
     <!-- countUp -->
     <script src="https://cdn.jsdelivr.net/npm/countup@1.8.2/dist/countUp.min.js"></script>
     <!-- PUSHER -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-    <!-- SISTEMA -->
-    <script src="assets/js/sistema/sistema.js" rel="stylesheet"></script>
     <!-- <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js" rel="stylesheet"></script> -->
+    <!-- WIZARD -->
+    <script src="{{ secure_asset('assets/js/sistema/jquery.bootstrap-wizard.js') }}"></script>
+    <!-- UPLOADER IMG -->
+    <script src="{{ secure_asset('assets/js/sistema/image-uploader.js') }}"></script>
+    <!-- SWIPER -->
+    <script src="{{ secure_asset('assets/js/sistema/swiper-bundle.min.js') }}"></script>
+    <!-- MDB -->
+    <script src="{{ secure_asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <!-- SISTEMA -->
+    <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ secure_asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
+    <!-- FULL CALENDER -->
+    <script src="{{ secure_asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
+    <!-- Include the Quill library -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     
     @stack('js')
 </body>

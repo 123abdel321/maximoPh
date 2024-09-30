@@ -17,7 +17,16 @@ return new class extends Migration
             $table->integer('id_nit')->nullable();
             $table->date('fecha_manual')->nullable();
             $table->string('token_factura', 255)->nullable();
+            $table->integer('pronto_pago')->nullable();
             $table->decimal('valor', 15);
+            $table->decimal('valor_admon', 15)->nullable();
+            $table->decimal('valor_intereses', 15)->nullable();
+            $table->decimal('count_intereses', 15)->nullable();
+            $table->decimal('valor_anticipos', 15)->nullable();
+            $table->decimal('valor_cuotas_multas', 15)->nullable();
+            $table->decimal('count_cuotas_multas', 15)->nullable();
+            $table->decimal('saldo_base', 15)->nullable();
+            $table->string('mensajes', 500)->nullable();
             $table->boolean('anulado')->default(false);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

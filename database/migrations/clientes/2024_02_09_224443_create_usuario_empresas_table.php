@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('id_usuario');
             $table->integer('id_empresa');
             $table->integer('id_rol');
+            $table->integer('id_nit');
             $table->integer('estado')->comment('0: inactivo, 1: activo');
             $table->timestamps();
         });

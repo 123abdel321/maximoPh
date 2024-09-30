@@ -16,15 +16,18 @@ class FacturacionDetalle extends Model
     protected $fillable = [
         'id_factura',
         'id_nit',
+        'id_concepto_facturacion',
         'id_cuenta_por_cobrar',
         'id_cuenta_ingreso',
         'id_comprobante',
         'id_centro_costos',
         'fecha_manual',
         'documento_referencia',
+        'documento_referencia_anticipo',
         'saldo',
         'valor',
         'concepto',
+        'naturaleza_opuesta',
         'created_by',
         'updated_by',
     ];

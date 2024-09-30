@@ -10,11 +10,13 @@ class FacturacionERP extends AbstractPortafolioSender
 	private $method = 'POST';
 	private $endpoint = '/generar-documentos';
 
+	private $id_nit;
 	private $periodo_facturar;
 
-	public function __construct($periodo_facturar)
+	public function __construct($periodo_facturar, $id_nit = null)
 	{
 		$this->periodo_facturar = $periodo_facturar;
+		$this->id_nit = $id_nit;
 	}
 
 	public function getMethod(): string
@@ -31,6 +33,9 @@ class FacturacionERP extends AbstractPortafolioSender
 	{
         $facturas = Facturacion::with('detalle')
             ->where('fecha_manual', $this->periodo_facturar)
+			->when($this->id_nit, function ($query) {
+				$query->where('id_nit', $this->id_nit);
+			})
             ->get();
 
         $facturasToPortafolio = [];
@@ -46,8 +51,10 @@ class FacturacionERP extends AbstractPortafolioSender
 					'id_centro_costos' => $detalle->id_centro_costos,
 					'fecha_manual' => $detalle->fecha_manual,
 					'documento_referencia' => $detalle->documento_referencia,
+					'documento_referencia_anticipo' => $detalle->documento_referencia_anticipo,
 					'valor' => $detalle->valor,
 					'concepto' => $detalle->concepto,
+					'naturaleza_opuesta' => $detalle->naturaleza_opuesta,
 					'token_factura' => $factura->token_factura,
 				];
             }

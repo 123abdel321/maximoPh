@@ -6,6 +6,8 @@ use DB;
 use Config;
 use Closure;
 use App\Providers\RouteServiceProvider;
+//MODELS
+use App\Models\Empresa\Empresa;
 
 class ClientConnectionWeb
 {
@@ -24,7 +26,10 @@ class ClientConnectionWeb
             return redirect(RouteServiceProvider::SELECT_EMPRESA);
         }
 
-		Config::set('database.connections.max.database', $user->has_empresa);
+		$empresa = Empresa::where('token_db_maximo', $user->has_empresa)->first();
+
+		Config::set('database.connections.max.database', $empresa->token_db_maximo);
+		Config::set('database.connections.sam.database', $empresa->token_db_portafolio);
         
         return $next($request);
     }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Zonas;
+use App\Models\Sistema\InmuebleNit;
 
 class ZonasController extends Controller
 {
@@ -42,12 +43,9 @@ class ZonasController extends Controller
             $order_arr = $request->get('order');
             $search_arr = $request->get('search');
 
-            $columnIndex = $columnIndex_arr[0]['column']; // Column index
-            $columnName = $columnName_arr[$columnIndex]['data']; // Column name
-            $columnSortOrder = $order_arr[0]['dir']; // asc or desc
             $searchValue = $search_arr['value']; // Search value
 
-            $zonas = Zonas::orderBy($columnName,$columnSortOrder)
+            $zonas = Zonas::orderBy('id', 'DESC')
                 ->with('cecos')
                 ->where('nombre', 'like', '%' .$searchValue . '%')
                 ->select(
@@ -169,6 +167,33 @@ class ZonasController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
 
+            //ACTUAIZAR DATOS EN NITS
+            $nitsInmuebles = InmuebleNit::with('inmueble.zona')
+                ->whereHas('inmueble', function ($query) use ($request) {
+                    $query->whereHas('zona', function ($q) use ($request) {
+                        $q->where('id_zona', $request->get('id'));
+                    });
+                })
+                ->groupBy('id_nit')
+                ->get();
+    
+            foreach ($nitsInmuebles as $nit) {
+    
+                $inmueblesNits = InmuebleNit::with('inmueble.zona')
+                    ->where('id_nit', $nit->id_nit)
+                    ->get();
+
+                $apartamentos = '';
+    
+                if (count($inmueblesNits)) {
+                    foreach ($inmueblesNits as $key => $inmuebleNit) {
+                        $apartamentos.= $inmuebleNit->inmueble->nombre.'-'.$inmuebleNit->inmueble->zona->nombre.', ';
+                    }
+                }
+                $nit->nit->apartamentos = rtrim($apartamentos, ", ");
+                $nit->nit->save();
+            }
+
             DB::connection('max')->commit();
 
             return response()->json([
@@ -190,7 +215,7 @@ class ZonasController extends Controller
     public function delete (Request $request)
     {
         $rules = [
-            'id' => 'required|min:1|max:200|exists:max.zonas,id',
+            'id' => 'required|exists:max.zonas,id',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -237,6 +262,6 @@ class ZonasController extends Controller
             $zonas->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
         }
 
-        return $zonas->paginate(40);
+        return $zonas->orderBy('nombre', 'ASC')->paginate(40);
     }
 }

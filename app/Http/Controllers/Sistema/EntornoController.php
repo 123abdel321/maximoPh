@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Entorno;
+use App\Models\Sistema\ConceptoFacturacion;
 
 class EntornoController extends Controller
 {
@@ -15,7 +16,7 @@ class EntornoController extends Controller
     public function index(Request $request)
     {
         $data = [
-            'variables_entorno' => Entorno::get()
+            'variables_entorno' => Entorno::with('concepto_facturacion', 'nit')->get()
         ];
         
         return view('pages.configuracion.entorno.entorno-view', $data);
@@ -36,23 +37,39 @@ class EntornoController extends Controller
                 'id_cuenta_ingreso_recibos_caja',
                 'id_cuenta_egreso_pagos',
                 'id_cuenta_ingreso_pasarela',
+                'id_concepto_pago_none',
+                'id_nit_por_defecto',
                 'area_total_m2',
                 'numero_total_unidades',
                 'valor_total_presupuesto_year_actual',
-                'validacion_estricta_area',
+                'validacion_estricta',
+                'causacion_mensual_rapida',
+                'presupuesto_mensual',
                 'dia_limite_pago_sin_interes',
                 'dia_limite_descuento_pronto_pago',
                 'porcentaje_descuento_pronto_pago',
                 'porcentaje_intereses_mora',
                 'editar_valor_admon_inmueble',
-                'periodo_facturacion'
+                'editar_coheficiente_admon_inmueble',
+                'periodo_facturacion',
+                'redondeo_intereses',
+                'factura_texto1',
+                'factura_texto2',
+                'dias_pronto_pago',
+                'descuento_pago_parcial',
+                'documento_referencia_agrupado',
             ];
 
             foreach ($variablesEntorno as $variable) {
-                if ($request->get($variable)) {
-                    Entorno::where('nombre', $variable)->update([
-                        'valor' => $request->get($variable)
-                    ]);
+                if ($request->get($variable) || $request->get($variable) == '0') {
+                    Entorno::updateOrCreate(
+                        [ 'nombre' => $variable ],
+                        [ 'valor' => $request->get($variable) ]
+                    );
+                }
+                if ($variable == 'dias_pronto_pago') {
+                    ConceptoFacturacion::whereNotNull('id')
+                        ->update(['dias_pronto_pago' => $request->get($variable)]);
                 }
             }
 

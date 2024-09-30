@@ -33,6 +33,10 @@ class ComponentesMenu extends Model
     public function padre (){
         return $this->belongsTo(ComponentesMenu::class, "id_padre");
     }
+
+    public function hijos (){
+        return $this->hasMany(ComponentesMenu::class, "id_padre", "id");
+    }
     
     public function permisos (){
         return $this->hasMany(Permission::class, "id_componente_menu")->orderBy('id_componente_menu');

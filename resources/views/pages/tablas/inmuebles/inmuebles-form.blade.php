@@ -37,11 +37,11 @@
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
                         <label for="example-text-input" class="form-control-label">Coeficiente</label>
-                        <input type="text" class="form-control form-control-sm text-align-right" name="coeficiente_inmueble" id="coeficiente_inmueble" data-type="currency" onfocus="this.select();" disabled>
+                        <input type="text" class="form-control form-control-sm text-align-right" name="coeficiente_inmueble" id="coeficiente_inmueble" data-type="currency" onfocus="this.select();">
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
-                        <label for="example-text-input" class="form-control-label">Valor admon (Ppto anual {{ number_format($valor_total_presupuesto_year_actual / 12) }})</label>
+                        <label for="example-text-input" class="form-control-label">Valor admon (Ppto anual {{ number_format($valor_total_presupuesto_year_actual) }})</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="valor_total_administracion_inmueble" id="valor_total_administracion_inmueble" data-type="currency" onfocus="this.select();">
                     </div>
 

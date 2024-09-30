@@ -34,11 +34,17 @@ class Empresa extends Model
         'logo',
         'fecha_retiro',
         'direccion',
+        'correo',
         'telefono',
         'hash',
         'valor_suscripcion_mensual',
+        'numero_unidades',
         'id_usuario_owner',
         'fecha_ultimo_cierre'
 	];
+
+    public function usuario () {
+		return $this->hasOne("App\Models\User", "id", "id_usuario_owner");
+	}
 
 }

@@ -19,4 +19,14 @@ class Entorno extends Model
         'created_by',
         'updated_by'
     ];
+
+    public function concepto_facturacion()
+    {
+        return $this->belongsTo(ConceptoFacturacion::class, 'valor');
+    }
+
+    public function nit()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'valor');
+    }
 }

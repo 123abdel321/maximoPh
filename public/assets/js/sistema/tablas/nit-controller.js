@@ -55,7 +55,7 @@ function nitInit() {
                     return '';
                 }
             },
-            {"data":'observaciones'},
+            {"data":'observaciones'},            
             {
                 "data": function (row, type, set){
                     if(row.tipo_documento){
@@ -74,6 +74,16 @@ function nitInit() {
                     return '';
                 }
             },
+            {
+                "data": function (row, type, set){
+                    if(row.declarante){
+                        return 'SI';
+                    }
+                    return 'NO';
+                }
+            },
+            {"data":'email_1'},
+            {"data":'email_2'},
             {"data": function (row, type, set){  
                 var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
                 if(!row.created_by && !row.fecha_creacion) return '';
@@ -138,6 +148,12 @@ function nitInit() {
                 var newOption = new Option(dataCiudad.text, dataCiudad.id, false, false);
                 $comboCiudad.append(newOption).trigger('change');
                 $comboCiudad.val(dataCiudad.id).trigger('change');
+            }
+
+            if (data.declarante) {
+                $('#declarante_nit').prop('checked', true);
+            } else {
+                $('#declarante_nit').prop('checked', false);
             }
 
             hideFormNits();
@@ -302,20 +318,20 @@ function nitInit() {
     nits_table.ajax.reload();
 }
 
-$('.only-lyrics').keypress(function (e) {
-    var txt = String.fromCharCode(e.which);
-    if (!txt.match(/[A-Za-z&. ]/)) {
-        return false;
-    }
-});
+// $('.only-lyrics').keypress(function (e) {
+//     var txt = String.fromCharCode(e.which);
+//     if (!txt.match(/[A-Za-z&. ]/)) {
+//         return false;
+//     }
+// });
   
-$('.only-lyrics').bind('paste', function() {
-    setTimeout(function() { 
-        var value = $(this).val();
-        var updated = value.replace(/[^A-Za-z&. ]/g, '');
-        $(this).val(updated);
-    });
-});
+// $('.only-lyrics').bind('paste', function() {
+//     setTimeout(function() { 
+//         var value = $(this).val();
+//         var updated = value.replace(/[^A-Za-z&. ]/g, '');
+//         $(this).val(updated);
+//     });
+// });
 
 $('.only-numbers').keypress(function (e) {
     var txt = String.fromCharCode(e.which);
@@ -328,6 +344,21 @@ $('.only-numbers').bind('paste', function() {
     setTimeout(function() { 
         var value = $(this).val();
         var updated = value.replace(/[^0-9&. ]/g, '');
+        $(this).val(updated);
+    });
+});
+
+$('.only-text').keypress(function (e) {
+    var txt = String.fromCharCode(e.which);
+    if (!txt.match(/[^ ]/)) {
+        return false;
+    }
+});
+  
+$('.only-text').bind('paste', function() {
+    setTimeout(function() { 
+        var value = $(this).val();
+        var updated = value.replace(/[^ ]/g, '');
         $(this).val(updated);
     });
 });
@@ -389,6 +420,7 @@ $(document).on('click', '#updateNit', function () {
             id_ciudad: $("#id_ciudad").val(),
             observaciones: $("#observaciones").val(),
             id_vendedor: $('#id_vendedor_nit').val(),
+            declarante: $("input[type='checkbox']#declarante_nit").is(':checked') ? '1' : '',
             avatar: newImgProfile
         }
 
@@ -456,6 +488,7 @@ $(document).on('click', '#saveNit', function () {
             id_ciudad: $("#id_ciudad").val(),
             observaciones: $("#observaciones").val(),
             id_vendedor: $('#id_vendedor_nit').val(),
+            declarante: $("input[type='checkbox']#declarante_nit").is(':checked') ? '1' : '',
             avatar: newImgProfile
         }
 
@@ -538,14 +571,15 @@ function hideFormNits(){
         'telefono_1',
         'direccion',
         'email',
+        'declarante'
     ];
 
     var nitsForm = [
         'id_vendedor_nit',
-        'id_ciudad',
         'observaciones',
         'numero_documento',
         'razon_social',
+        'declarante',
         'telefono_1',
         'direccion',
         'email',
@@ -553,13 +587,13 @@ function hideFormNits(){
 
     var noNitsForm = [
         'id_vendedor_nit',
-        'id_ciudad',
         'observaciones',
         'numero_documento',
         'primer_apellido',
         'segundo_apellido',
         'primer_nombre',
         'otros_nombres',
+        'declarante',
         'telefono_1',
         'direccion',
         'email',
@@ -569,11 +603,16 @@ function hideFormNits(){
         $("#div_"+form).hide();
         $("#"+form).prop('required',false);
     });
-
+    
     if (tipoDocumento && tipoDocumento == '6') {
         nitsForm.forEach(form => {
             $("#div_"+form).show();
-            if (form == 'otros_nombres' || form == 'segundo_apellido') {
+            if (form == 'otros_nombres' ||
+                form == 'segundo_apellido' ||
+                form == 'telefono_1' ||
+                form == 'direccion' ||
+                form == 'email'
+            ) {
             } else {
                 $("#"+form).prop('required',true);
             }
@@ -581,7 +620,12 @@ function hideFormNits(){
     } else if (tipoDocumento) {
         noNitsForm.forEach(form => {
             $("#div_"+form).show();
-            if (form == 'otros_nombres' || form == 'segundo_apellido') {
+            if (form == 'otros_nombres' ||
+                form == 'segundo_apellido' ||
+                form == 'telefono_1' ||
+                form == 'direccion' ||
+                form == 'email'
+            ) {
             } else {
                 $("#"+form).prop('required',true);
             }

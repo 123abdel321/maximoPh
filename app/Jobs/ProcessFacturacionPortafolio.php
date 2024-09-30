@@ -49,13 +49,13 @@ class ProcessFacturacionPortafolio implements ShouldQueue
             ))->send();
 
 		} catch (Exception $exception) {
-			Log::error('Error al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+			Log::error('ProcessFacturacionPortafolio al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
 		}
     }
 
 	public function failed($exception)
 	{
-		Log::error('Error al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
+		Log::error('ProcessFacturacionPortafolio al enviar facturación a PortafolioERP', ['message' => $exception->getMessage()]);
 
 		$this->dropDb($this->empresa->token_db_maximo);
 	}

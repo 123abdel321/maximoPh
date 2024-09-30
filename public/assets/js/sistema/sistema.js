@@ -1,11 +1,20 @@
 
 //LOCAL
-const base_url = 'http://127.0.0.1:8090/api/';
-const base_web = 'http://127.0.0.1:8090/';
-const base_url_erp = 'http://localhost:8000/api/';
+// const base_url = 'http://127.0.0.1:8090/api/';
+// const base_web = 'http://127.0.0.1:8090/';
+// const base_web_erp = 'http://localhost:8000/';
+// const base_url_erp = 'http://localhost:8000/api/';
+//LOCAL PUBLIC
+// const base_url = 'http://192.168.1.6:80/api/';
+// const base_web = 'http://192.168.1.6:80/';
+// const base_web_erp = 'http://localhost:8000/';
+// const base_url_erp = 'http://localhost:8000/api/';
 //DEV
-// const base_url = 'https://test.portafolioerp.com/api/';
-// const base_web = 'https://test.portafolioerp.com/';
+const base_url = 'https://maximoph.com/api/';
+const base_web = 'https://maximoph.com/';
+const base_web_erp = 'https://test.portafolioerp.com/';
+const base_url_erp = 'https://test.portafolioerp.com/api/';
+
 //PRO
 // const base_url = 'https://app.portafolioerp.com/api/';
 // const base_web = 'https://app.portafolioerp.com/';
@@ -16,11 +25,24 @@ const bucketUrl = 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/';
 const btnLogout = document.getElementById('sessionLogout');
 const itemMenuActive = localStorage.getItem("item_active_menu");
 
-const dateNow = new Date();
+let dateNow = new Date();
+let openStatusPqrsf = false;
+let dropDownPerfilOpen = false; 
+let dropDownNotificacionOpen = false;
+let channelPqrsf = false;
+let channelAdminPqrsf = false;
+let channelPorteria = pusher.subscribe('porteria-mensaje-'+localStorage.getItem("notificacion_code"));
+let updatingStatusPqrsf = false;
+let mostrarAgregarImagenes = false;
+let mostrarAgregarTiempos = false;
+let permisoAgregarTiempos = false;
+let channelPqrsfGeneral = null;
+
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
 const iconNavbarSidenavMaximo = document.getElementById('iconNavbarSidenavMaximo');
 var menuOpen = false;
+
 $.ajaxSetup({
     'headers':{
         "Authorization": auth_token,
@@ -39,6 +61,30 @@ const headersERP = {
     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 };
 
+const medidasSwiper = [
+    'translate3d(calc(13% - 480px), 0px, -200px) rotateZ(4deg) scale(1);',
+    'translate3d(calc(17.25% - 720px), 0px, -300px) rotateZ(6deg) scale(1);',
+    'translate3d(calc(20% - 960px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1200px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1440px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1680px), 0px, -400px) rotateZ(8deg) scale(1);',
+    'translate3d(calc(20% - 1920px), 0px, -400px) rotateZ(8deg) scale(1);',
+];
+
+const myOffcanvas = document.getElementById('offcanvasRight')
+
+myOffcanvas.addEventListener('hidden.bs.offcanvas', event => {
+    $("#id_pqrsf_up").val(0);
+})
+
+function dateDifferenceInDays (dateInitial, dateFinal) {
+    var dias_diferencia = (dateFinal - dateInitial) / 86_400_000;
+    if (dias_diferencia < 0) {
+        return dias_diferencia * -1
+    }
+    return dias_diferencia
+}
+
 let body = document.getElementsByTagName('body')[0];
 let className = 'g-sidenav-pinned';
 let sidenav = document.getElementById('sidenav-main');
@@ -54,6 +100,25 @@ var moduloCreado = {
     'conceptofacturacion': false,
     'zona': false,
     'facturacion': false,
+    'recibo': false,
+    'cuotasmultas': false,
+    'estadocuenta': false,
+    'usuarios': false,
+    'pagotransferencia': false,
+    'porteria': false,
+    'instalacionempresa': false,
+    'importrecibos': false,
+    'importcuotas': false,
+    'importinmuebles': false,
+    'pqrsf': false,
+    'perfil': false,
+    'facturaciones': false,
+    'cartera': false,
+    'impuestoiva': false,
+    'estadisticas': false,
+    'proyectos': false,
+    'turnos': false,
+    'roles': false,
 };
 
 var moduloRoute = {
@@ -63,26 +128,70 @@ var moduloRoute = {
     'conceptofacturacion': 'tablas',
     'zona': 'tablas',
     'facturacion': 'operaciones',
+    'recibo': 'operaciones',
+    'cuotasmultas': 'operaciones',
+    'estadocuenta': 'administrativo',
+    'usuarios': 'configuracion',
+    'pagotransferencia': 'operaciones',
+    'porteria': 'administrativo',
+    'instalacionempresa': 'administrativo',
+    'importrecibos': 'importador',
+    'importcuotas': 'importador',
+    'pqrsf': 'administrativo',
+    'perfil': 'administrativo',
+    'facturaciones': 'informes',
+    'importinmuebles': 'importador',
+    'cartera': 'informes',
+    'impuestosiva': 'informes',
+    'estadisticas': 'informes',
+    'proyectos': 'tareas',
+    'turnos': 'tareas',
+    'roles': 'configuracion',
 }
 
 $('.water').show();
+$("#titulo-view").text('Inicio');
 $('#containner-dashboard').load('/dashboard', function() {
     $('.water').hide();
+    if (idRolUsuario == 3 || idRolUsuario == 5 || idRolUsuario == 11) {
+        $("#menu-propietarios").show();
+    }
 });
-$("#titulo-view").text('Inicio');
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
-    // console.log('xhr: ',xhr);
     if(xhr.status == 401) {
         // document.getElementById('logout-form').submit();
     }
 });
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
 $("#nombre-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
 $("#titulo-empresa").text(localStorage.getItem("empresa_nombre"));
+
+$imagenes = [
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_1.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_2.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_3.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_4.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_5.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_6.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_7.jpeg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_8.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_9.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_10.jpg'
+];
+
+var urlImgFondo = $imagenes[getRandomInt($imagenes.length)];
+
+if (localStorage.getItem("fondo_sistema") != 'null' && localStorage.getItem("fondo_sistema") != '') {
+    urlImgFondo = bucketUrl + localStorage.getItem("fondo_sistema");
+}
 setTimeout(function(){
-    $(".fondo-sistema").css('background-image', 'url(' +bucketUrl + localStorage.getItem("fondo_sistema")+ ')');
+    $(".fondo-sistema").css('background-image', 'url(' +urlImgFondo+ ')');
 },200);
 
 if (localStorage.getItem("empresa_logo") == 'null') {
@@ -102,20 +211,344 @@ if (iconSidenav) {
 if (sidenav2) {
     sidenav2.addEventListener("click", toggleSidenavMaximo);
 }
+//PORTERO
+if (idRolUsuario == 4) {
+    openNewItem('porteria', 'Porteria', 'fas fa-user-shield');
+    closeMenu();
+}
 
-selectMenu(itemMenuActive);
+$("#id_pqrsf_up").val(0);
 
-function openNewItem(id, nombre, icon) {
+iniciarScrollBar();
+buscarNotificaciones();
+actualizarAccionesPqrsf();
+iniciarCanalesDeNotificacion();
+
+function actualizarAccionesPqrsf() {
+    if (idRolUsuario == 1 || idRolUsuario == 2) {
+        $('#content-button-status-pqrsf').show();
+    } else {
+        $('#content-button-status-pqrsf').hide();
+    }
+}
+
+function iniciarScrollBar() {
+    var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
+    var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
+    var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
+
+    new PerfectScrollbar(offcanvasBodyPorteria);
+    new PerfectScrollbar(dropDownNotificacion);
+    new PerfectScrollbar(offcanvasBodyPqrsf);
+}
+
+function setNotificaciones(total = 0) {
+    var numeroNotificaciones = total ? total : parseInt(localStorage.getItem("numero_notificaciones"));
+    if (numeroNotificaciones) {
+        $("#number_notification").text(numeroNotificaciones);
+        $("#number_notification").show();
+        $("#bell_notification").addClass('animate__animated animate__infinite animate__slower animate__tada');
+    } else {
+        $("#number_notification").text('');
+        $("#number_notification").hide();
+        $("#bell_notification").removeClass('animate__animated');
+        $("#bell_notification").removeClass('animate__infinite');
+        $("#bell_notification").removeClass('animate__slower');
+        $("#bell_notification").removeClass('animate__tada');
+    }
+}
+
+function iniciarCanalesDeNotificacion () {
+    channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
+    channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena');
+
+    if (pqrsf_responder) {
+        channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
+    }
+}
+
+if (channelPqrsfGeneral) {
+    channelPqrsfGeneral.bind('notificaciones', function(data) {
+        
+        var idPqrsfOpen = $("#id_pqrsf_up").val();
+
+        if (data.id_pqrsf == idPqrsfOpen) {//SI EN LA DATA VIENE id_pqrsf y el menu esta abierto: Muestra el mensaje
+            mostrarMensajesPqrsf(data.data);
+            if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+            initSwipers();
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else if (parseInt(id_usuario_logeado) == data.id_usuario) {
+            openDropDownNotificaciones(true);
+        } else if (data.id_notificacion) {
+            openDropDownNotificaciones(true);
+        }
+    });
+}
+
+channelPqrsf.bind('notificaciones', function(data) {
+    console.log('channelPqrsf');
+    var idPqrsfOpen = $("#id_pqrsf_up").val();
+
+    if (data.id_pqrsf == idPqrsfOpen) {
+        mostrarMensajesPqrsf(data.data);
+        if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+        initSwipers();
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+        if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+    } else {
+        var notificacionesAbiertas = $("#notificacionesMaximo").attr('class');
+        notificacionesAbiertas = notificacionesAbiertas == 'offcanvas offcanvas-end show' ? true : false;
+        if (notificacionesAbiertas) {
+            openDropDownNotificacion(data.id_notificacion)
+        } else {
+            openDropDownNotificaciones();
+        }
+    }
+});
+
+channelAbdelCartagena.bind('notificaciones', function(data) {
+    let timerInterval;
+    Swal.fire({
+        title: "Actualizando nueva version!",
+        html: "Se recargará la pagina para aplicar la version: "+version_app,
+        timer: 4000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            const timer = Swal.getPopup().querySelector("b");
+            timerInterval = setInterval(() => {
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        }
+        }).then((result) => {
+        /* Read more about handling dismissals below */
+        if (result.dismiss === Swal.DismissReason.timer) {
+        }
+    });
+    setTimeout(function(){
+        closeSessionProfile();
+    },4000);
+});
+
+if (channelAdminPqrsf) {
+    channelAdminPqrsf.bind('notificaciones', function(data) {
+        console.log('channelAdminPqrsf');
+        var idPqrsfOpen = $("#id_pqrsf_up").val();
+
+        if (data.id_pqrsf == idPqrsfOpen) {
+            mostrarMensajesPqrsf(data.data);
+            
+            if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
+            else if (data.estado) actualizarEstadosPqrsf(data.estado);
+            initSwipers();
+
+            if (data.function == 'inicioTimePqrsf') inicioTimePqrsf();
+            else if (data.function == 'pararPqrsf') pararPqrsf();
+
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else {
+            buscarNotificaciones();
+        }
+    });
+}
+
+function keyPressPqrsfMensaje(event) {
+    if (event.keyCode == 13) {
+        document.getElementById('button-send-pqrsf').click();
+    }
+}
+
+$("#butonActionActivo").click( function(){
+    ajaxActualizarEstadoPqrsf(0);
+});
+
+$("#butonActionProceso").click( function(){
+    ajaxActualizarEstadoPqrsf(1);
+});
+
+$("#butonActionCerrado").click( function(){
+    ajaxActualizarEstadoPqrsf(2);
+});
+
+function ajaxActualizarEstadoPqrsf(estado) {
+    if (!updatingStatusPqrsf) {
+
+        updatingStatusPqrsf = true;
+        var idMensaje = $("#id_pqrsf_up").val();
+
+        $("#content-button-change-status-iconNormal").hide();
+        $("#content-button-change-status-iconLoading").show();
+
+        $.ajax({
+            url: base_url + 'pqrsf-estado',
+            method: 'POST',
+            data: JSON.stringify({
+                id: idMensaje,
+                estado: estado
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+            if(res.success){
+                var data = res.data;
+                updatingStatusPqrsf = false;
+                $("#content-button-change-status-iconNormal").show();
+                $("#content-button-change-status-iconLoading").hide(); 
+                
+                document.getElementById('content-button-change-status').click();
+                mostrarMensajesPqrsf(res.mensaje);
+                actualizarEstadosPqrsf(data.estado);
+            }
+        }).fail((res) => {
+            updatingStatusPqrsf = false;
+            $("#content-button-change-status-iconNormal").show();
+            $("#content-button-change-status-iconLoading").hide();
+        });
+    }
+}
+
+function arreglarCodigoNotificacionAdmin() {
+    var nombreReal = localStorage.getItem("notificacion_code");
+    var codigoNotificacion = localStorage.getItem("notificacion_code");
+    var arrayNotificacion = codigoNotificacion.split('_');
+    var totalUltimoCodigo = localStorage.getItem("notificacion_code").split('_').slice(-1)[0];
+
+    if (totalUltimoCodigo.length) {
+        for (let index = 0; index < totalUltimoCodigo.length; index++) {
+            nombreReal = nombreReal.substring(0, nombreReal.length - 1);
+        }
+    }
+
+    return nombreReal;
+}
+
+channelPorteria.bind('notificaciones', function(data) {
+    buscarNotificaciones();
+});
+
+function buscarNotificaciones() {
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'GET',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            localStorage.setItem("numero_notificaciones", res.total);
+            setNotificaciones(res.total);
+        }
+    }).fail((res) => {
+        // let timerInterval;
+        // setTimeout(() => {
+        //     window.location.href = '/login';
+        // }, 2200)
+        // caduqueSession();
+    });
+}
+
+function caduqueSession() {
+    Swal.fire({
+        title: "Sesión caducada!",
+        html: "En un momento será redirigido al inicio de sesión.",
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            const timer = Swal.getPopup().querySelector("b");
+            timerInterval = setInterval(() => {
+            timer.textContent = `${Swal.getTimerLeft()}`;
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        }
+        }).then((result) => {
+        closeSessionProfile();
+    });
+}
+
+function leerNotificaciones(id) {
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'PUT',
+        headers: headers,
+        data: JSON.stringify({id: id, estado: 2}),
+        dataType: 'json',
+    }).done((res) => {
+    }).fail((res) => {
+    });
+}
+
+function showProfile() {
+    $("#dropdown-perfil").removeClass('show');
+    openNewItem('perfil', 'Perfil', 'fas fa-cogd', false);
+}
+
+function closeSessionProfile() {
+    $.ajax({
+        url: base_web + 'logout',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        localStorage.setItem("token_db_portafolio", '');
+        localStorage.setItem("auth_token", '');
+        localStorage.setItem("auth_token_erp", '');
+        localStorage.setItem("empresa_nombre", '');
+        localStorage.setItem("notificacion_code", '');
+        localStorage.setItem("notificacion_code_general", '');
+        localStorage.setItem("fondo_sistema", '');
+        localStorage.setItem("empresa_logo", '');
+
+        window.location.href = '/login';
+    }).fail((res) => {
+        window.location.href = '/login';
+    });
+}
+
+function openPortafolioERP() {
+    $.ajax({
+        url: base_url + 'login-portafolioerp',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        window.open(base_web_erp + res.data, '_blank');
+    }).fail((res) => {
+    });
+}
+
+function openNewItem(id, nombre, icon, open = true) {
     if($('#containner-'+id).length == 0) {
         generateView(id, nombre, icon);
     }
     seleccionarView(id, nombre);
-    document.getElementById('sidenav-main-2').click();
+    if (open) document.getElementById('sidenav-main-2').click();
+}
+
+function closeAnotherItems(id) {
+    let items = document.getElementsByClassName("nav-padre");
+    for (let index = 0; index < items.length; index++) {
+        const element = items[index];
+        if (element.id != 'nav_'+id) {
+            element.classList.add("collapsed");
+            document.getElementById('collapse'+element.id.split('_')[1]).classList.remove("show"); 
+        }
+    }
 }
 
 function closeMenu() {
-    if (body.classList.contains(className)) {
+    if (sidenav.classList.contains('side-nav-maximo-open')) {
         toggleSidenavMaximo();
+    }
+    if (dropDownNotificacionOpen) {
+        $("#dropdown-notificaciones").removeClass('show');
+        dropDownNotificacionOpen = false;
+        return;
     }
 }
 
@@ -139,8 +572,7 @@ function callInitFuntion(id) {
 
 function includeJs(id){
     let scriptEle = document.createElement("script");
-
-    let urlFile = base_web + "assets/js/sistema/"+moduloRoute[id]+"/"+id+"-controller.js";
+    let urlFile = "assets/js/sistema/"+moduloRoute[id]+"/"+id+"-controller.js?v="+version_app;
     scriptEle.setAttribute("src", urlFile);
     scriptEle.onload = function () {
         callInitFuntion(id);
@@ -242,7 +674,7 @@ function toggleSidenavMaximoClose() {
 
 //PERSONAL TABLE LENGUAJE
 const lenguajeDatatable = {
-    "sProcessing":     "Cargando <span><i style='font-size: 15px' class='fa fa-spinner fa-spin'></i></span>",
+    "sProcessing":     "",
     "sLengthMenu":     "Mostrar _MENU_ registros",
     "sZeroRecords":    "No se encontraron resultados",
     "sEmptyTable":     "Ningún registro disponible",
@@ -296,10 +728,6 @@ const lenguajeDatatable = {
 //         $("#button-login").show();
 //     });
 // });
-
-$(".btn-cerrar").click(function(event){
-    console.log('asdasd');
-});
 
 function swalFire(titulo, mensaje, estado = true){
     var status = estado ? 'success' : 'error';
@@ -556,24 +984,6 @@ function loadExcel(data) {
     agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
 }
 
-$(document).on('click', '#descargarPlantilla', function () {
-    
-});
-
-btnLogout.addEventListener('click', event => {
-
-    event.preventDefault();
-    $.ajax({
-        url: base_web + 'logout',
-        method: 'POST',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        window.location.href = '/';
-    }).fail((err) => {
-    });
-});
-
 function numberWithCommas(x) {
     x = x.toString();
     var pattern = /(-?\d+)(\d{3})/;
@@ -583,31 +993,7 @@ function numberWithCommas(x) {
 }
 
 function selectMenu(menu) {
-    var nombre = '';
-    var tipoMenu = '';
-
-    if (menu == 'facturacion') {
-        nombre = 'Facturación';
-        
-        tipoMenu = 2;
-    } else if (menu == 'contabilidad') {
-        nombre = 'Contabilidad';
-        
-        tipoMenu = 1;
-    }
-
-    hideAllMenus();
-
-    var elements = document.getElementsByClassName('tipo_menu_'+tipoMenu);
-
-    if (elements.length) { //SHOW ELEMENTS
-        for (let index = 0; index < elements.length; index++) {
-            const element = elements[index];
-            element.style.display = 'block';
-        }
-    }
-    localStorage.setItem("item_active_menu", menu);
-    $('#dropdownTiposMenu').text(nombre);
+    
 }
 
 function showAllMenus() {
@@ -693,7 +1079,7 @@ function formatCurrencyValue (value) {
     }
 }
  
-function formatCurrency(input, blur) {
+function formatCurrency(input, blur, decimal = 2) {
     // appends $ to value, validates decimal side
     // and puts cursor back in right position.
     
@@ -721,15 +1107,14 @@ function formatCurrency(input, blur) {
         // add commas to left side of number
         left_side = formatNumber(left_side);
         // validate right side
-        right_side = formatNumber(right_side);
+        // right_side = formatNumber(right_side);
         // On blur make sure 2 numbers after decimal
-        if (blur === "blur") {
+        if (blur === "blur" && !right_side) {
             right_side += "00";
         }
         // Limit decimal to only 2 digits
-        right_side = right_side.substring(0, 2);
-
-        input_val = left_side + "." + right_side;
+        // right_side = right_side.substring(0, decimal);
+        input_val = left_side + "" + right_side;
     } else {
         input_val = formatNumber(input_val);
         if (blur === "blur") {
@@ -749,6 +1134,683 @@ function formatCurrency(input, blur) {
 
 function stringToNumberFloat (value) {
     value = value+'';
-    if (value) value = parseFloat(parseFloat(value.replaceAll(',', '')).toFixed(2));
+    if (value) value = parseFloat(parseFloat(value.replaceAll(',', '')).toFixed(5));
     return value ? value : 0;
+}
+
+const toCamelCase = str => {
+    const s =
+      str &&
+      str
+        .match(
+          /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
+        )
+        .map(x => x.slice(0, 1).toUpperCase() + x.slice(1).toLowerCase())
+        .join(' ');
+    return s.slice(0, 1).toUpperCase() + s.slice(1);
+};
+
+function monthYear (date) {
+    var fecha = date.split('-');
+
+    switch (fecha[1]) {
+        case '01':
+            return 'Enero de '+ fecha[0];
+            break;
+        case '02':
+            return 'Febrero de '+ fecha[0];
+            break;
+        case '03':
+            return 'Marzo de '+ fecha[0];
+            break;
+        case '04':
+            return 'Abril de '+ fecha[0];
+            break;
+        case '05':
+            return 'Mayo de '+ fecha[0];
+            break;
+        case '06':
+            return 'Junio de '+ fecha[0];
+            break;
+        case '07':
+            return 'Julio de '+ fecha[0];
+            break;
+        case '08':
+            return 'Agosto de '+ fecha[0];
+            break;
+        case '09':
+            return 'Septiembre de '+ fecha[0];
+            break;
+        case '10':
+            return 'Octubre de '+ fecha[0];
+            break;
+        case '11':
+            return 'Noviembre de '+ fecha[0];
+            break;
+        case '12':
+            return 'Dociembre de '+ fecha[0];
+            break;
+        default:
+            break;
+    }
+};
+
+function daysWeek (date) {
+    var days = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    var d = new Date(date);
+    var dayName = days[d.getDay()];
+    return dayName;
+}
+
+function createMensajePqrsf() {
+
+    var form = document.querySelector('#form-pqrsf-mensajes');
+    $('#mensaje_pqrsf_nuevo').removeClass("is-invalid-textarea");
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        
+        $('#mensaje_pqrsf_nuevo').addClass("is-invalid-textarea");
+        return;
+    }
+
+    var idMensaje = $("#id_pqrsf_up").val();
+
+    $("#button-send-pqrsf").hide();
+    $("#button-send-pqrsf-loading").show();
+
+    var ajxForm = document.getElementById("form-pqrsf-mensajes");
+    var data = new FormData(ajxForm);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "pqrsf-mensaje/"+idMensaje);
+    xhr.send(data);
+    xhr.onload = function(res) {
+
+        var responseData = JSON.parse(res.currentTarget.response);
+        
+        mostrarAgregarImagenes = false;
+        $("#button-add-img").removeClass('button-add-img-select');
+        $("#button-add-img").addClass('button-add-img');
+        $("#input-images-mensaje").hide();
+
+        openStatusPqrsf = false;
+        $(".update-status-pqrsf").hide();
+        $("#content-button-change-status").addClass('button-change-status');
+        $("#content-button-change-status").removeClass('button-change-status-select');
+        
+        $("#button-send-pqrsf").show();
+        $("#button-send-pqrsf-loading").hide();
+
+        if (responseData.success) {
+            resetImageMensajeUploader();
+            $("#mensaje_pqrsf_nuevo").val("");
+            setTimeout(function(){
+                $("#mensaje_pqrsf_nuevo").focus().select();
+            }, 100);
+            document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+        } else {
+            agregarToast('error', 'Carga errada', responseData.message);
+        }
+    };
+    xhr.onerror = function (res) {
+        agregarToast('error', 'Carga errada', 'errorsMsg');
+        $("#button-send-pqrsf").show();
+        $("#button-send-pqrsf-loading").hide();
+    };
+}
+
+function mostrarMensajesPqrsf(mensajes) {
+    for (let index = 0; index < mensajes.length; index++) {
+        var html = ``;
+        var className = '';
+        var mensaje = mensajes[index];
+        var htmlImagen = '';
+
+        if (mensaje.archivos) htmlImagen = htmlSwiperImg(mensaje.archivos);
+        
+        if (id_usuario_logeado == mensaje.created_by) {
+            className = 'mensaje-estilo-derecha';
+            html+=`${htmlImagen}<p style="font-size: 13px; margin-bottom: 0; font-weight: 600;">${mensaje.descripcion}</p>
+                <p style="font-size: 10px; margin-bottom: 0; font-weight: 500; text-align: end;">${definirTiempo(mensaje.created_at)}</p>
+                <i class="fas fa-caret-down icono-mensaje-derecha"></i>`;
+        } else {
+            className = 'mensaje-estilo-izquierda';
+            html+=`${htmlImagen}<p style="font-size: 13px; margin-bottom: 0; text-align-last: right; font-weight: 600;">${mensaje.descripcion}</p>
+                <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">${definirTiempo(mensaje.created_at)}</p>
+                <i class="fas fa-caret-down icono-mensaje-izquierda"></i>`;
+        }
+        var mensajeDising = document.createElement('div');
+        mensajeDising.setAttribute("class", className);
+        mensajeDising.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('offcanvas-body-pqrsf').insertBefore(mensajeDising, null);
+    }
+}
+
+function iniciarCronometroPqrsf(data) {
+    // $("#content-button-time-pqrsf-disabled").hide();
+    if (data.tipo != 5) {
+        return;
+    }
+    if (!data.tiempos.length) {
+        pararPqrsf();
+        return;
+    }
+
+    document.getElementById("hms").innerHTML="00:00:00";
+
+    var tiempos = data.tiempos;
+    var year = 0;
+    var dias = 0;
+    var fechaAhora = new Date();
+    horas = 0;
+    minutos = 0;
+    segundos = 0;
+    var startCront = false;
+
+    for (let index = 0; index < tiempos.length; index++) {
+        let tiempo = tiempos[index];
+        if (tiempo.tiempo_total) {
+            var tiempoSplit = tiempo.tiempo_total.split(', ');
+    
+            if (tiempoSplit[5]) {
+                segundos+= parseInt(tiempoSplit[5]);
+                if (segundos>59){minutos++;segundos=segundos-60;}
+            }
+    
+            if (tiempoSplit[4]) {
+                minutos+= parseInt(tiempoSplit[4]);
+                if (minutos>59){horas++;minutos=minutos-60;}
+            }
+    
+            if (tiempoSplit[3]) {
+                horas+= parseInt(tiempoSplit[3]);
+            }
+    
+            if (tiempoSplit[2]) {
+                var horasSumadas = (parseInt(tiempoSplit[2]) * 24);
+                horas+=horasSumadas;
+            }
+        } else {
+            var fechaInicio = new Date(tiempo.fecha_inicio);
+            var diffTime = Math.abs(fechaAhora - fechaInicio);
+            var diffDat = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            var diffHou = Math.floor(diffTime / (1000 * 60 * 60));
+            var diffMin = Math.floor(diffTime / (1000 * 60));
+            var diffSec = fechaInicio.getSeconds() - fechaAhora.getSeconds();
+            
+            if (diffSec) {
+                if (diffSec < 0) segundos+= parseInt(diffSec * -1);
+                else segundos+= parseInt(diffSec);
+                if (segundos>59){minutos++;segundos=segundos-60;}
+            }
+    
+            if (diffMin) {
+                if (diffMin < 0) minutos+= parseInt(diffMin * -1);
+                else minutos+= parseInt(diffMin);
+                if (minutos>59){horas++;minutos=minutos-60;}
+            }
+    
+            if (diffHou) {
+                if (diffHou < 0) horas+= parseInt(diffHou * -1);
+                else horas+= parseInt(diffHou);
+            }
+
+            if (diffDat) {
+                if (diffDat < 0) horas+= (parseInt(diffDat * -1) * 24);
+                else horas+= (parseInt(diffDat) * 24);
+            }
+
+            startCront = true;
+        }
+    }
+
+    cronometroPqrsf(false);
+
+    $(".add-time-pqrsf").hide();
+    $("#content-button-change-time").addClass('button-change-status');
+    $("#content-button-change-time").removeClass('button-change-status-select');
+
+    addTimePqrst();
+    if (startCront) inicioTimePqrsf();
+    else pararPqrsf();
+}
+
+function actualizarBotonesMensaje(cabezaMensaje) {
+    if (idRolUsuario == 1 || idRolUsuario == 2) {
+        $('#content-button-status-pqrsf').show();
+        $("#content-button-time-pqrsf-disabled").hide();
+    } else {
+        $('#content-button-status-pqrsf').hide();
+        $("#content-button-time-pqrsf-disabled").show();
+    }
+
+    actualizarEstadosPqrsf(cabezaMensaje.estado);
+}
+
+function actualizarEstadosPqrsf (estado) {
+
+    $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-activo');
+    $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-proceso');
+    $("#estado_en_mensaje_pqrsf").removeClass('pqrsf-chat-cerrado');
+
+    $("#butonActionActivo").hide();
+    $("#butonActionProceso").hide();
+    $("#butonActionCerrado").hide();
+
+    if (estado == 0 || estado == 3) {
+        $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-activo');
+        $("#butonActionProceso").show();
+        $("#butonActionCerrado").show();
+        $("#estado_en_mensaje_pqrsf").text("Activo");
+    }
+    if (estado == 1) {
+        $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-proceso');
+        $("#butonActionActivo").show();
+        $("#butonActionCerrado").show();
+        $("#estado_en_mensaje_pqrsf").text("En proceso");
+    }
+    if (estado == 2) {
+        $("#estado_en_mensaje_pqrsf").addClass('pqrsf-chat-cerrado');
+        $("#butonActionActivo").show();
+        $("#butonActionProceso").show();
+        $("#estado_en_mensaje_pqrsf").text("Cerrado");
+    }
+}
+
+function cerrarNotificacion(id_data, id_notificacion) {
+    leerNotificaciones(id_notificacion);    
+    openDropDownNotificaciones(true);
+    buscarNotificaciones();
+}
+
+function clickAddImgPqrsfEvent() {
+    if (mostrarAgregarImagenes) {
+        mostrarAgregarImagenes = false;
+        $("#button-add-img").removeClass('button-add-img-select');
+        $("#button-add-img").addClass('button-add-img');
+        $("#input-images-mensaje").hide();
+    }
+    else {
+        mostrarAgregarImagenes = true;
+        $("#button-add-img").removeClass('button-add-img');
+        $("#button-add-img").addClass('button-add-img-select');
+        $("#input-images-mensaje").show();
+    }
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    },10);
+}
+
+function guardarInicioPqrsf() {
+    $("#icon-loading-time-pqrsf").show();
+    var data = {
+        id: $("#id_pqrsf_up").val()
+    }
+    $.ajax({
+        url: base_url + 'pqrsf-tiempo',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            inicioTimePqrsf();
+            mostrarMensajesPqrsf(res.mensaje);
+            $("#icon-loading-time-pqrsf").hide();
+        }
+    }).fail((err) => {
+        $("#icon-loading-time-pqrsf").hide();
+    });
+}
+
+function guardarTiempoPqrsf(inicio = false) {
+    $("#icon-loading-time-pqrsf").show();
+    var data = {
+        id: $("#id_pqrsf_up").val()
+    }
+    $.ajax({
+        url: base_url + 'pqrsf-tiempo',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            if (inicio) inicioTimePqrsf();
+            else pararPqrsf();
+            actualizarEstadosPqrsf(res.data.estado);
+            mostrarMensajesPqrsf(res.mensaje);
+            $("#icon-loading-time-pqrsf").hide();
+        }
+    }).fail((err) => {
+        $("#icon-loading-time-pqrsf").hide();
+    });
+}
+
+function addTimePqrst(open = false) {
+    if (mostrarAgregarTiempos && !open) {
+        mostrarAgregarTiempos = false;
+        $(".add-time-pqrsf").hide();
+        $("#content-button-change-time").addClass('button-change-status');
+        $("#content-button-change-time").removeClass('button-change-status-select');
+    } 
+    else {
+        mostrarAgregarTiempos = true;
+        $(".add-time-pqrsf").show();
+        $("#content-button-change-time").removeClass('button-change-status');
+        $("#content-button-change-time").addClass('button-change-status-select');
+    }
+
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    },10);
+}
+
+function changeEstadoPqrst() {
+    if (openStatusPqrsf) {
+        openStatusPqrsf = false;
+        $(".update-status-pqrsf").hide();
+        $("#content-button-change-status").addClass('button-change-status');
+        $("#content-button-change-status").removeClass('button-change-status-select');
+    } 
+    else {
+        openStatusPqrsf = true;
+        $(".update-status-pqrsf").show();
+        $("#content-button-change-status").removeClass('button-change-status');
+        $("#content-button-change-status").addClass('button-change-status-select');
+    }
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    },10);
+}
+
+function initSwipers() {
+    new Swiper(".mySwiper", {
+        effect: "cards",
+        grabCursor: true,
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+    });
+}
+
+function htmlSwiperImg(imagenes) {
+    if (imagenes.length == 1) {
+        return `<img style="height: 180px; object-fit: contain; width: -webkit-fill-available;" src="${bucketUrl+imagenes[0].url_archivo}">`;
+    }
+
+    var html = ``;
+
+    for (let index = 0; index < imagenes.length; index++) {
+        var imagen = imagenes[index];
+        if (index) {
+            html+=`<div class="swiper-slide" role="group" style="width: 300px !important; z-index: 7; transform: ${medidasSwiper[index]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        } else {
+            html+=`<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 300px !important; z-index: 9; transform: ${medidasSwiper[0]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        }
+    }
+    return `<div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress">
+        <div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden;">
+            ${html}
+            <div class="swiper-button-next" tabindex="0" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="false"></div>
+            <div class="swiper-button-prev swiper-button-disabled" tabindex="-1" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="true"></div>
+            <div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal"><span class="swiper-pagination-bullet swiper-pagination-bullet-active" aria-current="true"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span></div>
+            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
+        </div>
+    </div>`;
+}
+
+function definirTiempo(date) {
+
+    var hoy = fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
+    var fechaMensahe = new Date(date);
+    var fecha_mensaje = fechaMensahe.getFullYear()+'-'+("0" + (fechaMensahe.getMonth() + 1)).slice(-2)+'-'+("0" + (fechaMensahe.getDate())).slice(-2);
+    var hora_mensaje = fechaMensahe.getHours()+''.slice(-2)+':'+fechaMensahe.getMinutes()+''.slice(-2)
+    var dias_diferencia = dateDifferenceInDays(
+        new Date(fecha_mensaje),
+        new Date(hoy)
+    );
+
+    if (fecha_mensaje == hoy) {
+        return 'Hoy '+hora_mensaje;
+    }
+
+    if (dias_diferencia == 1) {
+        return 'Ayer '+hora_mensaje;
+    }
+
+    if (dias_diferencia < 6) {
+        return daysWeek(date)+' '+hora_mensaje;
+    }
+
+    return fecha_mensaje+' '+hora_mensaje;
+}
+
+function findDataPqrsf(id) {
+
+    $("#offcanvas-body-pqrsf").empty();
+    document.getElementById('button-open-datelle-pqrsf').click();
+
+    $.ajax({
+        url: base_url + 'pqrsf-find',
+        method: 'GET',
+        data: {
+            id: id
+        },
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        var data = res.data;
+        $(".add-time-pqrsf").hide();
+        document.getElementById("hms").innerHTML="00:00:00";
+        horas = 0;
+        minutos = 0;
+        segundos = 0;
+   
+        if (id_usuario_logeado == data.id_usuario) {
+            var nombreCreador = data.creador.firstname;
+            nombreCreador+= data.creador.lastname ? ' '+data.creador.lastname : '';
+            if (data.nit) nombreCreador+= ' '+data.nit.apartamentos;
+            
+            $("#id_name_person_pqrsf").text(nombreCreador);
+
+            if (data.creador.avatar) {
+                $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+            } else if (data.nit.logo_nit) {
+                $("#offcanvas_header_img").attr("src",bucketUrl + data.nit.logo_nit);
+            }
+            permisoAgregarTiempos = true;
+        } else {
+            if (data.usuario) {
+                if (data.usuario.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.usuario.avatar);
+                
+                if (data.usuario.lastname) {
+                    $("#id_name_person_pqrsf").text(data.usuario.firstname+' '+data.usuario.lastname);
+                } else {
+                    $("#id_name_person_pqrsf").text(data.usuario.firstname);
+                }
+            } else if (data.creador) {
+                if (data.creador.avatar) $("#offcanvas_header_img").attr("src",bucketUrl + data.creador.avatar);
+            }
+            
+            permisoAgregarTiempos = false;
+        }
+        mostrarAgregarTiempos = false;
+        $("#content-button-time-pqrsf-disabled").show();
+        $("#content-button-time-pqrsf").hide();
+        $("#content-button-change-time").addClass('button-change-status');
+        $("#content-button-change-time").removeClass('button-change-status-select');
+        $(".add-time-pqrsf").hide();
+        
+        mostrarDatosCabeza(data);
+        mostrarMensajesPqrsf(data.mensajes);
+        iniciarCronometroPqrsf(data);
+        actualizarBotonesMensaje(data);
+        initSwipers();
+
+        document.getElementById("offcanvas-body-pqrsf").scrollTop = 10000000;
+    }).fail((err) => {
+        
+    });
+}
+
+function mostrarDatosCabeza(data) {
+    if (data.archivos) agregarSwiperImg(data.archivos);
+
+    var asunto = document.createElement('p');
+    asunto.setAttribute("style", "font-weight: bold; margin-top: 15px;");
+    asunto.innerHTML = [
+        data.asunto
+    ].join('');
+    document.getElementById('offcanvas-body-pqrsf').insertBefore(asunto, null);
+
+    var descripcion = document.createElement('p');
+    descripcion.setAttribute("style", "font-size: 13px;");
+    descripcion.innerHTML = [
+        data.descripcion
+    ].join('');
+    document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
+
+    if (data.estado == 2 && idRolUsuario != 1 && idRolUsuario != 2) $("#row-actios-pqrsf").hide();
+    else $("#row-actios-pqrsf").show();
+
+    if (data.estado == 2) permisoAgregarTiempos = false;
+
+    // $("#content-button-time-pqrsf-disabled").hide();
+}
+
+function agregarSwiperImg(imagenes) {
+    var html = ``;
+    var item = document.createElement('div');
+    if (imagenes.length == 1) {
+        html = `<img style="height: 180px; object-fit: contain; width: -webkit-fill-available;" src="${bucketUrl+imagenes[0].url_archivo}">`;
+        item.innerHTML = [
+            html
+        ].join('');
+        document.getElementById('offcanvas-body-pqrsf').insertBefore(item, null);
+        return;
+    }
+    for (let index = 0; index < imagenes.length; index++) {
+        var imagen = imagenes[index];
+        if (index) {
+            html+=`<div class="swiper-slide" role="group" style="width: 300px !important; z-index: 7; transform: ${medidasSwiper[index]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down; width: -webkit-fill-available; object-fit: contain;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        } else {
+            html+=`<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 300px !important; z-index: 9; transform: ${medidasSwiper[0]} background-color: #c7c7c7;">
+                    <img style="height: 180px; object-fit: scale-down; width: -webkit-fill-available; object-fit: contain;" src="${bucketUrl+imagen.url_archivo}">
+                    <div class="swiper-slide-shadow swiper-slide-shadow-cards" style="opacity: 0;">
+                    </div>
+                </div>`;
+        }
+    }
+    item.setAttribute("class", "swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress");
+    
+    item.innerHTML = [
+        `<div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden;">
+            ${html}
+            <div class="swiper-button-next" tabindex="0" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="false"></div>
+            <div class="swiper-button-prev swiper-button-disabled" tabindex="-1" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-3ee8ff5d94abab7c" aria-disabled="true"></div>
+            <div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal"><span class="swiper-pagination-bullet swiper-pagination-bullet-active" aria-current="true"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span><span class="swiper-pagination-bullet"></span></div>
+            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
+        </div>`
+    ].join('');
+    document.getElementById('offcanvas-body-pqrsf').insertBefore(item, null);
+    return;
+}
+
+function resetImageMensajeUploader() {
+    // Destruye el componente
+    $('.input-images-mensaje').html('');
+
+    // // Reinicializa el componente
+    $('.input-images-mensaje').imageUploader({
+        imagesInputName: 'photos',
+        preloadedInputName: 'old',
+        maxFiles: 10
+    });
+}
+
+resetImageMensajeUploader();
+
+var segundos = 0;
+var minutos = 0;
+var horas = 0;
+
+function inicioTimePqrsf () {
+    $("#iniciar-tiempo-pqrsf").hide();
+    $("#detener-tiempo-pqrsf").hide();
+    $("#content-button-time-pqrsf").hide();
+    if (permisoAgregarTiempos) {
+        $("#detener-tiempo-pqrsf").show();
+        $("#content-button-time-pqrsf").show();
+    }
+	control = setInterval(cronometroPqrsf,1000);
+}
+
+function pararPqrsf () {
+    $("#iniciar-tiempo-pqrsf").hide();
+    $("#detener-tiempo-pqrsf").hide();
+    $("#content-button-time-pqrsf").hide();
+    if (permisoAgregarTiempos) {
+        $("#iniciar-tiempo-pqrsf").show();
+        $("#content-button-time-pqrsf").show();
+    }
+    if (typeof control !== 'undefined') clearInterval(control);
+	
+}
+
+function reinicioPqrsf () {
+	clearInterval(control);
+	segundos = 0;
+	minutos = 0;
+	horas = 0;
+}
+
+function cronometroPqrsf (init = true) {
+
+    var hAux, mAux, sAux;
+    if (init) segundos++;
+
+    if (segundos>59){minutos++;segundos=0;}
+    if (minutos>59){horas++;minutos=0;}
+
+    if (segundos<10){sAux="0"+segundos;}else{sAux=segundos;}
+    if (minutos<10){mAux="0"+minutos;}else{mAux=minutos;}
+    if (horas<10){hAux="0"+horas;}else{hAux=horas;}
+
+    document.getElementById("hms").innerHTML = hAux + ":" + mAux + ":" + sAux; 
+}
+
+function arreglarMensajeError(mensaje) {
+    var errorsMsg = '';
+    if (typeof mensaje === 'object') {
+        for (field in mensaje) {
+            var errores = mensaje[field];
+            for (campo in errores) {
+                errorsMsg += field+": "+errores[campo]+" <br>";
+            }
+        };
+    }
+    else if (typeof mensaje === 'string') {
+        errorsMsg = mensaje;
+    }
+    return errorsMsg;
 }
