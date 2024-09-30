@@ -60,7 +60,7 @@ function usuariosInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (correoUsuarios) {
+                    if (correoUsuarios && !row.email_verified_at) {
                         if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
                             html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>&nbsp;';
                         } else if (row.id_rol != 1) {

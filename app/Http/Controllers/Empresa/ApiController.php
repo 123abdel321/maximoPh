@@ -376,6 +376,7 @@ class ApiController extends Controller
 
             if ($user) {
                 $user->update([
+                    'email_verified_at' => Carbon::now(),
                     'password' => $request->get('password'),
                     'code_general' => ''
                 ]);
