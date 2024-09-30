@@ -107,32 +107,32 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // if ($this->hasTooManyLoginAttempts($request)) {
-		// 	$this->fireLockoutEvent($request);
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Numero maximo de intentos permitidos, vuelva a intentarlo en 1 minuto'
-        //     ], 401);
-		// }
+        if ($this->hasTooManyLoginAttempts($request)) {
+			$this->fireLockoutEvent($request);
+            return response()->json([
+                'success' => false,
+                'message' => 'Numero maximo de intentos permitidos, vuelva a intentarlo en 1 minuto'
+            ], 401);
+		}
 
-        // $captcha_token = $request->get("g-recaptcha-response");
+        $captcha_token = $request->get("g-recaptcha-response");
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
 
-        // if($captcha_token){
-		// 	$captcha_response = $this->validateReCaptcha($captcha_token);
-		// 	if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
-		// 		return response()->json([
-		// 			'success' => false,
-		// 			'message' => 'Falló la validación de reCAPTCHA'
-		// 		], 401);
-		// 	}
-		// }else{
-		// 	return response()->json([
-        //         'success' => false,
-		// 		'message' => 'Falló la validación de reCAPTCHA'
-		// 	], 401);
-		// }
+        if($captcha_token){
+			$captcha_response = $this->validateReCaptcha($captcha_token);
+			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
+				return response()->json([
+					'success' => false,
+					'message' => 'Falló la validación de reCAPTCHA'
+				], 401);
+			}
+		}else{
+			return response()->json([
+                'success' => false,
+				'message' => 'Falló la validación de reCAPTCHA'
+			], 401);
+		}
 
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         $browser        = "Desconocido";
@@ -289,8 +289,8 @@ class LoginController extends Controller
                 ];
             }
         
-            // $visitante = Visitantes::create($data);
-            // info('Usuario: ', $data);
+            $visitante = Visitantes::create($data);
+            info('Usuario: ', $data);
 
             return response()->json([
                 'success'=>	true,
