@@ -152,9 +152,12 @@ class PerfilController extends Controller
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
 
-            $nitActual = Nits::find($usuarioEmpresa->id_nit);
-            $nitActual->logo_nit = $url;
-            $nitActual->save();
+            if ($usuarioEmpresa->id_nit) {
+                Nits::where('id', $usuarioEmpresa->id_nit)
+                    ->update([
+                        'logo_nit' => $url
+                    ]);
+            }
         }
 
         return response()->json([
