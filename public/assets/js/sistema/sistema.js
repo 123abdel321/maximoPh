@@ -308,7 +308,7 @@ channelPqrsf.bind('notificaciones', function(data) {
 channelAbdelCartagena.bind('notificaciones', function(data) {
     let timerInterval;
     Swal.fire({
-        title: "Version obsoleta!",
+        title: "Actualizando nueva version!",
         html: "Se recargará la pagina para aplicar la version: "+version_app,
         timer: 4000,
         timerProgressBar: true,
