@@ -58,6 +58,9 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
             copyDBConnection('max', 'max');
             setDBInConnection('max', $this->empresa->token_db_maximo);
 
+            copyDBConnection('sam', 'sam');
+            setDBInConnection('sam', $this->empresa->token_db_portafolio);
+
             $inmueblesNits = InmuebleNit::whereNotNull('id_nit')
                 ->groupBy('id_nit');
             
