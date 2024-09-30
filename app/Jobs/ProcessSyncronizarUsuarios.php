@@ -153,6 +153,41 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
                         $archivo->relation()->associate($portero);
                         $portero->archivos()->save($archivo);
                     }
+                } else if ($usuario) {//REINICIAR ITEMS EN PORTERIA
+                    $usuarioEm = UsuarioEmpresa::where('id_nit', $dataInmueble->id_nit)
+                        ->with('usuario')
+                        ->first();
+
+                    if ($usuarioEm->usuario && !$usuarioEm->usuario->email_verified_at) {
+                        Porteria::where('id_usuario', $usuarioEm->usuario->id)
+                            ->delete();
+
+                        $portero = Porteria::create([
+                            'id_usuario' => $usuarioEm->usuario->id,
+                            'id_nit' => $nit->id,
+                            'tipo_porteria' => $dataInmueble->tipo == 1 ? 1 : 0,
+                            'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                            'dias' => !$dataInmueble->tipo ? '1,2,3,4,5,6,7' : null,
+                            'created_by' => $this->id_usuario,
+                            'updated_by' => $this->id_usuario,
+                        ]);
+
+                        $tieneImagen = ArchivosGenerales::where('relation_type', 1)
+                            ->where('relation_id', $portero->id);
+                        
+                        if ($nit->logo_nit && !$tieneImagen->count()) {
+                            $archivo = new ArchivosGenerales([
+                                'tipo_archivo' => 'imagen',
+                                'url_archivo' => $nit->logo_nit,
+                                'estado' => 1,
+                                'created_by' => $this->id_usuario,
+                                'updated_by' => $this->id_usuario
+                            ]);
+                
+                            $archivo->relation()->associate($portero);
+                            $portero->archivos()->save($archivo);
+                        }
+                    }
                 }
             }
             
