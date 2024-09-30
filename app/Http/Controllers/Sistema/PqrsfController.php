@@ -214,7 +214,7 @@ class PqrsfController extends Controller
                 }
             }
             
-            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido una nueva '.$this->tipoPqrsf($pqrsf->tipo).' de '.$nombreUsuario.' '.$usuarioEmpresa->nit->apartamentos;
+            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).'</b>Asunto: '.$pqrsf->asunto   ;
             
             $notificacion = (new NotificacionGeneral(
                 request()->user()->id,
@@ -733,12 +733,12 @@ class PqrsfController extends Controller
 
     private function tipoPqrsf ($tipo)
     {
-        if ($tipo == '5') return '<b>TAREA</b>';
-        if ($tipo == '1') return '<b style="color: #ff0000;">QUEJA</b>';
-        if ($tipo == '2') return '<b style="color: #ff0000;">RECLAMO</b>';
-        if ($tipo == '3') return '<b style="color: #00ffe7;">SOLICITUD</b>';
-        if ($tipo == '4') return '<b style="color: #04ff00;">FELICITACION</b>';
+        if ($tipo == '5') return '<b>una TAREA</b>';
+        if ($tipo == '1') return '<b style="color: #ff0000;">una QUEJA</b>';
+        if ($tipo == '2') return '<b style="color: #ff0000;">un RECLAMO</b>';
+        if ($tipo == '3') return '<b style="color: #00ffe7;">una SOLICITUD</b>';
+        if ($tipo == '4') return '<b style="color: #04ff00;">una FELICITACION</b>';
 
-        return '<b style="color: #00ffe7;">PETICION</b>';
+        return '<b style="color: #00ffe7;">una PETICION</b>';
     }
 }
