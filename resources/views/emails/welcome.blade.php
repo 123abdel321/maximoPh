@@ -23,7 +23,7 @@
                             <h2 style="font-size: 20px; color: #333333; margin: 0 0 10px;">¡Hola, {{ $nombre }}!</h2>
                             <p style="font-size: 16px; line-height: 1.5; margin: 0 0 20px;">
                                 Para comenzar, solo necesitas hacer clic en el botón Confirmar Correo y estarás dentro en cuestión de segundos. <br/>
-                                Obtendrás todos los beneficios para realizar tus pagos directos online, podrás revisar tu estado de cuenta y gestionar tus PQRS. Gracias por elegirnos, esperamos que lo disfrutes.
+                                Podrás revisar tu estado de cuenta y gestionar tus PQRS. Además, podrás registrar la información de tu grupo familiar. Gracias por elegirnos, esperamos que lo disfrutes.
                             </p>
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
