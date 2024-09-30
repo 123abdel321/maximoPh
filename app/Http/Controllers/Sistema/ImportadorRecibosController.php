@@ -223,16 +223,18 @@ class ImportadorRecibosController extends Controller
                             null,
                             $this->fechaManual
                         ))->actual()->get();
+                        
                         $realizarDescuento = false;
                         
                         $deudaTotal = $this->sumarDeudaTotal($extractos);
                         $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
                         $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
                         $anticiposDisponibles = $anticiposNit;
-                            
+                        
                         if ($facturaDescuento && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                             $realizarDescuento = true;
                         }
+                        
                         //AGREGAR DEUDA
                         foreach ($extractos as $extracto) {
                             if ($valorDisponible <= 0) continue;
@@ -241,12 +243,12 @@ class ImportadorRecibosController extends Controller
                             $valorPendiente = $extracto->saldo;
                             $valorDescuento = 0;
                             
-                            
                             if ($realizarDescuento) {
-                                $realizarDescuento = false;
+                                
                                 if (!array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
                                     continue;
                                 }
+                                $realizarDescuento = false;
                                 $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
 
                                 $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
@@ -396,7 +398,7 @@ class ImportadorRecibosController extends Controller
                 }
             }
             
-            ConRecibosImport::whereIn('estado', [0])->delete();
+            // ConRecibosImport::whereIn('estado', [0])->delete();
 
             DB::connection('max')->commit();
 
