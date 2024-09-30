@@ -32,6 +32,11 @@ class ReloadPageVersion extends Command
         $versionGuardada = Versiones::where('estado', 1)->first();
         if ($versionGuardada && $versionGuardada->nombre == $nombreVersionActual) {
         } else {
+            Versiones::where('estado', 1)
+                ->update([
+                    'estado' => 0
+                ]);
+                
             Versiones::create([
                 'nombre' => $nombreVersionActual,
                 'estado' => 1
