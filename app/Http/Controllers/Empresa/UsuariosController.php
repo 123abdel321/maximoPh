@@ -10,6 +10,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessSyncronizarUsuarios;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\User;
@@ -453,10 +454,11 @@ class UsuariosController extends Controller
         return $user->paginate($totalRows);
     }
 
-    public function sync (Request $request)
+    public function sync2 (Request $request)
     {
         try {
             DB::connection('clientes')->beginTransaction();
+
             
             $inmueblesNits = InmuebleNit::whereNotNull('id_nit')
                 ->groupBy('id_nit');
@@ -476,10 +478,10 @@ class UsuariosController extends Controller
             }
             $dataInmuebles = $inmueblesNits->get();
             
-            $empresa = Empresa::find(request()->user()->id_empresa);
-            
+            $empresa = Empresa::find(request()->user()->id_empresa);   
             
             foreach ($dataInmuebles as $dataInmueble) {
+                
                 $usuario = UsuarioEmpresa::where('id_nit', $dataInmueble->id_nit)
                     ->count();
                 
@@ -571,6 +573,29 @@ class UsuariosController extends Controller
 
         } catch (Exception $e) {
             DB::connection('clientes')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function sync (Request $request)
+    {
+        try {
+
+            $data = $request->only(['id_inmueble', 'id_nit', 'id_zona']);
+            ProcessSyncronizarUsuarios::dispatch(request()->user()->id, request()->user()->id_empresa, $data);
+
+            return response()->json([
+                "success"=>true,
+                'data' => [],
+                "message"=>'Sincronizando usuarios...'
+            ], 200);
+
+        } catch (Exception $e) {
+            
             return response()->json([
                 "success"=>false,
                 'data' => [],
