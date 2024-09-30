@@ -1219,6 +1219,13 @@ div.dataTables_processing {
     text-align-last: center;
 }
 
+.ubicacion-notificacion {
+    margin-bottom: 0px;
+    font-size: 10px;
+    font-weight: 500;
+    text-align-last: center;
+}
+
 .sin-notificaciones-icon {
     margin: 0;
     position: absolute;

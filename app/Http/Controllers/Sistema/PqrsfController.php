@@ -118,7 +118,7 @@ class PqrsfController extends Controller
                 ->where('id', $request->get('id'))
                 ->first();
 
-            if (!$pqrsf->id_usuario) {
+            if (!$pqrsf->id_usuario && $pqrsf->created_by != request()->user()->id) {
                 Pqrsf::where('id', $request->get('id'))
                     ->whereNull('id_usuario')
                     ->update([
@@ -214,7 +214,7 @@ class PqrsfController extends Controller
                 }
             }
             
-            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).'</b>Asunto: '.$pqrsf->asunto   ;
+            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).' para el area: '.$this->areaPqrsf($pqrsf->area);
             
             $notificacion = (new NotificacionGeneral(
                 request()->user()->id,
@@ -740,5 +740,14 @@ class PqrsfController extends Controller
         if ($tipo == '4') return '<b style="color: #04ff00;">una FELICITACION</b>';
 
         return '<b style="color: #00ffe7;">una PETICION</b>';
+    }
+
+    private function areaPqrsf ($area)
+    {
+        if ($area == '1') return '<b> ADMINISTRACIÓN</b>';
+        if ($area == '2') return '<b> SEGURIDAD</b>';
+        if ($area == '3') return '<b> ASEO</b>';
+        if ($area == '4') return '<b> MANTENIMIENTO</b>';
+        if ($area == '5') return '<b> ZONAS COMUNES</b>';
     }
 }
