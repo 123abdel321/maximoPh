@@ -171,19 +171,21 @@ class PerfilController extends Controller
             ->where('id_usuario', $request->user()['id'])
             ->first();
 
-        $notificaciones = DB::connection('max')->select("SELECT
-                enviar_notificaciones_mail,
-                enviar_notificaciones_fisica
-            FROM
-                inmueble_nits
+        if ($usuarioEmpresa->nit) {
+            $notificaciones = DB::connection('max')->select("SELECT
+                    enviar_notificaciones_mail,
+                    enviar_notificaciones_fisica
+                FROM
+                    inmueble_nits
+                    
+                WHERE id_nit = {$usuarioEmpresa->nit->id}
                 
-            WHERE id_nit = {$usuarioEmpresa->nit->id}
-            
-            GROUP BY id_nit
-        ");
-
-        $notificaciones = collect($notificaciones);
-        $notificaciones = count($notificaciones) ? $notificaciones[0] :  null;
+                GROUP BY id_nit
+            ");
+    
+            $notificaciones = collect($notificaciones);
+            $notificaciones = count($notificaciones) ? $notificaciones[0] :  null;
+        }
 
         return response()->json([
             'success'=>	true,
