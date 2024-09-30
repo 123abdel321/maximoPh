@@ -235,7 +235,7 @@ class PqrsfController extends Controller
             ], true);
             $notificacion->notificar(
                 [
-                    'notificacion-pqrsf-'.$request->user()['has_empresa']
+                    'pqrsf-mensaje-responder-'.$request->user()['has_empresa']
                 ],
                 ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
             );
@@ -317,12 +317,6 @@ class PqrsfController extends Controller
                 }
             }
 
-            $notificacionesEnEspera = Notificaciones::where('notificacion_id', $id)
-                ->where('notificacion_type', 12)
-                ->where('estado', 0)
-                ->update([
-                    'estado', 2
-                ]);
             
             $mensaje = PqrsfMensajes::where('id', $mensajes->id)
                 ->with('archivos')

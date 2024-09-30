@@ -123,10 +123,24 @@ class NotificacionesController extends Controller
             $notificacion->updated_by = request()->user()->id;
             $notificacion->estado = $request->get('estado');
             $notificacion->id_rol = 0;
+            $idUsuario = $notificacion->id_usuario;
             if (!$notificacion->id_usuario) {
+                $idUsuario = request()->user()->id;
                 $notificacion->id_usuario = request()->user()->id;
             }
+
             $notificacion->save();
+            
+            Notificaciones::where('notificacion_type', 12)
+                ->where('id_usuario', $notificacion->id_usuario)
+                ->where('notificacion_id', $notificacion->notificacion_id)
+                ->where('estado', 0)
+                ->update([
+                    'estado' => $request->get('estado'),
+                    'id_rol' => 0,
+                    'updated_by' => request()->user()->id,
+                    'id_usuario' => $idUsuario
+                ]);
 
             $notificacionesCount = Notificaciones::with('creador')
                 ->where('estado', '=', 0)

@@ -271,7 +271,8 @@ if (channelPqrsfGeneral) {
     channelPqrsfGeneral.bind('notificaciones', function(data) {
         
         var idPqrsfOpen = $("#id_pqrsf_up").val();
-        if (data.id_pqrsf == idPqrsfOpen) {
+
+        if (data.id_pqrsf == idPqrsfOpen) {//SI EN LA DATA VIENE id_pqrsf y el menu esta abierto: Muestra el mensaje
             mostrarMensajesPqrsf(data.data);
             if (data.length && data.data) actualizarEstadosPqrsf(data.data[0].estado);
             initSwipers();
@@ -279,8 +280,9 @@ if (channelPqrsfGeneral) {
             if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
         } else if (parseInt(id_usuario_logeado) == data.id_usuario) {
             openDropDownNotificaciones(true);
+        } else if (data.id_notificacion) {
+            openDropDownNotificaciones(true);
         }
-        
     });
 }
 
