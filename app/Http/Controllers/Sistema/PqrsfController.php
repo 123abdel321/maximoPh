@@ -320,7 +320,9 @@ class PqrsfController extends Controller
             $notificacionesEnEspera = Notificaciones::where('notificacion_id', $id)
                 ->where('notificacion_type', 12)
                 ->where('estado', 0)
-                ->count();
+                ->update([
+                    'estado', 2
+                ]);
             
             $mensaje = PqrsfMensajes::where('id', $mensajes->id)
                 ->with('archivos')
