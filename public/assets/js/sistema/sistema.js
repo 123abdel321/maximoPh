@@ -259,11 +259,8 @@ function setNotificaciones(total = 0) {
 }
 
 function iniciarCanalesDeNotificacion () {
-    // if (idRolUsuario == 1 || idRolUsuario == 2) {
-    //     // channelAdminPqrsf = pusher.subscribe('pqrsf-mensaje-'+arreglarCodigoNotificacionAdmin()+'rol_admin');
-    // } else {
-    // }
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
+    channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena');
 
     if (pqrsf_responder) {
         channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
@@ -306,6 +303,32 @@ channelPqrsf.bind('notificaciones', function(data) {
             openDropDownNotificaciones();
         }
     }
+});
+
+channelAbdelCartagena.bind('notificaciones', function(data) {
+    let timerInterval;
+    Swal.fire({
+        title: "Version obsoleta!",
+        html: "Se recargará la pagina para aplicar la version: "+version_app,
+        timer: 4000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+            const timer = Swal.getPopup().querySelector("b");
+            timerInterval = setInterval(() => {
+            }, 100);
+        },
+        willClose: () => {
+            clearInterval(timerInterval);
+        }
+        }).then((result) => {
+        /* Read more about handling dismissals below */
+        if (result.dismiss === Swal.DismissReason.timer) {
+        }
+    });
+    setTimeout(function(){
+        location.reload();
+    },4000);
 });
 
 if (channelAdminPqrsf) {
