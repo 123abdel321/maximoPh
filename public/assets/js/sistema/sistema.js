@@ -327,7 +327,7 @@ channelAbdelCartagena.bind('notificaciones', function(data) {
         }
     });
     setTimeout(function(){
-        location.reload();
+        closeSessionProfile();
     },4000);
 });
 
