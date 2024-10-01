@@ -357,18 +357,14 @@ class PqrsfController extends Controller
             $mensajeText = '<b style="color: gold;">PQRSF</b>: Ha recibido un nuevo <b>MENSAJE</b> de '.$nombreUsuario.' '.$apartamentos;
             
             $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' => $usuarioNotificacion,
+                'id_usuario' => $pqrsf->id_usuario ? $usuarioNotificacion : 1,
                 'mensaje' => $mensajeText,
                 'function' => 'abrirPqrsfNotificacion',
                 'data' => $id,
-                'estado' => 0,
+                'estado' => $pqrsf->id_usuario ? 0 : 2,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);
-
-            // if (!$usuarioNotificacion) {
-            //     $notificar = 'notificacion-pqrsf-'.$request->user()['has_empresa'];
-            // }
 
             $notificacion->notificar(
                 $canalesNotificacion,
