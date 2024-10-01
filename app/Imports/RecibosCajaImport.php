@@ -155,7 +155,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
                     $extractoSaldo = (new Extracto(
                         $nit->id,
-                        [3,7]
+                        [3,4,7,8]
                     ))->completo()->first();
 
                     $extractoSaldo = $extractoSaldo ? $extractoSaldo->saldo : 0;
