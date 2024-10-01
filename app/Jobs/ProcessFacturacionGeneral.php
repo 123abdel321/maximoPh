@@ -120,7 +120,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
-
+            
             DB::connection('max')
                 ->table(DB::raw("({$query->toSql()}) AS nits"))
                 ->mergeBindings($query)
@@ -130,7 +130,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 ->groupByRaw('id_nit')
                 ->orderByRaw('id_nit')
                 ->chunk(233, function ($nits) {
-                    
                     $nits->each(function ($nit) {
                         
                         $this->countIntereses = 0;
@@ -283,10 +282,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
                         $this->saldoBase = 0;
                     });
-                    // dd('nani');
             });
             // DB::connection('max')->commit();
-            
+            // dd('hola afuera');
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
             event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
                 'tipo' => 'exito',
@@ -396,7 +394,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
                 $totalDescuento = $inmuebleFactura->valor_total * ($inmuebleFactura->porcentaje_pronto_pago / 100);
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
-
+                $totalAnticipos+= $totalDescuento;
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
@@ -424,7 +422,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
         foreach ($this->facturas as $key => $facturacxp) {
             if ($totalAnticipar <= 0) continue;
             $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
-            
+            // if ($inmuebleFactura->nombre_concepto != 'APARTAMENTO') {
+            //     dd($totalCruce);
+            // }
             $facturaDetalle = FacturacionDetalle::create([
                 'id_factura' => $factura->id,
                 'id_nit' => $inmuebleFactura->id_nit,
@@ -505,7 +505,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return DB::connection('max')->table('inmueble_nits AS IN')
             ->select(
                 'IN.id_nit'
-            );
+            )
+            ->where('id_nit', 6063);
     }
 
     private function getCuotasMultasNitsQuery($fecha_facturar)
@@ -515,7 +516,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CM.id_nit'
             )
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
-            ->where("CM.fecha_fin", '>=', $fecha_facturar);
+            ->where("CM.fecha_fin", '>=', $fecha_facturar)
+            ->where('id', 6063);
     }
 
     private function generateTokenDocumento()
