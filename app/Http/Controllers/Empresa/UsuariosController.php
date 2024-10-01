@@ -657,6 +657,38 @@ class UsuariosController extends Controller
         }
     }
 
+    public function welcomeMultiple (Request $request)
+    {
+        $usuarios = explode(",", $request->get('usuarios'));
+
+        if (count($usuarios)) {
+            foreach ($usuarios as $idUsuario) {
+                $usuario = User::where('id', $idUsuario)->first();
+                
+                if ($usuario) {
+                    $usuario->code_general = $this->generateRandomString(5);
+                    $usuario->limit_general = Carbon::now()->format('Y-m-d H:i:s');
+                    $usuario->save();
+            
+                    $code = $idUsuario.'$'.$usuario->code_general;
+                    $url_welcome = 'welcome/?code='.base64_encode($code);
+                    
+                    $nombreUsuario = $usuario->firstname;
+                    $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
+                    
+                    Mail::to("abdel_123@hotmail.es")
+                        ->cc('noreply@maximoph.com')
+                        ->bcc('bcc@maximoph.com')
+                        ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+                            'nombre' => $nombreUsuario,
+                            'url' => $url_welcome,
+                        ]));
+                }
+            }
+        }
+        return 'correos enviados con exito';
+    }
+
     private function generateRandomString($length = 20) {
 		$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$charactersLength = strlen($characters);
