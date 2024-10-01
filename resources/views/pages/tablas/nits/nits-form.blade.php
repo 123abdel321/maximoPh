@@ -95,6 +95,16 @@
                         </div>
                     </div>
 
+                    <div class="form-group col-12 col-sm-6 col-md-6" id="div_email_1">
+                        <label for="example-text-input" class="form-control-label">Email 2</label>
+                        <input type="email" class="form-control form-control-sm" name="email_1" id="email_1" >
+                    </div>
+
+                    <div class="form-group col-12 col-sm-6 col-md-6" id="div_email_2">
+                        <label for="example-text-input" class="form-control-label">Email 3</label>
+                        <input type="email" class="form-control form-control-sm" name="email_2" id="email_2" >
+                    </div>
+
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_telefono_1">
                         <label for="example-text-input" class="form-control-label">Telefono</label>
                         <input type="text" class="form-control form-control-sm" name="telefono_1" id="telefono_1" >
