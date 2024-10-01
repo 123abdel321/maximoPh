@@ -264,6 +264,11 @@ class ImportadorRecibosController extends Controller
                                         "updated_by" => request()->user()->id
                                     ]);
                                     $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
+
+                                    if ($realizarDescuento) {
+                                        Facturacion::where('id', $facturaDescuento->id_factura)
+                                            ->update(['pronto_pago' => 1]);
+                                    }
                                 }
                             }
                             
@@ -309,11 +314,6 @@ class ImportadorRecibosController extends Controller
                             }
     
                             $valorDisponible-= ($valorPago - ($valorDescuento + $totalAnticipar));
-                        }
-
-                        if ($realizarDescuento) {
-                            Facturacion::where('id', $facturaDescuento->id_factura)
-                                ->update(['pronto_pago' => 1]);
                         }
 
                         //AGREGAR ANTICIPO
@@ -396,7 +396,7 @@ class ImportadorRecibosController extends Controller
                 }
             }
             
-            // ConRecibosImport::whereIn('estado', [0])->delete();
+            ConRecibosImport::whereIn('estado', [0])->delete();
 
             DB::connection('max')->commit();
 
