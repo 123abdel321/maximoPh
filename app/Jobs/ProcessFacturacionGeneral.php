@@ -389,12 +389,12 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $totalAnticipar = $totalAnticipos;
             $totalAnticipos = 0;
         }
-
+        
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
                 $totalDescuento = $inmuebleFactura->valor_total * ($inmuebleFactura->porcentaje_pronto_pago / 100);
-                $totalAnticipar = $totalAnticipar - $totalDescuento;
-                $totalAnticipos+= $totalDescuento;
+                $totalAnticipar = $totalAnticipar - round($totalDescuento);
+                $totalAnticipos+= round($totalDescuento);
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
@@ -422,9 +422,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         foreach ($this->facturas as $key => $facturacxp) {
             if ($totalAnticipar <= 0) continue;
             $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
-            // if ($inmuebleFactura->nombre_concepto != 'APARTAMENTO') {
-            //     dd($totalCruce);
-            // }
+            
             $facturaDetalle = FacturacionDetalle::create([
                 'id_factura' => $factura->id,
                 'id_nit' => $inmuebleFactura->id_nit,
