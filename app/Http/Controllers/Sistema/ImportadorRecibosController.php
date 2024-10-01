@@ -244,29 +244,27 @@ class ImportadorRecibosController extends Controller
                             $valorDescuento = 0;
                             
                             if ($realizarDescuento) {
-                                
-                                if (!array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
-                                    continue;
+                                if (array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
+                                    $realizarDescuento = false;
+                                    $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
+    
+                                    $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
+                                    $valorDescuento = $facturaDescuento->descuento;
+                                    $valorPendiente = $valorPendiente;
+    
+                                    $doc = new DocumentosGeneral([
+                                        "id_cuenta" => $cuentaGasto->id,
+                                        "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
+                                        "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
+                                        "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
+                                        "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
+                                        "debito" => $valorDescuento,
+                                        "credito" => $valorDescuento,
+                                        "created_by" => request()->user()->id,
+                                        "updated_by" => request()->user()->id
+                                    ]);
+                                    $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
                                 }
-                                $realizarDescuento = false;
-                                $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
-
-                                $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
-                                $valorDescuento = $facturaDescuento->descuento;
-                                $valorPendiente = $valorPendiente;
-
-                                $doc = new DocumentosGeneral([
-                                    "id_cuenta" => $cuentaGasto->id,
-                                    "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
-                                    "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
-                                    "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
-                                    "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
-                                    "debito" => $valorDescuento,
-                                    "credito" => $valorDescuento,
-                                    "created_by" => request()->user()->id,
-                                    "updated_by" => request()->user()->id
-                                ]);
-                                $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
                             }
                             
                             $totalAnticipar = 0;
