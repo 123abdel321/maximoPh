@@ -414,7 +414,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'updated_by' => $this->id_usuario,
                 ]);
 
-                $factura->pronto_pago = 1;
+                $factura->pronto_pago = 2;
                 $factura->save();
             }
         }
