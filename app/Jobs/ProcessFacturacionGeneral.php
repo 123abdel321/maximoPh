@@ -505,8 +505,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return DB::connection('max')->table('inmueble_nits AS IN')
             ->select(
                 'IN.id_nit'
-            )
-            ->where('id_nit', 6063);
+            );
     }
 
     private function getCuotasMultasNitsQuery($fecha_facturar)
@@ -516,8 +515,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CM.id_nit'
             )
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
-            ->where("CM.fecha_fin", '>=', $fecha_facturar)
-            ->where('id', 6063);
+            ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
 
     private function generateTokenDocumento()
