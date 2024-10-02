@@ -317,7 +317,6 @@ class PqrsfController extends Controller
                 }
             }
 
-            
             $mensaje = PqrsfMensajes::where('id', $mensajes->id)
                 ->with('archivos')
                 ->get();
@@ -333,17 +332,11 @@ class PqrsfController extends Controller
                 $usuarioNotificacion = $pqrsf->created_by;
             }
 
-            // $notificar = 'pqrsf-mensaje-'.$request->user()['has_empresa'].'_'.$usuarioNotificacion;
-
-            // if ($notificacionesEnEspera) {
-            //     DB::connection('max')->commit();
-            //     return response()->json([
-            //         'success'=>	true,
-            //         'data' => $mensaje,
-            //         'notificar' => $notificar,
-            //         'message'=> 'Mensaje creado con exito en espera!'
-            //     ]);
-            // }
+            $notificacionesEnEspera = Notificaciones::where('notificacion_id', $id)
+                ->where('id_usuario', $usuarioNotificacion)
+                ->where('notificacion_type', 12)
+                ->where('estado', 0)
+                ->count();
             
             $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
 
@@ -355,13 +348,16 @@ class PqrsfController extends Controller
 
             $apartamentos = $usuarioEmpresa && $usuarioEmpresa->nit ? $usuarioEmpresa->nit->apartamentos : '';
             $mensajeText = '<b style="color: gold;">PQRSF</b>: Ha recibido un nuevo <b>MENSAJE</b> de '.$nombreUsuario.' '.$apartamentos;
+
+            $estado = $pqrsf->id_usuario ? 0 : 2;
             
             $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' => $pqrsf->id_usuario ? $usuarioNotificacion : 1,
+                'id_usuario' => $pqrsf->id_usuario ? $usuarioNotificacion : null,
+                'tipo' => $pqrsf->id_usuario ? 1 : 0,
                 'mensaje' => $mensajeText,
                 'function' => 'abrirPqrsfNotificacion',
                 'data' => $id,
-                'estado' => $pqrsf->id_usuario ? 0 : 2,
+                'estado' => $notificacionesEnEspera ? 2 : $estado,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);

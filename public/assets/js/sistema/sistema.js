@@ -242,8 +242,8 @@ function iniciarScrollBar() {
     new PerfectScrollbar(offcanvasBodyPqrsf);
 }
 
-function setNotificaciones(total = 0) {
-    var numeroNotificaciones = total ? total : parseInt(localStorage.getItem("numero_notificaciones"));
+function setNotificaciones(total = null) {
+    var numeroNotificaciones = total == 0 || total ? total : parseInt(localStorage.getItem("numero_notificaciones"));
     if (numeroNotificaciones) {
         $("#number_notification").text(numeroNotificaciones);
         $("#number_notification").show();

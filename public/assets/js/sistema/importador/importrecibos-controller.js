@@ -118,6 +118,14 @@ $("#form-importador-recibos").submit(function(event) {
     xhr.open("POST", "importrecibos-importar");
     xhr.send(data);
     xhr.onload = function(res) {
+        console.log('res: ',res);
+        var data = res.currentTarget;
+        if (data.responseURL == 'https://maximoph.com/login') {
+            caduqueSession();
+        }
+        if (data.status > 299) {
+            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
+        }
         var responseData = JSON.parse(res.currentTarget.response);
         var errorsMsg = '';
         $('#cargarPlantillaRecibos').show();

@@ -55,12 +55,11 @@ class NotificacionesController extends Controller
             $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
-
+                
             if ($request->user()->can('pqrsf responder')) {
                 $notificaciones->where('notificacion_type', '!=', 11)
-                    ->orWhere('id_rol', 1)
-                    ->orWhereNull('id_usuario');
-
+                    ->whereNull('id_usuario')
+                    ->orWhere('id_rol', 1);
             } else {
                 $notificaciones->where('id_usuario', request()->user()->id);
             }
@@ -77,8 +76,8 @@ class NotificacionesController extends Controller
 
             if ($request->user()->can('pqrsf responder')) {
                 $notificacionesCount->where('notificacion_type', '!=', 11)
-                    ->orWhere('id_rol', 1)
-                    ->orWhereNull('id_usuario');
+                    ->whereNull('id_usuario')
+                    ->orWhere('id_rol', 1);
             } else {
                 $notificacionesCount->where('id_usuario', request()->user()->id);
             }
