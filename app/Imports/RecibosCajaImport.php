@@ -34,8 +34,8 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
         $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
-
         foreach ($rows as $key => $row) {            
+
             $estado = 0;
             $observacion = '';
 
@@ -88,12 +88,12 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                     $observacion.= 'El inmueble: '.(string)$row['inmueble'].', no fue encontrado!<br>';
                 }
             }
-
+            
             if ($row['cedula_nit']) {
                 $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])->first();
-                $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
+                $concepto = ConceptoFacturacion::where('codigo', intval($row['cedula_nit']))->first();
                 $nitConcepto = Nits::where('email', $row['email'])->first();
-
+                
                 if ($concepto && $nitConcepto) {
                     $conceptoFacturacion = $concepto;
                     $nit = $nitConcepto;
