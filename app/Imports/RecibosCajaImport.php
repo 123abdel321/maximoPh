@@ -186,7 +186,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 'numero_documento' => $row['cedula_nit'],
                 'nombre_inmueble' => $inmueble ? $inmueble->nombre : '',
                 'nombre_zona' => $inmueble ? $inmueble->zona->nombre : '',
-                'nombre_nit' => $nit ? $nit->nombre_completo : '',
+                'nombre_nit' => $nit ? $nit->id.'_'.$nit->numero_documento.': '.$nit->nombre_completo : '',
                 'numero_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->codigo.' - '.$conceptoFacturacion->nombre_concepto : '',
                 'email' => $row['email'],
                 'pago' => $row['valor'],
