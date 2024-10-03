@@ -90,13 +90,14 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             }
             
             if ($row['cedula_nit']) {
+                
+                $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
+                $nitConcepto = Nits::where('email', $row['email'])->first();
                 $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])
                     ->whereRaw('LENGTH(numero_documento) = ?', [strlen($row['cedula_nit'])])
                     ->first();
-                $concepto = ConceptoFacturacion::where('codigo', '=', $row['cedula_nit'])->first();
-                $nitConcepto = Nits::where('email', '=', $row['email'])->first();
-                
-                if (!$nitDocumento && !$concepto && $conceptoFacturacionSinIdentificar && $nitConcepto) {
+                    
+                if (!$nitDocumento && $nitConcepto && ($concepto || $conceptoFacturacionSinIdentificar)) {
                     $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
                     $conceptoFacturacion = $concepto;
                     $nit = $nitConcepto;
@@ -121,6 +122,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                 if ($nit) {
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
                     $inicioMes = $inicioMes.'-01';
+                    $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
                     $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
                     $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes, $fechaManual);
 
@@ -128,6 +130,13 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
 
                     if (!$conceptoFacturacion) {
 
+                        $sandoPendiente = (new Extracto(
+                            $nit->id,
+                            [3,7],
+                            null,
+                            $inicioMesMenosDia
+                        ))->completo()->first();
+                        
                         $extracto = (new Extracto(
                             $nit->id,
                             [3,7],
@@ -144,7 +153,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
                             
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
 
-                        if ($extracto && $extracto->saldo) {
+                        if ($extracto && $extracto->saldo && !$sandoPendiente) {
                             $valorPendiente = $extracto->saldo;
                             $prontoPago = 0;
 
@@ -178,7 +187,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             if (!$conceptoFacturacion) {
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
             }
-
+            
             ConRecibosImport::create([
                 'id_inmueble' => $inmueble ? $inmueble->id : null,
                 'id_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->id : null,
@@ -261,6 +270,7 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             WHERE FD.id_nit = $id_nit
                 AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
+                AND FD.naturaleza_opuesta = 0
                 AND CF.porcentaje_pronto_pago > 0
                 AND FA.pronto_pago IS NULL
                 AND CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')

@@ -182,6 +182,7 @@ class ImportadorRecibosController extends Controller
                             $reciboImport->id_nit,
                             [3,7]
                         ))->actual()->get();
+                        
                         $countTotal = count($extractos) ? '-'.count($extractos) : '';
                         $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual)).$countTotal;
 
@@ -217,6 +218,18 @@ class ImportadorRecibosController extends Controller
                         $documentoGeneral->addRow($doc, $cuentaIngreso->naturaleza_ingresos);
 
                     } else {//AGREGAR PAGOS EN CXP
+
+                        $inicioMes =  Carbon::parse($this->fechaManual)->format('Y-m');
+                        $inicioMes = $inicioMes.'-01';
+                        $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
+
+                        $sandoPendiente = (new Extracto(
+                            $reciboImport->id_nit,
+                            [3,7],
+                            null,
+                            $inicioMesMenosDia
+                        ))->completo()->first();
+
                         $extractos = (new Extracto(
                             $reciboImport->id_nit,
                             [3,7],
@@ -231,7 +244,7 @@ class ImportadorRecibosController extends Controller
                         $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
                         $anticiposDisponibles = $anticiposNit;
                         
-                        if ($facturaDescuento && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
+                        if ($facturaDescuento && !$sandoPendiente && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                             $realizarDescuento = true;
                         }
                         
