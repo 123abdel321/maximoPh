@@ -90,9 +90,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             }
             
             if ($row['cedula_nit']) {
-                $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])->first();
-                $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
-                $nitConcepto = Nits::where('email', $row['email'])->first();
+                $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])
+                    ->whereRaw('LENGTH(numero_documento) = ?', [strlen($row['cedula_nit'])])
+                    ->first();
+                $concepto = ConceptoFacturacion::where('codigo', '=', $row['cedula_nit'])->first();
+                $nitConcepto = Nits::where('email', '=', $row['email'])->first();
                 
                 if (!$nitDocumento && !$concepto && $conceptoFacturacionSinIdentificar && $nitConcepto) {
                     $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
