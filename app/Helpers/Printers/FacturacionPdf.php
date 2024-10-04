@@ -88,15 +88,6 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
             ->groupByRaw('id_nit')->first();
 
-        $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
-
-        $sandoPendiente = (new Extracto(
-            $this->id_nit,
-            [3,7],
-            null,
-            $inicioMesMenosDia
-        ))->completo()->first();
-
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
 			->mergeBindings($query)
@@ -144,10 +135,15 @@ class FacturacionPdf extends AbstractPrinterPdf
         $dataCuentas = [];
         $dataDescuento = [];
         $totalDescuento = 0;
-        $tieneSaldoAnterior = $sandoPendiente ? true : false;
+        $tieneSaldoAnterior = false;
         $tieneDescuentoProntoPago = false;
-        
+        // dd($facturaciones);
         foreach ($facturaciones as $facturacion) {
+            
+            if (floatval($facturacion->saldo_anterior) > 0) {
+                $tieneSaldoAnterior = true;
+                $dataDescuento = [];
+            }
 
             $descuento = 0;
             $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
