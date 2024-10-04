@@ -1,5 +1,4 @@
 var import_recibos_table = null;
-var btnImportRecibo = document.getElementById('actualizarPlantillaRecibos');
 
 function importrecibosInit() {
     import_recibos_table = $('#importRecibos').DataTable({
@@ -55,6 +54,58 @@ function importrecibosInit() {
         if (res.success && res.data.length) {
             totalesRecibosImport();
         }
+    });
+
+    var btnImportRecibo = document.getElementById('actualizarPlantillaRecibos');
+    btnImportRecibo.removeEventListener('click', handleReciboClick);
+    btnImportRecibo.addEventListener('click', handleReciboClick);
+}
+
+function handleReciboClick(event) {
+    event.preventDefault();
+    
+    $('#cargarPlantillaRecibos').hide();
+    $('#actualizarPlantillaRecibos').hide();
+    $('#cargarPlantillaRecibosLoagind').show();
+
+    $.ajax({
+        method: 'POST',
+        url: base_url + 'recibos-cargar-import',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        $('#cargarPlantillaRecibos').show();
+        $('#actualizarPlantillaRecibos').hide();
+        $('#cargarPlantillaRecibosLoagind').hide();
+        import_recibos_table.ajax.reload(function(res) {
+            if (res.success && res.data.length) {
+                totalesRecibosImport();
+            }
+        });
+        agregarToast('exito', 'Recibos importadas', 'Recibos importadas con exito!', true);
+    }).fail((err) => {
+        $('#cargarPlantillaRecibos').show();
+        $('#cargarPlantillaRecibosLoagind').hide();
+        import_recibos_table.ajax.reload(function(res) {
+            if (res.success && res.data.length) {
+                totalesRecibosImport();
+            } else {
+                var mensaje = res.message;
+                var errorsMsg = '';
+                if (typeof mensaje === 'object') {
+                    for (field in mensaje) {
+                        var errores = mensaje[field];
+                        for (campo in errores) {
+                            errorsMsg += field+": "+errores[campo]+" <br>";
+                        }
+                    };
+                }
+                else if (typeof mensaje === 'string') {
+                    errorsMsg = mensaje;
+                }
+                agregarToast('error', 'Importación de Recibos errado', errorsMsg);
+            }
+        });
     });
 }
 
@@ -147,52 +198,4 @@ $("#form-importador-recibos").submit(function(event) {
         $('#cargarPlantillaRecibosLoagind').show();
     };
     return false;
-});
-
-btnImportRecibo.addEventListener('click', event => {
-    event.preventDefault();
-
-    $('#cargarPlantillaRecibos').hide();
-    $('#actualizarPlantillaRecibos').hide();
-    $('#cargarPlantillaRecibosLoagind').show();
-
-    $.ajax({
-        method: 'POST',
-        url: base_url + 'recibos-cargar-import',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        $('#cargarPlantillaRecibos').show();
-        $('#actualizarPlantillaRecibos').hide();
-        $('#cargarPlantillaRecibosLoagind').hide();
-        import_recibos_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                totalesRecibosImport();
-            }
-        });
-        agregarToast('exito', 'Recibos importadas', 'Recibos importadas con exito!', true);
-    }).fail((err) => {
-        $('#cargarPlantillaRecibos').show();
-        $('#cargarPlantillaRecibosLoagind').hide();
-        import_recibos_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                totalesRecibosImport();
-            } else {
-                var mensaje = res.message;
-                var errorsMsg = '';
-                if (typeof mensaje === 'object') {
-                    for (field in mensaje) {
-                        var errores = mensaje[field];
-                        for (campo in errores) {
-                            errorsMsg += field+": "+errores[campo]+" <br>";
-                        }
-                    };
-                }
-                else if (typeof mensaje === 'string') {
-                    errorsMsg = mensaje;
-                }
-                agregarToast('error', 'Importación de Recibos errado', errorsMsg);
-            }
-        });
-    });
 });

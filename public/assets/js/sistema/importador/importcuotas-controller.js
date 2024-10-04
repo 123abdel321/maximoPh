@@ -71,7 +71,7 @@ function totalesCuotasMultasImport() {
             $('#totales_import_cuuotas_multas').hide();
         }
         if (res.data.errores <= 0 &&  res.data.buenos > 0) {
-            $('#actualizarPlantillaRecibos').show();
+            // $('#actualizarPlantillaRecibos').show();
         }
 
         var countA = new CountUp('errores_cuotas_multas_import', 0, res.data.errores);
