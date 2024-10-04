@@ -3,6 +3,7 @@
 namespace App\Helpers\Printers;
 
 use DB;
+use App\Helpers\Extracto;
 use Illuminate\Support\Carbon;
 //MODELS
 use App\Models\Sistema\Entorno;
@@ -16,7 +17,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 	public $empresa;
 	public $periodo;
 
-    public function __construct(Empresa $empresa, $id_nit = null, $periodo)
+    public function __construct(Empresa $empresa, $id_nit = null)
 	{
 		parent::__construct($empresa);
 
@@ -28,7 +29,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
 		$this->id_nit = $id_nit;
 		$this->empresa = $empresa;
-		$this->periodo = $periodo;
+		$this->periodo = date('Y-m', strtotime(Carbon::now())).'-01';
 	}
 
     public function view()
@@ -87,6 +88,15 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
             ->groupByRaw('id_nit')->first();
 
+        $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
+
+        $sandoPendiente = (new Extracto(
+            $this->id_nit,
+            [3,7],
+            null,
+            $inicioMesMenosDia
+        ))->completo()->first();
+
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
 			->mergeBindings($query)
@@ -134,14 +144,10 @@ class FacturacionPdf extends AbstractPrinterPdf
         $dataCuentas = [];
         $dataDescuento = [];
         $totalDescuento = 0;
-        $tieneSaldoAnterior = false;
+        $tieneSaldoAnterior = $sandoPendiente ? true : false;
         $tieneDescuentoProntoPago = false;
+        
         foreach ($facturaciones as $facturacion) {
-
-            if ($facturacion->saldo_anterior) {
-                $tieneSaldoAnterior = true;
-                $dataDescuento = [];
-            }
 
             $descuento = 0;
             $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
@@ -172,6 +178,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             }
 
             $dataCuentas[] = (object)[
+                'nombre_cuenta' => $facturacion->nombre_cuenta,
                 'concepto' =>  $concepto,
                 'saldo_anterior' => $facturacion->saldo_anterior,
                 'total_facturas' => $facturacion->total_facturas,
@@ -182,6 +189,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ];
         }
         $totalData = (object)[
+            'nombre_cuenta' => '',
             'saldo_anterior' => $totales->saldo_anterior,
             'total_facturas' => $totales->total_facturas,
             'total_abono' => $totales->total_abono,

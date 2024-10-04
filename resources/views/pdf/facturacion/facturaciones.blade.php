@@ -275,7 +275,7 @@
 			<tbody class="detalle-factura">
 				@foreach ($cuentas as $cuenta)
 					<tr>
-						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
+						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>

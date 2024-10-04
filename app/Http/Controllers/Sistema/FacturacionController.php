@@ -360,16 +360,15 @@ class FacturacionController extends Controller
                 $request->get('id')
             ))->send(request()->user()->id_empresa);
 
-            // if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
-            //     dd($response['response']);
-            //     DB::connection('max')->rollback();
+            if ($response['status'] > 299) {//VALIDAR ERRORES PORTAFOLIO
+                DB::connection('max')->rollback();
                 
-            //     return response()->json([
-            //         "success"=>false,
-            //         'data' => [],
-            //         "message"=> $response['response']->message
-            //     ], 422);
-            // }
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=> $response['response']->message
+                ], 422);
+            }
 
             $factura->valor = ($valoresExtra + $valoresAdmon + $valoresIntereses);
             $factura->valor_admon = $valoresAdmon;
@@ -987,7 +986,7 @@ class FacturacionController extends Controller
         $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
         // $data = (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))->buildPdf()->getData();
         // return view('pdf.facturacion.facturaciones', $data);
-        return (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))
+        return (new FacturacionPdf($empresa, $request->get('id_nit')))
             ->buildPdf()
             ->showPdf();
     }
