@@ -86,7 +86,16 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'consecutivo'
             )
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw('id_nit')->first();
+        ->groupByRaw('id_nit')->first();
+
+        $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
+
+        $cxp = (new Extracto(
+            $this->id_nit,
+            [4,8],
+            null,
+            $inicioMesMenosDia
+        ))->completo()->first();
 
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
@@ -137,7 +146,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         $totalDescuento = 0;
         $tieneSaldoAnterior = false;
         $tieneDescuentoProntoPago = false;
-        // dd($facturaciones);
+        
         foreach ($facturaciones as $facturacion) {
             
             if (floatval($facturacion->saldo_anterior) > 0) {
@@ -184,12 +193,20 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'saldo_final' => $facturacion->saldo_final,
             ];
         }
+        
+        foreach ($dataDescuento as $key => $descuento) {
+            if ($descuento['descuento'] < 0) {
+                $dataDescuento[$key]['descuento'] = 0;
+            }
+        }
+
         $totalData = (object)[
             'nombre_cuenta' => '',
             'saldo_anterior' => $totales->saldo_anterior,
             'total_facturas' => $totales->total_facturas,
             'total_abono' => $totales->total_abono,
-            'descuento' => $totalDescuento,
+            'total_anticipos' => $cxp ? $cxp->saldo : 0,
+            'descuento' => $totalDescuento < 0 ? 0 : $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
             'saldo_final' => $totales->saldo_final

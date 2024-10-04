@@ -32,6 +32,10 @@
 				height: 30px;
 			}
 
+			.spacer-lite {
+				height: 10px;
+			}
+
 			.valor {
 				text-align: right;
 			}
@@ -266,9 +270,9 @@
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">ANTICIPOS</th>
-					@if ($pronto_pago)
+					<!-- @if ($pronto_pago)
 					<th class="padding5">PRONTO PAGO</th>
-					@endif
+					@endif -->
 					<th class="padding5">SALDO FINAL</th>
 				</tr>
 			</thead>
@@ -279,11 +283,11 @@
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
-						@if ($cuenta->descuento)
+						<!-- @if ($cuenta->descuento)
 							<td class="padding5 valor">{{ $cuenta->porcentaje_descuento.'% - '.number_format($cuenta->descuento) }}</td>
 						@elseif ($pronto_pago)
 							<td class="padding5 valor"></td>
-						@endif
+						@endif -->
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
 					</tr>
 				@endforeach
@@ -299,12 +303,34 @@
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
-						@if ($pronto_pago)
+						<!-- @if ($pronto_pago)
 							<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
-						@endif
+						@endif -->
 						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
 					</tr>
 
+			</tbody>
+
+			<thead class="">
+				<tr>
+					<td class="spacer-lite"></td>
+				</tr>
+				<tr class="header-factura padding5">
+					<th class="padding5">ANTICIPO</th>
+					<th class="padding5">VALOR FACTURA</th>
+					<th class="padding5">DESCUENTO</th>
+					<th class="padding5">TOTAL FACTURA</th>
+					<th class="padding5">TOTAL DEUDA</th>
+				</tr>
+			</thead>
+			<tbody class="detalle-factura">
+				<tr>
+					<td class="padding5 valor">{{ number_format($totales->total_anticipos) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->total_facturas - $totales->descuento) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
+				</tr>
 			</tbody>
 		</table>
 
