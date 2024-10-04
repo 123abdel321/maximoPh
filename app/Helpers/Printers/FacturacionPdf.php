@@ -134,8 +134,14 @@ class FacturacionPdf extends AbstractPrinterPdf
         $dataCuentas = [];
         $dataDescuento = [];
         $totalDescuento = 0;
+        $tieneSaldoAnterior = false;
         $tieneDescuentoProntoPago = false;
         foreach ($facturaciones as $facturacion) {
+
+            if ($facturacion->saldo_anterior) {
+                $tieneSaldoAnterior = true;
+                $dataDescuento = [];
+            }
 
             $descuento = 0;
             $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
@@ -144,9 +150,8 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->table('concepto_facturacions')
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
-
             
-            if ($conceptoFactura && $conceptoFactura->pronto_pago) {
+            if (!$tieneSaldoAnterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
             // if (!$totales->saldo_anterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
                 $diaHoy = intval(Carbon::now()->format('d'));
                 //VALIDAMOS FECHA LIMITE DE PRONTO PAGO
