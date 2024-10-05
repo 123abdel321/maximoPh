@@ -213,13 +213,21 @@ class FacturacionPdf extends AbstractPrinterPdf
         }
         $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
         $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
+
+        $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
+
+        
+        $totalAnticipos = $cxp ? $cxp->saldo : 0;
+        $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
+        
         $totalData = (object)[
             'nombre_cuenta' => '',
             'saldo_anterior' => $totales->saldo_anterior,
             'total_facturas' => $totales->total_facturas,
             'total_abono' => $totales->total_abono,
             'total_anticipos' => $cxp ? $cxp->saldo : 0,
-            'descuento' => $totalDescuento < 0 ? 0 : $totalDescuento,
+            'anticipos_disponibles' => $totalAnticipos,
+            'descuento' => $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
             'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,

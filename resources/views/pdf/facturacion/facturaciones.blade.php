@@ -327,7 +327,11 @@
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">DESCUENTO</th>
 					<th class="padding5">TOTAL FACTURA</th>
-					<th class="padding5">TOTAL DEUDA</th>
+					@if ($totales->anticipos_disponibles)
+						<th class="padding5">SALDO A FAVOR</th>
+					@else
+						<th class="padding5">TOTAL DEUDA</th>
+					@endif
 				</tr>
 			</thead>
 			<tbody class="detalle-factura">
@@ -336,12 +340,16 @@
 					<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 					<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
 					<td class="padding5 valor">{{ number_format($totales->total_facturas - $totales->descuento) }}</td>
-					<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
+					@if ($totales->anticipos_disponibles)
+						<td class="padding5 valor">{{ number_format($totales->anticipos_disponibles) }}</td>
+					@else
+						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
+					@endif
 				</tr>
 			</tbody>
 		</table>
 
-		@if ($pronto_pago)
+		@if ($pronto_pago && $totales->saldo_final > 0)
 
 			<table>
 				<thead class="">
