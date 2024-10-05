@@ -16,6 +16,20 @@ class FacturacionPdf extends AbstractPrinterPdf
     public $id_nit;
 	public $empresa;
 	public $periodo;
+    public $meses = [
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
+    ];
 
     public function __construct(Empresa $empresa, $id_nit = null, $periodo)
 	{
@@ -197,7 +211,8 @@ class FacturacionPdf extends AbstractPrinterPdf
                 $dataDescuento[$key]['descuento'] = 0;
             }
         }
-
+        $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
+        $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
         $totalData = (object)[
             'nombre_cuenta' => '',
             'saldo_anterior' => $totales->saldo_anterior,
@@ -207,6 +222,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'descuento' => $totalDescuento < 0 ? 0 : $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
+            'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
             'saldo_final' => $totales->saldo_final
         ];
 

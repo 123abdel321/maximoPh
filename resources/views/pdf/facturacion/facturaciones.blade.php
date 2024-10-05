@@ -114,7 +114,12 @@
 
 			.numero-consecutivo {
 				color: #8d00ff;
-				font-size: 2.8em;
+				font-size: 1.8em;
+			}
+
+			.fecha-factura {
+				color: black;
+				font-size: 1.3em;
 			}
 			
 			.generado {
@@ -167,7 +172,9 @@
 							<tr>
 								<td class="consecutivo padding5">
 									<p>
-										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span>
+										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span><br/>
+										<span span class="fecha-factura">{{ $totales->fecha_texto }}</span>
+
 									</p>
 								</td>
 								
