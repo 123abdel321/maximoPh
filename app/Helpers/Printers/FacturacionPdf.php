@@ -219,6 +219,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         
         $totalAnticipos = $cxp ? $cxp->saldo : 0;
         $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
+        $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
         
         $totalData = (object)[
             'nombre_cuenta' => '',
