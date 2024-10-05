@@ -210,6 +210,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('usuarios', 'delete');
             Route::post('usuarios-sync', 'sync');
             Route::post('usuarios-welcome', 'welcome');
+            Route::post('usuarios-welcome-multiple', 'welcomeMultiple');
             Route::get('usuarios/combo', 'combo');
             
         });

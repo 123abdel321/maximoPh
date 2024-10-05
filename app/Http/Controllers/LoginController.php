@@ -288,9 +288,10 @@ class LoginController extends Controller
                     'timezone' => property_exists($responseGeo, 'timezone') ? $responseGeo->timezone : null,
                 ];
             }
-        
-            $visitante = Visitantes::create($data);
-            info('Usuario: ', $data);
+            if(count($data)) {
+                $visitante = Visitantes::create($data);
+                info('Usuario: ', $data);
+            }
 
             return response()->json([
                 'success'=>	true,

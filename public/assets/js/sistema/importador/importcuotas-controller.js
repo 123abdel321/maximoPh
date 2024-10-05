@@ -71,7 +71,7 @@ function totalesCuotasMultasImport() {
             $('#totales_import_cuuotas_multas').hide();
         }
         if (res.data.errores <= 0 &&  res.data.buenos > 0) {
-            $('#actualizarPlantillaRecibos').show();
+            // $('#actualizarPlantillaRecibos').show();
         }
 
         var countA = new CountUp('errores_cuotas_multas_import', 0, res.data.errores);
@@ -114,6 +114,14 @@ $("#form-importador-cuotasExtras").submit(function(event) {
     xhr.open("POST", "importcuotas-importar");
     xhr.send(data);
     xhr.onload = function(res) {
+        console.log('res: ',res);
+        var data = res.currentTarget;
+        if (data.responseURL == 'https://maximoph.com/login') {
+            caduqueSession();
+        }
+        if (data.status > 299) {
+            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
+        }
         var responseData = JSON.parse(res.currentTarget.response);
         var errorsMsg = '';
         $('#cargarPlantillaCuotasExtras').show();

@@ -3,6 +3,7 @@ var $comboNitUsuario = null;
 var $comboBodegaUsuario = null;
 var $comboNitUsuarioFilter = null;
 var $comboResolucionUsuario = null;
+var channelFacturacionRapida = pusher.subscribe('sincronizar-usuarios-'+localStorage.getItem("notificacion_code"));
 
 function usuariosInit() {
     
@@ -440,6 +441,11 @@ function usuariosInit() {
     usuarios_table.ajax.reload();
 }
 
+channelFacturacionRapida.bind('notificaciones', function(data) {
+    usuarios_table.ajax.reload();
+    agregarToast('exito', 'Sincronización exitosa', 'Usuarios sincronizados con exito!', true);
+});
+
 $("#searchInputUsuarios").on("input", function (e) {
     usuarios_table.context[0].jqXHR.abort();
     $('#usuariosTable').DataTable().search($("#searchInputUsuarios").val()).draw();
@@ -472,7 +478,8 @@ $(document).on('click', '#saveSyncUsuarios', function () {
         if(res.success){
             $("#saveSyncUsuarios").show();
             $("#saveSyncUsuariosLoading").hide();
-            agregarToast('exito', 'Sincronización exitosa', 'Usuario creados con exito!', true);
+            $("#usuariosSyncFormModal").modal('hide');
+            agregarToast('info', 'Sincronizando usuarios', 'En un momento se le notificará cuando haya finalizado ...', true);
         }
     }).fail((err) => {
         $('#saveSyncUsuarios').show();

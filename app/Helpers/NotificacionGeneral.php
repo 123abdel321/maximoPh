@@ -28,6 +28,7 @@ class NotificacionGeneral
         $notificacion = new Notificaciones([
             'id_usuario' => $data->id_usuario,
             'mensaje' => $data->mensaje,
+            'tipo' => property_exists($data, 'tipo') ? $data->tipo : 0,
             'function' => $data->function,
             'data' => $data->data,
             'estado' => $data->estado,

@@ -432,10 +432,13 @@ $("#form-pqrsf").submit(function(e) {
     xhr.open("POST", "pqrsf");
     xhr.send(data);
     xhr.onload = function(res) {
-
-        var data = res.currentTarget.responseURL;
-        if (data == 'https://maximoph.com/login') {
+        console.log('res: ',res);
+        var data = res.currentTarget;
+        if (data.responseURL == 'https://maximoph.com/login') {
             caduqueSession();
+        }
+        if (data.status > 299) {
+            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
         }
 
         var responseData = JSON.parse(res.currentTarget.response);

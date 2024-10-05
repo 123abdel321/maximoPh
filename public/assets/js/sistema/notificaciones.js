@@ -128,6 +128,10 @@ function pintarNotificaciones(notificaciones, animate = false) {
 
 function pintarNotificacion(notificacion) {
 
+    if (notificacion.estado == 2){
+        return;
+    }
+
     var nombre = localStorage.getItem("empresa_nombre")[0]+''+localStorage.getItem("empresa_nombre")[1];
     var nombreCompleto = localStorage.getItem("empresa_nombre");
     if (notificacion.creador) {

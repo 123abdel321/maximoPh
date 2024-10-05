@@ -3,6 +3,7 @@
 namespace App\Helpers\Printers;
 
 use DB;
+use App\Helpers\Extracto;
 use Illuminate\Support\Carbon;
 //MODELS
 use App\Models\Sistema\Entorno;
@@ -15,6 +16,20 @@ class FacturacionPdf extends AbstractPrinterPdf
     public $id_nit;
 	public $empresa;
 	public $periodo;
+    public $meses = [
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
+    ];
 
     public function __construct(Empresa $empresa, $id_nit = null, $periodo)
 	{
@@ -84,8 +99,16 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'fecha_manual',
                 'consecutivo'
             )
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw('id_nit')->first();
+        ->groupByRaw('id_nit')->first();
+
+        $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
+
+        $cxp = (new Extracto(
+            $this->id_nit,
+            [4,8],
+            null,
+            $inicioMesMenosDia
+        ))->completo()->first();
 
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
@@ -127,15 +150,21 @@ class FacturacionPdf extends AbstractPrinterPdf
 				DB::raw('SUM(total_columnas) AS total_columnas')
 			)
 			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
             ->groupByRaw('id_nit, id_cuenta, documento_referencia')
         ->get();
 
         $dataCuentas = [];
         $dataDescuento = [];
         $totalDescuento = 0;
+        $tieneSaldoAnterior = false;
         $tieneDescuentoProntoPago = false;
+        
         foreach ($facturaciones as $facturacion) {
+            
+            if (floatval($facturacion->saldo_anterior) > 0) {
+                $tieneSaldoAnterior = true;
+                $dataDescuento = [];
+            }
 
             $descuento = 0;
             $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
@@ -144,9 +173,8 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->table('concepto_facturacions')
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
-
             
-            if ($conceptoFactura && $conceptoFactura->pronto_pago) {
+            if (!$tieneSaldoAnterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
             // if (!$totales->saldo_anterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
                 $diaHoy = intval(Carbon::now()->format('d'));
                 //VALIDAMOS FECHA LIMITE DE PRONTO PAGO
@@ -167,6 +195,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             }
 
             $dataCuentas[] = (object)[
+                'nombre_cuenta' => $facturacion->nombre_cuenta,
                 'concepto' =>  $concepto,
                 'saldo_anterior' => $facturacion->saldo_anterior,
                 'total_facturas' => $facturacion->total_facturas,
@@ -176,13 +205,33 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'saldo_final' => $facturacion->saldo_final,
             ];
         }
+        
+        foreach ($dataDescuento as $key => $descuento) {
+            if ($descuento['descuento'] < 0) {
+                $dataDescuento[$key]['descuento'] = 0;
+            }
+        }
+        $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
+        $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
+
+        $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
+
+        
+        $totalAnticipos = $cxp ? $cxp->saldo : 0;
+        $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
+        $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
+        
         $totalData = (object)[
+            'nombre_cuenta' => '',
             'saldo_anterior' => $totales->saldo_anterior,
             'total_facturas' => $totales->total_facturas,
             'total_abono' => $totales->total_abono,
+            'total_anticipos' => $cxp ? $cxp->saldo : 0,
+            'anticipos_disponibles' => $totalAnticipos,
             'descuento' => $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
+            'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
             'saldo_final' => $totales->saldo_final
         ];
 

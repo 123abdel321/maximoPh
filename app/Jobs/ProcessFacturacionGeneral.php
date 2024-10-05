@@ -120,7 +120,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
-
+            
             DB::connection('max')
                 ->table(DB::raw("({$query->toSql()}) AS nits"))
                 ->mergeBindings($query)
@@ -130,7 +130,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 ->groupByRaw('id_nit')
                 ->orderByRaw('id_nit')
                 ->chunk(233, function ($nits) {
-                    
                     $nits->each(function ($nit) {
                         
                         $this->countIntereses = 0;
@@ -283,10 +282,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
                         $this->saldoBase = 0;
                     });
-                    // dd('nani');
             });
             // DB::connection('max')->commit();
-            
+            // dd('hola afuera');
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
             event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
                 'tipo' => 'exito',
@@ -391,12 +389,12 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $totalAnticipar = $totalAnticipos;
             $totalAnticipos = 0;
         }
-
+        
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
                 $totalDescuento = $inmuebleFactura->valor_total * ($inmuebleFactura->porcentaje_pronto_pago / 100);
-                $totalAnticipar = $totalAnticipar - $totalDescuento;
-
+                $totalAnticipar = $totalAnticipar - round($totalDescuento);
+                $totalAnticipos+= round($totalDescuento);
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
@@ -413,6 +411,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
+
+                $factura->pronto_pago = 2;
+                $factura->save();
             }
         }
 

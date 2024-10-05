@@ -32,6 +32,10 @@
 				height: 30px;
 			}
 
+			.spacer-lite {
+				height: 10px;
+			}
+
 			.valor {
 				text-align: right;
 			}
@@ -110,7 +114,12 @@
 
 			.numero-consecutivo {
 				color: #8d00ff;
-				font-size: 2.8em;
+				font-size: 1.8em;
+			}
+
+			.fecha-factura {
+				color: black;
+				font-size: 1.3em;
 			}
 			
 			.generado {
@@ -155,7 +164,7 @@
 		<table >
 			<thead>
 				<tr>
-					<td class="spacer padding5"></td>
+					<td class="spacer-lite padding5"></td>
 				</tr>
 				<tr>
 					<td colspan="7 padding5">
@@ -163,7 +172,9 @@
 							<tr>
 								<td class="consecutivo padding5">
 									<p>
-										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span>
+										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span><br/>
+										<span span class="fecha-factura">{{ $totales->fecha_texto }}</span>
+
 									</p>
 								</td>
 								
@@ -193,7 +204,7 @@
 		<table>
 			<thead class="">
 				<tr>
-					<td class="spacer padding5"></td>
+					<td class="spacer-lite padding5"></td>
 				</tr>
 				<tr>
 					<td colspan="8 padding5">
@@ -259,16 +270,16 @@
 		<table class="tabla-detalle-factura">
 			<thead class="">
 				<tr>
-					<td class="spacer"></td>
+					<td class="spacer-lite"></td>
 				</tr>
 				<tr class="header-factura padding5">
 					<th class="padding5">NOMBRE</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">ANTICIPOS</th>
-					@if ($pronto_pago)
+					<!-- @if ($pronto_pago)
 					<th class="padding5">PRONTO PAGO</th>
-					@endif
+					@endif -->
 					<th class="padding5">SALDO FINAL</th>
 				</tr>
 			</thead>
@@ -279,11 +290,11 @@
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
-						@if ($cuenta->descuento)
+						<!-- @if ($cuenta->descuento)
 							<td class="padding5 valor">{{ $cuenta->porcentaje_descuento.'% - '.number_format($cuenta->descuento) }}</td>
 						@elseif ($pronto_pago)
 							<td class="padding5 valor"></td>
-						@endif
+						@endif -->
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
 					</tr>
 				@endforeach
@@ -299,16 +310,46 @@
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
-						@if ($pronto_pago)
+						<!-- @if ($pronto_pago)
 							<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
-						@endif
+						@endif -->
 						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
 					</tr>
 
 			</tbody>
+
+			<thead class="">
+				<tr>
+					<td class="spacer-lite"></td>
+				</tr>
+				<tr class="header-factura padding5">
+					<th class="padding5">ANTICIPO</th>
+					<th class="padding5">VALOR FACTURA</th>
+					<th class="padding5">DESCUENTO</th>
+					<th class="padding5">TOTAL FACTURA</th>
+					@if ($totales->anticipos_disponibles)
+						<th class="padding5">SALDO A FAVOR</th>
+					@else
+						<th class="padding5">TOTAL DEUDA</th>
+					@endif
+				</tr>
+			</thead>
+			<tbody class="detalle-factura">
+				<tr>
+					<td class="padding5 valor">{{ number_format($totales->total_anticipos) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
+					<td class="padding5 valor">{{ number_format($totales->total_facturas - $totales->descuento) }}</td>
+					@if ($totales->anticipos_disponibles)
+						<td class="padding5 valor">{{ number_format($totales->anticipos_disponibles) }}</td>
+					@else
+						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
+					@endif
+				</tr>
+			</tbody>
 		</table>
 
-		@if ($pronto_pago)
+		@if ($pronto_pago && $totales->saldo_final > 0)
 
 			<table>
 				<thead class="">
@@ -320,7 +361,7 @@
 							<table>
 								<thead class="">
 									<tr>
-										<td class="spacer"></td>
+										<td class="spacer-lite"></td>
 									</tr>
 									<tr class="header-factura-descuento padding5">
 										<th class="padding5">FECHA LIMITE PAGO</th>
