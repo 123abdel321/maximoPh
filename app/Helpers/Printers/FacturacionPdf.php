@@ -17,7 +17,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 	public $empresa;
 	public $periodo;
 
-    public function __construct(Empresa $empresa, $id_nit = null)
+    public function __construct(Empresa $empresa, $id_nit = null, $periodo)
 	{
 		parent::__construct($empresa);
 
@@ -29,7 +29,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
 		$this->id_nit = $id_nit;
 		$this->empresa = $empresa;
-		$this->periodo = date('Y-m', strtotime(Carbon::now())).'-01';
+		$this->periodo = $periodo;
 	}
 
     public function view()
@@ -85,7 +85,6 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'fecha_manual',
                 'consecutivo'
             )
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
         ->groupByRaw('id_nit')->first();
 
         $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');

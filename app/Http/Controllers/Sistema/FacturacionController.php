@@ -986,7 +986,7 @@ class FacturacionController extends Controller
         $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
         // $data = (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))->buildPdf()->getData();
         // return view('pdf.facturacion.facturaciones', $data);
-        return (new FacturacionPdf($empresa, $request->get('id_nit')))
+        return (new FacturacionPdf($empresa, $request->get('id_nit'), $request->get('periodo')))
             ->buildPdf()
             ->showPdf();
     }
