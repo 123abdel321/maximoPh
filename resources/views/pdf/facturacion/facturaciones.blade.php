@@ -159,7 +159,7 @@
 		<table >
 			<thead>
 				<tr>
-					<td class="spacer padding5"></td>
+					<td class="spacer-lite padding5"></td>
 				</tr>
 				<tr>
 					<td colspan="7 padding5">
@@ -197,7 +197,7 @@
 		<table>
 			<thead class="">
 				<tr>
-					<td class="spacer padding5"></td>
+					<td class="spacer-lite padding5"></td>
 				</tr>
 				<tr>
 					<td colspan="8 padding5">
@@ -263,7 +263,7 @@
 		<table class="tabla-detalle-factura">
 			<thead class="">
 				<tr>
-					<td class="spacer"></td>
+					<td class="spacer-lite"></td>
 				</tr>
 				<tr class="header-factura padding5">
 					<th class="padding5">NOMBRE</th>
@@ -279,7 +279,7 @@
 			<tbody class="detalle-factura">
 				@foreach ($cuentas as $cuenta)
 					<tr>
-						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->nombre_cuenta }}</td>
+						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
@@ -346,7 +346,7 @@
 							<table>
 								<thead class="">
 									<tr>
-										<td class="spacer"></td>
+										<td class="spacer-lite"></td>
 									</tr>
 									<tr class="header-factura-descuento padding5">
 										<th class="padding5">FECHA LIMITE PAGO</th>
