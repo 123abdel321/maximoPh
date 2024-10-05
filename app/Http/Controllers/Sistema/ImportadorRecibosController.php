@@ -109,7 +109,7 @@ class ImportadorRecibosController extends Controller
         $searchValue = $search_arr['value']; // Search value
 
         $recibos = ConRecibosImport::orderBy('estado', 'DESC')
-            ->orderBy('id', 'ASC');
+            ->orderBy('numero_documento', 'ASC');
 
         $recibosTotals = $recibos->get();
 
