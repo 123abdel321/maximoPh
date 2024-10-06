@@ -664,8 +664,7 @@ class UsuariosController extends Controller
         if (count($usuarios)) {
             foreach ($usuarios as $idUsuario) {
                 $usuario = User::where('id', $idUsuario)->first();
-                
-                if ($usuario) {
+                if ($usuario && $usuario->firstname != 'NORTEAMERICA S.A.S.') {
                     $usuario->code_general = $this->generateRandomString(5);
                     $usuario->limit_general = Carbon::now()->format('Y-m-d H:i:s');
                     $usuario->save();
