@@ -71,8 +71,8 @@ class LoginController extends Controller
 
         try {
             $codigo = $request->get('code');
-            info('Codigo de ingreso: '. $codigo);
             $codigo = base64_decode($codigo);
+            info('Codigo de ingreso: '. $codigo);
             if (!$codigo) {
                 Log::error('No encontro el codigo', ['message' => $request->all()]);
                 abort(404);
