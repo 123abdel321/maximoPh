@@ -90,7 +90,7 @@ class LoginController extends Controller
                 ->first();
 
             if (!$usuario) {
-                info('Usuario no existe id: '. $id. ', codigo: '.$code_general);
+                info('Usuario no existe id: '. $id. ', codigo: '.$request->get('code'));
                 abort(404);
             }
 
