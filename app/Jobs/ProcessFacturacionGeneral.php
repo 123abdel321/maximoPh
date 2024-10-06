@@ -337,7 +337,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'fecha_manual' => $this->inicioMes.'-01',
                 'documento_referencia' => $extracto->documento_referencia,
                 'valor' => round($valorTotal),
-                'concepto' => 'INTERESES '.$concepto.' - '.$this->inicioMes.'-01'.' - %'.$this->porcentaje_intereses_mora.' - BASE: '.number_format($saldo),
+                'concepto' => 'INTERESES - '.$this->inicioMes.'-01'.' - %'.$this->porcentaje_intereses_mora.' - BASE: '.number_format($saldo),
                 'naturaleza_opuesta' => false,
                 'created_by' => $this->id_usuario,
                 'updated_by' => $this->id_usuario,
