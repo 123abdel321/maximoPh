@@ -77,6 +77,9 @@ class LoginController extends Controller
                 Log::error('No encontro el codigo', ['message' => $request->all()]);
                 abort(404);
             }
+            if (count(explode('$', $codigo)) < 2) {
+                abort(404);
+            }
             $id = explode('$', $codigo)[0];
             $code_general = explode('$', $codigo)[1];
 
