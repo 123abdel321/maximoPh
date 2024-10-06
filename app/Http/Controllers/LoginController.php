@@ -72,12 +72,13 @@ class LoginController extends Controller
         try {
             $codigo = $request->get('code');
             $codigo = base64_decode($codigo);
-            info('Codigo de ingreso: '. $codigo);
+            
             if (!$codigo) {
-                Log::error('No encontro el codigo', ['message' => $request->all()]);
+                info('Codigo malo abort: '. $codigo);
                 abort(404);
             }
             if (count(explode('$', $codigo)) < 2) {
+                info('Codigo malo abort: '. $codigo);
                 abort(404);
             }
             $id = explode('$', $codigo)[0];
@@ -87,13 +88,16 @@ class LoginController extends Controller
                 ->where('code_general', $code_general)
                 ->first();
 
-            if (!$usuario) abort(404);
+            if (!$usuario) {
+                info('Usuario no existe id: '. $id. ', codigo: '.$code_general);
+                abort(404);
+            }
 
             $data = [
                 'id_usuario' => $id,
                 'code_general' => $code_general
             ];
-
+            info('Usuario confirmado: '. $usuario->id.' confirmado con exito!');
             return view('auth.welcome', $data);
 
         } catch (Exception $e) {
