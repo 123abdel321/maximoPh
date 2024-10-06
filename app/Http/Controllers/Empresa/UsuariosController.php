@@ -675,7 +675,7 @@ class UsuariosController extends Controller
                     $nombreUsuario = $usuario->firstname;
                     $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
                     
-                    Mail::to("abdel_123@hotmail.es")
+                    Mail::to($usuario->email)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
                         ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
