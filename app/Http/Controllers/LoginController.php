@@ -72,13 +72,14 @@ class LoginController extends Controller
         try {
             $codigo = $request->get('code');
             $codigo = base64_decode($codigo);
-            
+
             if (!$codigo) {
-                info('Codigo malo abort: ', $codigo);
+                info('Codigo malo abort: '. $request->get('code'));
                 abort(404);
             }
+
             if (count(explode('$', $codigo)) < 2) {
-                info('Codigo malo abort: ', $codigo);
+                info('Codigo malo abort: '. $request->get('code'));
                 abort(404);
             }
             $id = explode('$', $codigo)[0];
