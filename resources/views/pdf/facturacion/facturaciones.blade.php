@@ -317,7 +317,7 @@
 					</tr>
 
 			</tbody>
-			@if ($totales->total_anticipos)
+			@if ($totales->total_anticipos && $totales->descuento)
 				<thead class="">
 					<tr>
 						<td class="spacer-lite"></td>

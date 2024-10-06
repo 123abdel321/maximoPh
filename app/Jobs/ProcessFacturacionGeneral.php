@@ -165,22 +165,24 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         $this->extractosAgrupados = [];
                         foreach ($extractos as $extracto) {
                             $extracto = (object)$extracto;
-                            if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
-                            
-                            $this->countIntereses++;
-                            if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
-                                $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
-                                $this->extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
-                                $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
-                            } else {
-                                $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
-                                    'id_nit' => $extracto->id_nit,
-                                    'concepto' => $extracto->concepto,
-                                    'total_abono' => $extracto->total_abono,
-                                    'total_facturas' => $extracto->total_facturas,
-                                    'documento_referencia' => $extracto->documento_referencia,
-                                    'saldo' => $extracto->saldo,
-                                ];
+                            if ($extracto->saldo > 0) {
+                                if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
+                                
+                                $this->countIntereses++;
+                                if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
+                                    $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
+                                    $this->extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
+                                    $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
+                                } else {
+                                    $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
+                                        'id_nit' => $extracto->id_nit,
+                                        'concepto' => $extracto->concepto,
+                                        'total_abono' => $extracto->total_abono,
+                                        'total_facturas' => $extracto->total_facturas,
+                                        'documento_referencia' => $extracto->documento_referencia,
+                                        'saldo' => $extracto->saldo,
+                                    ];
+                                }
                             }
                         }
 

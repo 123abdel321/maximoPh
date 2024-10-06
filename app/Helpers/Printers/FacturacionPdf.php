@@ -99,6 +99,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'fecha_manual',
                 'consecutivo'
             )
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
         ->groupByRaw('id_nit')->first();
 
         $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
@@ -150,6 +151,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 				DB::raw('SUM(total_columnas) AS total_columnas')
 			)
 			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
             ->groupByRaw('id_nit, id_cuenta, documento_referencia')
         ->get();
 
