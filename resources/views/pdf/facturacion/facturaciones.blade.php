@@ -323,7 +323,12 @@
 					<td class="spacer-lite"></td>
 				</tr>
 				<tr class="header-factura padding5">
-					<th class="padding5">ANTICIPO</th>
+					@if ($totales->total_anticipos)
+						<th class="padding5">ANTICIPO</th>
+					@else 
+						<th class="padding5">SALDO ANTERIOR</th>
+					@endif
+					
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">DESCUENTO</th>
 					<th class="padding5">TOTAL FACTURA</th>
@@ -336,7 +341,12 @@
 			</thead>
 			<tbody class="detalle-factura">
 				<tr>
-					<td class="padding5 valor">{{ number_format($totales->total_anticipos) }}</td>
+					@if ($totales->total_anticipos)
+						<td class="padding5 valor">{{ number_format($totales->total_anticipos) }}</td>
+					@else 
+						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
+					@endif
+					
 					<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 					<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
 					<td class="padding5 valor">{{ number_format($totales->total_facturas - $totales->descuento) }}</td>

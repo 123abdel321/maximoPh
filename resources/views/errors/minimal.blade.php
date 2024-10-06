@@ -48,7 +48,7 @@
                     @yield('message')
                 </div>
 
-                <button id="button-login" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; margin-top: 1.5rem;">Volver a MaximoPH</button>
+                <button id="button-login" type="button" class="btn btn-primary btn-sm btn-grad" style="height: 35px; width: 100%; margin-top: 1.5rem;" onclick="location.href = '/login';">Volver a MaximoPH</button>
             </div>
         </div>
     </body>
