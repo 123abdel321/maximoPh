@@ -16,6 +16,7 @@ class FacturacionPdf extends AbstractPrinterPdf
     public $id_nit;
 	public $empresa;
 	public $periodo;
+    public $redondeo;
     public $meses = [
         'Enero',
         'Febrero',
@@ -67,8 +68,10 @@ class FacturacionPdf extends AbstractPrinterPdf
     public function data()
     {
 		
-		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
 		$nit = null;
+		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
+        $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
+        $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
 		
 		if($getNit){ 
 			$nit = (object)[
@@ -217,7 +220,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
 
         $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
-
+        $totalDescuento = $this->roundNumber($totalDescuento);
         
         $totalAnticipos = $cxp ? $cxp->saldo : 0;
         $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
@@ -366,5 +369,13 @@ class FacturacionPdf extends AbstractPrinterPdf
 			});
 
         return $anterioresQuery;
+    }
+
+    private function roundNumber($number)
+    {
+        if ($this->redondeo) {
+            return round($number / $this->redondeo) * $this->redondeo;
+        }
+        return $number;
     }
 }
