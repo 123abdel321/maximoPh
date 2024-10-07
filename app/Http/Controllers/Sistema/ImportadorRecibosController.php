@@ -8,10 +8,14 @@ use App\Helpers\Extracto;
 use App\Helpers\Documento;
 use Illuminate\Http\Request;
 use App\Imports\RecibosCajaImport;
+use App\Events\PrivateMessageEvent;
+use Illuminate\Support\Facades\Bus;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessImportarRecibos;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Traits\BegConsecutiveTrait;
 //MODELS
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Facturacion;
 use App\Models\Portafolio\ConRecibos;
@@ -71,15 +75,46 @@ class ImportadorRecibosController extends Controller
 
         try {
             $file = $request->file('file_import_recibos');
+            $has_empresa = $request->user()['has_empresa'];
+            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
 
+            $user_id = $request->user()->id;
+            $id_informe = $request->get('id');
+
+            $filePath = $file->store('recibos');
             ConRecibosImport::truncate();
-            $import = new RecibosCajaImport();
-            $import->import($file);
+
+            Bus::chain([
+                function () use ($id_informe, &$filePath, &$empresa) {
+                    (new RecibosCajaImport($empresa))->import($filePath);
+                },
+                function () use ($user_id, $has_empresa) {
+                    
+                    event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                        'success'=>	true,
+                        'accion' => 1,
+                        'tipo' => 'exito',
+                        'mensaje' => 'Archivo importado con exito!',
+                        'titulo' => 'Recibos importados',
+                        'autoclose' => false
+                    ]));
+                }
+            ])->catch(function (\Exception $e) use ($user_id, $has_empresa) {
+
+                event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	false,
+                    'accion' => 0,
+                    'tipo' => 'error',
+                    'mensaje' => 'Error al importar el archivo: ' . $e->getMessage(),
+                    'titulo' => 'Fallo en la importación',
+                    'autoclose' => false
+                ]));
+            })->dispatch();
 
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Recibos creados con exito!'
+                'message'=> 'Importando recibos...'
             ]);
 
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
@@ -138,292 +173,50 @@ class ImportadorRecibosController extends Controller
 
     public function cargar (Request $request)
     {
-        $recibosImport = ConRecibosImport::where('estado', 0)
-            ->get();
-
         try {
-            DB::connection('max')->beginTransaction();
 
-            $this->id_comprobante = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
-            $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor;
-            $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
-            $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
-            $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
-            $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
-            $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
-            $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
+            $has_empresa = $request->user()['has_empresa'];
+            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
 
-            if ($recibosImport->count()) {
-                foreach ($recibosImport as $reciboImport) {
-                    
-                    $inicioMes = date('Y-m', strtotime($reciboImport->fecha_manual));
-                    $finMes = date('Y-m-t', strtotime($reciboImport->fecha_manual));
-                    $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes.'-01', $reciboImport->fecha_manual);
-                    
-                    $valorDisponible = $reciboImport->pago;
-                    $valorRecibido = $reciboImport->pago;
-                    $valorPendiente = 0;
-                    $this->fechaManual = $reciboImport->fecha_manual;
-                    $this->consecutivo = $this->getNextConsecutive($comprobante->id, $this->fechaManual);
+            $user_id = $request->user()->id;
+            $id_informe = $request->get('id');
 
-                    $recibo = $this->createFacturaRecibo($reciboImport);
-                    $cecos = CentroCostos::first();
-
-                    $documentoGeneral = new Documento(
-                        $comprobante->id,
-                        $recibo,
-                        $this->fechaManual,
-                        $this->consecutivo
-                    );
-                    //AGREGAR PAGOS EN CONCEPTOS
-                    if ($reciboImport->id_concepto_facturacion) {
-                        $conceptoFacturacion = ConceptoFacturacion::find($reciboImport->id_concepto_facturacion);
-                        $extractos = (new Extracto(
-                            $reciboImport->id_nit,
-                            [3,7]
-                        ))->actual()->get();
-                        
-                        $countTotal = count($extractos) ? '-'.count($extractos) : '';
-                        $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual)).$countTotal;
-
-                        $cuentaIngreso = PlanCuentas::find($conceptoFacturacion->id_cuenta_ingreso);
-                        $cuentaCobro = PlanCuentas::find($conceptoFacturacion->id_cuenta_cobrar);
-
-                        //AGREGAR MOVIMIENTO COBRO
-                        $doc = new DocumentosGeneral([
-                            "id_cuenta" => $cuentaCobro->id,
-                            "id_nit" => $cuentaCobro->exige_nit ? $recibo->id_nit : null,
-                            "id_centro_costos" => $cuentaCobro->exige_centro_costos ?  $cecos->id : null,
-                            "concepto" => $cuentaCobro->exige_concepto ? 'COBRO '.$conceptoFacturacion->nombre_concepto : null,
-                            "documento_referencia" => $cuentaCobro->exige_documento_referencia ? $documentoReferencia : null,
-                            "debito" => $reciboImport->pago,
-                            "credito" => $reciboImport->pago,
-                            "created_by" => request()->user()->id,
-                            "updated_by" => request()->user()->id
-                        ]);
-                        $documentoGeneral->addRow($doc, $cuentaCobro->naturaleza_ingresos);
-
-                        //AGREGAR MOVIMIENTO INGRESO
-                        $doc = new DocumentosGeneral([
-                            "id_cuenta" => $cuentaIngreso->id,
-                            "id_nit" => $cuentaIngreso->exige_nit ? $recibo->id_nit : null,
-                            "id_centro_costos" => $cuentaIngreso->exige_centro_costos ?  $cecos->id : null,
-                            "concepto" => $cuentaIngreso->exige_concepto ? 'PAGO '.$conceptoFacturacion->nombre_concepto : null,
-                            "documento_referencia" => $cuentaIngreso->exige_documento_referencia ? $documentoReferencia : null,
-                            "debito" => $reciboImport->pago,
-                            "credito" => $reciboImport->pago,
-                            "created_by" => request()->user()->id,
-                            "updated_by" => request()->user()->id
-                        ]);
-                        $documentoGeneral->addRow($doc, $cuentaIngreso->naturaleza_ingresos);
-
-                    } else {//AGREGAR PAGOS EN CXP
-
-                        $inicioMes =  Carbon::parse($this->fechaManual)->format('Y-m');
-                        $inicioMes = $inicioMes.'-01';
-                        $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
-
-                        $sandoPendiente = (new Extracto(
-                            $reciboImport->id_nit,
-                            [3,7],
-                            null,
-                            $inicioMesMenosDia
-                        ))->completo()->first();
-
-                        $extractos = (new Extracto(
-                            $reciboImport->id_nit,
-                            [3,7],
-                            null,
-                            $this->fechaManual
-                        ))->actual()->get();
-                        
-                        $realizarDescuento = false;
-                        
-                        $deudaTotal = $this->sumarDeudaTotal($extractos);
-                        $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
-                        $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
-                        $anticiposDisponibles = $anticiposNit;
-                        
-                        if ($facturaDescuento && !$sandoPendiente && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
-                            $realizarDescuento = true;
-                        }
-                        
-                        //AGREGAR DEUDA
-                        foreach ($extractos as $extracto) {
-                            if ($valorDisponible <= 0) continue;
-                            
-                            $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
-                            $valorPendiente = $extracto->saldo;
-                            $valorDescuento = 0;
-                            
-                            if ($realizarDescuento) {
-                                if (array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
-                                    $realizarDescuento = false;
-                                    $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
-    
-                                    $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
-                                    $valorDescuento = $facturaDescuento->descuento;
-                                    $valorPendiente = $valorPendiente;
-    
-                                    $doc = new DocumentosGeneral([
-                                        "id_cuenta" => $cuentaGasto->id,
-                                        "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
-                                        "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
-                                        "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
-                                        "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
-                                        "debito" => $valorDescuento,
-                                        "credito" => $valorDescuento,
-                                        "created_by" => request()->user()->id,
-                                        "updated_by" => request()->user()->id
-                                    ]);
-                                    $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
-
-                                    Facturacion::where('id', $facturaDescuento->id_factura)
-                                        ->update(['pronto_pago' => 1]);
-                                }
-                            }
-                            
-                            $totalAnticipar = 0;
-                            if ($anticiposDisponibles > 0) {
-                                [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
-                            }
-                            $validarPago = $valorDisponible - $valorPendiente - $valorDescuento;
-                            $valorPago = $valorDisponible - $valorPendiente - $valorDescuento > 0 ? $valorPendiente : $valorDisponible;
-                            $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
-                            
-                            if ($valorPago) {
-                                ConReciboDetalles::create([
-                                    'id_recibo' => $recibo->id,
-                                    'id_cuenta' => $cuentaPago->id,
-                                    'id_nit' => $recibo->id_nit,
-                                    'fecha_manual' => $recibo->fecha_manual,
-                                    'documento_referencia' => $extracto->documento_referencia,
-                                    'consecutivo' => $recibo->consecutivo,
-                                    'concepto' => 'VALOR IMPORTADO DESDE RECIBOS '.number_format($valorPago),
-                                    'total_factura' => 0,
-                                    'total_abono' => $valorPago,
-                                    'total_saldo' => $extracto->saldo,
-                                    'nuevo_saldo' => $extracto->saldo - ($valorPago + $valorDescuento + $totalAnticipar),
-                                    'total_anticipo' => 0,
-                                    'created_by' => request()->user()->id,
-                                    'updated_by' => request()->user()->id
-                                ]);
-        
-                                //AGREGAR MOVIMIENTO CONTABLE
-                                $doc = new DocumentosGeneral([
-                                    "id_cuenta" => $cuentaPago->id,
-                                    "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
-                                    "id_centro_costos" => $cuentaPago->exige_centro_costos ?  $cecos->id : null,
-                                    "concepto" => $cuentaPago->exige_concepto ? 'VALOR IMPORTADO DESDE RECIBOS '.number_format($valorPago) : null,
-                                    "documento_referencia" => $cuentaPago->exige_documento_referencia ? $documentoReferencia : null,
-                                    "debito" => $valorPago,
-                                    "credito" => $valorPago,
-                                    "created_by" => request()->user()->id,
-                                    "updated_by" => request()->user()->id
-                                ]);
-                                $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
-                            }
-    
-                            $valorDisponible-= ($valorPago - ($valorDescuento + $totalAnticipar));
-                        }
-
-                        //AGREGAR ANTICIPO
-                        if ($valorDisponible > 0) {
-                            $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual));
-                            $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
-    
-                            ConReciboDetalles::create([
-                                'id_recibo' => $recibo->id,
-                                'id_cuenta' => $cuentaAnticipo->id,
-                                'id_nit' => $recibo->id_nit,
-                                'fecha_manual' => $recibo->fecha_manual,
-                                'documento_referencia' => $recibo->consecutivo,
-                                'consecutivo' => $recibo->consecutivo,
-                                'concepto' => 'ANTICIPO IMPORTADO DESDE RECIBOS',
-                                'total_factura' => 0,
-                                'total_abono' => 0,
-                                'total_saldo' => 0,
-                                'nuevo_saldo' => 0,
-                                'total_anticipo' => $valorDisponible,
-                                'created_by' => request()->user()->id,
-                                'updated_by' => request()->user()->id
-                            ]);
-    
-                            //AGREGAR MOVIMIENTO CONTABLE
-                            $doc = new DocumentosGeneral([
-                                "id_cuenta" => $cuentaAnticipo->id,
-                                "id_nit" => $cuentaAnticipo->exige_nit ? $recibo->id_nit : null,
-                                "id_centro_costos" => $cuentaAnticipo->exige_centro_costos ? $cecos->id : null,
-                                "concepto" => $cuentaAnticipo->exige_concepto ? 'ANTICIPO IMPORTADO DESDE RECIBOS' : null,
-                                "documento_referencia" => $cuentaAnticipo->exige_documento_referencia ? $documentoReferencia : null,
-                                "debito" => $valorDisponible,
-                                "credito" => $valorDisponible,
-                                "created_by" => request()->user()->id,
-                                "updated_by" => request()->user()->id
-                            ]);
-                            $documentoGeneral->addRow($doc, $cuentaAnticipo->naturaleza_ingresos);
-                        }
-                        
-                        //GREGAR PAGO
-                        $formaPago = FacFormasPago::where('id_cuenta', $id_cuenta_ingreso)
-                            ->with('cuenta.tipos_cuenta')
-                        ->first();
-    
-                        $pagoRecibo = ConReciboPagos::create([
-                            'id_recibo' => $recibo->id,
-                            'id_forma_pago' => $formaPago->id,
-                            'valor' => $reciboImport->pago,
-                            'saldo' => 0,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
-                        ]);
-    
-                        $doc = new DocumentosGeneral([
-                            'id_cuenta' => $formaPago->cuenta->id,
-                            'id_nit' => $formaPago->cuenta->exige_nit ? $recibo->id_nit : null,
-                            'id_centro_costos' => null,
-                            'concepto' => $formaPago->cuenta->exige_concepto ? 'PAGO IMPORTADO DESDE RECIBOS' : null,
-                            'documento_referencia' => $documentoReferencia,
-                            'debito' => $valorRecibido,
-                            'credito' => $valorRecibido,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
-                        ]);
-            
-                        $documentoGeneral->addRow($doc, $formaPago->cuenta->naturaleza_ventas);
-                    }
-                    
-                    $this->updateConsecutivo($this->id_comprobante, $this->consecutivo);
-
-                    if (!$documentoGeneral->save()) {
-
-                        DB::connection('max')->rollback();
-                        return response()->json([
-                            'success'=>	false,
-                            'data' => [],
-                            'message'=> $documentoGeneral->getErrors()
-                        ], 422);
-                    }
+            Bus::chain([
+                new ProcessImportarRecibos($empresa),
+                function () use ($user_id, $has_empresa) {
+                    event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                        'success'=>	true,
+                        'accion' => 2,
+                        'tipo' => 'exito',
+                        'mensaje' => 'Recibos importados con exito!',
+                        'titulo' => 'Recibos importados',
+                        'autoclose' => false
+                    ]));
                 }
-            }
-            
-            ConRecibosImport::whereIn('estado', [0])->delete();
-
-            DB::connection('max')->commit();
+            ])->catch(function (\Exception $e) use ($user_id, $has_empresa) {
+                event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	false,
+                    'accion' => 0,
+                    'tipo' => 'error',
+                    'mensaje' => 'Error al importar recibos: ' . $e->getMessage(),
+                    'titulo' => 'Fallo en la importación',
+                    'autoclose' => false
+                ]));
+            })->dispatch();
 
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Recibos creados con exito!'
+                'message'=> 'Importando recibos...'
             ]);
 
-        } catch (Exception $e) {
-            DB::connection('max')->rollback();
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+
             return response()->json([
-                "success"=>false,
-                'data' => [],
-                "message"=>$e->getMessage()
-            ], 422);
+                'success'=>	false,
+                'data' => $e->failures(),
+                'message'=> 'Error al actualizar pagos'
+            ]);
         }
     }
 

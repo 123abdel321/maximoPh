@@ -35,10 +35,6 @@
                                 <i class="far fa-file-excel" style="font-size: 17px;"></i>&nbsp;
                                 <b style="vertical-align: text-top;">Cargar plantilla</b>
                             </button>
-                            <button id="actualizarPlantillaRecibos" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none;">
-                                <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
-                                <b style="vertical-align: text-top;">Cargar pagos</b>
-                            </button>&nbsp;
                             <button id="cargarPlantillaRecibosLoagind" class="btn btn-sm badge bg-gradient-primary" style="display:none; float: left;" disabled>
                                 <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
                                 <b style="vertical-align: text-top;">Cargando</b>
@@ -46,6 +42,10 @@
                         </div>
                     </form>
                 </div>
+                <button id="actualizarPlantillaRecibos" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none; margin-top: -40px; position: relative;">
+                    <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
+                    <b style="vertical-align: text-top;">Cargar pagos</b>
+                </button>
             </div>
         </div>
     </div>

@@ -6,27 +6,42 @@ use DB;
 use Carbon\Carbon;
 use App\Helpers\Extracto;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\Importable;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithProgressBar;
 use Maatwebsite\Excel\Concerns\WithMappedCells;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 //MODELS
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Entorno;
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ConRecibosImport;
 use App\Models\Sistema\ConceptoFacturacion;
 
-class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
+class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRow, WithProgressBar, ShouldQueue
 {
     use Importable;
+    public $empresa = null;
     public $redondeo = null;
+
+    public function __construct($empresa)
+    {
+        $this->empresa = $empresa;
+    }
 
     public function collection(Collection $rows)
     {
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->empresa->token_db_maximo);
+
+        copyDBConnection('sam', 'sam');
+        setDBInConnection('sam', $this->empresa->token_db_portafolio);
+
         $columna = 0;
         $conceptoFacturacionSinIdentificar = Entorno::where('nombre', 'id_concepto_pago_none')->first();
         $conceptoFacturacionSinIdentificar = $conceptoFacturacionSinIdentificar ? $conceptoFacturacionSinIdentificar->valor : 0;
@@ -309,6 +324,11 @@ class RecibosCajaImport implements ToCollection, WithHeadingRow, WithProgressBar
             return round($number / $this->redondeo) * $this->redondeo;
         }
         return $number;
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
 }
