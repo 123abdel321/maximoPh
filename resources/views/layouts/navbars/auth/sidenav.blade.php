@@ -71,11 +71,14 @@
                 <ul class="navbar-nav" style="margin-left: 15px; border-left: solid 1px #18ff00; margin-left: 30px;">
 
                     @foreach ($menu as $item)
-                        <li class="nav-item tipo_menu_{{ $item->tipo_menu }}">
-                            <a class="nav-link button-side-nav" id="sidenav_{{ $item->url }}" onclick="openNewItem('{{ $item->url }}', '{{ $item->nombre }}', '{{ $item->icon }}')" style="margin-left: 20px;">
-                                <span class="nav-link-text ms-1">{{ $item->nombre }}</span>
-                            </a>
-                        </li>
+                        @if ($item->url == 'estadocuenta' && Auth::user()->has_empresa == 'maximo_pruebas_123456')
+                        @else
+                            <li class="nav-item tipo_menu_{{ $item->tipo_menu }}">
+                                <a class="nav-link button-side-nav" id="sidenav_{{ $item->url }}" onclick="openNewItem('{{ $item->url }}', '{{ $item->nombre }}', '{{ $item->icon }}')" style="margin-left: 20px;">
+                                    <span class="nav-link-text ms-1">{{ $item->nombre }}</span>
+                                </a>
+                            </li>
+                        @endif
                     @endforeach
 
                 </ul>
