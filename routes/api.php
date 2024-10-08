@@ -126,6 +126,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('facturacion-general-delete', 'generarGeneralDelete');
             Route::post('facturacion-general-causar', 'generarGeneralCausar');
             Route::post('facturacion-individual', 'generarIndividual');
+            Route::post('facturacion-asyncrona', 'generarAsyncrona');
             Route::get('periodo-facturacion-combo', 'comboPeriodos');
             Route::get('facturacion-email', 'email');
         });

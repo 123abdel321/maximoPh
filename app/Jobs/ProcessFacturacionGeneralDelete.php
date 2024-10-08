@@ -104,6 +104,8 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);
+
+            throw $exception;
 		}
     }
 

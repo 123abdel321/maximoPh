@@ -285,8 +285,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         $this->saldoBase = 0;
                     });
             });
-            // DB::connection('max')->commit();
-            // dd('hola afuera');
+            
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
             event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
                 'tipo' => 'exito',
@@ -300,6 +299,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);
+
+            throw $exception;
 		}
     }
 

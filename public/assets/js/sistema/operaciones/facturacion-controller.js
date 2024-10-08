@@ -265,7 +265,7 @@ function facturarRapidamente() {
     getFacturacionData();
     
     facturandoPersona = $.ajax({
-        url: base_url + 'facturacion-general-delete',
+        url: base_url + 'facturacion-asyncrona',
         method: 'POST',
         headers: headers,
         dataType: 'json',
@@ -276,6 +276,11 @@ function facturarRapidamente() {
     }).fail((err) => {
         var mensaje = err.responseJSON.message;
         var errorsMsg = arreglarMensajeError(mensaje);
+
+        $("#progress_bar").hide();
+        $("#generateFacturacion").show();
+        $("#generateFacturacionLoading").hide();
+        
         agregarToast('error', 'Creación errada', errorsMsg);
     });
 }
@@ -285,17 +290,7 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
     if (data.action == 2) {
         $("#text_progress_bar").html(`ORGANIZANDO DATOS ...`);
         document.querySelector("#width_progress_bar").style.setProperty("background-color", "#02c2ab", "important");
-        facturandoPersona = $.ajax({
-            url: base_url + 'facturacion-general',
-            method: 'POST',
-            headers: headers,
-            dataType: 'json',
-        }).done((res) => {
-        }).fail((err) => {
-            var mensaje = err.responseJSON.message;
-            var errorsMsg = arreglarMensajeError(mensaje);
-            agregarToast('error', 'Creación errada', errorsMsg);
-        });
+        return;
     }
 
     if (data.action == 3) {
@@ -313,18 +308,7 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
                 'valor': dataGeneral.valor,
             });
         }
-
-        facturandoPersona = $.ajax({
-            url: base_url + 'facturacion-general-causar',
-            method: 'POST',
-            headers: headers,
-            dataType: 'json',
-        }).done((res) => {
-        }).fail((err) => {
-            var mensaje = err.responseJSON.message;
-            var errorsMsg = arreglarMensajeError(mensaje);
-            agregarToast('error', 'Creación errada', errorsMsg);
-        });
+        return;
     }
 
     if (data.action == 4) {
@@ -335,6 +319,24 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
         $("#confirmarFacturacion").show();
         $("#generateFacturacionLoading").hide();
         agregarToast('exito', 'Facturación exitosa', 'Facturación rapida finalizada con exito!', true);
+        return;
+    }
+
+    if (data.action == 5) {
+        var errorsMsg = "";
+        var mensaje = data.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Facturación errada', errorsMsg);
+        return;
     }
     
 });

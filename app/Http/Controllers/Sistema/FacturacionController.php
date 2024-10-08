@@ -7,19 +7,21 @@ use Config;
 use App\Helpers\Extracto;
 use App\Mail\GeneralEmail;
 use Illuminate\Http\Request;
+use App\Events\PrivateMessageEvent;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
-use App\Helpers\Printers\FacturacionPdf;
-use App\Helpers\Printers\FacturacionPdfMultiple;
-use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use App\Helpers\PortafolioERP\FacturacionERP;
-use App\Helpers\PortafolioERP\EliminarFactura;
-use App\Helpers\PortafolioERP\EliminarFacturas;
+use Illuminate\Database\Query\JoinClause;
 use App\Jobs\ProcessFacturacionGeneral;
 use App\Jobs\ProcessFacturacionGeneralDelete;
 use App\Jobs\ProcessFacturacionGeneralCausar;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
+use App\Helpers\PortafolioERP\FacturacionERP;
+use App\Helpers\PortafolioERP\EliminarFactura;
+use App\Helpers\PortafolioERP\EliminarFacturas;
+use App\Helpers\Printers\FacturacionPdf;
+use App\Helpers\Printers\FacturacionPdfMultiple;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
@@ -387,6 +389,45 @@ class FacturacionController extends Controller
                 "success"=>true,
                 'data' => $factura,
                 "message"=>'Facturación confirmada con exito'
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function generarAsyncrona (Request $request)
+    {
+        try {
+            
+            $id_usuario = request()->user()->id;
+            $id_empresa = request()->user()->id_empresa;
+            $has_empresa = request()->user()->has_empresa;
+
+            Bus::chain([
+
+                new ProcessFacturacionGeneralDelete($id_usuario, $id_empresa),
+                new ProcessFacturacionGeneral($id_usuario, $id_empresa),
+                new ProcessFacturacionGeneralCausar($id_usuario, $id_empresa)
+
+            ])->catch(function (\Exception $e) use ($id_usuario, $has_empresa) {
+                event(new PrivateMessageEvent('facturacion-rapida-'.$has_empresa.'_'.$id_usuario, [
+                    'tipo' => 'error',
+                    'success' => true,
+                    'message' => $e->getMessage(),
+                    'action' => 5
+                ]));
+            })->dispatch();
+
+            return response()->json([
+                "success"=>true,
+                'data' => [],
+                "message"=>'Generando facturación asyncrona'
             ], 200);
 
         } catch (Exception $e) {

@@ -29,10 +29,10 @@
                         CONTINUAR FACTURACION
                     </button>
                     <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacion" style="display: none;">
-                        Confirmar facturación
+                        CONFIRMAR FACTURACION
                     </button>
                     <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacionDisabled" style="display: none;" disabled>
-                        Confirmar facturación <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
+                        CONFIRMANDO FACTURACIÓN <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
                     </button>
                 @endcan
             </div>
