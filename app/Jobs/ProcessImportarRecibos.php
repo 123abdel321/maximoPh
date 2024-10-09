@@ -468,8 +468,8 @@ class ProcessImportarRecibos implements ShouldQueue
                 "documento_referencia" => $anticipo->exige_documento_referencia ? $extracto->documento_referencia : null,
                 "debito" => $totalAnticipar,
                 "credito" => $totalAnticipar,
-                "created_by" => request()->user()->id,
-                "updated_by" => request()->user()->id
+                "created_by" => $this->user_id,
+                "updated_by" => $this->user_id
             ]);
             $documentoGeneral->addRow($doc, PlanCuentas::DEBITO);
 
