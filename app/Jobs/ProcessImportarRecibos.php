@@ -446,6 +446,38 @@ class ProcessImportarRecibos implements ShouldQueue
         return $totalAnticipos;
     }
 
+    private function cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente)
+    {
+        foreach ($this->facturasAnticipos as $key => $anticipo) {
+            if ($anticiposDisponibles <= 0) continue;
+
+            $totalAnticipar = 0;
+            if ($anticiposDisponibles >= $valorPendiente) {
+                $totalAnticipar = $valorPendiente;
+                $anticiposDisponibles-= $valorPendiente;
+            } else {
+                $totalAnticipar = $anticiposDisponibles;
+                $anticiposDisponibles = 0;
+            }
+
+            $doc = new DocumentosGeneral([
+                "id_cuenta" => $anticipo->id_cuenta,
+                "id_nit" => $anticipo->exige_nit ? $extracto->id_nit : null,
+                "id_centro_costos" => $anticipo->exige_centro_costos ? $cecos->id : null,
+                "concepto" => 'CRUCE ANTICIPOS '.$extracto->concepto,
+                "documento_referencia" => $anticipo->exige_documento_referencia ? $extracto->documento_referencia : null,
+                "debito" => $totalAnticipar,
+                "credito" => $totalAnticipar,
+                "created_by" => request()->user()->id,
+                "updated_by" => request()->user()->id
+            ]);
+            $documentoGeneral->addRow($doc, PlanCuentas::DEBITO);
+
+            if ($anticipo->saldo <= 0) unset($this->facturasAnticipos[$key]);
+        }
+        return [$anticiposDisponibles, $valorPendiente, $totalAnticipar]; 
+    }
+
     private function sumarDeudaTotal($extractos)
     {
         $totalDeuda = 0;
