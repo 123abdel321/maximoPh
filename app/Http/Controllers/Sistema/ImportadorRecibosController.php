@@ -99,7 +99,7 @@ class ImportadorRecibosController extends Controller
                         'autoclose' => false
                     ]));
                 }
-            ])->catch(function (\Exception $e) use ($user_id, $has_empresa) {
+            ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
 
                 event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
                     'success'=>	false,
