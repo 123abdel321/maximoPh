@@ -182,7 +182,7 @@ class ImportadorRecibosController extends Controller
             $id_informe = $request->get('id');
 
             Bus::chain([
-                new ProcessImportarRecibos($empresa),
+                new ProcessImportarRecibos($empresa, $user_id),
                 function () use ($user_id, $has_empresa) {
                     event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
                         'success'=>	true,

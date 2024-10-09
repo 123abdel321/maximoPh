@@ -42,15 +42,17 @@ class ProcessImportarRecibos implements ShouldQueue
     public $descuentoParcial = null;
     public $redondeo = null;
     public $empresa = null;
+    public $user_id = null;
 
     /**
      * Create a new job instance.
 	 * 
 	 * @return void
      */
-    public function __construct($empresa)
+    public function __construct($empresa, $user_id)
     {
         $this->empresa = $empresa;
+        $this->user_id = $user_id;
     }
 
     /**
@@ -123,8 +125,8 @@ class ProcessImportarRecibos implements ShouldQueue
                             "documento_referencia" => $cuentaCobro->exige_documento_referencia ? $documentoReferencia : null,
                             "debito" => $reciboImport->pago,
                             "credito" => $reciboImport->pago,
-                            "created_by" => request()->user()->id,
-                            "updated_by" => request()->user()->id
+                            "created_by" => $this->user_id,
+                            "updated_by" => $this->user_id
                         ]);
                         $documentoGeneral->addRow($doc, $cuentaCobro->naturaleza_ingresos);
                         
@@ -137,8 +139,8 @@ class ProcessImportarRecibos implements ShouldQueue
                             "documento_referencia" => $cuentaIngreso->exige_documento_referencia ? $documentoReferencia : null,
                             "debito" => $reciboImport->pago,
                             "credito" => $reciboImport->pago,
-                            "created_by" => request()->user()->id,
-                            "updated_by" => request()->user()->id
+                            "created_by" => $this->user_id,
+                            "updated_by" => $this->user_id
                         ]);
                         $documentoGeneral->addRow($doc, $cuentaIngreso->naturaleza_ingresos);
 
@@ -198,8 +200,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                         "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
                                         "debito" => $valorDescuento,
                                         "credito" => $valorDescuento,
-                                        "created_by" => request()->user()->id,
-                                        "updated_by" => request()->user()->id
+                                        "created_by" => $this->user_id,
+                                        "updated_by" => $this->user_id
                                     ]);
                                     $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
 
@@ -230,8 +232,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                     'total_saldo' => $extracto->saldo,
                                     'nuevo_saldo' => $extracto->saldo - ($valorPago + $valorDescuento + $totalAnticipar),
                                     'total_anticipo' => 0,
-                                    'created_by' => request()->user()->id,
-                                    'updated_by' => request()->user()->id
+                                    'created_by' => $this->user_id,
+                                    'updated_by' => $this->user_id
                                 ]);
         
                                 //AGREGAR MOVIMIENTO CONTABLE
@@ -243,8 +245,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                     "documento_referencia" => $cuentaPago->exige_documento_referencia ? $documentoReferencia : null,
                                     "debito" => $valorPago,
                                     "credito" => $valorPago,
-                                    "created_by" => request()->user()->id,
-                                    "updated_by" => request()->user()->id
+                                    "created_by" => $this->user_id,
+                                    "updated_by" => $this->user_id
                                 ]);
                                 $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
                             }
@@ -270,8 +272,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                 'total_saldo' => 0,
                                 'nuevo_saldo' => 0,
                                 'total_anticipo' => $valorDisponible,
-                                'created_by' => request()->user()->id,
-                                'updated_by' => request()->user()->id
+                                'created_by' => $this->user_id,
+                                'updated_by' => $this->user_id
                             ]);
     
                             //AGREGAR MOVIMIENTO CONTABLE
@@ -283,8 +285,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                 "documento_referencia" => $cuentaAnticipo->exige_documento_referencia ? $documentoReferencia : null,
                                 "debito" => $valorDisponible,
                                 "credito" => $valorDisponible,
-                                "created_by" => request()->user()->id,
-                                "updated_by" => request()->user()->id
+                                "created_by" => $this->user_id,
+                                "updated_by" => $this->user_id
                             ]);
                             $documentoGeneral->addRow($doc, $cuentaAnticipo->naturaleza_ingresos);
                         }
@@ -299,8 +301,8 @@ class ProcessImportarRecibos implements ShouldQueue
                             'id_forma_pago' => $formaPago->id,
                             'valor' => $reciboImport->pago,
                             'saldo' => 0,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
+                            'created_by' => $this->user_id,
+                            'updated_by' => $this->user_id
                         ]);
                         
                         $doc = new DocumentosGeneral([
@@ -311,8 +313,8 @@ class ProcessImportarRecibos implements ShouldQueue
                             'documento_referencia' => $documentoReferencia,
                             'debito' => $valorRecibido,
                             'credito' => $valorRecibido,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
+                            'created_by' => $this->user_id,
+                            'updated_by' => $this->user_id
                         ]);
             
                         $documentoGeneral->addRow($doc, $formaPago->cuenta->naturaleza_ventas);
@@ -463,8 +465,8 @@ class ProcessImportarRecibos implements ShouldQueue
             'total_abono' => $reciboImport->pago,
             'total_anticipo' => $reciboImport->total_anticipo ? $reciboImport->total_anticipo : 0,
             'observacion' => 'CARGADO DESDE IMPORTADOR',
-            'created_by' => request()->user()->id,
-            'updated_by' => request()->user()->id
+            'created_by' => $this->user_id,
+            'updated_by' => $this->user_id
         ]);
         return $recibo;
     }
