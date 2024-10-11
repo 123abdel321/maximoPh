@@ -305,7 +305,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
-				$query->where('DG.fecha_manual', '>=', $this->periodo);
+				$query->where('DG.fecha_manual', '=', $this->periodo);
 			})
             ->when($this->id_nit, function ($query) {
 				$query->where('DG.id_nit', '=', $this->id_nit);
