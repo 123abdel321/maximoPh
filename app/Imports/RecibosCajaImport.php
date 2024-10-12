@@ -85,7 +85,7 @@ class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRo
                 $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
             } else if ($fechaFormato && str_contains($fechaFormato, '-')) {
                 $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
-            } else if (is_float($fechaFormato)) {
+            } else if (is_numeric($fechaFormato)) {
                 $fechaManual = Date::excelToDateTimeObject($row['fecha_manual']);
             } else {
                 $estado = 1;
