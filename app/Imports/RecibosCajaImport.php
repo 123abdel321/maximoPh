@@ -9,7 +9,9 @@ use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithProgressBar;
 use Maatwebsite\Excel\Concerns\WithMappedCells;
@@ -23,9 +25,9 @@ use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ConRecibosImport;
 use App\Models\Sistema\ConceptoFacturacion;
 
-class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRow, WithProgressBar, ShouldQueue
+class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRow, WithProgressBar, WithValidation, ShouldQueue
 {
-    use Importable;
+    use Importable, SkipsErrors;
     public $empresa = null;
     public $redondeo = null;
 
@@ -49,7 +51,9 @@ class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRo
         $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
-        foreach ($rows as $key => $row) {            
+        foreach ($rows as $key => $row) {
+            
+            if (!count($row)) continue;
 
             $estado = 0;
             $observacion = '';
@@ -74,12 +78,18 @@ class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRo
                 $nit = Nits::where('id', $nitPorDefecto)->first();
             }
 
-            $fechaManual = Carbon::now();
-
-            if ($row['fecha_manual'] && str_contains($row['fecha_manual'], '/')) {
+            $fechaManual = null;
+            $fechaFormato = $row['fecha_manual'];
+            
+            if ($fechaFormato && str_contains($fechaFormato, '/')) {
                 $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
-            } else if ($row['fecha_manual']) {
+            } else if ($fechaFormato && str_contains($fechaFormato, '-')) {
+                $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
+            } else if (is_float($fechaFormato)) {
                 $fechaManual = Date::excelToDateTimeObject($row['fecha_manual']);
+            } else {
+                $estado = 1;
+                $observacion.= 'La fecha: '.$fechaFormato.', no tiene el formato correcto!<br>'; 
             }
 
             if ($row['inmueble']) {
@@ -133,7 +143,7 @@ class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRo
                 }
             }
 
-            if ($row['valor']) {
+            if ($row['valor'] && $fechaManual) {
                 if ($nit) {
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
                     $inicioMes = $inicioMes.'-01';
@@ -242,6 +252,80 @@ class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRo
         ];
     }
 
+    public function rules(): array
+    {
+        return [
+            '*.inmueble' => function ($attribute, $value, $fail) {
+                $row = $this->currentRow($attribute);
+                if ($this->isEmptyRow($row)) return;
+                if (empty($value) && empty($row['cedula_nit'])) {
+                    $fail('El campo inmueble es obligatorio cuando cedula_nit no está presente.');
+                }
+            },
+            '*.cedula_nit' => function ($attribute, $value, $fail) {
+                $row = $this->currentRow($attribute);
+                if ($this->isEmptyRow($row)) return;
+                if (empty($value) && empty($row['inmueble'])) {
+                    $fail('El campo cedula_nit es obligatorio cuando inmueble no está presente.');
+                }
+            },
+            '*.fecha_manual' => function ($attribute, $value, $fail) {
+                $row = $this->currentRow($attribute);
+                if ($this->isEmptyRow($row)) return;
+                if (!empty($value) && !strtotime($value)) {
+                    $fail('El campo fecha_manual debe ser una fecha válida.');
+                }
+            },
+            '*.valor' => function ($attribute, $value, $fail) {
+                $row = $this->currentRow($attribute);
+                if ($this->isEmptyRow($row)) return;
+                if (empty($value)) {
+                    $fail('El campo valor es obligatorio.');
+                } elseif (!is_numeric($value)) {
+                    $fail('El campo valor debe ser numérico.');
+                } else {
+                    $numericValue = (float)$value;
+                    if (floor($numericValue) !== $numericValue) {
+                        $fail('El valor debe ser un número entero o un número con punto decimal.');
+                    }
+                }
+            },
+            '*.email' => function ($attribute, $value, $fail) {
+                $row = $this->currentRow($attribute);
+                if ($this->isEmptyRow($row)) {
+                    return;
+                }
+                if (empty($value) || !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    $fail('El campo email es obligatorio y debe ser una dirección de correo válida.');
+                }
+            },
+        ];
+    }
+
+    public function customValidationMessages()
+    {
+        return [
+            '*.inmueble.required_without' => 'El campo inmueble es obligatorio cuando cedula_nit no está presente.',
+            '*.cedula_nit.required_without' => 'El campo cedula_nit es obligatorio cuando inmueble no está presente.',
+        ];
+    }
+
+    public function prepareForValidation($data, $index)
+    {
+        $fileHeaders = array_keys($data);
+        $requiredHeaders = ['inmueble', 'cedula_nit', 'fecha_manual', 'valor', 'email'];
+        
+        if ($this->isEmptyRow($data)) {
+            return [];
+        }
+
+        if (array_diff($requiredHeaders, $fileHeaders)) {
+            throw new \Exception('El archivo no tiene las cabeceras correctas: ' . implode(', ', $requiredHeaders));
+        }
+
+        return $data;
+    }
+
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $extractoCXC)
     {   
         if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
@@ -329,6 +413,19 @@ class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRo
     public function chunkSize(): int
     {
         return 1000;
+    }
+
+    protected function isEmptyRow($row)
+    {
+        return empty(array_filter($row, function($value) {
+            return !is_null($value) && $value !== '';
+        }));
+    }
+
+    protected function currentRow($attribute)
+    {
+        $rowIndex = explode('.', $attribute)[1];
+        return request()->input('excel')[$rowIndex] ?? [];
     }
 
 }

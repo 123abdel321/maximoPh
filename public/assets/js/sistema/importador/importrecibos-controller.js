@@ -4,11 +4,12 @@ var channelImportadorRecibos = pusher.subscribe('importador-recibos-'+localStora
 channelImportadorRecibos.bind('notificaciones', function(data) {
 
     if (data.success) {
-        $('#cargarPlantillaRecibos').show();
-        $('#actualizarPlantillaRecibos').show();
         $('#cargarPlantillaRecibosLoagind').hide();
 
         if (data.accion == 1) {
+            agregarToast(data.tipo, data.titulo, data.mensaje);
+            $('#cargarPlantillaRecibos').show();
+            $('#actualizarPlantillaRecibos').show();
             import_recibos_table.ajax.reload(function(res) {
                 if (res.success && res.data.length) {
                     totalesRecibosImport();
@@ -17,6 +18,8 @@ channelImportadorRecibos.bind('notificaciones', function(data) {
         }
 
         if (data.accion == 2) {
+            agregarToast(data.tipo, data.titulo, data.mensaje);
+            $('#cargarPlantillaRecibos').show();
             import_recibos_table.ajax.reload(function(res) {
                 if (res.success && res.data.length) {
                     totalesRecibosImport();
@@ -28,8 +31,8 @@ channelImportadorRecibos.bind('notificaciones', function(data) {
         $('#cargarPlantillaRecibos').show();
         $('#actualizarPlantillaRecibos').hide();
         $('#cargarPlantillaRecibosLoagind').hide();
+        agregarToast(data.tipo, data.titulo, data.mensaje);
     }
-    agregarToast(data.tipo, data.titulo, data.mensaje);
 });
 
 function importrecibosInit() {
@@ -105,9 +108,6 @@ function handleReciboClick() {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-        $('#cargarPlantillaRecibos').show();
-        $('#actualizarPlantillaRecibos').hide();
-        $('#cargarPlantillaRecibosLoagind').hide();
 
         agregarToast('info', 'Generando recibos', 'Se le notificará cuando la importación haya terminado!', true);
     }).fail((err) => {
@@ -179,7 +179,7 @@ $(document).on('click', '#descargarPlantillaRecibos', function () {
 
 $("#form-importador-recibos").submit(function(event) {
     event.preventDefault();
-    console.log('recibos submit');
+    
     $('#cargarPlantillaRecibos').hide();
     $('#actualizarPlantillaRecibos').hide();
     $('#cargarPlantillaRecibosLoagind').show();
