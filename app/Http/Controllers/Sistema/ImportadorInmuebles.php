@@ -6,11 +6,17 @@ use DB;
 use Carbon\Carbon;
 use App\Helpers\Extracto;
 use App\Helpers\Documento;
+use App\Jobs\ProcessNotify;
 use Illuminate\Http\Request;
+use App\Jobs\ImportInmueblesJob;
+use App\Events\PrivateMessageEvent;
+use Illuminate\Support\Facades\Bus;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Imports\InmueblesGeneralesImport;
+
 //MODELS
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
@@ -50,12 +56,35 @@ class ImportadorInmuebles extends Controller
 
         try {
             $file = $request->file('file_import_inmuebles');
+            $has_empresa = $request->user()['has_empresa'];
+            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
+            $user_id = $request->user()->id;
+            $filePath = $file->store('inmuebles');
+
+            $actualizarValores = $request->has('actualizar_valores') ? true : false;
 
             InmueblesImport::truncate();
 
-            $actualizarValores = $request->has('actualizar_valores') ? true : false;
-            $import = new InmueblesGeneralesImport($actualizarValores);
-            $import->import($file);
+            Bus::chain([
+                new ImportInmueblesJob($empresa, $actualizarValores, $filePath),
+                new ProcessNotify('importador-inmuebles-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	true,
+                    'accion' => 1,
+                    'tipo' => 'exito',
+                    'mensaje' => 'Archivo importado con exito!',
+                    'titulo' => 'Inmuebles importados',
+                    'autoclose' => true
+                ])
+            ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
+                event(new PrivateMessageEvent('importador-inmuebles-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	false,
+                    'accion' => 0,
+                    'tipo' => 'error',
+                    'mensaje' => 'Error al importar el archivo: ' . $e->getMessage(),
+                    'titulo' => 'Fallo en la importación',
+                    'autoclose' => false
+                ]));
+            })->dispatch();
 
             return response()->json([
                 'success'=>	true,

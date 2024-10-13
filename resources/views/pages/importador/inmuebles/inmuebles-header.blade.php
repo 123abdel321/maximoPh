@@ -2,7 +2,7 @@
     <div class="accordion-item">
         <h5 class="accordion-header" id="filtrosInmueblesImport">
             <button class="accordion-button border-bottom font-weight-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                Para importar cuotas extras & multas sigue estos pasos:
+                Para importar inmuebles sigue estos pasos:
                 <i class="collapse-close fa fa-plus text-xs pt-1 position-absolute end-0 me-3" aria-hidden="true"></i>
                 <i class="collapse-open fa fa-minus text-xs pt-1 position-absolute end-0 me-3" aria-hidden="true"></i>
             </button>
@@ -44,16 +44,16 @@
                             <i class="far fa-file-excel" style="font-size: 17px;"></i>&nbsp;
                             <b style="vertical-align: text-top;">Cargar plantilla</b>
                         </button>
-                        <button id="actualizarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none;">
-                            <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
-                            <b style="vertical-align: text-top;">Cargar cuotas extras</b>
-                        </button>&nbsp;
                         <button id="cargarPlantillaInmueblesLoagind" class="btn btn-sm badge bg-gradient-primary" style="display:none; float: left;" disabled>
                             <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
                             <b style="vertical-align: text-top;">Cargando</b>
                         </button>
                     </div>
                 </form>
+                <button id="actualizarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none; margin-top: -40px; position: relative;">
+                    <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
+                    <b style="vertical-align: text-top;">Cargar cuotas extras</b>
+                </button>
             </div>
         </div>
     </div>

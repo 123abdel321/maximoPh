@@ -25,9 +25,10 @@ use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ConRecibosImport;
 use App\Models\Sistema\ConceptoFacturacion;
 
-class RecibosCajaImport implements ToCollection, WithChunkReading, WithHeadingRow, WithProgressBar, WithValidation, ShouldQueue
+class RecibosCajaImport implements ToCollection, WithValidation, WithChunkReading, WithMappedCells, WithHeadingRow, WithProgressBar, ShouldQueue
 {
     use Importable, SkipsErrors;
+
     public $empresa = null;
     public $redondeo = null;
 

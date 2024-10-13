@@ -1,40 +1,6 @@
 var import_recibos_table = null;
 var channelImportadorRecibos = pusher.subscribe('importador-recibos-'+localStorage.getItem("notificacion_code"));
 
-channelImportadorRecibos.bind('notificaciones', function(data) {
-
-    if (data.success) {
-        $('#cargarPlantillaRecibosLoagind').hide();
-
-        if (data.accion == 1) {
-            agregarToast(data.tipo, data.titulo, data.mensaje);
-            $('#cargarPlantillaRecibos').show();
-            $('#actualizarPlantillaRecibos').show();
-            import_recibos_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
-                    totalesRecibosImport();
-                }
-            });
-        }
-
-        if (data.accion == 2) {
-            agregarToast(data.tipo, data.titulo, data.mensaje);
-            $('#cargarPlantillaRecibos').show();
-            import_recibos_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
-                    totalesRecibosImport();
-                }
-            });
-        }
-        
-    } else {
-        $('#cargarPlantillaRecibos').show();
-        $('#actualizarPlantillaRecibos').hide();
-        $('#cargarPlantillaRecibosLoagind').hide();
-        agregarToast(data.tipo, data.titulo, data.mensaje);
-    }
-});
-
 function importrecibosInit() {
     import_recibos_table = $('#importRecibos').DataTable({
         pageLength: 20,
@@ -96,6 +62,40 @@ function importrecibosInit() {
     btnImportRecibo.addEventListener('click', handleReciboClick);
 }
 
+channelImportadorRecibos.bind('notificaciones', function(data) {
+
+    if (data.success) {
+        $('#cargarPlantillaRecibosLoagind').hide();
+
+        if (data.accion == 1) {
+            agregarToast(data.tipo, data.titulo, data.mensaje);
+            $('#cargarPlantillaRecibos').show();
+            $('#actualizarPlantillaRecibos').show();
+            import_recibos_table.ajax.reload(function(res) {
+                if (res.success && res.data.length) {
+                    totalesRecibosImport();
+                }
+            });
+        }
+
+        if (data.accion == 2) {
+            agregarToast(data.tipo, data.titulo, data.mensaje);
+            $('#cargarPlantillaRecibos').show();
+            import_recibos_table.ajax.reload(function(res) {
+                if (res.success && res.data.length) {
+                    totalesRecibosImport();
+                }
+            });
+        }
+        
+    } else {
+        $('#cargarPlantillaRecibos').show();
+        $('#actualizarPlantillaRecibos').hide();
+        $('#cargarPlantillaRecibosLoagind').hide();
+        agregarToast(data.tipo, data.titulo, data.mensaje);
+    }
+});
+
 function handleReciboClick() {
     
     $('#cargarPlantillaRecibos').hide();
@@ -109,7 +109,7 @@ function handleReciboClick() {
         dataType: 'json',
     }).done((res) => {
 
-        agregarToast('info', 'Generando recibos', 'Se le notificará cuando la importación haya terminado!', true);
+        agregarToast('info', 'Importando pagos', 'Se le notificará cuando la importación haya terminado!', true);
     }).fail((err) => {
         $('#cargarPlantillaRecibos').show();
         $('#cargarPlantillaRecibosLoagind').hide();
