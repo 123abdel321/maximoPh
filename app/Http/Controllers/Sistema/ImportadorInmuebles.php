@@ -89,7 +89,7 @@ class ImportadorInmuebles extends Controller
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Inmuebles generales creados con exito!'
+                'message'=> 'Importando inmuebles...'
             ]);
 
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
@@ -97,7 +97,7 @@ class ImportadorInmuebles extends Controller
             return response()->json([
                 'success'=>	false,
                 'data' => $e->failures(),
-                'message'=> 'Error al cargar inmuebles generales'
+                'message'=> 'Error al importar inmuebles'
             ]);
         }
     }

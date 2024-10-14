@@ -58,6 +58,47 @@ function importinmueblesInit() {
     var btnImportInmuebles = document.getElementById('actualizarPlantillaInmuebles');
     btnImportInmuebles.removeEventListener('click', handleInmuebleClick);
     btnImportInmuebles.addEventListener('click', handleInmuebleClick);
+
+    $("#form-importador-inmuebles").submit(function(event) {
+        event.preventDefault();
+    
+        $('#cargarPlantillaInmuebles').hide();
+        $('#actualizarPlantillaInmuebles').hide();
+        $('#cargarPlantillaInmueblesLoagind').show();
+    
+        import_inmuebles_table.rows().remove().draw();
+    
+        var ajxForm = document.getElementById("form-importador-inmuebles");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "importinmuebles-importar");
+        xhr.send(data);
+        xhr.onload = function(res) {
+    
+            var data = res.currentTarget;
+            if (data.responseURL == 'https://maximoph.com/login') {
+                caduqueSession();
+            }
+            if (data.status > 299) {
+                agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
+            }
+    
+            var responseData = JSON.parse(res.currentTarget.response);
+    
+            if (responseData.success) {
+                agregarToast('info', 'Cargando inmuebles', 'Se le notificará cuando la importación haya terminado!', true);
+            } else {
+                $('#cargarPlantillaInmuebles').show();
+                $('#cargarPlantillaInmueblesLoagind').hide();
+                agregarToast('error', 'Carga errada', 'errorsMsg');
+            }
+        };
+        xhr.onerror = function (res) {
+            $('#cargarPlantillaInmuebles').hide();
+            $('#cargarPlantillaInmueblesLoagind').show();
+        };
+        return false;
+    });
 }
 
 channelImportadorInmuebles.bind('notificaciones', function(data) {
@@ -170,45 +211,4 @@ $(document).on('click', '#descargarPlantillaInmuebles', function () {
         window.open(res.url, "_blank");
     }).fail((err) => {
     });
-});
-
-$("#form-importador-inmuebles").submit(function(event) {
-    event.preventDefault();
-
-    $('#cargarPlantillaInmuebles').hide();
-    $('#actualizarPlantillaInmuebles').hide();
-    $('#cargarPlantillaInmueblesLoagind').show();
-
-    import_inmuebles_table.rows().remove().draw();
-
-    var ajxForm = document.getElementById("form-importador-inmuebles");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "importinmuebles-importar");
-    xhr.send(data);
-    xhr.onload = function(res) {
-
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
-
-        var responseData = JSON.parse(res.currentTarget.response);
-
-        if (responseData.success) {
-            agregarToast('info', 'Cargando inmuebles', 'Se le notificará cuando la importación haya terminado!', true);
-        } else {
-            $('#cargarPlantillaInmuebles').show();
-            $('#cargarPlantillaInmueblesLoagind').hide();
-            agregarToast('error', 'Carga errada', 'errorsMsg');
-        }
-    };
-    xhr.onerror = function (res) {
-        $('#cargarPlantillaInmuebles').hide();
-        $('#cargarPlantillaInmueblesLoagind').show();
-    };
-    return false;
 });

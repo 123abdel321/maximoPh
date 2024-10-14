@@ -60,6 +60,46 @@ function importrecibosInit() {
     var btnImportRecibo = document.getElementById('actualizarPlantillaRecibos');
     btnImportRecibo.removeEventListener('click', handleReciboClick);
     btnImportRecibo.addEventListener('click', handleReciboClick);
+
+    $("#form-importador-recibos").submit(function(event) {
+        event.preventDefault();
+        
+        $('#cargarPlantillaRecibos').hide();
+        $('#actualizarPlantillaRecibos').hide();
+        $('#cargarPlantillaRecibosLoagind').show();
+    
+        import_recibos_table.rows().remove().draw();
+    
+        var ajxForm = document.getElementById("form-importador-recibos");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "importrecibos-importar");
+        xhr.send(data);
+        xhr.onload = function(res) {
+            
+            var data = res.currentTarget;
+            if (data.responseURL == 'https://maximoph.com/login') {
+                caduqueSession();
+            }
+            if (data.status > 299) {
+                return;
+            }
+            var responseData = JSON.parse(res.currentTarget.response);
+            
+            if (responseData.success) {
+                agregarToast('info', 'Cargando recibos', 'Se le notificará cuando la importación haya terminado!', true);
+            } else {
+                $('#cargarPlantillaRecibos').show();
+                $('#cargarPlantillaRecibosLoagind').hide();
+                agregarToast('error', 'Carga errada', 'errorsMsg');
+            }
+        };
+        xhr.onerror = function (res) {
+            $('#cargarPlantillaRecibos').show();
+            $('#cargarPlantillaRecibosLoagind').hide();
+        };
+        return false;
+    });
 }
 
 channelImportadorRecibos.bind('notificaciones', function(data) {
@@ -173,46 +213,4 @@ $(document).on('click', '#descargarPlantillaRecibos', function () {
         window.open(res.url, "_blank");
     }).fail((err) => {
     });
-});
-
-
-
-$("#form-importador-recibos").submit(function(event) {
-    event.preventDefault();
-    
-    $('#cargarPlantillaRecibos').hide();
-    $('#actualizarPlantillaRecibos').hide();
-    $('#cargarPlantillaRecibosLoagind').show();
-
-    import_recibos_table.rows().remove().draw();
-
-    var ajxForm = document.getElementById("form-importador-recibos");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "importrecibos-importar");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            return;
-        }
-        var responseData = JSON.parse(res.currentTarget.response);
-        
-        if (responseData.success) {
-            agregarToast('info', 'Cargando recibos', 'Se le notificará cuando la importación haya terminado!', true);
-        } else {
-            $('#cargarPlantillaRecibos').show();
-            $('#cargarPlantillaRecibosLoagind').hide();
-            agregarToast('error', 'Carga errada', 'errorsMsg');
-        }
-    };
-    xhr.onerror = function (res) {
-        $('#cargarPlantillaRecibos').show();
-        $('#cargarPlantillaRecibosLoagind').hide();
-    };
-    return false;
 });

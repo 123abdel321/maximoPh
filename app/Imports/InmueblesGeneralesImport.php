@@ -238,7 +238,6 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
     public function prepareForValidation($data, $index)
     {
         $fileHeaders = array_keys($data);
-        // dd($fileHeaders);
         $requiredHeaders = ['inmueble', 'zona', 'concepto', 'area', 'coeficiente', 'valor_admon', 'aumento', 'valor_aumento', 'cedula_nit', 'tipo', 'porcentaje_admin'];
         
         if ($this->isEmptyRow($data)) {

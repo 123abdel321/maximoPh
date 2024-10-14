@@ -6,7 +6,9 @@ use DB;
 use Carbon\Carbon;
 use App\Helpers\Extracto;
 use App\Helpers\Documento;
+use App\Jobs\ProcessNotify;
 use Illuminate\Http\Request;
+use App\Jobs\ImportRecibosJob;
 use App\Imports\RecibosCajaImport;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Support\Facades\Bus;
@@ -85,22 +87,16 @@ class ImportadorRecibosController extends Controller
             ConRecibosImport::truncate();
 
             Bus::chain([
-                function () use ($id_informe, &$filePath, &$empresa) {
-                    (new RecibosCajaImport($empresa))->import($filePath);
-                },
-                function () use ($user_id, $has_empresa) {
-                    
-                    event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
-                        'success'=>	true,
-                        'accion' => 1,
-                        'tipo' => 'exito',
-                        'mensaje' => 'Archivo importado con exito!',
-                        'titulo' => 'Recibos importados',
-                        'autoclose' => false
-                    ]));
-                }
+                new ImportRecibosJob($empresa, $filePath),
+                new ProcessNotify('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	true,
+                    'accion' => 1,
+                    'tipo' => 'exito',
+                    'mensaje' => 'Archivo importado con exito!',
+                    'titulo' => 'Recibos importados',
+                    'autoclose' => false
+                ])
             ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
-
                 event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
                     'success'=>	false,
                     'accion' => 0,
@@ -122,7 +118,7 @@ class ImportadorRecibosController extends Controller
             return response()->json([
                 'success'=>	false,
                 'data' => $e->failures(),
-                'message'=> 'Error al actualizar precio de productos'
+                'message'=> 'Error al importar recibos'
             ]);
         }
     }
