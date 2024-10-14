@@ -146,6 +146,9 @@ function instalacionempresaInit() {
     }
 
     empresas_table.ajax.reload();
+
+    document.getElementById('razon_social_empresa_nueva').removeEventListener('input', soloLetras);
+    document.getElementById('razon_social_empresa_nueva').addEventListener('input', soloLetras);
 }
 
 $(document).on('click', '#generateNuevaEmpresa', function () {

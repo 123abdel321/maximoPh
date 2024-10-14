@@ -186,8 +186,8 @@ class InstaladorController extends Controller
         }
 
         try {
-            DB::connection('clientes')->beginTransaction();
-            DB::connection('max')->beginTransaction();
+            // DB::connection('clientes')->beginTransaction();
+            // DB::connection('max')->beginTransaction();
 
             $existEmpresa = Empresa::where('nit',$request->get('nit_empresa_nueva'))->first();
 
@@ -234,16 +234,16 @@ class InstaladorController extends Controller
 				'estado' => 0
 			]);
 
-            $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
+            (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
 
-            if ($response['status'] > 299) {
-                DB::connection('clientes')->rollback();
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=>$response['response']->message
-                ], 422);
-            }
+            // if ($response['status'] > 299) {
+            //     DB::connection('clientes')->rollback();
+            //     return response()->json([
+            //         "success"=>false,
+            //         'data' => [],
+            //         "message"=>$response['response']->message
+            //     ], 422);
+            // }
 
             $nameDb = $this->generateUniqueNameDb($empresa);
             $empresa->token_db_maximo = 'maximo_'.$nameDb;
@@ -261,11 +261,8 @@ class InstaladorController extends Controller
 
             $this->associateUserToCompany($usuarioOwner, $empresa);
 
-            $estado = ProcessProvisionedDatabase::dispatch($empresa);
+            // ProcessProvisionedDatabase::dispatch($empresa);
             info('Empresa'. $request->razon_social.' creada con exito!');
-
-            DB::connection('clientes')->commit();
-            DB::connection('max')->commit();
 
             return response()->json([
                 "success" => true,
@@ -274,8 +271,7 @@ class InstaladorController extends Controller
             ], 200);
             
         } catch (Exception $e) {
-            DB::connection('clientes')->rollback();
-            DB::connection('max')->rollback();
+            
             return response()->json([
                 "success"=>false,
                 'data' => [],

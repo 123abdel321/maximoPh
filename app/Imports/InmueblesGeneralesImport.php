@@ -43,7 +43,6 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
 
     public function collection(Collection $rows)
     {
-
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->empresa->token_db_maximo);
 
@@ -52,7 +51,7 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
         
         $columna = 2;
         foreach ($rows as $row) {
-            // dd($row);
+            
             if (!count($row)) continue;
             
             $estado = 0;

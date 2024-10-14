@@ -1814,3 +1814,7 @@ function arreglarMensajeError(mensaje) {
     }
     return errorsMsg;
 }
+
+function soloLetras(e) {
+    this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
+}
