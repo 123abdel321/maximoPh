@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->integer('id_inmueble')->nullable();
             $table->integer('id_nit')->nullable();
-            $table->integer('id_nit')->nullable();
             $table->string('codigo', 60)->nullable();
             $table->string('numero_documento', 60)->nullable();
             $table->string('nombre_inmueble', 100)->nullable();
