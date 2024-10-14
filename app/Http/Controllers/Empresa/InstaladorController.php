@@ -204,6 +204,13 @@ class InstaladorController extends Controller
                     ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
             }
+            $existeUsuer = User::where('email', $request->email_empresa_nueva)->first();
+            if ($existeUsuer) {
+                return response()->json([
+                    "success"=>false,
+                    "errors"=>["La correo ".$existEmpresa->email_empresa_nueva." ya existe!"]
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
             info('Creando empresa: '. $request->razon_social_empresa_nueva. '...');
             $usuarioOwner = User::create([
