@@ -81,7 +81,6 @@ class ImportadorRecibosController extends Controller
             $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
 
             $user_id = $request->user()->id;
-            $id_informe = $request->get('id');
 
             $filePath = $file->store('recibos');
             ConRecibosImport::truncate();
@@ -113,7 +112,7 @@ class ImportadorRecibosController extends Controller
                 'message'=> 'Importando recibos...'
             ]);
 
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (Exception $e) {
 
             return response()->json([
                 'success'=>	false,
@@ -171,26 +170,21 @@ class ImportadorRecibosController extends Controller
     {
         try {
 
+            $user_id = $request->user()->id;
             $has_empresa = $request->user()['has_empresa'];
             $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
 
-            $user_id = $request->user()->id;
-            $id_informe = $request->get('id');
-
             Bus::chain([
                 new ProcessImportarRecibos($empresa, $user_id),
-                function () use ($user_id, $has_empresa) {
-                    event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
-                        'success'=>	true,
-                        'accion' => 2,
-                        'tipo' => 'exito',
-                        'mensaje' => 'Recibos importados con exito!',
-                        'titulo' => 'Recibos importados',
-                        'autoclose' => false
-                    ]));
-                }
+                new ProcessNotify('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	true,
+                    'accion' => 2,
+                    'tipo' => 'exito',
+                    'mensaje' => 'Recibos importados con exito!',
+                    'titulo' => 'Recibos importados',
+                    'autoclose' => false
+                ])
             ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
-                
                 event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
                     'success'=>	false,
                     'accion' => 0,
@@ -207,7 +201,7 @@ class ImportadorRecibosController extends Controller
                 'message'=> 'Importando recibos...'
             ]);
 
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (Exception $e) {
 
             return response()->json([
                 'success'=>	false,

@@ -52,7 +52,7 @@
                 </form>
                 <button id="actualizarPlantillaInmuebles" href="javascript:void(0)" class="btn btn-sm badge bg-gradient-primary" style="float: right; display: none; margin-top: -40px; position: relative;">
                     <i class="fas fa-upload" style="font-size: 17px;"></i>&nbsp;
-                    <b style="vertical-align: text-top;">Cargar cuotas extras</b>
+                    <b style="vertical-align: text-top;">Cargar inmuebles</b>
                 </button>
             </div>
         </div>

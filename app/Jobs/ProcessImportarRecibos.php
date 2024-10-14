@@ -44,22 +44,12 @@ class ProcessImportarRecibos implements ShouldQueue
     public $empresa = null;
     public $user_id = null;
 
-    /**
-     * Create a new job instance.
-	 * 
-	 * @return void
-     */
     public function __construct($empresa, $user_id)
     {
         $this->empresa = $empresa;
         $this->user_id = $user_id;
     }
 
-    /**
-     * Execute the job.
-	 * 
-	 * @return string
-     */
     public function handle()
     {
         try {            

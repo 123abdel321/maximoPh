@@ -80,7 +80,7 @@ function importinmueblesInit() {
                 caduqueSession();
             }
             if (data.status > 299) {
-                agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
+                return;
             }
     
             var responseData = JSON.parse(res.currentTarget.response);
@@ -184,7 +184,7 @@ function totalesInmueblesImport() {
         } else {
             $('#totales_import_inmuebles').hide();
         }
-        if (res.data.errores <= 0 &&  res.data.buenos > 0) {
+        if (res.data.buenos > 0) {
             $('#actualizarPlantillaInmuebles').show();
         }
 
