@@ -234,16 +234,16 @@ class InstaladorController extends Controller
 				'estado' => 0
 			]);
 
-            (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
+            $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
 
-            // if ($response['status'] > 299) {
-            //     DB::connection('clientes')->rollback();
-            //     return response()->json([
-            //         "success"=>false,
-            //         'data' => [],
-            //         "message"=>$response['response']->message
-            //     ], 422);
-            // }
+            if ($response['status'] > 299) {
+                DB::connection('clientes')->rollback();
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>$response['response']->message
+                ], 422);
+            }
 
             $nameDb = $this->generateUniqueNameDb($empresa);
             $empresa->token_db_maximo = 'maximo_'.$nameDb;
@@ -261,7 +261,7 @@ class InstaladorController extends Controller
 
             $this->associateUserToCompany($usuarioOwner, $empresa);
 
-            // ProcessProvisionedDatabase::dispatch($empresa);
+            ProcessProvisionedDatabase::dispatch($empresa);
             info('Empresa'. $request->razon_social.' creada con exito!');
 
             return response()->json([
