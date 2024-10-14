@@ -260,10 +260,13 @@ class InstaladorController extends Controller
             $empresa->hash = Hash::make($empresa->id);
 
             $file = $request->file('imagen_empresa_edit');
+            $avatar = $request->file('new_avatar_empresa');
             if ($file) {
                 $empresa->logo = Storage::disk('do_spaces')->put('logos_empresas', $file, 'public');
+            } else if ($avatar) {
+                $empresa->logo = Storage::disk('do_spaces')->put('logos_empresas', $avatar, 'public');
             }
-
+            
 			$empresa->save();
 
             $this->associateUserToCompany($usuarioOwner, $empresa);
