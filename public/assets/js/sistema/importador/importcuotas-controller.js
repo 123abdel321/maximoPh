@@ -1,5 +1,5 @@
 var import_cuotas_extras_table = null;
-var btnImportCuotasMultas = document.getElementById('actualizarPlantillaCuotasExtras');
+var channelImportadorCuotas = pusher.subscribe('importador-cuotas-'+localStorage.getItem("notificacion_code"));
 
 function importcuotasInit() {
     import_cuotas_extras_table = $('#importCuotasMultas').DataTable({
@@ -55,6 +55,117 @@ function importcuotasInit() {
             totalesCuotasMultasImport();
         }
     });
+
+    var btnImportCuotasMultas = document.getElementById('actualizarPlantillaCuotasExtras');
+    btnImportCuotasMultas.removeEventListener('click', handleCuotasClick);
+    btnImportCuotasMultas.addEventListener('click', handleCuotasClick);
+
+    $("#form-importador-cuotasExtras").submit(function(event) {
+        event.preventDefault();
+    
+        $('#cargarPlantillaCuotasExtras').hide();
+        $('#actualizarPlantillaCuotasExtras').hide();
+        $('#cargarPlantillaCuotasExtrasLoagind').show();
+    
+        import_cuotas_extras_table.rows().remove().draw();
+    
+        var ajxForm = document.getElementById("form-importador-cuotasExtras");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "importcuotas-importar");
+        xhr.send(data);
+        xhr.onload = function(res) {
+            console.log('res: ',res);
+            var data = res.currentTarget;
+            if (data.responseURL == 'https://maximoph.com/login') {
+                caduqueSession();
+            }
+            if (data.status > 299) {
+                agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
+            }
+            var responseData = JSON.parse(res.currentTarget.response);
+
+            if (responseData.success) {
+                agregarToast('info', 'Cargando cuotas extras & multas', 'Se le notificará cuando la importación haya terminado!', true);
+            } else {
+                $('#cargarPlantillaCuotasExtras').show();
+                $('#cargarPlantillaCuotasExtrasLoagind').hide();
+                agregarToast('error', 'Carga errada', 'errorsMsg');
+            }
+        };
+        xhr.onerror = function (res) {
+            $('#cargarPlantillaCuotasExtras').show();
+            $('#cargarPlantillaCuotasExtrasLoagind').hide();
+        };
+        return false;
+    });
+}
+
+channelImportadorCuotas.bind('notificaciones', function(data) {
+
+    if (data.success) {
+        $('#cargarPlantillaCuotasExtrasLoagind').hide();
+
+        if (data.accion == 1) {
+            agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+            $('#cargarPlantillaCuotasExtras').show();
+            $('#actualizarPlantillaCuotasExtras').show();
+            import_cuotas_extras_table.ajax.reload(function(res) {
+                if (res.success) {
+                    totalesCuotasMultasImport();
+                }
+            });
+        }
+
+        if (data.accion == 2) {
+            agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+            $('#cargarPlantillaCuotasExtras').show();
+            import_cuotas_extras_table.ajax.reload(function(res) {
+                if (res.success) {
+                    totalesCuotasMultasImport();
+                }
+            });
+        }
+        
+    } else {
+        $('#cargarPlantillaCuotasExtras').show();
+        $('#actualizarPlantillaCuotasExtras').hide();
+        $('#cargarPlantillaCuotasExtrasLoagind').hide();
+        agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+    }
+});
+
+function handleCuotasClick() {
+    $('#cargarPlantillaCuotasExtras').hide();
+    $('#actualizarPlantillaCuotasExtras').hide();
+    $('#cargarPlantillaCuotasExtrasLoagind').show();
+
+    $.ajax({
+        method: 'POST',
+        url: base_url + 'cuotas-cargar-import',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+
+        agregarToast('info', 'Importando cuotas extras & multas', 'Se le notificará cuando la importación haya terminado!', true);
+    }).fail((err) => {
+        $('#cargarPlantillaCuotasExtras').show();
+        $('#cargarPlantillaCuotasExtrasLoagind').hide();
+        
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Importación errada', errorsMsg);
+    });
 }
 
 function totalesCuotasMultasImport() {
@@ -70,8 +181,8 @@ function totalesCuotasMultasImport() {
         } else {
             $('#totales_import_cuuotas_multas').hide();
         }
-        if (res.data.errores <= 0 &&  res.data.buenos > 0) {
-            // $('#actualizarPlantillaRecibos').show();
+        if (res.data.buenos > 0) {
+            $('#actualizarPlantillaCuotasExtras').show();
         }
 
         var countA = new CountUp('errores_cuotas_multas_import', 0, res.data.errores);
@@ -96,88 +207,5 @@ $(document).on('click', '#descargarPlantillaCuotasExtras', function () {
     }).done((res) => {
         window.open(res.url, "_blank");
     }).fail((err) => {
-    });
-});
-
-$("#form-importador-cuotasExtras").submit(function(event) {
-    event.preventDefault();
-
-    $('#cargarPlantillaCuotasExtras').hide();
-    $('#actualizarPlantillaCuotasExtras').hide();
-    $('#cargarPlantillaCuotasExtrasLoagind').show();
-
-    import_cuotas_extras_table.rows().remove().draw();
-
-    var ajxForm = document.getElementById("form-importador-cuotasExtras");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "importcuotas-importar");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        console.log('res: ',res);
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
-        var responseData = JSON.parse(res.currentTarget.response);
-        var errorsMsg = '';
-        $('#cargarPlantillaCuotasExtras').show();
-        $('#cargarPlantillaCuotasExtrasLoagind').hide();
-
-        if (responseData.success) {
-            import_cuotas_extras_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
-                    $('#actualizarPlantillaCuotasExtras').show();
-                    totalesCuotasMultasImport();
-                }
-            });
-            agregarToast('exito', 'Datos cargados', 'Cuotas & multas cargados con exito!', true);
-        } else {
-            agregarToast('error', 'Carga errada', 'errorsMsg');
-        }
-    };
-    xhr.onerror = function (res) {
-        $('#cargarPlantillaCuotasExtras').show();
-        $('#cargarPlantillaCuotasExtrasLoagind').hide();
-    };
-    return false;
-});
-
-btnImportCuotasMultas.addEventListener('click', event => {
-    event.preventDefault();
-
-    $('#cargarPlantillaCuotasExtras').hide();
-    $('#actualizarPlantillaCuotasExtras').hide();
-    $('#cargarPlantillaCuotasExtrasLoagind').show();
-
-    $.ajax({
-        method: 'POST',
-        url: base_url + 'cuotas-cargar-import',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        $('#cargarPlantillaCuotasExtras').show();
-        $('#actualizarPlantillaCuotasExtras').hide();
-        $('#cargarPlantillaCuotasExtrasLoagind').hide();
-        import_cuotas_extras_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                $('#actualizarPlantillaCuotasExtras').show();
-                totalesCuotasMultasImport();
-            }
-        });
-        agregarToast('exito', 'Cuotas extras importadas', 'Recibos importadas con exito!', true);
-    }).fail((err) => {
-        $('#cargarPlantillaCuotasExtras').show();
-        $('#cargarPlantillaCuotasExtrasLoagind').hide();
-        import_cuotas_extras_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                $('#actualizarPlantillaCuotasExtras').show();
-                totalesCuotasMultasImport();
-            }
-        });
-        agregarToast('error', 'Importación de Cuotas extras errado', '');
     });
 });

@@ -112,7 +112,7 @@ channelImportadorRecibos.bind('notificaciones', function(data) {
             $('#cargarPlantillaRecibos').show();
             $('#actualizarPlantillaRecibos').show();
             import_recibos_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
+                if (res.success) {
                     totalesRecibosImport();
                 }
             });
@@ -122,7 +122,7 @@ channelImportadorRecibos.bind('notificaciones', function(data) {
             agregarToast(data.tipo, data.titulo, data.mensaje);
             $('#cargarPlantillaRecibos').show();
             import_recibos_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
+                if (res.success) {
                     totalesRecibosImport();
                 }
             });

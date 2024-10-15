@@ -111,7 +111,7 @@ channelImportadorInmuebles.bind('notificaciones', function(data) {
             $('#cargarPlantillaInmuebles').show();
             $('#actualizarPlantillaInmuebles').show();
             import_inmuebles_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
+                if (res.success) {
                     totalesInmueblesImport();
                 }
             });
@@ -121,7 +121,7 @@ channelImportadorInmuebles.bind('notificaciones', function(data) {
             agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
             $('#cargarPlantillaInmuebles').show();
             import_inmuebles_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
+                if (res.success) {
                     totalesInmueblesImport();
                 }
             });
