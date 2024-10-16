@@ -57,11 +57,7 @@ class FacturacionController extends Controller
         $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
         $valor_total_presupuesto = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
         $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
-        $presupuesto_mensual = Entorno::where('nombre', 'presupuesto_mensual')->first();
         $valor_total_presupuesto = $valor_total_presupuesto && $valor_total_presupuesto->valor ? $valor_total_presupuesto->valor : 0;
-        $presupuesto_mensual = $presupuesto_mensual && $presupuesto_mensual->valor ? $presupuesto_mensual->valor : 0;
-
-        if (!$presupuesto_mensual) $valor_total_presupuesto = $valor_total_presupuesto / 12;
 
         $data = [
             'numero_total_unidades' => $numero_total_unidades ? $numero_total_unidades->valor : '0',
@@ -71,7 +67,7 @@ class FacturacionController extends Controller
             'valor_total_presupuesto' => $valor_total_presupuesto ? $valor_total_presupuesto : '0',
             'causacion_mensual_rapida' => $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : '0',
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
-            'valor_registro_coeficiente' => $coeficienteTotal / 100,
+            'valor_registro_coeficiente' => $coeficienteTotal,
         ];
 
         return view('pages.operaciones.facturacion.facturacion-view', $data);

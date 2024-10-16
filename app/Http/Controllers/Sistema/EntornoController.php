@@ -44,7 +44,6 @@ class EntornoController extends Controller
                 'valor_total_presupuesto_year_actual',
                 'validacion_estricta',
                 'causacion_mensual_rapida',
-                'presupuesto_mensual',
                 'dia_limite_pago_sin_interes',
                 'dia_limite_descuento_pronto_pago',
                 'porcentaje_descuento_pronto_pago',
