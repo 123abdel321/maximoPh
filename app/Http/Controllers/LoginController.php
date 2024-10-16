@@ -525,13 +525,19 @@ class LoginController extends Controller
                 $userPortafolio->has_empresa = $empresaERP->token_db;
                 $userPortafolio->about = $this->generateRandomString(10);
                 $userPortafolio->save();
+
+                return response()->json([
+                    "success"=>false,
+                    'data' => 'login-direct?email='.$userPortafolio->email.'&code_login='.base64_encode($userPortafolio->about),
+                    "message"=>'Url generada con exito'
+                ], 200);
             }
 
             return response()->json([
                 "success"=>false,
-                'data' => 'login-direct?email='.$userPortafolio->email.'&code_login='.base64_encode($userPortafolio->about),
-                "message"=>'Url generada con exito'
-            ], 200);
+                'data' => [],
+                "message"=>'El usuario no existe en portafolio ERP'
+            ], 422);
 
         } catch (Exception $e) {
             DB::connection('clientes')->rollback();
