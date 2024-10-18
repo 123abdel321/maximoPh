@@ -51,12 +51,10 @@ abstract class AbstractPlacetoPaySender
 
     private function getUrl()
 	{
-        $url = 'https://checkout.test.goupagos.com.co';
-        // if (env("APP_ENV") == 'local') {//LOCAL
-        // } else {//PRODUCCION
-        //     $url = 'http://127.0.0.1:8000/api';
-        // }
-        return $url . $this->getEndpoint();
+        $placetopay_url = Entorno::where('nombre', 'placetopay_url')->first();
+        $placetopay_url = $placetopay_url ? $placetopay_url->valor : '';
+
+        return $placetopay_url.$this->getEndpoint();
 	}
 
     private function getDataSender()

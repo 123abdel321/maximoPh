@@ -11,12 +11,16 @@
 
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Variables de entorno</button>
-                    </li>
-                    <!-- <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
+                            <p style="margin-bottom: 0; font-weight: 600;">Variables de entorno</p>
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pasarela-tab" data-bs-toggle="tab" data-bs-target="#pasarela" type="button" role="tab" aria-controls="pasarela" aria-selected="false">
+                            <p style="margin-bottom: 0; font-weight: 600;">Pasarela</p>
+                        </button>
+                    </li>
+                    <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>
                     </li> -->
                 </ul>
@@ -137,7 +141,38 @@
                         <br/>
 
                     </div>
-                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+                    <div class="tab-pane fade" id="pasarela" role="tabpanel" aria-labelledby="pasarela-tab">
+                        <br/>
+
+                        <div class="row" style="padding: 5px;">
+
+                            <div style="text-align: center;">
+                                <img style="width: 180px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/iconos_sistema/placetopay.png">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6" >
+                                <label for="example-text-input" class="form-control-label">Url base</label>
+                                <input type="text" class="form-control form-control-sm" name="placetopay_url" id="placetopay_url">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6" >
+                                <label for="example-text-input" class="form-control-label">Login key</label>
+                                <input type="text" class="form-control form-control-sm" name="placetopay_login" id="placetopay_login">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6" >
+                                <label for="example-text-input" class="form-control-label">Secret Key</label>
+                                <input type="text" class="form-control form-control-sm" name="placetopay_trankey" id="placetopay_trankey">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6">
+                                <label for="exampleFormControlSelect1">Forma de pago</label>
+                                <select name="placetopay_forma_pago" id="placetopay_forma_pago" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
                     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
                 </div>
                 <div style="background-color: white;">

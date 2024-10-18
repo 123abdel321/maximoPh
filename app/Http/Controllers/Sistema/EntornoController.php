@@ -16,7 +16,9 @@ class EntornoController extends Controller
     public function index(Request $request)
     {
         $data = [
-            'variables_entorno' => Entorno::with('concepto_facturacion', 'nit')->get()
+            'variables_entorno' => Entorno::with(
+                'concepto_facturacion', 'nit', 'formas_pago'
+            )->get()
         ];
         
         return view('pages.configuracion.entorno.entorno-view', $data);
@@ -57,6 +59,10 @@ class EntornoController extends Controller
                 'dias_pronto_pago',
                 'descuento_pago_parcial',
                 'documento_referencia_agrupado',
+                'placetopay_url',
+                'placetopay_login',
+                'placetopay_trankey',
+                'placetopay_forma_pago',
             ];
 
             foreach ($variablesEntorno as $variable) {

@@ -1,5 +1,6 @@
 var $nitPorDefecto = null;
 var $comboConceptoFacturacion = null;
+var $comboFormasPagoPlacetoPay = null;
 
 function entornoInit() {
 
@@ -11,6 +12,30 @@ function entornoInit() {
         ajax: {
             url: 'api/concepto-facturacion-combo',
             headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboFormasPagoPlacetoPay = $('#placetopay_forma_pago').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una forma de pago",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'forma-pago/combo-forma-pago',
+            headers: headersERP,
             dataType: 'json',
             data: function (params) {
                 var query = {
@@ -88,6 +113,9 @@ function entornoInit() {
         var textEntorno = [
             'factura_texto1',
             'factura_texto2',
+            'placetopay_url',
+            'placetopay_login',
+            'placetopay_trankey'
         ]; 
 
         var select = [
@@ -97,6 +125,7 @@ function entornoInit() {
         var select2 = [
             'id_concepto_pago_none',
             'id_nit_por_defecto',
+            'placetopay_forma_pago',
         ];
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
@@ -139,6 +168,15 @@ function entornoInit() {
                 $nitPorDefecto.append(newOption).trigger('change');
                 $nitPorDefecto.val(dataNit.id).trigger('change');
             }
+            if (variable.nombre == 'placetopay_forma_pago') {
+                var dataPlacetoPay = {
+                    id: variable.formas_pago.id,
+                    text: variable.formas_pago.nombre
+                };
+                var newOption = new Option(dataPlacetoPay.text, dataPlacetoPay.id, false, false);
+                $comboFormasPagoPlacetoPay.append(newOption).trigger('change');
+                $comboFormasPagoPlacetoPay.val(dataPlacetoPay.id).trigger('change');
+            }
         }
     }
 }
@@ -166,6 +204,11 @@ $(document).on('click', '#updateEntorno', function () {
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         'id_concepto_pago_none': $('#id_concepto_pago_none').val(),
         'id_nit_por_defecto': $('#id_nit_por_defecto').val(),
+
+        'placetopay_url': $('#placetopay_url').val(),
+        'placetopay_login': $('#placetopay_login').val(),
+        'placetopay_trankey': $('#placetopay_trankey').val(),
+        'placetopay_forma_pago': $('#placetopay_forma_pago').val(),
     };
 
     if (stringToNumberFloat($('#dias_pronto_pago').val() > 30)) {

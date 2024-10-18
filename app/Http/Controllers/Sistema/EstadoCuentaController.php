@@ -369,7 +369,7 @@ class EstadoCuentaController extends Controller
             'valor_pago' => 'nullable',
             'comprobante' => 'nullable',
         ];
-
+        
         $validator = Validator::make($request->all(), $rules, $this->messages);
 
 		if ($validator->fails()){
@@ -379,22 +379,24 @@ class EstadoCuentaController extends Controller
                 "message"=>$validator->errors()
             ], 422);
         }
-
+        
         try {
             DB::connection('sam')->beginTransaction();
-
-            $formaPago = $this->findFormaPagoCuenta($request->get('id_cuenta_ingreso'));
-
+            
+            $placetopay_forma_pago = Entorno::where('nombre', 'placetopay_forma_pago')->first();
+            $placetopay_forma_pago = $placetopay_forma_pago ? $placetopay_forma_pago->valor : 2;
+            $formaPago = $this->findFormaPago($placetopay_forma_pago);
+            
             //AGREGAR MOVIMIENTO PAGO
             if (!$formaPago) {
                 DB::connection('sam')->rollback();
                 return response()->json([
                     "success"=>false,
                     'data' => [],
-                    "message"=>'La forma de pago con el id_cuenta_ingreso: '.$request->get('id_cuenta_ingreso').' No existe!'
+                    "message"=>'La forma de pago con el id: '.$placetopay_forma_pago.' No existe!'
                 ], 422);
             }
-
+            
             //CREAR FACTURA RECIBO
             $nit = $this->findNit($request->get('id_nit'));
 
@@ -460,9 +462,19 @@ class EstadoCuentaController extends Controller
         }
     }
 
+
     private function findFormaPagoCuenta ($idCuenta)
     {
         return FacFormasPago::where('id_cuenta', $idCuenta)
+            ->with(
+                'cuenta.tipos_cuenta'
+            )
+            ->first();
+    }
+
+    private function findFormaPago ($id_forma_pago)
+    {
+        return FacFormasPago::where('id', $id_forma_pago)
             ->with(
                 'cuenta.tipos_cuenta'
             )

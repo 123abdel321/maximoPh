@@ -6,7 +6,6 @@ var estado_cuenta_facturas_table = null;
 var adjuntar_pagar_estado_cuenta = false
 var channelEstadoCuenta = pusher.subscribe('estado-cuenta-'+localStorage.getItem("notificacion_code"));
 
-
 function estadocuentaInit() {
 
     estado_cuenta_table = $('#estadoCuentaTable').DataTable({
@@ -280,8 +279,9 @@ function estadocuentaInit() {
 channelEstadoCuenta.bind('notificaciones', function(data) {
     if (data.success) {
         if (data.accion == 2) {
-            
             showViewEstadoCuenta(2);
+            getTotalesEstadoCuenta();
+            estado_cuenta_table.ajax.reload();
         }
     }
 });

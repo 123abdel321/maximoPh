@@ -15,6 +15,8 @@ use App\Helpers\PlacetoPay\PaymentStatus;
 use App\Helpers\PlacetoPay\PaymentRequest;
 use App\Http\Controllers\Traits\BegConsecutiveTrait;
 //MODELS
+use App\Models\Sistema\Entorno;
+
 use App\Models\Portafolio\Nits;
 use App\Models\Portafolio\ConRecibos;
 use App\Models\Portafolio\PlanCuentas;
@@ -138,9 +140,12 @@ class PasarelaController extends Controller
     private function aprobarRecibo($recibo, $message)
     {
         $consecutivo = $this->getNextConsecutive($recibo->id_comprobante, $recibo->fecha_manual);
+
+        $placetopay_forma_pago = Entorno::where('nombre', 'placetopay_forma_pago')->first();
+        $placetopay_forma_pago = $placetopay_forma_pago ? $placetopay_forma_pago->valor : 2;
         
         $nit = $this->findNit($recibo->id_nit);
-        $formaPago = $this->findFormaPago(2);
+        $formaPago = $this->findFormaPago($placetopay_forma_pago);
 
         $recibo->consecutivo = $consecutivo;
         $recibo->estado = 1;
