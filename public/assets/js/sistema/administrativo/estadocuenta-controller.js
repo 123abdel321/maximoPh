@@ -621,8 +621,10 @@ function showViewEstadoCuenta(tipo) {
     $('#reloadEstadoCuenta').hide();
     $('#table_estado_cuenta').hide();
     $('#table_estado_cuenta').hide();
-    $('#generatePagoEstadoCuenta').hide();
-    $('#generatePagoEstadoCuentaDisabled').hide();
+    if ($pasarela_pagos) {
+        $('#generatePagoEstadoCuenta').hide();
+        $('#generatePagoEstadoCuentaDisabled').hide();
+    }
     $('#generateComprobanteEstadoCuenta').hide();
     $('#generateComprobanteEstadoCuentaDisabled').hide();
     
@@ -633,17 +635,17 @@ function showViewEstadoCuenta(tipo) {
             $('#table_pagos_estado_cuenta').hide();
             $('#table_facturas_estado_cuenta').hide();
             if (totalCuentasPagar) {
-                $('#generatePagoEstadoCuenta').show();
+                if ($pasarela_pagos) $('#generatePagoEstadoCuenta').show();
                 $('#generateComprobanteEstadoCuenta').show();
             } else {
-                $('#generatePagoEstadoCuentaDisabled').show();
+                if ($pasarela_pagos) $('#generatePagoEstadoCuentaDisabled').show();
                 $('#generateComprobanteEstadoCuentaDisabled').show();
             }
             $('#button_estado_cuenta').removeClass("button-totals").addClass("button-totals-selected");
             break;
         case 2:
             $('#table_estado_cuenta').hide();
-            $('#generatePagoEstadoCuenta').hide();
+            if ($pasarela_pagos) $('#generatePagoEstadoCuenta').hide();
             $('#table_pagos_estado_cuenta').show();
             $('#table_facturas_estado_cuenta').hide();
             estado_cuenta_pagos_table.ajax.reload();
@@ -662,8 +664,10 @@ function showViewEstadoCuenta(tipo) {
 }
 
 function getTotalesEstadoCuenta(showButtonPay = true)  {
-    $('#generatePagoEstadoCuenta').hide();
-    $('#generatePagoEstadoCuentaDisabled').show();
+    if ($pasarela_pagos) {
+        $('#generatePagoEstadoCuenta').hide();
+        $('#generatePagoEstadoCuentaDisabled').show();
+    }
     $('#generateComprobanteEstadoCuenta').hide();
     $('#generateComprobanteEstadoCuentaDisabled').show();
 
@@ -677,8 +681,10 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
             totalCuentasPagar = res.data.total_cuentas_pagar;
             
             if (showButtonPay) {
-                $('#generatePagoEstadoCuenta').show();
-                $('#generatePagoEstadoCuentaDisabled').hide();
+                if ($pasarela_pagos) {
+                    $('#generatePagoEstadoCuenta').show();
+                    $('#generatePagoEstadoCuentaDisabled').hide();
+                }
                 $('#generateComprobanteEstadoCuenta').show();
                 $('#generateComprobanteEstadoCuentaDisabled').hide();
             }

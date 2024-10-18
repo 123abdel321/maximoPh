@@ -58,6 +58,7 @@
             
             var $idNitEstadoCuenta = JSON.parse('<?php echo $id_nit; ?>');
             var $idComprobante = JSON.parse('<?php echo $id_comprobante; ?>');
+            var $pasarela_pagos = JSON.parse('<?php echo $pasarela_pagos; ?>');
             var $idCuentaIngreso = JSON.parse('<?php echo $id_cuenta_ingreso; ?>');
             var $numeroDocumentoEstadoCuenta = JSON.parse('<?php echo $numero_documento; ?>');
             

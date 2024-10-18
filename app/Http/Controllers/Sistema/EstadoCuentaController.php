@@ -44,10 +44,38 @@ class EstadoCuentaController extends Controller
     public function index(Request $request)
     {
         $nit = Nits::where('email', request()->user()->email)->first();
+
+        $entorno = Entorno::whereIn('nombre', ['placetopay_login', 'placetopay_trankey', 'placetopay_url', 'placetopay_forma_pago'])->get();
+
+		$placetopayUrl = '';
+		$placetopayLogin = '';
+		$placetopayTrankey = '';
+		$placetopayFormaPago = '';
+
+		if (count($entorno)) {
+			$placetopayUrl = $entorno->firstWhere('nombre', 'placetopay_url');
+			$placetopayUrl = $placetopayUrl ? $placetopayUrl->valor : '';
+
+            $placetopayLogin = $entorno->firstWhere('nombre', 'placetopay_login');
+			$placetopayLogin = $placetopayLogin ? $placetopayLogin->valor : '';
+
+			$placetopayTrankey = $entorno->firstWhere('nombre', 'placetopay_trankey');
+			$placetopayTrankey = $placetopayTrankey && $placetopayTrankey->valor ? $placetopayTrankey->valor : '';
+
+            $placetopayFormaPago = $entorno->firstWhere('nombre', 'placetopay_forma_pago');
+			$placetopayFormaPago = $placetopayFormaPago && $placetopayFormaPago->valor ? $placetopayFormaPago->valor : '';
+		}
+
+        $pasarelaPagos = false;
+
+        if ($placetopayUrl && $placetopayLogin && $placetopayTrankey && $placetopayFormaPago) {
+            $pasarelaPagos = true;
+        }
         
         $data = [
             'id_nit' => $nit ? $nit->id : '',
             'numero_documento' => $nit ? $nit->numero_documento : '',
+            'pasarela_pagos' => $pasarelaPagos,
             'id_comprobante' => Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor,
             'id_cuenta_ingreso' => Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor,
             'usuario_empresa' => UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
