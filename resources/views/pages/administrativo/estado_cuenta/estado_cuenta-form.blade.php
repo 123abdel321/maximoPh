@@ -1,5 +1,5 @@
 <div class="modal fade" id="estadoCuentaPagoFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="textEstadoCuentaPagoCreate" style="display: block;">Agregar pago total: </h5>
@@ -7,11 +7,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="height: calc(100% - 56px);">
 
-                <img src="img/formas_pago.png" style="width: 100%;"/>
+                <img id="imagenes_pasarela" src="img/formas_pago.png" style="width: 100%;"/>
 
-                <form id="estadoCuentaPagoForm" style="margin-top: 10px;" class="row needs-invalidation" noinvalidate>
+                <form id="estadoCuentaPagoForm" style="height: 100%;" class="row needs-invalidation" noinvalidate>
 
                     <input type="text" class="form-control" name="id_recibo_estado_cuenta_up" id="id_recibo_estado_cuenta_up" style="display: none;">
 
@@ -35,12 +35,15 @@
                         <input type="file" name="imagen_comprobante_estado_cuenta" id="imagen_comprobante_estado_cuenta" onchange="readFileEstadoCuenta(this);" />
                     </div>
 
+                    <iframe id="paymentIframe" src="" style="width: 100%; height: 100%; border: none; display: none;" frameborder="0"></iframe>
+
                 </form>
 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn bg-gradient-danger btn-sm" data-bs-dismiss="modal">Cancelar</button>
                 <button id="saveEstadoCuentaPago"type="button" class="btn bg-gradient-success btn-sm">Guardar</button>
+                <button id="saveEstadoCuentaPasarela"type="button" class="btn bg-gradient-success btn-sm" style="display:none;">Continuar con el portal de pago</button>
                 <button id="updateEstadoCuentaPago"type="button" class="btn bg-gradient-success btn-sm">Guardar</button>
                 <button id="saveEstadoCuentaPagoLoading" class="btn btn-success btn-sm ms-auto" style="display:none; float: left;" disabled>
                     Cargando

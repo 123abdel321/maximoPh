@@ -17,6 +17,7 @@ use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\RolesController;
 use App\Http\Controllers\Sistema\EntornoController;
+use App\Http\Controllers\Sistema\PasarelaController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Sistema\VisitantesController;
@@ -202,6 +203,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('estadocuenta-total', 'totales');
             Route::get('estadocuenta-pagos', 'pagos');
             Route::get('estadocuenta-facturas', 'facturas');
+            Route::post('estadocuenta-pasarela', 'pasarela');
         });
         //USUARIOS
         Route::controller(UsuariosController::class)->group(function () {
@@ -263,6 +265,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('roles', 'create');
             Route::delete('roles', 'delete');
         });        
+        //PASARELA
+        Route::controller(PasarelaController::class)->group(function () {
+            Route::post('status', 'status');
+            Route::post('pasarela', 'create');            
+        });
         
     });
 });

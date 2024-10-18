@@ -10,6 +10,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
+use App\Http\Controllers\Sistema\PasarelaController;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\ReciboController;
@@ -150,11 +151,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/estadisticas', [EstadisticasController::class, 'index']);
 		//TAREAS
 		Route::get('/proyectos', [ProyectosController::class, 'index']);
-
+		// TURNO
 		Route::get('/turnos', [TurnosController::class, 'index']);
 		Route::post('/turnos', [TurnosController::class, 'create']);
 		Route::get('/turnos-event', [TurnosController::class, 'read']);
 		Route::post('/turnos-evento', [TurnosController::class, 'createEvento']);
+		// PASARELA
+		Route::get('/close-payment/{code}', [PasarelaController::class, 'close']);
 	});
 	
 });
