@@ -25,8 +25,6 @@ use App\Models\Portafolio\FacDocumentos;
 use App\Models\Portafolio\DocumentosGeneral;
 use App\Models\Portafolio\ConReciboDetalles;
 
-
-
 class ProcessValidarPago implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
@@ -51,9 +49,11 @@ class ProcessValidarPago implements ShouldQueue
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
-        info('validando pago: '.$this->id);
+        info('validando pago: '.$this->id. 'empresa: '.$this->empresa->token_db_maximo);
 
         $recibo = ConRecibos::where('id', $this->id)->first();
+
+        if ($recibo->estado == 1) return;
 
         $response = (new PaymentStatus(
             $recibo->request_id
@@ -80,12 +80,12 @@ class ProcessValidarPago implements ShouldQueue
                     $recibo->save();
                     break;
                 case 'PARTIAL_EXPIRED':
-                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute());
+                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute(3));
                     $recibo->observacion = $status->message;
                     $recibo->save();
                     break;
                 case 'APPROVED_PARTIAL':
-                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute());
+                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute(2));
                     $recibo->observacion = $status->message;
                     $recibo->save();
                     break;

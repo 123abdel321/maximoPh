@@ -431,12 +431,9 @@ class EstadoCuentaController extends Controller
                 $recibo->save();
 
                 $empresa = Empresa::where('id', $request->user()['id_empresa'])->first();
-
-                // info('ProcessValidarPago');
                 DB::connection('sam')->commit();
 
-                ProcessValidarPago::dispatch($recibo->id, $empresa, $request->user()->id);
-                // ProcessValidarPago::dispatch($recibo->id, $empresa, $request->user()->id)->delay(now()->addMinute());
+                ProcessValidarPago::dispatch($recibo->id, $empresa, $request->user()->id)->delay(now()->addMinute(3));
 
                 return response()->json([
                     "success"=>true,
