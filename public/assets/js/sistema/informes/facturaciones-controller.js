@@ -38,7 +38,10 @@ function facturacionesInit() {
             { data: 'saldo_final', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             {
                 "data": function (row, type, set){
-                    return `<span id="imprimirfacturaciones_${row.id_nit}" href="javascript:void(0)" class="btn badge bg-gradient-success imprimir-facturaciones" style="margin-bottom: 0rem !important; min-width: 50px;">Imprimir</span>&nbsp;`;
+                    var html = ``;
+                    html+= `<span id="enviarfacturaciones_${row.id}" href="javascript:void(0)" class="btn badge bg-gradient-dark enviar-facturaciones" style="margin-bottom: 0rem !important; min-width: 50px;"><i class="fas fa-envelope"></i>&nbsp;&nbsp;Enviar</span>&nbsp;`;
+                    html+= `<span id="imprimirfacturaciones_${row.id_nit}" href="javascript:void(0)" class="btn badge bg-gradient-success imprimir-facturaciones" style="margin-bottom: 0rem !important; min-width: 50px;"><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Imprimir</span>&nbsp;`;
+                    return html;
                 }
             },
         ]
@@ -49,6 +52,53 @@ function facturacionesInit() {
             var id_nit = this.id.split('_')[1];
             window.open("/facturacion-show-pdf?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
         });
+
+        facturaiones_table.on('click', '.enviar-facturaciones', function() {
+
+            var id = this.id.split('_')[1];
+
+            var data = getDataById(id, facturaiones_table);
+
+            let emailData = {
+                factura_fisica: '',
+                periodo: formatoFechaFacturacion(),
+                id_nit: data.id_nit
+            }
+        
+            Swal.fire({
+                title: 'Enviar factura?',
+                text: "Desea enviar la factura a "+data.nombre_nit+"?",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Enviar facturas!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $("#enviarEmailFacturas").hide();
+                    $("#enviarEmailFacturasLoading").show();
+                    $.ajax({
+                        url: base_url + 'facturacion-email',
+                        method: 'GET',
+                        data: emailData,
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        $("#enviarEmailFacturas").show();
+                        $("#enviarEmailFacturasLoading").hide();
+                        agregarToast('exito', 'Email enviados', 'Emails enviados con exito!');
+                    }).fail((err) => {
+                        var mensaje = err.responseJSON.message;
+                        var errorsMsg = arreglarMensajeError(mensaje);
+                        agregarToast('error', 'Creación errada', errorsMsg);
+                    });
+                }
+            })
+        });
+
+        
     }
     
     $('#id_nit_facturaciones').select2({
@@ -138,9 +188,6 @@ $("#enviarEmailFacturas").on('click', function(event) {
         id_nit: $("#id_nit_facturaciones").val()
     }
 
-    $("#enviarEmailFacturas").hide();
-    $("#enviarEmailFacturasLoading").show();
-
     Swal.fire({
         title: 'Enviar facturas?',
         text: "Desea enviar las facturas a todas las personas filtradas?",
@@ -153,6 +200,8 @@ $("#enviarEmailFacturas").on('click', function(event) {
         reverseButtons: true,
     }).then((result) => {
         if (result.value){
+            $("#enviarEmailFacturas").hide();
+            $("#enviarEmailFacturasLoading").show();
             $.ajax({
                 url: base_url + 'facturacion-email',
                 method: 'GET',

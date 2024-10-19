@@ -956,6 +956,7 @@ class FacturacionController extends Controller
                 ->table(DB::raw("({$query->toSql()}) AS cartera"))
                 ->mergeBindings($query)
                 ->select(
+                    'id',
                     'id_nit',
                     'numero_documento',
                     'nombre_nit',
@@ -1703,6 +1704,7 @@ class FacturacionController extends Controller
     {
         $documentosQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
+                'N.id AS id',
                 'N.id AS id_nit',
                 'N.numero_documento',
                 DB::raw("(CASE
@@ -1767,6 +1769,7 @@ class FacturacionController extends Controller
     {
         $anterioresQuery = DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
+                'N.id AS id',
                 'N.id AS id_nit',
                 'N.numero_documento',
                 DB::raw("(CASE

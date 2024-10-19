@@ -49,7 +49,7 @@ class ProcessValidarPago implements ShouldQueue
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
-        info('validando pago: '.$this->id. 'empresa: '.$this->empresa->token_db_maximo);
+        info('validando pago: '.$this->id. '; Empresa: '.$this->empresa->token_db_maximo);
 
         $recibo = ConRecibos::where('id', $this->id)->first();
 
