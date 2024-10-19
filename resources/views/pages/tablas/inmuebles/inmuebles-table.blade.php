@@ -37,7 +37,7 @@
             <th>Area M2</th>
             <th>Coeficiente</th> 
             <th>Valor admon</th>
-            <!-- <th>Valor total admon</th> -->
+            <th>Fecha entrega</th>
             <th>Creación registro</th>
             <th>Ultima actualización</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>

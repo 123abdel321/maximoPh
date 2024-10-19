@@ -14,35 +14,40 @@
                     <input type="text" class="form-control" name="id_inmueble_up" id="id_inmueble_up" style="display: none;">
 
                     <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label for="formZonaLabel">Zona</label>
+                        <label for="id_zona_inmueble">Zona</label>
                         <select name="id_zona_inmueble" id="id_zona_inmueble" class="form-control form-control-sm">
                         </select>
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label for="formConceptoFacturacionLabel">Concepto facturación</label>
+                        <label for="id_concepto_facturacion_inmueble">Concepto facturación</label>
                         <select name="id_concepto_facturacion_inmueble" id="id_concepto_facturacion_inmueble" class="form-control form-control-sm">
                         </select>
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label for="example-text-input" class="form-control-label">Nombre</label>
+                        <label for="nombre_inmueble" class="form-control-label">Nombre</label>
                         <input type="text" class="form-control form-control-sm" name="nombre_inmueble" id="nombre_inmueble" onfocus="this.select();" required>
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
-                        <label for="example-text-input" class="form-control-label">Area (Area total {{ number_format($area_total_m2) }})</label>
+                        <label for="area_inmueble" class="form-control-label">Area (Area total {{ number_format($area_total_m2) }})</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="area_inmueble" id="area_inmueble" data-type="currency" onfocus="this.select();" onkeydown="changeArea(this)">
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
-                        <label for="example-text-input" class="form-control-label">Coeficiente</label>
+                        <label for="coeficiente_inmueble" class="form-control-label">Coeficiente</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="coeficiente_inmueble" id="coeficiente_inmueble" data-type="currency" onfocus="this.select();">
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
-                        <label for="example-text-input" class="form-control-label">Valor admon (Ppto mensual {{ number_format($valor_total_presupuesto_year_actual) }})</label>
+                        <label for="valor_total_administracion_inmueble" class="form-control-label">Valor admon (Ppto mensual {{ number_format($valor_total_presupuesto_year_actual) }})</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="valor_total_administracion_inmueble" id="valor_total_administracion_inmueble" data-type="currency" onfocus="this.select();">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-6 col-md-6" >
+                        <label for="fecha_entrega_inmueble" class="form-control-label"> Fecha entrega </label>
+                        <input type="date" class="form-control form-control-sm" name="fecha_entrega_inmueble" id="fecha_entrega_inmueble">
                     </div>
 
                 </form>

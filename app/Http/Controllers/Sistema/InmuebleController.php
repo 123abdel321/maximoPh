@@ -186,6 +186,7 @@ class InmuebleController extends Controller
                 'coeficiente' => $coeficiente,
                 'valor_total_administracion' => round($valor_total_administracion),
                 'observaciones' => $request->get('observaciones'),
+                'fecha_entrega' => $request->get('fecha_entrega'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
@@ -282,6 +283,7 @@ class InmuebleController extends Controller
                     'coeficiente' => $coeficiente,
                     'valor_total_administracion' => round($valor_total_administracion),
                     'observaciones' => $request->get('observaciones'),
+                    'fecha_entrega' => $request->get('fecha_entrega'),
                     'updated_by' => request()->user()->id
                 ]);
 

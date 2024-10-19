@@ -21,6 +21,7 @@ class Inmueble extends Model
         'coeficiente',
         'valor_total_administracion',
         'observaciones',
+        'fecha_entrega',
         'created_by',
         'updated_by'
     ];

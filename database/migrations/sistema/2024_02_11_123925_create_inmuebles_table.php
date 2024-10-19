@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('coeficiente', 200)->nullable();
             $table->string('observaciones', 200)->nullable();
             $table->decimal('valor_total_administracion', 15)->nullable();
+            $table->date('fecha_entrega')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();

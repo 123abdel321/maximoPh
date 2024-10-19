@@ -113,6 +113,7 @@ function inmuebleInit() {
                 }
                 return 0;
             }, render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'fecha_entrega'},
             {"data": function (row, type, set){  
                 var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
                 if(!row.created_by && !row.fecha_creacion) return '';
@@ -256,6 +257,7 @@ function inmuebleInit() {
 
             $("#id_inmueble_up").val(data.id);
             $("#nombre_inmueble").val(data.nombre);
+            $("#fecha_entrega_inmueble").val(data.fecha_entrega)
 
             var area = data.area;
             var coeficiente = area / area_total_m2 ;
@@ -647,6 +649,7 @@ $(document).on('click', '#saveInmueble', function () {
         area: stringToNumberFloat($("#area_inmueble").val()),
         coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
+        fecha_entrega: $("#fecha_entrega_inmueble").val(),
     }
 
     $.ajax({
@@ -762,6 +765,7 @@ $(document).on('click', '#updateInmueble', function () {
         area: stringToNumberFloat($("#area_inmueble").val()),
         coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
+        fecha_entrega: $("#fecha_entrega_inmueble").val(),
     }
 
     $.ajax({
