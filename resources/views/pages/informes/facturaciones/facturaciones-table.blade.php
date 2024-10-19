@@ -7,6 +7,9 @@
             <th>Total factura</th>
             <th>Total abono</th>
             <th>Saldo final</th>
+            <th>Email</th>
+            <th>Email 1</th>
+            <th>Email 2</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>
         </tr>
     </thead>
