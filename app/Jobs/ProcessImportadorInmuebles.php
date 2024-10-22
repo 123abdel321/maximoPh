@@ -45,7 +45,7 @@ class ProcessImportadorInmuebles implements ShouldQueue
             $inmueblesImport = InmueblesImport::with('inmueble.personas')
                 ->where('estado', 0)
                 ->get();
-                
+            
             //RECORREMOS CUOTAS EXTRAS & MULTAS
             foreach ($inmueblesImport as $inmuebleIm) {
                 $inmueble = (object)['id' => null];
@@ -110,11 +110,8 @@ class ProcessImportadorInmuebles implements ShouldQueue
                             ]);
                     }
                 }
-                $inmuebleIm->estado = 5;
-                $inmuebleIm->save();
+                $inmuebleIm->delete();
             }
-
-            InmueblesImport::truncate();
 
         } catch (Exception $exception) {
 			Log::error('ProcessImportarRecibos', [

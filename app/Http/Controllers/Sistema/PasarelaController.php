@@ -36,8 +36,9 @@ class PasarelaController extends Controller
 
         if (count($code) == 3) {
             $recibo = ConRecibos::where('id', $code[0])->first();
-
-            if ($recibo->estado == 1) return;
+            if (!$recibo || $recibo->estado == 1) {
+                return view('pages.close');
+            };
 
             $response = (new PaymentStatus(
                 $recibo->request_id
