@@ -223,9 +223,12 @@ class TurnosController extends Controller
 
             $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
             $fechaFin = Carbon::parse($turno->fecha_fin)->format('Y-m-d');
-
-            $horaInicio = Carbon::parse($turno->fecha_inicio)->format('H:i:s');
-            $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
+            
+            $horaInicio = "00:00:00";
+            $horaFin = "00:00:00";
+            
+            if ($turno->fecha_inicio) $horaInicio = Carbon::parse($turno->fecha_inicio)->format('H:i:s');
+            if ($turno->fecha_fin) $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
 
             $turnoData = (object)[
                 'id' => $turno->id,
