@@ -69,8 +69,8 @@ class ProcessImportadorInmuebles implements ShouldQueue
                         'id_zona' => $inmuebleIm->id_zona,
                         'id_concepto_facturacion' => $inmuebleIm->id_concepto_facturacion,
                         'valor_total_administracion' => $inmuebleIm->valor_administracion,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
+                        'created_by' => $this->user_id,
+                        'updated_by' => $this->user_id
                     ]);
                 }
                 $inmueblesNitsExistentes = InmuebleNit::where('id_inmueble', $inmuebleIm->id_inmueble)->get();
@@ -89,8 +89,8 @@ class ProcessImportadorInmuebles implements ShouldQueue
                                 'porcentaje_administracion' => $porcentajeAdmin,
                                 'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
                                 'tipo' => $inmuebleIm->tipo,
-                                'created_by' => request()->user()->id,
-                                'updated_by' => request()->user()->id
+                                'created_by' => $this->user_id,
+                                'updated_by' => $this->user_id
                             ]);
                     } else {
                         return response()->json([
@@ -106,7 +106,7 @@ class ProcessImportadorInmuebles implements ShouldQueue
                             ->update([
                                 'porcentaje_administracion' => $porcentajeAdmin,
                                 'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
-                                'updated_by' => request()->user()->id
+                                'updated_by' => $this->user_id
                             ]);
                     }
                 }
@@ -114,7 +114,7 @@ class ProcessImportadorInmuebles implements ShouldQueue
             }
 
         } catch (Exception $exception) {
-			Log::error('ProcessImportarRecibos', [
+			Log::error('ProcessImportadorInmuebles', [
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);
@@ -123,7 +123,7 @@ class ProcessImportadorInmuebles implements ShouldQueue
 
     public function failed($exception)
 	{
-		Log::error('ProcessImportarRecibos', [
+		Log::error('ProcessImportadorInmuebles', [
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
