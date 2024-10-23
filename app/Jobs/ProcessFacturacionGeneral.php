@@ -187,6 +187,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
+
                         [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble);
                         
                         $valoresIntereses+= $valores;
@@ -311,12 +312,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($this->extractosAgrupados)) return;
 
+        $numeroTotalIntereses = 0;
         $valorTotalIntereses = 0;
         $detalleIntereses = [];
 
         foreach ($this->extractosAgrupados as $extracto) {
             $saldo = floatval($extracto->saldo);
             $this->saldoBase+= $saldo;   
+            $numeroTotalIntereses++;
                  
             $valorTotal = $saldo * ($this->porcentaje_intereses_mora / 100);
             $valorTotal = $this->roundNumber($valorTotal);
@@ -336,7 +339,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'id_comprobante' => $this->id_comprobante_ventas,
                 'id_centro_costos' => $inmuebleFactura ? $inmuebleFactura->id_centro_costos : CentroCostos::first()->id,
                 'fecha_manual' => $this->inicioMes.'-01',
-                'documento_referencia' => $extracto->documento_referencia,
+                'documento_referencia' => $extracto->documento_referencia.'_'.$numeroTotalIntereses,
                 'valor' => round($valorTotal),
                 'concepto' => 'INTERESES - '.$this->inicioMes.'-01'.' - %'.$this->porcentaje_intereses_mora.' - BASE: '.number_format($saldo),
                 'naturaleza_opuesta' => false,

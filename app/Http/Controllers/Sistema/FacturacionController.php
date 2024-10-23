@@ -1355,12 +1355,14 @@ class FacturacionController extends Controller
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso')->first()->valor;
 
+        $numeroTotalIntereses = 0;
         $valorTotalIntereses = 0;
         $detalleIntereses = [];
 
         foreach ($this->extractosAgrupados as $extracto) {
             $saldo = floatval($extracto->saldo);
-            $this->saldoBase+= $saldo;            
+            $this->saldoBase+= $saldo;
+            $numeroTotalIntereses++;
             
             $inicioMes = date('Y-m', strtotime($periodo_facturacion));
             $finMes = date('Y-m-t', strtotime($periodo_facturacion));
@@ -1383,7 +1385,7 @@ class FacturacionController extends Controller
                 'id_comprobante' => $id_comprobante_ventas,
                 'id_centro_costos' => $inmuebleFactura ? $inmuebleFactura->id_centro_costos : CentroCostos::first()->id,
                 'fecha_manual' => $inicioMes.'-01',
-                'documento_referencia' => $inicioMes,
+                'documento_referencia' => $inicioMes.'_'.$numeroTotalIntereses,
                 'valor' => round($valorTotal),
                 'concepto' => 'INTERESES '.$concepto.' - '.$inicioMes.'-01'.' - %'.$porcentaje_intereses_mora.' - BASE: '.number_format($saldo),
                 'naturaleza_opuesta' => false,
