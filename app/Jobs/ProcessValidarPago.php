@@ -16,6 +16,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Http\Controllers\Traits\BegConsecutiveTrait;
 //MODELS
+
+use App\Models\Sistema\Entorno;
 use App\Models\Portafolio\Nits;
 use App\Models\Portafolio\ConRecibos;
 use App\Models\Portafolio\PlanCuentas;
