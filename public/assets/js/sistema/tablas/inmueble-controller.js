@@ -269,7 +269,7 @@ function inmuebleInit() {
             }
             
             $("#area_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.area));
-            $("#coeficiente_inmueble").val(data.coeficiente * 100);
+            $("#coeficiente_inmueble").val(parseFloat(data.coeficiente * 100).toFixed(5));
             $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(totalInmueble));
 
             $("#inmuebleFormModal").modal('show');
