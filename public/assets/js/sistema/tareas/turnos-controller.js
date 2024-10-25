@@ -372,9 +372,6 @@ $("#form-turno").submit(function(e) {
         if (data.responseURL == 'https://maximoph.com/login') {
             caduqueSession();
         }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
 
         var responseData = JSON.parse(res.currentTarget.response);
         $('#saveTurno').show();
@@ -394,7 +391,20 @@ $("#form-turno").submit(function(e) {
         if (responseData.success) {
             agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
         } else {
-            agregarToast('error', 'Carga errada', responseData.message);
+
+            var errorsMsg = "";
+            var mensaje = responseData.message;
+            if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+                for (field in mensaje) {
+                    var errores = mensaje[field];
+                    for (campo in errores) {
+                        errorsMsg += "- "+errores[campo]+" <br>";
+                    }
+                };
+            } else {
+                errorsMsg = mensaje
+            }
+            agregarToast('error', 'Creación errada', errorsMsg);
         }
 
         $("#turnoFormModal").modal('hide');

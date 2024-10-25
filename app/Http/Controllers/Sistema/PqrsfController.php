@@ -198,8 +198,8 @@ class PqrsfController extends Controller
 
             if ($request->file('photos')) {
                 foreach ($request->file('photos') as $photos) {
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/pqrsf';
-                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
+                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/pqrsf/'. $photos->getClientOriginalName();
+                    $url = Storage::disk('do_spaces')->putFileAs($nameFile, $photos, $photos->getClientOriginalName(), 'public');
     
                     $archivo = new ArchivosGenerales([
                         'tipo_archivo' => 'imagen',
