@@ -54,8 +54,8 @@ class ProcessImportadorCuotas implements ShouldQueue
                     'fecha_fin' => $cuota->fecha_fin,
                     'valor_total' => $cuota->valor_total,
                     'observacion' => '',
-                    'created_by' => request()->user()->id,
-                    'updated_by' => request()->user()->id,
+                    'created_by' => $this->user_id,
+                    'updated_by' => $this->user_id,
                 ]);
             }
 
