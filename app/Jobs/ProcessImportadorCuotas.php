@@ -58,7 +58,7 @@ class ProcessImportadorCuotas implements ShouldQueue
                     'updated_by' => $this->user_id,
                 ]);
             }
-
+            // PERO QUE MIERDAAA
             CuotasMultasImport::truncate();
 
         } catch (Exception $exception) {
