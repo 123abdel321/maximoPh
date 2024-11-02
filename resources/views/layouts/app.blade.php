@@ -180,10 +180,13 @@
             <path id="steamR" d="M21 6C21 6 21 8.22727 19 9.5C17 10.7727 17 13 17 13" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
     </div>
+
     <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
+    <button id="button-open-datelle-turnos" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTurnos" aria-controls="offcanvasTurnos" style="display: none;"></button>
     <button id="button-open-notificaciones" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificacionesMaximo" aria-controls="notificacionesMaximo" style="display: none;"></button>
 
-    @include('components.pqrsf-canv', ['rol_usuario', $rol_usuario])
+    @include('components.pqrsf-canv')
+    @include('components.turnos-canv')
     @include('components.notificaciones')
     <!-- FOOTER -->
     @include('layouts.footers.footer')
@@ -194,6 +197,7 @@
         var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
         var version_app = '<?php echo config('app.version'); ?>';
         var pqrsf_responder = '<?php echo $pqrsf_responder; ?>';
+        var turno_responder = '<?php echo $turno_responder; ?>';
     </script>
 
     <!--   Core JS Files   -->
@@ -237,8 +241,11 @@
     <script src="{{ secure_asset('assets/js/sistema/swiper-bundle.min.js') }}"></script>
     <!-- MDB -->
     <script src="{{ secure_asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <!-- TURNOS -->
+    <script src="{{ secure_asset('assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- SISTEMA -->
     <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <!-- NOTIFICACIONES -->
     <script src="{{ secure_asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->

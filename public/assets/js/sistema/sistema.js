@@ -30,6 +30,7 @@ let openStatusPqrsf = false;
 let dropDownPerfilOpen = false; 
 let dropDownNotificacionOpen = false;
 let channelPqrsf = false;
+let channelTurno = false;
 let channelAdminPqrsf = false;
 let channelPorteria = pusher.subscribe('porteria-mensaje-'+localStorage.getItem("notificacion_code"));
 let updatingStatusPqrsf = false;
@@ -37,6 +38,7 @@ let mostrarAgregarImagenes = false;
 let mostrarAgregarTiempos = false;
 let permisoAgregarTiempos = false;
 let channelPqrsfGeneral = null;
+let channelTurnoGeneral = null;
 
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
@@ -260,10 +262,15 @@ function setNotificaciones(total = null) {
 
 function iniciarCanalesDeNotificacion () {
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
-    channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena');
+    channelTurno = pusher.subscribe('turno-mensaje-'+localStorage.getItem("notificacion_code"));
+    channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena2');
 
     if (pqrsf_responder) {
         channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
+    }
+
+    if (turno_responder) {
+        channelTurnoGeneral = pusher.subscribe('turno-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
     }
 }
 
@@ -286,8 +293,45 @@ if (channelPqrsfGeneral) {
     });
 }
 
+if (channelTurnoGeneral) {
+    channelTurnoGeneral.bind('notificaciones', function(data) {
+        var idTurnoOpen = $("#id_turnos_up").val();
+
+        if (data.id_turno == idTurnoOpen) {//SI EN LA DATA VIENE id_pqrsf y el menu esta abierto: Muestra el mensaje
+            mostrarMensajesTurno(data.data);
+            if (data.length && data.data) actualizarEstadosTurno(data.data[0].estado);
+            initSwipers();
+            document.getElementById("offcanvas-body-turnos").scrollTop = 10000000;
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else if (parseInt(id_usuario_logeado) == data.id_usuario) {
+            openDropDownNotificaciones(true);
+        } else if (data.id_notificacion) {
+            openDropDownNotificaciones(true);
+        }
+    });
+}
+
+channelTurno.bind('notificaciones', function(data) {
+    var idTurnoOpen = $("#id_turnos_up").val();
+
+    if (data.id_turno == idTurnoOpen) {
+        mostrarMensajesTurno(data.data);
+        if (data.length && data.data) actualizarEstadosTurno(data.data[0].estado);
+        initSwipers();
+        document.getElementById("offcanvas-body-turnos").scrollTop = 10000000;
+        if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+    } else {
+        var notificacionesAbiertas = $("#notificacionesMaximo").attr('class');
+        notificacionesAbiertas = notificacionesAbiertas == 'offcanvas offcanvas-end show' ? true : false;
+        if (notificacionesAbiertas) {
+            openDropDownNotificacion(data.id_notificacion)
+        } else {
+            openDropDownNotificaciones();
+        }
+    }
+});
+
 channelPqrsf.bind('notificaciones', function(data) {
-    console.log('channelPqrsf');
     var idPqrsfOpen = $("#id_pqrsf_up").val();
 
     if (data.id_pqrsf == idPqrsfOpen) {
@@ -335,7 +379,6 @@ channelAbdelCartagena.bind('notificaciones', function(data) {
 
 if (channelAdminPqrsf) {
     channelAdminPqrsf.bind('notificaciones', function(data) {
-        console.log('channelAdminPqrsf');
         var idPqrsfOpen = $("#id_pqrsf_up").val();
 
         if (data.id_pqrsf == idPqrsfOpen) {
@@ -1749,6 +1792,7 @@ function resetImageMensajeUploader() {
 }
 
 resetImageMensajeUploader();
+resetImageTurnosUploader();
 
 var segundos = 0;
 var minutos = 0;

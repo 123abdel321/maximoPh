@@ -224,6 +224,15 @@ function abrirPqrsfNotificacion(id_pqrsf, id_notificacion) {
     $("#mensaje_pqrsf_nuevo").val("");
 }
 
+function abrirTurnosNotificacion(id_turno, id_notificacion) {
+    
+    mostrarModalEvento(id_turno);
+    actualizarNotificaciones(id_notificacion, 2);
+
+    $("#id_turnos_up").val(id_turno);
+    $("#mensaje_turnos_nuevo").val("");
+}
+
 function cerrarNotificaciones(id, estado) {
     $("#button-close-"+id).hide();
     $("#button-close-loading-"+id).show();

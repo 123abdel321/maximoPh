@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Sistema;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Helpers\NotificacionGeneral;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Sistema\Turno;
 use App\Models\Sistema\TurnoEvento;
 use App\Models\Empresa\UsuarioEmpresa;
+use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\ArchivosGenerales;
 
 class TurnosController extends Controller
@@ -334,6 +336,127 @@ class TurnosController extends Controller
 
         } catch (Exception $e) {
 
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function createMensaje (Request $request, string $id)
+    {
+        $rules = [
+            'mensaje_turnos_nuevo' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            DB::connection('max')->beginTransaction();
+
+            $turno = Turno::find($id);
+
+            $turnoEvento = TurnoEvento::create([
+                'id_turno' => $turno->id,
+                'id_usuario' => $turno->id_usuario,
+                'descripcion' => $request->get('mensaje_turnos_nuevo'),
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+
+            if ($request->file('photos')) {
+                foreach ($request->file('photos') as $photos) {
+                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
+                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
+    
+                    $archivo = new ArchivosGenerales([
+                        'tipo_archivo' => 'imagen',
+                        'url_archivo' => $url,
+                        'estado' => 1,
+                        'created_by' => request()->user()->id,
+                        'updated_by' => request()->user()->id
+                    ]);
+        
+                    $archivo->relation()->associate($turnoEvento);
+                    $turnoEvento->archivos()->save($archivo);
+                }
+            }
+            
+            $mensaje = TurnoEvento::where('id', $turnoEvento->id)
+                ->with('archivos')
+                ->get();
+
+            $usuarioNotificacion = $turno->id_usuario;
+            if ($turno->id_usuario == request()->user()->id) {
+                $usuarioNotificacion = $turno->created_by;
+            }
+
+            // CANALES DE NOTIFICACION
+            $canalesNotificacion = [
+                'turno-mensaje-responder-'.$request->user()['has_empresa'], //PERMISO: turno responder
+                'turno-mensaje-'.$request->user()['has_empresa'].'_'.$turno->id_usuario
+            ];
+
+            $notificacionesEnEspera = Notificaciones::where('notificacion_id', $id)
+                ->where('id_usuario', $usuarioNotificacion)
+                ->where('notificacion_type', 14)
+                ->where('estado', 0)
+                ->count();
+
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
+
+            $notificacion = (new NotificacionGeneral(
+                request()->user()->id,
+                $usuarioNotificacion,
+                $turno
+            ));
+
+            $mensajeText = '<b style="color: gold;">Tarea</b>: Ha recibido un nuevo <b>MENSAJE</b> de '.$nombreUsuario;
+
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $usuarioNotificacion,
+                'tipo' => 1,
+                'mensaje' => $mensajeText,
+                'function' => 'abrirTurnosNotificacion',
+                'data' => $id,
+                'id_rol' => 1,
+                'estado' => $notificacionesEnEspera ? 2 : 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+
+            $notificacion->notificar(
+                $canalesNotificacion,
+                [
+                    'id_turno' => $id,
+                    'data' => $mensaje->toArray(),
+                    'estado' => 1,
+                    'id_notificacion' => $id_notificacion,
+                    'id_usuario' => $usuarioNotificacion
+                ]
+            );
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $turnoEvento,
+                'notificar' => [],
+                'message'=> 'Mensaje creado con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
             return response()->json([
                 "success"=>false,
                 'data' => [],

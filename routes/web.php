@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/turnos', [TurnosController::class, 'index']);
 		Route::post('/turnos', [TurnosController::class, 'create']);
 		Route::get('/turnos-event', [TurnosController::class, 'read']);
+		Route::post('/turnos-mensaje/{id}', [TurnosController::class, 'createMensaje']);
 		Route::post('/turnos-evento', [TurnosController::class, 'createEvento']);
 		// PASARELA
 		Route::get('/close-payment/{code}', [PasarelaController::class, 'close']);

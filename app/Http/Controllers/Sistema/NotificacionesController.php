@@ -51,12 +51,12 @@ class NotificacionesController extends Controller
                     'created_by',
                     'updated_by'
                 );
-
+                
             $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
                 
-            if ($request->user()->can('pqrsf responder')) {
+            if ($request->user()->can('pqrsf responder') || $request->user()->can('turnos responder')) {
                 $notificaciones->where('notificacion_type', '!=', 11)
                     ->whereNull('id_usuario')
                     ->orWhere('id_rol', 1);

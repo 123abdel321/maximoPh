@@ -55,7 +55,7 @@ function turnosInit() {
             seleccionarRangoDeTurnos(info);
         },
         eventClick: function(info) {
-            mostrarModalEvento(info.event);
+            mostrarModalEvento(info.event.id);
         },
         height: 'auto',
         contentHeight: 'auto',
@@ -367,7 +367,6 @@ $("#form-turno").submit(function(e) {
     xhr.open("POST", "turnos");
     xhr.send(data);
     xhr.onload = function(res) {
-        console.log('res: ',res);
         var data = res.currentTarget;
         if (data.responseURL == 'https://maximoph.com/login') {
             caduqueSession();
@@ -390,6 +389,7 @@ $("#form-turno").submit(function(e) {
 
         if (responseData.success) {
             agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
+            $("#turnoFormModal").modal('hide');
         } else {
 
             var errorsMsg = "";
@@ -406,8 +406,6 @@ $("#form-turno").submit(function(e) {
             }
             agregarToast('error', 'Creación errada', errorsMsg);
         }
-
-        $("#turnoFormModal").modal('hide');
     };
     xhr.onerror = function (res) {
         agregarToast('error', 'Carga errada', 'errorsMsg');
@@ -435,7 +433,6 @@ $("#form-turno-evento").submit(function(e) {
     xhr.open("POST", "turnos-evento");
     xhr.send(data);
     xhr.onload = function(res) {
-        console.log('res: ',res);
         var data = res.currentTarget;
         if (data.responseURL == 'https://maximoph.com/login') {
             caduqueSession();
@@ -524,58 +521,6 @@ function cambiarRangoDeTurno(info) {
 
 }
 
-function mostrarModalEvento(info) {
-    $.ajax({
-        url: base_url + 'turnos',
-        method: 'GET',
-        data: {id: info.id},
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        $("#id_turno_evento").val(res.data.id);
-        $("#texTurnoEvento").text(res.data.asunto);
-        
-        console.log(res.data);
-        var nombreResponsable = 'NINGUNO';
-        if (res.data.responsable) {
-            nombreResponsable = res.data.responsable.firstname
-            if (res.data.responsable.lastname) {
-                nombreResponsable+= ' '+res.data.responsable.lastname;
-            }
-        }
-
-        var estadoTexto = 'SIN LEER';
-        var estadoColor = '#868686';
-
-        // if () {
-            
-        // }
-
-        $("#responsable_turno").val(nombreResponsable);
-
-        agregarEventoPrincipal(res.data);
-        agregarEventoSecundario(res.data.eventos);
-
-        $("#turnoEventoFormModal").modal('show');
-    }).fail((err) => {
-        $('#updateZona').show();
-        $('#saveZonaLoading').hide();
-        var errorsMsg = "";
-        var mensaje = err.responseJSON.message;
-        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
-            for (field in mensaje) {
-                var errores = mensaje[field];
-                for (campo in errores) {
-                    errorsMsg += "- "+errores[campo]+" <br>";
-                }
-            };
-        } else {
-            errorsMsg = mensaje
-        }
-        agregarToast('error', 'Actualización errada', errorsMsg);
-    });
-}
-
 function agregarEventoPrincipal (data) {
     $("#div-contenido-eventos").html("");
 
@@ -590,9 +535,6 @@ function agregarEventoPrincipal (data) {
     }
 
     var html = `<div class="row" style="padding: 5px; background-color: #defaff; border-radius: 10px;">
-            <div id="imagen-usuario-evento" class="col-2">
-                <img src="${imagen}" alt="profile_image" style="width: 50px; border-radius: 50%;">
-            </div>
             <div id="text-usuario-evento" class="col-10" style="place-self: center; color: black;">
                 
                 ${htmlImagen}<br/>
@@ -613,7 +555,6 @@ function agregarEventoPrincipal (data) {
 }
 
 function agregarEventoSecundario (eventos) {
-    console.log('eventos: ',eventos)
     eventos.forEach(evento => {
         var htmlImagen = '';
         var imagen = evento.creador.avatar ? evento.creador.avatar : "/img/no-photo.jpg";
