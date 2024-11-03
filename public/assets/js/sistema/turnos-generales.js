@@ -1,7 +1,10 @@
 let mostrarAgregarImagenesTurnos = false;
+let updatingStatusTurnos = false;
+let openStatusTurnos = false;
 
 function mostrarModalEvento(idTurno) {
     console.log('mostrarModalEvento: ',idTurno);
+    $("#row-actios-turnos").hide();
     $("#offcanvas-body-turnos").empty();
     document.getElementById('button-open-datelle-turnos').click();
 
@@ -12,7 +15,8 @@ function mostrarModalEvento(idTurno) {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-
+        console.log('here');
+        $("#row-actios-turnos").show();
         var data = res.data;
         $("#id_turnos_up").val(data.id);
 
@@ -158,6 +162,58 @@ function agregarSwiperImgTurnos(imagenes) {
     return;
 }
 
+$("#butonActionActivoTurno").click( function(){
+    ajaxActualizarEstadoTurno(0);
+});
+
+$("#butonActionProcesoTurno").click( function(){
+    ajaxActualizarEstadoTurno(1);
+});
+
+$("#butonActionCerradoTurno").click( function(){
+    ajaxActualizarEstadoTurno(2);
+});
+
+function ajaxActualizarEstadoTurno(estado) {
+    if (!updatingStatusTurnos) {
+
+        updatingStatusTurnos = true;
+        var idMensaje = $("#id_turnos_up").val();
+
+        $("#turnos-button-change-status-iconNormal").hide();
+        $("#turnos-button-change-status-iconLoading").show();
+
+        $.ajax({
+            url: base_url + 'turnos-estado',
+            method: 'POST',
+            data: JSON.stringify({
+                id: idMensaje,
+                estado: estado
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+            if(res.success){
+                var data = res.data;
+                updatingStatusTurnos = false;
+                $("#turnos-button-change-status-iconNormal").show();
+                $("#turnos-button-change-status-iconLoading").hide(); 
+                
+                document.getElementById('content-button-status-turnos').click();
+                actualizarEstadosTurno(data.estado);
+                
+                $(".update-status-turnos").hide();
+                $("#turnos-button-change-status").addClass('button-change-status');
+                $("#turnos-button-change-status").removeClass('button-change-status-select');
+            }
+        }).fail((res) => {
+            updatingStatusTurnos = false;
+            $("#turnos-button-change-status-iconNormal").show();
+            $("#turnos-button-change-status-iconLoading").hide(); 
+        });
+    }
+}
+
 function htmlSwiperImgTurno(imagenes) {
     if (imagenes.length == 1) {
         return `<img style="height: 180px; object-fit: contain; width: -webkit-fill-available;" src="${bucketUrl+imagenes[0].url_archivo}">`;
@@ -288,7 +344,7 @@ function createMensajeturnos() {
         $("#button-add-img-turnos").addClass('button-add-img-turnos');
         $("#input-images-turnos").hide();
 
-        openStatusPqrsf = false;
+        openStatusTurnos = false;
         $(".update-status-turnos").hide();
         $("#turnos-button-change-status").addClass('button-change-status');
         $("#turnos-button-change-status").removeClass('button-change-status-select');
@@ -312,6 +368,24 @@ function createMensajeturnos() {
         $("#button-send-turnos").show();
         $("#button-send-turnos-loading").hide();
     };
+}
+
+function changeEstadoTurnos() {
+    if (openStatusTurnos) {
+        openStatusTurnos = false;
+        $(".update-status-turnos").hide();
+        $("#turnos-button-change-status").addClass('button-change-status');
+        $("#turnos-button-change-status").removeClass('button-change-status-select');
+    } 
+    else {
+        openStatusTurnos = true;
+        $(".update-status-turnos").show();
+        $("#turnos-button-change-status").removeClass('button-change-status');
+        $("#turnos-button-change-status").addClass('button-change-status-select');
+    }
+    setTimeout(function(){
+        document.getElementById("offcanvas-body-turnos").scrollTop = 10000000;
+    },10);
 }
 
 function resetImageTurnosUploader() {

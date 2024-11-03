@@ -257,6 +257,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('turnos', 'find');
             Route::put('turnos', 'update');
             Route::delete('turnos', 'delete');
+            Route::get('turnos-table', 'table');
+            Route::post('turnos-estado', 'updateEstado');
         });
         // ROLES
         Route::controller(RolesController::class)->group(function () {

@@ -2,6 +2,7 @@ var $comboTurnoUsuarioFilter = null;
 var $comboUsuarioTurno = null;
 var calendarioTurnos = null;
 var $comboTurno = null;
+var turnos_table = null;
 var diaTurno = [
     "diaTurno1",
     "diaTurno2",
@@ -114,6 +115,132 @@ function turnosInit() {
     });
     calendarioTurnos.render();
 
+    turnos_table = $('#turnosTable').DataTable({
+        pageLength: 20,
+        dom: 'Brtip',
+        paging: true,
+        responsive: false,
+        processing: true,
+        serverSide: true,
+        fixedHeader: true,
+        deferLoading: 0,
+        initialLoad: false,
+        ordering: false,
+        language: lenguajeDatatable,
+        sScrollX: "100%",
+        fixedColumns : {
+            left: 0,
+            right : 1,
+        },
+        ajax:  {
+            type: "GET",
+            headers: headers,
+            url: base_url + 'turnos-table',
+            data: function ( d ) {
+                d.fecha_desde = $('#fecha_desde_turnos_filter').val();
+                d.fecha_hasta = $('#fecha_hasta_turnos_filter').val();
+                d.id_usuario = $('#id_usuario_filter_turno_table').val();
+                d.tipo = $('#tipo_actividad_filter_turno_table').val();
+                d.estado = $('#estado_turnos_filter_table').val();
+            }
+        },
+        columns: [
+            {"data":'id'},
+            {"data": function (row, type, set){
+                console.log('row.estado: ',row.estado);
+                if (row.estado == '1') {
+                    return `<span class="badge bg-info">EN PROCESO</span><br/>`;
+                }
+                if (row.estado == '2') {
+                    return `<span class="badge bg-success">CERRADO</span><br/>`;
+                }
+                if (row.estado == '3') {
+                    return `<span class="badge bg-dark">VISTO</span><br/>`;
+                }
+                return `<span class="badge bg-danger">SIN LEER</span><br/>`;
+            }},
+            {"data": function (row, type, set){
+                if (row.tipo == 0) {
+                    return `TURNO`;
+                }
+                if (row.tipo == 1) {
+                    return `TAREA`;
+                }
+                return `NINGUNO`;
+            }},
+            {"data": function (row, type, set){
+                if (row.responsable) {
+                    return row.responsable.firstname+' '+row.responsable.lastname;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
+                return row.asunto;
+            }},
+            {"data": function (row, type, set){
+                return `<div  class="text-wrap width-500">${row.descripcion}</div >`;
+            }},
+            {"data":'fecha_creacion'},
+            {
+                "data": function (row, type, set){
+                    var html = '';
+                    html+= '<span id="readturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success read-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Ver detalle</span>&nbsp;';
+                    if (eliminarTurnos) html+= '<span id="deleteturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    return html;
+                }
+            },
+        ],
+        columnDefs: [{ width: 500, targets: 5 }],
+    });
+
+    if (turnos_table) {
+        //MOSTRAR TURNOS
+        turnos_table.on('click', '.read-turnos', function() {
+            var id = this.id.split('_')[1];
+            mostrarModalEvento(id);
+        });
+        //BORRAR TURNOS
+        turnos_table.on('click', '.drop-turnos', function() {
+            var trTurno = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, turnos_table);
+            var texto = 'Turno';
+            var responsable = data.responsable.firstname+' '+data.responsable.lastname;
+            if (data.tipo == 1) texto = 'Tarea';
+            
+            Swal.fire({
+                title: 'Eliminar '+texto+' de: '+responsable+'?',
+                text: "No se podrá revertir!",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Borrar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'turnos',
+                        method: 'DELETE',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            turnos_table.row(trTurno).remove().draw();
+                            agregarToast('exito', 'Eliminación exitosa', texto+' eliminada con exito!', true );
+                        } else {
+                            agregarToast('error', 'Eliminación errada', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Eliminación errada', res.message);
+                    });
+                }
+            });
+        });
+    }
+
     $("#id_usuario_filter_turno").on('change', function(event) {
         reloadTurnos();
     });
@@ -124,6 +251,26 @@ function turnosInit() {
 
     $("#estado_filter_turno").on('change', function(event) {
         reloadTurnos();
+    });
+
+    $("#id_usuario_filter_turno_table").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#tipo_actividad_filter_turno_table").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#estado_turnos_filter_table").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#fecha_desde_turnos_filter").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#fecha_hasta_turnos_filter").on('change', function(event) {
+        turnos_table.ajax.reload();
     });
 }
 
@@ -148,7 +295,7 @@ $('.input-images-turno-evento').imageUploader({
     maxFiles: 10
 });
 
-$(document).on('click', '#createProyecto', function () {
+$(document).on('click', '#createTurno', function () {
     clearFormTurno();
     $("#turnoFormModal").modal('show');
 });
@@ -168,6 +315,7 @@ function reloadTurnos() {
 
     calendarioTurnos.removeAllEvents();
     calendarioTurnos.refetchEvents();
+    turnos_table.ajax.reload();
 }
 
 $(document).on('click', '#deleteTurno', function () {
@@ -208,6 +356,20 @@ $(document).on('click', '#deleteTurno', function () {
     })
 });
 
+$(document).on('click', '#detalleTurno', function () {
+    turnos_table.ajax.reload();
+    $('#tabla_turnos').show();
+    $('#volverTurnos').show();
+    $('#detalleTurno').hide();
+    $('#calendar_turnos').hide();
+});
+
+$(document).on('click', '#volverTurnos', function () {
+    $('#tabla_turnos').hide();
+    $('#volverTurnos').hide();
+    $('#detalleTurno').show();
+    $('#calendar_turnos').show();
+});
 
 $("#multiple_tarea_turno").on('change', function(event) {
     if ($("input[type='checkbox']#multiple_tarea_turno").is(':checked')) {
@@ -250,6 +412,40 @@ $comboUsuarioTurno = $('#id_usuario_turno').select2({
     dropdownParent: $('#turnoFormModal'),
     delay: 250,
     placeholder: "Seleccione un usuario",
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'usuarios/combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+$('#id_usuario_filter_turno_table').select2({
+    theme: 'bootstrap-5',
+    delay: 250,
+    placeholder: "Seleccione un usuario",
+    allowClear: true,
     language: {
         noResults: function() {
             return "No hay resultado";        
@@ -389,6 +585,7 @@ $("#form-turno").submit(function(e) {
 
         if (responseData.success) {
             agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
+            turnos_table.ajax.reload();
             $("#turnoFormModal").modal('hide');
         } else {
 

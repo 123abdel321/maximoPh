@@ -51,4 +51,8 @@ class Turno extends Model
     {
 		return $this->belongsTo("App\Models\User","id_usuario");
 	}
+
+    public function nit(){
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
+	}
 }

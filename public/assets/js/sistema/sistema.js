@@ -1645,7 +1645,8 @@ function definirTiempo(date) {
 }
 
 function findDataPqrsf(id) {
-
+    
+    $("#row-actios-pqrsf").hide();
     $("#offcanvas-body-pqrsf").empty();
     document.getElementById('button-open-datelle-pqrsf').click();
 
@@ -1660,6 +1661,7 @@ function findDataPqrsf(id) {
     }).done((res) => {
         var data = res.data;
         $(".add-time-pqrsf").hide();
+        $("#row-actios-pqrsf").show();
         document.getElementById("hms").innerHTML="00:00:00";
         horas = 0;
         minutos = 0;

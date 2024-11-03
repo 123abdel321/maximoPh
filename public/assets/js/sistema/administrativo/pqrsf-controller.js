@@ -20,7 +20,7 @@ function pqrsfInit() {
     $('#fecha_desde_pqrsf_filter').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
     $('#fecha_hasta_pqrsf_filter').val(fechaDesde);
 
-    pqrsf_table  = $('#pqrsfTable').DataTable({
+    pqrsf_table = $('#pqrsfTable').DataTable({
         pageLength: 20,
         dom: 'Brtip',
         paging: true,

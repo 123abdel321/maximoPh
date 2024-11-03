@@ -104,7 +104,7 @@
                 </div>
                 <!-- BOTON CAMBIAR ESTADO -->
                 <div id="content-button-status-turnos" class="col-1 content-button-status-turnos">
-                    <div id="turnos-button-change-status" class="button-change-status" onclick="changeEstadoPqrst()">
+                    <div id="turnos-button-change-status" class="button-change-status" onclick="changeEstadoTurnos()">
                         <i id="turnos-button-change-status-iconNormal" style="position: relative; top: 42%; transform: translateY(-50%); margin-left: 4px; -webkit-transform: translateY(-50%); cursor: pointer;" class="fas fa-edit"></i>
                         <i id="turnos-button-change-status-iconLoading"style="position: relative; top: 30%; transform: translateY(-50%); margin-left: 4px; -webkit-transform: translateY(-50%); cursor: pointer; display: none;" class="fas fa-spinner fa-spin"></i>
                     </div>

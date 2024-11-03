@@ -43,7 +43,6 @@ class TurnosController extends Controller
         $end = Carbon::parse($request->end);
         
         $data = array();
-        $idResponsable = $request->id_empleado == "null" ? null : $request->id_empleado;
         $tipo = $request->tipo;
         $estado = $request->estado;
 
@@ -55,8 +54,8 @@ class TurnosController extends Controller
                         ->where('fecha_fin', '>=', $end);
                 });
             })
-            ->when($idResponsable, function ($query) use($idResponsable) {
-				$query->where('id_usuario', $idResponsable);
+            ->when($request->user()->can('turnos create') ? false : true, function ($query) use($request) {
+				$query->where('id_usuario', $request->user()['id']);
 			})
             ->when($tipo, function ($query) use($tipo) {
 				$query->where('tipo', $tipo);
@@ -90,6 +89,61 @@ class TurnosController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function table (Request $request)
+    {
+        try {
+            $draw = $request->get('draw');
+            $start = $request->get("start");
+            $rowperpage = $request->get("length");
+
+            $columnIndex_arr = $request->get('order');
+            $columnName_arr = $request->get('columns');
+            $order_arr = $request->get('order');
+
+            $turnos = Turno::with('responsable', 'creador', 'nit', 'archivos')
+                ->select(
+                    '*',
+                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'created_by',
+                    'updated_by'
+                )
+                ->orderBy('id', 'DESC');
+
+            if ($request->get('fecha_desde')) $turnos->where('created_at', '>=', $request->get('fecha_desde'));
+            if ($request->get('fecha_hasta')) $turnos->where('created_at', '<=', $request->get('fecha_hasta').' 23:59:59');
+            if ($request->get('id_usuario')) $turnos->where('id_usuario', $request->get('id_usuario'));
+            if ($request->get('tipo') || $request->get('tipo') == '0') $turnos->where('tipo', $request->get('tipo'));
+            if ($request->get('estado') || $request->get('estado') == '0') $turnos->where('estado', $request->get('estado'));
+
+            // if (!$request->user()->can('turnos responder')) {
+            //     $turnos->where('created_by', $request->user()['id']);
+            // }
+
+            $turnosTotals = $turnos->get();
+
+            $turnosPaginate = $turnos->skip($start)
+                ->take($rowperpage);
+
+            return response()->json([
+                'success'=>	true,
+                'draw' => $draw,
+                'iTotalRecords' => $turnosTotals->count(),
+                'iTotalDisplayRecords' => $turnosTotals->count(),
+                'data' => $turnosPaginate->get(),
+                'perPage' => $rowperpage,
+                'message'=> 'Turno generados con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
     }
 
     public function create (Request $request)
@@ -328,6 +382,11 @@ class TurnosController extends Controller
                 ->with('responsable', 'archivos', 'eventos.creador', 'eventos.archivos', 'creador')
                 ->first();
 
+            if ($turno->id_usuario == request()->user()->id && $turno->estado == 0) {
+                $turno->estado = 3;
+                $turno->save();
+            }
+
             return response()->json([
                 'success'=>	true,
                 'data' => $turno,
@@ -336,6 +395,125 @@ class TurnosController extends Controller
 
         } catch (Exception $e) {
 
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function updateEstado (Request $request)
+    {
+        $rules = [
+            'id' => 'required|exists:max.turnos,id',
+            'estado' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+		if ($validator->fails()){
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::connection('max')->beginTransaction();
+            
+            $nombreEstado = '<b class="turnos-chat-mensaje-activo">Activo</b>';
+            if ($request->get('estado') == 1) {
+                $nombreEstado = '<b class="turnos-chat-mensaje-proceso">En proceso</b>';
+            }
+            if ($request->get('estado') == 2) {
+                $nombreEstado = '<b class="turnos-chat-mensaje-cerrado">Cerrado</b>';
+            }
+            
+            $turnos = Turno::find($request->get('id'));
+            $turnos->estado = $request->get('estado');
+            $turnos->save();
+
+            $usuarioNotificacion = $turnos->id_usuario;
+
+            if ($turnos->id_usuario == $request->user()['id']) {
+                $usuarioNotificacion = $turnos->created_by;
+            }
+
+            $mensajes = TurnoEvento::create([
+                'id_turnos' => $turnos->id,
+                'id_usuario' => $turnos->id_usuario,
+                'descripcion' => 'Se ha cambiado el estado del turnos a '.$nombreEstado,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+            
+            $mensaje = TurnoEvento::where('id', $mensajes->id)
+                ->with('archivos')
+                ->get();
+
+            $usuarioNotificacion = $turnos->id_usuario;
+            if ($turnos->id_usuario == request()->user()->id) {
+                $usuarioNotificacion = $turnos->created_by;
+            }
+
+            // CANALES DE NOTIFICACION
+            $canalesNotificacion = [
+                'turno-mensaje-responder-'.$request->user()['has_empresa'], //PERMISO: turno responder
+                'turno-mensaje-'.$request->user()['has_empresa'].'_'.$turnos->id_usuario
+            ];
+
+            $notificacionesEnEspera = Notificaciones::where('notificacion_id', $turnos->id)
+                ->where('id_usuario', $usuarioNotificacion)
+                ->where('notificacion_type', 14)
+                ->where('estado', 0)
+                ->count();
+
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
+
+            $notificacion = (new NotificacionGeneral(
+                request()->user()->id,
+                $usuarioNotificacion,
+                $turnos
+            ));
+
+            $mensajeText = '<b style="color: gold;">Tarea</b>: Ha recibido un nuevo <b>MENSAJE</b> de '.$nombreUsuario;
+
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $usuarioNotificacion,
+                'tipo' => 1,
+                'mensaje' => $mensajeText,
+                'function' => 'abrirTurnosNotificacion',
+                'data' => $turnos->id,
+                'id_rol' => 1,
+                'estado' => $notificacionesEnEspera ? 2 : 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+
+            $notificacion->notificar(
+                $canalesNotificacion,
+                [
+                    'id_turno' => $turnos->id,
+                    'data' => $mensaje->toArray(),
+                    'estado' => 1,
+                    'id_notificacion' => $id_notificacion,
+                    'id_usuario' => $usuarioNotificacion
+                ]
+            );
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => $mensajes,
+                'notificar' => [],
+                'message'=> 'Mensaje creado con exito!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::connection('max')->rollback();
             return response()->json([
                 "success"=>false,
                 'data' => [],
@@ -556,7 +734,7 @@ class TurnosController extends Controller
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Zona eliminada con exito!'
+                'message'=> 'Turno/Tarea eliminada con exito!'
             ]);
 
         } catch (Exception $e) {
