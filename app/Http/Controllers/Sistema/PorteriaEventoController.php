@@ -42,7 +42,7 @@ class PorteriaEventoController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
             
-            $porteriaEvento = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona')
+            $porteriaEvento = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona.archivos')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -120,10 +120,11 @@ class PorteriaEventoController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
+            $itemPorteria = Porteria::find($request->get('id_porteria_evento'));
+
             $evento = PorteriaEvento::Create([
-                'tipo' => $request->get('tipo_evento'),
-                'id_inmueble' => $request->get('inmueble_porteria_evento'),
-                'id_porteria' => $request->get('persona_porteria_evento'),
+                'id_porteria' => $itemPorteria->id,
+                'tipo' => $itemPorteria->tipo_porteria,
                 'fecha_ingreso' => $request->get('fecha_ingreso_porteria_evento'),
                 'fecha_salida' => $request->get('fecha_salida_porteria_evento'),
                 'observacion' => $request->get('observacion_porteria_evento'),
@@ -131,19 +132,13 @@ class PorteriaEventoController extends Controller
                 'updated_by' => request()->user()->id
             ]);
 
-            $itemPorteria = Porteria::find($request->get('persona_porteria_evento'));
-
-            if ($request->get('persona_porteria_evento')) {
-                
-                if ($itemPorteria->tipo == 5 || $itemPorteria->tipo == 6) {
-                    $itemPorteria->estado = false;
-                }
-            }
+            $itemPorteria->estado = false;
+            $itemPorteria->save();
 
             if ($request->file('photos')) {
                 foreach ($request->file('photos') as $photos) {
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
-                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
+                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'. $photos->getClientOriginalName();
+                    $url = Storage::disk('do_spaces')->putFileAs($nameFile, $photos, $photos->getClientOriginalName(), 'public');
     
                     $archivo = new ArchivosGenerales([
                         'tipo_archivo' => 'imagen',
@@ -159,6 +154,16 @@ class PorteriaEventoController extends Controller
             }
 
             $evento->load('archivos');
+
+            if ($itemPorteria->id_usuario) {
+                DB::connection('max')->commit();
+
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $evento,
+                    'message'=> 'Evento creado con exito!'
+                ]);
+            }
 
             $notificacion =(new NotificacionGeneral(
                 request()->user()->id,

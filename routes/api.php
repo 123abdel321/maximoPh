@@ -105,6 +105,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('inmueble', 'update');
             Route::delete('inmueble', 'delete');
             Route::get('inmueble-combo', 'combo');
+            Route::get('inmueble-combo-normal', 'comboInmueble');
             Route::get('inmueble-total', 'totales');
         });
         //INMUEBLES NITS

@@ -14,7 +14,6 @@ class PorteriaEvento extends Model
     protected $table = "porteria_eventos";
 
     protected $fillable = [
-        'id_inmueble',
         'id_porteria',
         'tipo',
         'fecha_ingreso',

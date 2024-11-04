@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('porteria_eventos', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_inmueble')->nullable();
             $table->integer('id_porteria')->nullable();
-            $table->integer('tipo')->nullable()->default(0)->comment('0: Visita; 1: Paquete; 2: Minuta;');
+            $table->integer('tipo')->nullable();
             $table->dateTime('fecha_ingreso')->nullable();
             $table->dateTime('fecha_salida')->nullable();
             $table->string('observacion', 500)->nullable();

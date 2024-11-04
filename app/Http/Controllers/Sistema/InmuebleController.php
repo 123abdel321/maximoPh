@@ -435,6 +435,26 @@ class InmuebleController extends Controller
         return $nits->paginate(20);
     }
 
+    public function comboInmueble (Request $request)
+    {
+        $inmueble = Inmueble::select(
+            \DB::raw('*'),
+            \DB::raw("nombre as text")
+        );
+
+        if ($request->get("q")) {
+            $inmueble->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
+        }
+
+        if ($request->get("id_nit")) {
+            $inmueble->whereHas('personas', function($query) use($request) {
+                $query->where('id_nit', $request->get("id_nit"));
+            });
+        }
+
+        return $inmueble->orderBy('nombre', 'ASC')->paginate(40);
+    }
+
     public function totales (Request $request)
     {
         $totalInmuebles = Inmueble::whereNotNull('id');

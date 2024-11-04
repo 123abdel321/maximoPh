@@ -11,28 +11,32 @@
 
                 {{ csrf_field() }}
 
-                <div class="justify-content-center col-12 col-sm-6 col-md-6">
-                    <div style="text-align: -webkit-center; height: 120px;">
-                        <img id="img_porteria_evento"  src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="height: 130px; border-radius: 5%;">
+                <input type="text" class="form-control" name="id_porteria_evento" id="id_porteria_evento" style="display: none;">
+
+                <div class="justify-content-center col-12 col-sm-12 col-md-12">
+                    <div style="text-align: -webkit-center; margin-bottom: 10px;">
+                        <img id="img_porteria_evento"  src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="height: 130px; border-radius: 5%; width: auto; object-fit: contain;">
                     </div>
                 </div>
 
-                <!-- <input type="file" name="imagen_evento" id="imagen_evento" onchange="readURLEvento(this);" style="display: none" /> -->
-
                 <div class="form-group form-group col-12 col-sm-6 col-md-6">
                     <label for="exampleFormControlSelect1">Tipo evento<span style="color: red">*</span></label>
-                    <select class="form-control form-control-sm" name="tipo_evento" id="tipo_evento">
-                        <option value="0">Visita</option>
-                        <option value="3">Domicilio</option>
-                        <option value="1">Paquete</option>
-                        <option value="2">Minuta</option>
-                        <option value="4">Otros</option>
+                    <select class="form-control form-control-sm" name="tipo_evento" id="tipo_evento" disabled>
+                        <option value="4">VISITANTE</option>
+                        <option value="6">DOMICILIO</option>
+                        <option value="5">PAQUETE</option>
                     </select>
                 </div>
 
                 <div class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="personaPorteriaEventoLabel">Persona / otros</label>
+                    <label for="personaPorteriaEventoLabel">Item porteria</label>
                     <select name="persona_porteria_evento" id="persona_porteria_evento" class="form-control form-control-sm">
+                    </select>
+                </div>
+
+                <div class="form-group col-12 col-sm-6 col-md-6">
+                    <label for="inmueblePorteriaEventoLabel">Cedula / Nit</label>
+                    <select name="id_nit_porteria_evento" id="id_nit_porteria_evento" class="form-control form-control-sm">
                     </select>
                 </div>
 

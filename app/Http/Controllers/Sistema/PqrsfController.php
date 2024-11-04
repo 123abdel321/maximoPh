@@ -118,6 +118,22 @@ class PqrsfController extends Controller
                 ->where('id', $request->get('id'))
                 ->first();
 
+            if (!$pqrsf) {
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $pqrsf,
+                    'message'=> 'Datos Pqrsf cargados con exito!'
+                ]);
+            }
+
+            if (!$pqrsf || !$pqrsf->id_usuario) {
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $pqrsf,
+                    'message'=> 'Datos Pqrsf cargados con exito!'
+                ]);
+            }
+
             if (!$pqrsf->id_usuario && $pqrsf->created_by != request()->user()->id) {
                 Pqrsf::where('id', $request->get('id'))
                     ->whereNull('id_usuario')

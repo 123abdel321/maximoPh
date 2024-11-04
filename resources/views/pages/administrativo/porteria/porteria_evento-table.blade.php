@@ -38,8 +38,8 @@
             <th>Fecha/Hora ingreso</th>
             <th>Fecha/Hora salida</th>
             <th>Observación</th>
-            <th style="border-radius: 0px 15px 0px 0px !important;">Creación registro</th>
-            <!-- <th >Ultima actualización</th> -->
+            <th>Creación registro</th>
+            <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>
         </tr>
     </thead>
 </table>

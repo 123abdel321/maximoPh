@@ -100,11 +100,11 @@ class PorteriaController extends Controller
             $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $request->user()->id)
                 ->where('id_empresa', $request->user()->id_empresa)
                 ->first();
-            
+
             $start = $request->get("start");
             $rowperpage = 24;
 
-            $porteria = Porteria::with('archivos', 'propietario', 'eventos', 'usuario')
+            $porteria = Porteria::with('archivos', 'propietario', 'eventos', 'usuario', 'inmueble', 'nit')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -222,7 +222,7 @@ class PorteriaController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $file = $request->file('imagen_porteria');
+            $file = $request->file('photos');
             $nitData = Nits::find($request->get('id_nit_porteria'));
 
             $usuarioEmpresa = null;
@@ -236,32 +236,19 @@ class PorteriaController extends Controller
                     ->first();
             }
 
-            if (!$usuarioEmpresa) {
-                DB::connection('max')->rollback();
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=>'El nit '.$nitData->nombre_completo.' no tiene usuario asociado'
-                ], 422);
-            }
-
             //ACTUALIZAR
             if ($request->get('id_porteria_up')) {
                 Porteria::where('id', $request->get('id_porteria_up'))
                     ->update([
                         'tipo_porteria' => $request->get('tipo_porteria_create'),
                         'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
-                        'tipo_mascota' => $request->get('tipo_mascota_porteria'),
                         'documento' => $request->get('documento_persona_porteria'),
                         'nombre' => $request->get('nombre_persona_porteria'),
                         'dias' => $this->getDiasString($request),
                         'placa' => $request->get('placa_persona_porteria'),
                         'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                         'observacion' => $request->get('observacion_persona_porteria'),
-                        'email' => $request->get('email_porteria'),
-                        'fecha_nacimiento' => $request->get('fecha_nacimiento_porteria'),
                         'telefono' => $request->get('telefono_porteria'),
-                        'genero' => $request->get('genero_porteria'),
                         'updated_by' => request()->user()->id
                     ]);
 
@@ -275,16 +262,12 @@ class PorteriaController extends Controller
                 }
             } else {
                 $porteria = Porteria::create([
-                    'id_nit' => $usuarioEmpresa->id_nit,
-                    'id_usuario' => $usuarioEmpresa->id_usuario,
+                    'id_nit' => $nitData->id,
+                    'id_inmueble' => $request->get('id_inmueble_porteria'),
+                    'id_usuario' => $usuarioEmpresa ? $usuarioEmpresa->id_usuario : null,
                     'tipo_porteria' => $request->get('tipo_porteria_create'),
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
-                    'tipo_mascota' => $request->get('tipo_mascota_porteria'),
                     'nombre' => $request->get('nombre_persona_porteria'),
-                    'email' => $request->get('email_porteria'),
-                    'fecha_nacimiento' => $request->get('fecha_nacimiento_porteria'),
-                    'telefono' => $request->get('telefono_porteria'),
-                    'genero' => $request->get('genero_porteria'),
                     'documento' => $request->get('documento_persona_porteria'),
                     'dias' => $this->getDiasString($request),
                     'placa' => $request->get('placa_persona_porteria'),
@@ -295,9 +278,7 @@ class PorteriaController extends Controller
                 ]);
             }
 
-            if ($file) {
-                $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
-                $url = Storage::disk('do_spaces')->put($nameFile, $file, 'public');
+            if ($request->file('photos')) {
 
                 $archivos = ArchivosGenerales::where('relation_type', 10)
                     ->where('relation_id', $porteria->id)
@@ -310,16 +291,21 @@ class PorteriaController extends Controller
                     }
                 }
 
-                $archivo = new ArchivosGenerales([
-                    'tipo_archivo' => 'imagen',
-                    'url_archivo' => $url,
-                    'estado' => 1,
-                    'created_by' => request()->user()->id,
-                    'updated_by' => request()->user()->id
-                ]);
-    
-                $archivo->relation()->associate($porteria);
-                $porteria->archivos()->save($archivo);
+                foreach ($request->file('photos') as $photos) {
+                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'. $photos->getClientOriginalName();
+                    $url = Storage::disk('do_spaces')->putFileAs($nameFile, $photos, $photos->getClientOriginalName(), 'public');
+
+                    $archivo = new ArchivosGenerales([
+                        'tipo_archivo' => 'imagen',
+                        'url_archivo' => $url,
+                        'estado' => 1,
+                        'created_by' => request()->user()->id,
+                        'updated_by' => request()->user()->id
+                    ]);
+        
+                    $archivo->relation()->associate($porteria);
+                    $porteria->archivos()->save($archivo);
+                }
             }
 
             $porteria->load('archivos', 'propietario');

@@ -14,20 +14,22 @@ class Porteria extends Model
     protected $table = "porterias";
 
     protected $fillable = [
+        'id_inmueble',
         'id_usuario',
         'id_nit',
         'tipo_porteria',
         'tipo_vehiculo',
-        'tipo_mascota',
+        // 'tipo_mascota',
         'telefono',
         'genero',
         'email',
-        'fecha_nacimiento',
+        // 'fecha_nacimiento',
         'nombre',
         'documento',
         'dias',
         'placa',
         'hoy',
+        'estado',
         'observacion',
         'created_by',
         'updated_by',
@@ -52,5 +54,15 @@ class Porteria extends Model
     {
 		return $this->belongsTo("App\Models\User", 'id_usuario');
 	}
+
+    public function inmueble()
+    {
+        return $this->belongsTo(Inmueble::class, 'id_inmueble');
+    }
+
+    public function nit()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
+    }
 
 }
