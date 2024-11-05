@@ -236,6 +236,19 @@ class PorteriaController extends Controller
                     ->first();
             }
 
+            $idInmueble = $request->get('id_inmueble_porteria');
+
+            if (!$idInmueble && $usuarioEmpresa) {
+                $inmuebleNit = InmuebleNit::where('id_nit', $usuarioEmpresa->id_nit)
+                    ->first();
+
+                if ($inmuebleNit) $idInmueble = $inmuebleNit->id_inmueble;
+            }
+
+            if (!$nitData && $usuarioEmpresa) {
+                $nitData = Nits::find($usuarioEmpresa->id_nit);
+            }
+
             //ACTUALIZAR
             if ($request->get('id_porteria_up')) {
                 Porteria::where('id', $request->get('id_porteria_up'))
@@ -262,8 +275,8 @@ class PorteriaController extends Controller
                 }
             } else {
                 $porteria = Porteria::create([
-                    'id_nit' => $nitData->id,
-                    'id_inmueble' => $request->get('id_inmueble_porteria'),
+                    'id_nit' => $nitData ? $nitData->id : null,
+                    'id_inmueble' => $idInmueble,
                     'id_usuario' => $usuarioEmpresa ? $usuarioEmpresa->id_usuario : null,
                     'tipo_porteria' => $request->get('tipo_porteria_create'),
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
@@ -271,7 +284,7 @@ class PorteriaController extends Controller
                     'documento' => $request->get('documento_persona_porteria'),
                     'dias' => $this->getDiasString($request),
                     'placa' => $request->get('placa_persona_porteria'),
-                    'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
+                    // 'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                     'observacion' => $request->get('observacion_persona_porteria'),
                     'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id
