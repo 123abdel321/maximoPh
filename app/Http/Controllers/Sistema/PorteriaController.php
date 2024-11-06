@@ -259,7 +259,7 @@ class PorteriaController extends Controller
                         'nombre' => $request->get('nombre_persona_porteria'),
                         'dias' => $this->getDiasString($request),
                         'placa' => $request->get('placa_persona_porteria'),
-                        'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
+                        // 'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                         'observacion' => $request->get('observacion_persona_porteria'),
                         'telefono' => $request->get('telefono_porteria'),
                         'updated_by' => request()->user()->id

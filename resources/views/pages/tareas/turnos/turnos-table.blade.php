@@ -8,6 +8,12 @@
         </div>
     @endcan
 
+    <div class="form-group  col-12 col-sm-4 col-md-4">
+        <label>Proyecto</label>
+        <select name="id_proyecto_filter_turno_table" id="id_proyecto_filter_turno_table" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
+        </select>
+    </div>
+
     <div class="form-group col-6 col-sm-4 col-md-4">
         <label for="exampleFormControlSelect1">Tipo actividad</label>
         <select class="form-control form-control-sm" id="tipo_actividad_filter_turno_table" name="tipo_actividad_filter_turno_table">
@@ -49,6 +55,8 @@
             <th>Empleado</th>
             <th>Asunto</th>
             <th style="width: 500px !important;">Descripción</th>
+            <th>Fecha inicio</th>
+            <th>Fecha fin</th>
             <th>Fecha/hora creación</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>
         </tr>

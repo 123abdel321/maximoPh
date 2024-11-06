@@ -4,7 +4,7 @@ let openStatusTurnos = false;
 
 function mostrarModalEvento(idTurno) {
     console.log('mostrarModalEvento: ',idTurno);
-    $("#row-actios-turnos").hide();
+    $("#row-action-turnos").hide();
     $("#offcanvas-body-turnos").empty();
     document.getElementById('button-open-datelle-turnos').click();
 
@@ -15,12 +15,13 @@ function mostrarModalEvento(idTurno) {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-        console.log('here');
-        $("#row-actios-turnos").show();
+
         var data = res.data;
+
         $("#id_turnos_up").val(data.id);
 
         if (id_usuario_logeado == data.id_usuario) {
+            $("#row-action-turnos").show();
             var nombreCreador = data.creador.firstname;
             nombreCreador+= data.creador.lastname ? ' '+data.creador.lastname : '';
             if (data.nit) nombreCreador+= ' '+data.nit.apartamentos;
@@ -31,6 +32,9 @@ function mostrarModalEvento(idTurno) {
                 $("#offcanvas_turnos_header_img").attr("src",bucketUrl + data.creador.avatar);
             }
         } else {
+            if (turno_responder) {
+                $("#row-action-turnos").show();
+            }
             if (data.responsable) {
                 if (data.responsable.avatar) $("#offcanvas_turnos_header_img").attr("src",bucketUrl + data.responsable.avatar);
                 
@@ -86,6 +90,13 @@ function mostrarDatosCabezaTurno(data) {
         data.descripcion
     ].join('');
     document.getElementById('offcanvas-body-turnos').insertBefore(descripcion, null);
+
+    var detalleTiempos = document.createElement('p');
+    detalleTiempos.setAttribute("style", "font-size: 13px;");
+    detalleTiempos.innerHTML = [
+        `Fecha inicio: ${data.fecha_inicio} <br/> Fecha fin: ${data.fecha_fin} <br/>${definirTiempo(data.created_at)}`
+    ].join('');
+    document.getElementById('offcanvas-body-turnos').insertBefore(detalleTiempos, null);
 
     if (data.estado == 2 && idRolUsuario != 1 && idRolUsuario != 2) $("#row-actios-pqrsf").hide();
     else $("#row-actios-pqrsf").show();

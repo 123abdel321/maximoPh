@@ -35,6 +35,7 @@ function turnosInit() {
             extraParams: function() {
                 return {
                     id_empleado: $("#id_usuario_filter_turno").val(),
+                    id_proyecto: $("#id_proyecto_filter_turno").val(),
                     tipo: $("#tipo_actividad_filter_turno").val(),
                     estado: $("#estado_filter_turno").val(),
                 };
@@ -139,6 +140,7 @@ function turnosInit() {
             data: function ( d ) {
                 d.fecha_desde = $('#fecha_desde_turnos_filter').val();
                 d.fecha_hasta = $('#fecha_hasta_turnos_filter').val();
+                d.id_proyecto = $('#id_proyecto_filter_turno_table').val();
                 d.id_usuario = $('#id_usuario_filter_turno_table').val();
                 d.tipo = $('#tipo_actividad_filter_turno_table').val();
                 d.estado = $('#estado_turnos_filter_table').val();
@@ -147,7 +149,6 @@ function turnosInit() {
         columns: [
             {"data":'id'},
             {"data": function (row, type, set){
-                console.log('row.estado: ',row.estado);
                 if (row.estado == '1') {
                     return `<span class="badge bg-info">EN PROCESO</span><br/>`;
                 }
@@ -181,11 +182,13 @@ function turnosInit() {
                 return `<div  class="text-wrap width-500">${row.descripcion}</div >`;
             }},
             {"data":'fecha_creacion'},
+            {"data":'fecha_inicio'},
+            {"data":'fecha_fin'},
             {
                 "data": function (row, type, set){
                     var html = '';
                     html+= '<span id="readturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success read-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Ver detalle</span>&nbsp;';
-                    if (eliminarTurnos) html+= '<span id="deleteturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    if (eliminarTurnos && row.eventos.length == 0) html+= '<span id="deleteturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
             },
@@ -382,6 +385,7 @@ $("#multiple_tarea_turno").on('change', function(event) {
 function clearFormTurno () {
     
     $("#id_usuario_turno").val('').change();
+    $("#id_proyecto_turno").val('').change();
     $("#fecha_inicio_turno").val("");
     $("#fecha_fin_turno").val("");
     $("#hora_inicio_turno").val("");
@@ -401,6 +405,12 @@ function clearFormTurno () {
         // maxSize: 2 * 1024 * 1024,
         maxFiles: 10
     });
+
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Asignar la fecha mínima al campo de fecha
+    document.getElementById("fecha_inicio_turno").setAttribute("min", today);
+    document.getElementById("fecha_fin_turno").setAttribute("min", today);
     
     diaTurno.forEach(dia => {
         $('#'+dia).prop('checked', false);
@@ -512,6 +522,75 @@ $comboTurnoUsuarioFilter = $('#id_usuario_filter_turno').select2({
 $comboTurno  = $('#id_proyecto_turno').select2({
     theme: 'bootstrap-5',
     dropdownParent: $('#turnoFormModal'),
+    delay: 250,
+    placeholder: "Seleccione un proyecto",
+    allowClear: true,
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'proyectos-combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+
+$('#id_proyecto_filter_turno').select2({
+    theme: 'bootstrap-5',
+    delay: 250,
+    placeholder: "Seleccione un proyecto",
+    allowClear: true,
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'proyectos-combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+$('#id_proyecto_filter_turno_table').select2({
+    theme: 'bootstrap-5',
     delay: 250,
     placeholder: "Seleccione un proyecto",
     allowClear: true,

@@ -43,8 +43,10 @@ class TurnosController extends Controller
         $end = Carbon::parse($request->end);
         
         $data = array();
-        $tipo = $request->tipo;
-        $estado = $request->estado;
+        $tipo = $request->tipo == 'null' ? null : $request->tipo;
+        $estado = $request->estado == 'null' ? null : $request->estado;
+        $id_empleado = $request->id_empleado == 'null' ? null : $request->id_empleado;
+        $id_proyecto = $request->id_proyecto == 'null' ? null : $request->id_proyecto;
 
         $turnos = Turno::where(function($query) use ($start, $end) {
             $query->whereBetween('fecha_inicio', [$start, $end])
@@ -54,18 +56,29 @@ class TurnosController extends Controller
                         ->where('fecha_fin', '>=', $end);
                 });
             })
-            ->when($request->user()->can('turnos create') ? false : true, function ($query) use($request) {
-				$query->where('id_usuario', $request->user()['id']);
-			})
+            // ->when($request->user()->can('turnos create') ? false : true, function ($query) use($request) {
+			// 	$query->where('id_usuario', $request->user()['id']);
+			// })
             ->when($tipo, function ($query) use($tipo) {
 				$query->where('tipo', $tipo);
 			})
             ->when($estado, function ($query) use($estado) {
 				$query->where('estado', $estado);
 			})
-        ->get();
+            ->when($id_empleado, function ($query) use($id_empleado) {
+				$query->where('id_usuario', $id_empleado);
+			})
+            ->when($id_proyecto, function ($query) use($id_proyecto) {
+				$query->where('id_proyecto', $id_proyecto);
+			});
+        
+        if (!$request->user()->can('turnos create')) {
+            $turnos->where('id_usuario', $request->user()['id']);
+        }
 
-        foreach ($turnos as $turno) {
+        $dataTurno = $turnos->get();
+
+        foreach ($dataTurno as $turno) {
             $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
             $fechaFin = Carbon::parse($turno->fecha_fin)->format('Y-m-d');
 
@@ -73,14 +86,15 @@ class TurnosController extends Controller
             $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
 
             $color = "#055ebe";
-
-            // if ($turno->estado == 1) {
-
-            // }
+            if ($turno->tipo == 1) $color = "#28b463";
+            if ($turno->estado == 2) {
+                if ($turno->tipo == 1) $color = "#76a98b";
+                else $color = "#6689af";
+            }
 
             array_push($data, array(
-                // 'backgroundColor' => $color,
-                // 'borderColor' => $color,
+                'backgroundColor' => $color,
+                'borderColor' => $color,
                 'id' => $turno->id,
                 'title' => $turno->asunto,
                 'start' => $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio,
@@ -102,7 +116,7 @@ class TurnosController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $turnos = Turno::with('responsable', 'creador', 'nit', 'archivos')
+            $turnos = Turno::with('responsable', 'creador', 'nit', 'archivos', 'eventos')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -115,6 +129,7 @@ class TurnosController extends Controller
             if ($request->get('fecha_desde')) $turnos->where('created_at', '>=', $request->get('fecha_desde'));
             if ($request->get('fecha_hasta')) $turnos->where('created_at', '<=', $request->get('fecha_hasta').' 23:59:59');
             if ($request->get('id_usuario')) $turnos->where('id_usuario', $request->get('id_usuario'));
+            if ($request->get('id_proyecto')) $turnos->where('id_proyecto', $request->get('id_proyecto'));
             if ($request->get('tipo') || $request->get('tipo') == '0') $turnos->where('tipo', $request->get('tipo'));
             if ($request->get('estado') || $request->get('estado') == '0') $turnos->where('estado', $request->get('estado'));
 
@@ -151,7 +166,6 @@ class TurnosController extends Controller
         $rules = [
             'id_usuario_turno' => 'required|exists:clientes.users,id',
             'id_proyecto_turno' => 'nullable|exists:max.proyectos,id',
-            'tipo_turno' => 'nullable',
             'fecha_inicio_turno' => 'required',
             'fecha_fin_turno' => 'required',
             'hora_inicio_turno' => 'required',
@@ -189,6 +203,7 @@ class TurnosController extends Controller
             $urlArchivos = [];
             if ($request->file('photos')) {
                 foreach ($request->file('photos') as $photos) {
+
                     $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
                     $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
 
@@ -578,6 +593,8 @@ class TurnosController extends Controller
             if ($turno->id_usuario == request()->user()->id) {
                 $usuarioNotificacion = $turno->created_by;
             }
+
+            // dd($usuarioNotificacion);
 
             // CANALES DE NOTIFICACION
             $canalesNotificacion = [

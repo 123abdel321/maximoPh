@@ -95,7 +95,7 @@
                 <div class="input-images-turnos" style="padding-top: .5rem;"></div>
             </div>
 
-            <div id="row-actios-turnos" class="row actions-turnos">
+            <div id="row-action-turnos" class="row actions-turnos">
                 <!-- BOTON AGREGAR IMAGEN -->
                 <div class="col-1 content-button-img-turnos">
                     <div id="button-add-img-turnos" class="button-add-img" style="margin-left: 3px;" onclick="clickAddImgturnosEvent()">

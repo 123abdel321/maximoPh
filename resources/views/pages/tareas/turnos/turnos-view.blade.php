@@ -5,7 +5,7 @@
                 <div class="col-12 col-md-12 col-sm-12">
                     @can('turnos create')
                         <button type="button" class="btn btn-dark btn-sm" id="volverTurnos" style="display: none;"><i class="fas fa-step-backward back-icon-button" aria-hidden="true"></i>&nbsp;Volver</button>
-                        <button type="button" class="btn btn-primary btn-sm" id="createTurno">Agregar turnos</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="createTurno">Agregar tareas & turnos</button>
                         <button type="button" class="btn btn-info btn-sm" id="detalleTurno">Ver detalle</button>
                     @endcan
                     <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadTurnos">
@@ -22,14 +22,20 @@
                 <div class="row" style="padding: 4px;">
 
                     @can('turnos create')
-                        <div class="form-group  col-12 col-sm-4 col-md-4">
+                        <div class="form-group  col-12 col-sm-4 col-md-3">
                             <label>Empleado</label>
                             <select name="id_usuario_filter_turno" id="id_usuario_filter_turno" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
                             </select>
                         </div>
+
+                        <div class="form-group  col-12 col-sm-4 col-md-3">
+                            <label>Proyecto</label>
+                            <select name="id_proyecto_filter_turno" id="id_proyecto_filter_turno" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
+                            </select>
+                        </div>
                     @endcan
 
-                    <div class="form-group col-6 col-sm-4 col-md-4">
+                    <div class="form-group col-6 col-sm-4 col-md-3">
                         <label for="exampleFormControlSelect1">Tipo actividad</label>
                         <select class="form-control form-control-sm" id="tipo_actividad_filter_turno" name="tipo_actividad_filter_turno">
                             <option value="">TODAS</option>
@@ -38,7 +44,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-6 col-sm-4 col-md-4">
+                    <div class="form-group col-6 col-sm-4 col-md-3">
                         <label for="exampleFormControlSelect1">Estado</label>
                         <select class="form-control form-control-sm" id="estado_filter_turno" name="estado_filter_turno">
                             <option value="">TODOS</option>

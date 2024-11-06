@@ -55,37 +55,29 @@ class NotificacionesController extends Controller
             $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
                 ->where('id_usuario', $request->user()['id'])
                 ->first();
-                
-            if ($request->user()->can('pqrsf responder') || $request->user()->can('turnos responder')) {
-                $notificaciones->where('notificacion_type', '!=', 11)
+            
+            if ($request->user()->can('pqrsf responder') && $request->user()->can('turnos responder')) {
+                $notificaciones->whereNotIn('notificacion_type', [11, 14])
                     ->whereNull('id_usuario')
-                    ->orWhere('id_rol', 1);
+                    ->where('id_rol', 1);
+            } else if ($request->user()->can('pqrsf responder')) {
+                $notificaciones->whereNotIn('notificacion_type', [11])
+                    ->whereNull('id_usuario')
+                    ->where('id_rol', 1);
+            } else if($request->user()->can('turnos responder')) {
+                $notificaciones->whereNotIn('notificacion_type', [14])
+                    ->whereNull('id_usuario')
+                    ->where('id_rol', 1);
             } else {
                 $notificaciones->where('id_usuario', request()->user()->id);
             }
 
-            $notificacionesCount = Notificaciones::with('creador')
-                ->where('estado', '=', 0)
-                ->select(
-                    '*',
-                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
-                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
-                    'created_by',
-                    'updated_by'
-                );
-
-            if ($request->user()->can('pqrsf responder')) {
-                $notificacionesCount->where('notificacion_type', '!=', 11)
-                    ->whereNull('id_usuario')
-                    ->orWhere('id_rol', 1);
-            } else {
-                $notificacionesCount->where('id_usuario', request()->user()->id);
-            }
+            $dataNotificaciones = $notificaciones->get();
 
             return response()->json([
                 'success'=>	true,
-                'data' => $notificaciones->get(),
-                'total' => $notificacionesCount->count(),
+                'data' => $dataNotificaciones,
+                'total' => count($dataNotificaciones),
                 'message'=> 'Notificaciones generados con exito!'
             ]);
 

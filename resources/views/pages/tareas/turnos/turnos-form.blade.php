@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" style="contain: content;" role="document">
         <form id="form-turno" class="modal-content" style="margin-top: 10px;" enctype="multipart/form-data">
             <div class="modal-header">
-                <h5 class="modal-title" id="textTurnoCreate" style="display: block;">Agregar Turno & Tarea</h5>
+                <h5 class="modal-title" id="textTurnoCreate" style="display: block;">Agregar tareas & turnos</h5>
                 <!-- <h5 class="modal-title" id="textTurnoUpdate" style="display: none;">Editar Turno</h5> -->
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
@@ -15,18 +15,24 @@
                 <input type="text" class="form-control" name="id_turno_up" id="id_turno_up" style="display: none;">
 
                 <div class="form-group col-6 col-sm-6 col-md-6">
-                    <label for="exampleFormControlSelect1">Tipo tarea</label>
-                    <select class="form-control form-control-sm" id="tipo_turno" name="tipo_turno">
-                        <option value="0">TURNO</option>
-                        <option value="1">TAREA</option>
-                        <!-- <option value="2">EVENTO</option> -->
-                    </select>
-                </div>
-
-                <div class="form-group col-6 col-sm-6 col-md-6">
                     <label for="exampleFormControlSelect1">Proyecto</label>
                     <select class="form-control form-control-sm" id="id_proyecto_turno" name="id_proyecto_turno">
                     </select>
+                </div>
+
+                <div class="col-6 col-sm-6 col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipo_turno" id="tipo_turno_turno" value='0'>
+                        <label value="0" class="form-check-label" for="tipo_turno_turno">
+                            Turno
+                        </label>
+                        </div>
+                        <div class="form-check">
+                        <input class="form-check-input" type="radio" name="tipo_turno" id="tipo_turno_tarea" value='1' checked>
+                        <label value="1" class="form-check-label" for="tipo_turno_tarea">
+                            Tarea
+                        </label>
+                    </div>
                 </div>
 
                 <div id="input_id_usuario_turno" class="form-group col-12 col-sm-6 col-md-6">
@@ -36,22 +42,22 @@
                 </div>
 
                 <div id="input_hora_inicio_turno" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Fecha inicio</label>
+                    <label for="example-text-input" class="form-control-label">Fecha inicio <span style="color: red">*</span></label>
                     <input type="date" class="form-control form-control-sm" name="fecha_inicio_turno" id="fecha_inicio_turno">
                 </div>
 
                 <div id="input_hora_fin_turno" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Fecha fin</label>
+                    <label for="example-text-input" class="form-control-label">Fecha fin <span style="color: red">*</span></label>
                     <input type="date" class="form-control form-control-sm" name="fecha_fin_turno" id="fecha_fin_turno">
                 </div>
 
                 <div id="input_hora_inicio_turno" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Hora inicio</label>
+                    <label for="example-text-input" class="form-control-label">Hora inicio <span style="color: red">*</span></label>
                     <input type="time" class="form-control form-control-sm" name="hora_inicio_turno" id="hora_inicio_turno">
                 </div>
 
                 <div id="input_hora_fin_turno" class="form-group col-12 col-sm-6 col-md-6">
-                    <label for="example-text-input" class="form-control-label">Hora fin</label>
+                    <label for="example-text-input" class="form-control-label">Hora fin <span style="color: red">*</span></label>
                     <input type="time" class="form-control form-control-sm" name="hora_fin_turno" id="hora_fin_turno">
                 </div>
 
@@ -95,8 +101,8 @@
                 </div>
 
                 <div id="" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
-                    <label for="example-text-input" class="form-control-label">Asunto</label>
-                    <input type="text" class="form-control form-control-sm" name="asunto_turno" id="asunto_turno" onfocus="this.select();">
+                    <label for="example-text-input" class="form-control-label">Asunto<span style="color: red">*</span></label>
+                    <input type="text" class="form-control form-control-sm" name="asunto_turno" id="asunto_turno" onfocus="this.select();" required>
                 </div>
 
                 <div id="" style="display: block;" class="form-group col-12 col-sm-12 col-md-12">
