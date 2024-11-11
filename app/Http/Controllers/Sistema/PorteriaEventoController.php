@@ -53,11 +53,16 @@ class PorteriaEventoController extends Controller
 
             if ($request->get("id_inmueble")) $porteriaEvento->where('id_inmueble', $request->get("id_inmueble"));
             if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));
-            if ($request->get("fecha")) {
-                $fechaFilter = Carbon::parse($request->get("fecha"))->format('Y-m-d');
-                $porteriaEvento->where('fecha_ingreso', 'LIKE', '%'.$fechaFilter.'%')
-                    ->orWhere('fecha_salida', 'LIKE', '%'.$fechaFilter.'%')
-                    ->orWhere('created_at', 'LIKE', '%'.$fechaFilter.'%');
+            if ($request->get("fecha_desde")) {
+                $fechaFilter = Carbon::parse($request->get("fecha_desde"))->format('Y-m-d');
+                $porteriaEvento->where('fecha_ingreso', '>=', $fechaFilter);
+            }
+            if ($request->get("fecha_hasta")) {
+                $fechaFilter = Carbon::parse($request->get("fecha_hasta"))->format('Y-m-d');
+                $porteriaEvento->where(function ($query) use ($fechaFilter) {
+                    $query->where('fecha_salida', '<=', $fechaFilter)
+                          ->orWhereNull('fecha_salida');
+                });
             }
             if ($request->get("search")) {
                 $porteriaEvento->where('observacion', 'like', '%' .$request->get("search"). '%')
@@ -121,7 +126,7 @@ class PorteriaEventoController extends Controller
             DB::connection('max')->beginTransaction();
 
             $itemPorteria = Porteria::find($request->get('id_porteria_evento'));
-
+            
             $evento = PorteriaEvento::Create([
                 'id_porteria' => $itemPorteria->id,
                 'tipo' => $itemPorteria->tipo_porteria,
@@ -155,16 +160,6 @@ class PorteriaEventoController extends Controller
 
             $evento->load('archivos');
 
-            if ($itemPorteria->id_usuario) {
-                DB::connection('max')->commit();
-
-                return response()->json([
-                    'success'=>	true,
-                    'data' => $evento,
-                    'message'=> 'Evento creado con exito!'
-                ]);
-            }
-
             $notificacion =(new NotificacionGeneral(
                 request()->user()->id,
                 $itemPorteria->id_usuario,
@@ -183,10 +178,20 @@ class PorteriaEventoController extends Controller
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ], true);
-            
+
+            $canalesNotificacion = [
+                'porteria-mensaje-'.$request->user()['has_empresa'].'_'.$itemPorteria->id_usuario
+            ];
+
             $notificacion->notificar(
-                'porteria-mensaje-'.$request->user()['has_empresa'].'_'.$itemPorteria->id_usuario,
-                ['data' => [$dataMensaje], 'id_notificacion' => $id_notificacion]
+                $canalesNotificacion,
+                [
+                    'id_porteria' => $itemPorteria->id,
+                    'data' => $dataMensaje,
+                    'estado' => 1,
+                    'id_notificacion' => $id_notificacion,
+                    'id_usuario' => $itemPorteria->id_usuario
+                ]
             );
 
             DB::connection('max')->commit();

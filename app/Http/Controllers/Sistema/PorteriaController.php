@@ -60,7 +60,7 @@ class PorteriaController extends Controller
             $searchValue = $search_arr['value']; // Search value
 
             $porteria = Porteria::orderBy('id', 'DESC')
-                ->with('eventos', 'usuario')
+                ->with('eventos', 'usuario', 'inmueble')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),

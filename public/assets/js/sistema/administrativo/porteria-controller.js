@@ -1,6 +1,8 @@
+let searchTimeout;
 var $comboInmuebleEventosFilter = null;
 var $comboNitPorteriaFilter = null;
 var $comboNitPorteriaEvento = null;
+var $comboInmueblePorteria = null;
 var porteria_evento_table = null;
 var $comboPorteriaEventos = null;
 var $comboInmuebleEventos = null;
@@ -41,7 +43,8 @@ function porteriaInit() {
 
     fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     $('#fecha_porteria_filter').val(fecha);
-    $('#fecha_porteria_evento_filter').val(fecha);
+    $('#fecha_desde_porteria_evento_filter').val(fecha);
+    $('#fecha_hasta_porteria_evento_filter').val(fecha);
 
     porteria_table = $('#porteriaTable').DataTable({
         pageLength: 15,
@@ -210,7 +213,8 @@ function porteriaInit() {
                     var html = '';
                     if (row.eventos.length) html+= '<span class="btn disabled badge bg-gradient-success evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmado</span>&nbsp;';
                     // if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
-                    if (eventoPorteria) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    if (eventoPorteria && !row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Confirmar</span>&nbsp;';
+                    if (eventoPorteria && row.eventos.length) html+= '<span id="eventoporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-dark evento-porteria-salida" style="margin-bottom: 0rem !important; min-width: 50px;">Confimar Salida</span>&nbsp;';
                     if (updatePorteria && !row.eventos.length) html+= '<span id="editporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-warning edit-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (deletePorteria && !row.eventos.length) html+= '<span id="deleteporteria_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-porteria" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
@@ -243,7 +247,8 @@ function porteriaInit() {
             data: function ( d ) {
                 d.tipo = $("#tipo_evento_porteria_filter").val(),
                 d.id_inmueble = $("#inmueble_porteria_evento_filter").val(),
-                d.fecha = $("#fecha_porteria_evento_filter").val(),
+                d.fecha_desde = $("#fecha_desde_porteria_evento_filter").val(),
+                d.fecha_hasta = $("#fecha_hasta_porteria_evento_filter").val(),
                 d.search = $("#searchInputPorteriaEvento").val()
             }
         },
@@ -321,6 +326,16 @@ function porteriaInit() {
                 var newOption = new Option(dataPropietario.text, dataPropietario.id, false, false);
                 $comboNitPorteria.append(newOption).trigger('change');
                 $comboNitPorteria.val(dataPropietario.id).trigger('change');
+            }
+
+            if (data.inmueble) {
+                var dataInmueble = {
+                    id: data.inmueble.id,
+                    text: data.inmueble.nombre
+                };
+                var newOption = new Option(dataInmueble.text, dataInmueble.id, false, false);
+                $comboInmueblePorteria.append(newOption).trigger('change');
+                $comboInmueblePorteria.val(dataInmueble.id).trigger('change');
             }
 
             if (data.archivos.length) {
@@ -456,6 +471,68 @@ function porteriaInit() {
                 $("#img_porteria_evento").attr("src",bucketUrl + itemPorteria.archivos[0].url_archivo);
             }
 
+            $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
+
+            $('#id_nit_porteria_evento').prop('disabled', true);
+            $('#persona_porteria_evento').prop('disabled', true);
+            $('#inmueble_porteria_evento').prop('disabled', true);
+
+            $("#porteriaEventoFormModal").modal('show');
+        });
+        //EVENTO SALIDA PORTERIA
+        porteria_table.on('click', '.evento-porteria-salida', function() {
+            var id = this.id.split('_')[1];
+            var itemPorteria = getDataById(id, porteria_table);
+
+            $("#id_porteria_evento").val(itemPorteria.id);
+
+            clearFormEventoPorteria();
+
+            var dataPersona = {
+                id: itemPorteria.id,
+                text: itemPorteria.nombre
+            };
+
+            if (itemPorteria.tipo_porteria == 3) {
+                dataPersona = {
+                    id: itemPorteria.id,
+                    text: itemPorteria.placa
+                };
+            }
+            var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
+            $comboPorteriaEventos.append(newOption).trigger('change');
+            $comboPorteriaEventos.val(itemPorteria.id).trigger('change');
+
+            if (itemPorteria.nit) {
+                var dataNit = {
+                    id: itemPorteria.nit.id,
+                    text: itemPorteria.nit.nombre_completo
+                };
+
+                var newOption = new Option(dataNit.text, dataNit.id, false, false);
+                $comboNitPorteriaEvento.append(newOption).trigger('change');
+                $comboNitPorteriaEvento.val(itemPorteria.nit.id).trigger('change');
+            }
+
+            if (itemPorteria.inmueble) {
+                var dataInmueble = {
+                    id: itemPorteria.inmueble.id,
+                    text: itemPorteria.inmueble.nombre
+                };
+
+                var newOption = new Option(dataInmueble.text, dataInmueble.id, false, false);
+                $comboInmuebleEventos.append(newOption).trigger('change');
+                $comboInmuebleEventos.val(itemPorteria.inmueble.id).trigger('change');
+            }
+
+            $("#tipo_evento").val(itemPorteria.tipo_porteria).trigger('change');
+
+            if (itemPorteria.archivos.length) {
+                $("#img_porteria_evento").attr("src",bucketUrl + itemPorteria.archivos[0].url_archivo);
+            }
+
+            $("#fecha_salida_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
+
             $('#id_nit_porteria_evento').prop('disabled', true);
             $('#persona_porteria_evento').prop('disabled', true);
             $('#inmueble_porteria_evento').prop('disabled', true);
@@ -474,6 +551,8 @@ function porteriaInit() {
             } else {
                 $("#preview_header_img_porteria").attr("src", "/img/no-photo.jpg");
             }
+
+            
 
             $("#textPorteriaPreview").text(data.propietario.nombre_completo);
             $("#porteria-preview-ubicacion").text(data.propietario.apartamentos);
@@ -500,16 +579,17 @@ function porteriaInit() {
 
             $("#porteria-preview-tipo").text(texto);
             $("#porteria-preview-nombre").text(data.nombre ? data.nombre : data.placa);
-
+            console.log('data: ',data);
             if (data.tipo_porteria == 1 || data.tipo_porteria == 2 || data.tipo_porteria == 3) {
                 $("#porteria-preview-autorizado").show();
                 $("#porteria-preview-noautorizado").hide();
             } else if (data.tipo_porteria == 4 || data.tipo_porteria == 0 || data.tipo_porteria == 5 || data.tipo_porteria == 6) {
+                console.log('heee eca');
                 var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
-                var numeroDia = new Date(dayNow).getDay();
+                var numeroDia = new Date(dayNow).getDay() + 1;
                 var hoyDia = new Date(data.hoy).getDay();
                 
-                if (data.hoy && numeroDia == hoyDia) {
+                if (numeroDia == hoyDia) {
                     $("#porteria-preview-autorizado").show();
                     $("#porteria-preview-noautorizado").hide();
                 }
@@ -738,7 +818,7 @@ function porteriaInit() {
         templateSelection: formatInmueblePorteriaSelection
     });
 
-    $('#id_inmueble_porteria').select2({
+    $comboInmueblePorteria = $('#id_inmueble_porteria').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione un inmueble",
@@ -950,7 +1030,11 @@ function porteriaInit() {
         porteria_evento_table.ajax.reload();
     });
     
-    $(document).on('change', '#fecha_porteria_evento_filter', function () {
+    $(document).on('change', '#fecha_desde_porteria_evento_filter', function () {
+        porteria_evento_table.ajax.reload();
+    });
+
+    $(document).on('change', '#fecha_hasta_porteria_evento_filter', function () {
         porteria_evento_table.ajax.reload();
     });
     
@@ -979,7 +1063,8 @@ $(document).on('click', '#verEventoPorteria', function () {
 
     $("#tipo_evento_porteria_filter").val('');
     
-    $('#fecha_porteria_evento_filter').val(fecha);
+    $('#fecha_desde_porteria_evento_filter').val(fecha);
+    $('#fecha_hasta_porteria_evento_filter').val(fecha);
     $("#inmueble_porteria_evento_filter").val('').change();;
     $("#searchInputPorteriaEvento").val('');
     
@@ -1266,7 +1351,7 @@ function clearFormEventoPorteria() {
     $("#tipo_evento").val(0).trigger('change');
     $("#persona_porteria_evento").val("").trigger('change');
     $("#inmueble_porteria_evento").val("").trigger('change');
-    $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
+    $("#fecha_ingreso_porteria_evento").val("");
     $("#fecha_salida_porteria_evento").val("");
     $("#observacion_porteria_evento").val("");
 }
@@ -1305,31 +1390,19 @@ function readURLEvento(input) {
     }
 }
 
-function searchPorteria (event) {
-    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
-        return;
-    }
-    var botonPrecionado = event.key.length == 1 ? event.key : '';
-    searchValuePorteria = $('#searchInputPorteria').val();
-    searchValuePorteria = searchValuePorteria+botonPrecionado;
-    if(event.key == 'Backspace') searchValuePorteria = searchValuePorteria.slice(0, -1);
+$("#searchInputPorteria").on("input", function () {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function () {
+        porteria_table.ajax.reload();
+    }, 300);
+});
 
-    porteria_table.context[0].jqXHR.abort();
-    porteria_table.ajax.reload();
-}
-
-function searchPorteriaEvento (event) {
-    if (event.keyCode == 20 || event.keyCode == 16 || event.keyCode == 17 || event.keyCode == 18) {
-        return;
-    }
-    var botonPrecionado = event.key.length == 1 ? event.key : '';
-    searchValuePorteria = $('#searchInputPorteriaEvento').val();
-    searchValuePorteria = searchValuePorteria+botonPrecionado;
-    if(event.key == 'Backspace') searchValuePorteria = searchValuePorteria.slice(0, -1);
-
-    porteria_evento_table.context[0].jqXHR.abort();
-    porteria_evento_table.ajax.reload();
-} 
+$("#searchInputPorteriaEvento").on("input", function () {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function () {
+        porteria_evento_table.ajax.reload();
+    }, 300);
+});
 
 function formatNitPorteria (nit) {
     if (nit.loading) return nit.text;
@@ -1414,4 +1487,8 @@ $(document).on('click', '#reloadPorteriaEvento', function () {
         $("#reloadPorteriaEventoIconNormal").show();
         $("#reloadPorteriaEventoIconLoading").hide();
     }); 
+});
+
+$('.form-control').keyup(function() {
+    $(this).val($(this).val().toUpperCase());
 });

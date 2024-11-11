@@ -29,7 +29,7 @@
 
     <div class="form-group col-12 col-sm-6 col-md-3" >
         <label for="example-text-input" class="form-control-label">Buscar</label>
-        <input type="text" id="searchInputPorteria" class="form-control form-control-sm" onkeydown="searchPorteria(event)">
+        <input type="text" id="searchInputPorteria" class="form-control form-control-sm">
     </div>
 </div>
 

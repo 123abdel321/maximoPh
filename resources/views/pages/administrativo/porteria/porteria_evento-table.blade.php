@@ -1,6 +1,6 @@
 <div class="row" style="padding: 4px;">
 
-    <div class="form-group col-12 col-sm-6 col-md-3" style="align-self: center;">
+    <div class="form-group col-12 col-sm-6 col-md-4" style="align-self: center;">
         <label for="exampleFormControlSelect1">Tipo evento</label>
         <select class="form-control form-control-sm" id="tipo_evento_porteria_filter" name="tipo_evento_porteria_filter">
             <option value="">TODOS</option>
@@ -11,20 +11,25 @@
         </select>
     </div>
 
-    <div class="form-group col-12 col-sm-6 col-md-3">
+    <div class="form-group col-12 col-sm-6 col-md-4">
         <label for="inmueblePorteriaEventoLabel">Inmueble / Persona</label>
         <select name="inmueble_porteria_evento_filter" id="inmueble_porteria_evento_filter" class="form-control form-control-sm">
         </select>
     </div>
 
-    <div class="form-group col-12 col-sm-6 col-md-3">
-        <label for="example-text-input" class="form-control-label">Fecha</label>
-        <input name="fecha_porteria_evento_filter" id="fecha_porteria_evento_filter" class="form-control form-control-sm" type="date" required>
+    <div class="form-group col-12 col-sm-6 col-md-4">
+        <label for="example-text-input" class="form-control-label">Fecha desde</label>
+        <input name="fecha_desde_porteria_evento_filter" id="fecha_desde_porteria_evento_filter" class="form-control form-control-sm" type="date" required>
     </div>
 
-    <div class="form-group col-12 col-sm-6 col-md-3" >
+    <div class="form-group col-12 col-sm-6 col-md-4">
+        <label for="example-text-input" class="form-control-label">Fecha hasta</label>
+        <input name="fecha_hasta_porteria_evento_filter" id="fecha_hasta_porteria_evento_filter" class="form-control form-control-sm" type="date" required>
+    </div>
+
+    <div class="form-group col-12 col-sm-6 col-md-4" >
         <label for="example-text-input" class="form-control-label">Buscar</label>
-        <input type="text" id="searchInputPorteriaEvento" class="form-control form-control-sm" onkeydown="searchPorteriaEvento(event)">
+        <input type="text" id="searchInputPorteriaEvento" class="form-control form-control-sm">
     </div>
 </div>
 
