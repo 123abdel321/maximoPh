@@ -34,10 +34,10 @@ function turnosInit() {
             method: 'GET',
             extraParams: function() {
                 return {
-                    id_empleado: $("#id_usuario_filter_turno").val(),
-                    id_proyecto: $("#id_proyecto_filter_turno").val(),
-                    tipo: $("#tipo_actividad_filter_turno").val(),
-                    estado: $("#estado_filter_turno").val(),
+                    id_empleado: $("#id_usuario_filter_turno").val() ?? '',
+                    id_proyecto: $("#id_proyecto_filter_turno").val() ?? '',
+                    tipo: $("#tipo_actividad_filter_turno").val() ?? '',
+                    estado: $("#estado_filter_turno").val() ?? '',
                 };
             },
             failure: function() {
@@ -181,9 +181,9 @@ function turnosInit() {
             {"data": function (row, type, set){
                 return `<div  class="text-wrap width-500">${row.descripcion}</div >`;
             }},
-            {"data":'fecha_creacion'},
             {"data":'fecha_inicio'},
             {"data":'fecha_fin'},
+            {"data":'fecha_creacion'},
             {
                 "data": function (row, type, set){
                     var html = '';
@@ -386,8 +386,6 @@ function clearFormTurno () {
     
     $("#id_usuario_turno").val('').change();
     $("#id_proyecto_turno").val('').change();
-    $("#fecha_inicio_turno").val("");
-    $("#fecha_fin_turno").val("");
     $("#hora_inicio_turno").val("");
     $("#hora_fin_turno").val("");
     $("#asunto_turno").val("");
@@ -406,15 +404,23 @@ function clearFormTurno () {
         maxFiles: 10
     });
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA');
     
     // Asignar la fecha mínima al campo de fecha
     document.getElementById("fecha_inicio_turno").setAttribute("min", today);
     document.getElementById("fecha_fin_turno").setAttribute("min", today);
+
+    $("#fecha_inicio_turno").val(today);
+    $("#fecha_fin_turno").val(today);
+
+    $("#hora_inicio_turno").val("08:00");
+    $("#hora_fin_turno").val("20:00");
     
     diaTurno.forEach(dia => {
         $('#'+dia).prop('checked', false);
     });
+
+    marcarDias();
 }
 
 $comboUsuarioTurno = $('#id_usuario_turno').select2({
@@ -899,3 +905,37 @@ function recorrerFechas(fechaInicio, fechaFin) {
         currentDate.setDate(currentDate.getDate() + 1);
     }
 }
+
+$("#fecha_inicio_turno").on('change', function(event) {
+    marcarDias();
+});
+
+$("#fecha_fin_turno").on('change', function(event) {
+    marcarDias();
+});
+
+function marcarDias() {
+    let fechaInicio = $("#fecha_inicio_turno").val();
+    let fechaFin = $("#fecha_fin_turno").val();
+
+    if (!fechaInicio || !fechaFin) {
+        return;
+    }
+
+    let startDate = new Date(fechaInicio);
+    let endDate = new Date(fechaFin);
+
+    $("#input_dias_turno .form-check-input").prop("checked", false);
+
+    while (startDate <= endDate) {
+        let dayOfWeek = (startDate.getDay() === 0) ? 7 : startDate.getDay();
+        dayOfWeek+= 1;
+        if (dayOfWeek == 8) dayOfWeek = 1; 
+        $(`#diaTurno${dayOfWeek}`).prop("checked", true);
+        startDate.setDate(startDate.getDate() + 1);
+    }
+}
+
+$('.form-control').keyup(function() {
+    $(this).val($(this).val().toUpperCase());
+});

@@ -55,8 +55,8 @@
             <th>Empleado</th>
             <th>Asunto</th>
             <th style="width: 500px !important;">Descripción</th>
-            <th>Fecha inicio</th>
-            <th>Fecha fin</th>
+            <th>Fecha/hora inicio</th>
+            <th>Fecha/hora fin</th>
             <th>Fecha/hora creación</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>
         </tr>

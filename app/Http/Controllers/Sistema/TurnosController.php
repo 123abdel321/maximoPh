@@ -41,7 +41,7 @@ class TurnosController extends Controller
     {
         $start =  Carbon::parse($request->start);
         $end = Carbon::parse($request->end);
-        
+
         $data = array();
         $tipo = $request->tipo == 'null' ? null : $request->tipo;
         $estado = $request->estado == 'null' ? null : $request->estado;
@@ -56,9 +56,6 @@ class TurnosController extends Controller
                         ->where('fecha_fin', '>=', $end);
                 });
             })
-            // ->when($request->user()->can('turnos create') ? false : true, function ($query) use($request) {
-			// 	$query->where('id_usuario', $request->user()['id']);
-			// })
             ->when($tipo, function ($query) use($tipo) {
 				$query->where('tipo', $tipo);
 			})
@@ -126,16 +123,16 @@ class TurnosController extends Controller
                 )
                 ->orderBy('id', 'DESC');
 
-            if ($request->get('fecha_desde')) $turnos->where('created_at', '>=', $request->get('fecha_desde'));
-            if ($request->get('fecha_hasta')) $turnos->where('created_at', '<=', $request->get('fecha_hasta').' 23:59:59');
+            if ($request->get('fecha_desde')) $turnos->where('fecha_inicio', '>=', $request->get('fecha_desde'));
+            if ($request->get('fecha_hasta')) $turnos->where('fecha_fin', '<=', $request->get('fecha_hasta').' 23:59:59');
             if ($request->get('id_usuario')) $turnos->where('id_usuario', $request->get('id_usuario'));
             if ($request->get('id_proyecto')) $turnos->where('id_proyecto', $request->get('id_proyecto'));
             if ($request->get('tipo') || $request->get('tipo') == '0') $turnos->where('tipo', $request->get('tipo'));
             if ($request->get('estado') || $request->get('estado') == '0') $turnos->where('estado', $request->get('estado'));
 
-            // if (!$request->user()->can('turnos responder')) {
-            //     $turnos->where('created_by', $request->user()['id']);
-            // }
+            if (!$request->user()->can('turnos create')) {
+                $turnos->where('id_usuario', $request->user()['id']);
+            }
 
             $turnosTotals = $turnos->get();
 
@@ -199,19 +196,8 @@ class TurnosController extends Controller
                     "message"=>'El usuario no tiene nit asociado en la empresa'
                 ], 422);
             }
-            
-            $urlArchivos = [];
-            if ($request->file('photos')) {
-                foreach ($request->file('photos') as $photos) {
 
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
-                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
-
-                    array_push($urlArchivos, $url);
-                }
-            }
-
-            if ($request->get('multiple_tarea_turno') == 'on') {
+            if ($request->get('multiple_tarea_turno')) {
                 $dias = $this->getDiasString($request);
 
                 $inicio = Carbon::parse($request->get('fecha_inicio_turno'));
@@ -238,8 +224,12 @@ class TurnosController extends Controller
                             'updated_by' => request()->user()->id
                         ]);
 
-                        if (count($urlArchivos)) {
-                            foreach ($urlArchivos as $url) {
+                        if ($request->file('photos')) {
+                            foreach ($request->file('photos') as $photos) {
+            
+                                $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
+                                $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
+
                                 $archivo = new ArchivosGenerales([
                                     'tipo_archivo' => 'imagen',
                                     'url_archivo' => $url,
@@ -256,8 +246,9 @@ class TurnosController extends Controller
 
                     $inicio->addDay();
                 }
+
             } else {
-                
+
                 $fechaInicio = $request->get("fecha_inicio_turno").' '.$request->get("hora_inicio_turno");
                 $fechaFin = $request->get("fecha_fin_turno").' '.$request->get("hora_fin_turno");
 
@@ -273,9 +264,13 @@ class TurnosController extends Controller
                     'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id
                 ]);
+                
+                if ($request->file('photos')) {
+                    foreach ($request->file('photos') as $photos) {
+    
+                        $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
+                        $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
 
-                if (count($urlArchivos)) {
-                    foreach ($urlArchivos as $url) {
                         $archivo = new ArchivosGenerales([
                             'tipo_archivo' => 'imagen',
                             'url_archivo' => $url,
@@ -289,8 +284,6 @@ class TurnosController extends Controller
                     }
                 }
             }
-
-            DB::connection('max')->commit();
 
             $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
             $fechaFin = Carbon::parse($turno->fecha_fin)->format('Y-m-d');
@@ -307,6 +300,46 @@ class TurnosController extends Controller
                 'start' => $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio,
                 'end' => $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin,
             ];
+
+            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
+
+            $notificacion = (new NotificacionGeneral(
+                request()->user()->id,
+                $request->get('id_usuario_turno'),
+                $turno
+            ));
+
+            $mensajeText = '<b style="color: gold;">Tarea</b>: Ha recibido una nueva <b>TAREA</b> de '.$nombreUsuario;
+            if ($request->get("tipo_turno") == '1')  $mensajeText = '<b style="color: gold;">Turno</b>: Ha recibido un nuevo <b>TURNO</b> de '.$nombreUsuario;
+
+            $id_notificacion = $notificacion->crear((object)[
+                'id_usuario' => $request->get('id_usuario_turno'),
+                'tipo' => 1,
+                'mensaje' => $mensajeText,
+                'function' => 'abrirTurnosNotificacion',
+                'data' => $turno->id,
+                'id_rol' => 1,
+                'estado' => 0,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ], true);
+
+            $canalesNotificacion = [
+                'turno-mensaje-'.$request->user()['has_empresa'].'_'.$turno->id_usuario
+            ];
+            
+            $notificacion->notificar(
+                $canalesNotificacion,
+                [
+                    'id_turno' => $turno->id,
+                    'data' => [],
+                    'estado' => 1,
+                    'id_notificacion' => $id_notificacion,
+                    'id_usuario' => $turno->id_usuario
+                ]
+            );
+
+            DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
@@ -742,6 +775,32 @@ class TurnosController extends Controller
 
         try {
             DB::connection('max')->beginTransaction();
+
+            $turno = Turno::with('archivos')
+                ->where('id', $request->get('id'))
+                ->first();
+
+            $turnosEvento = TurnoEvento::with('archivos')
+                ->where('id_turno', $request->get('id'))
+                ->get();
+
+            if (count($turno->archivos)) {
+                foreach ($turno->archivos as $archivo) {
+                    Storage::disk('do_spaces')->delete($archivo->url_archivo);
+                    $archivo->delete();
+                }
+            }
+
+            if (count($turnosEvento)) {
+                foreach ($turnosEvento as $turnoEvento) {
+                    if (count($turnoEvento->archivos)) {
+                        foreach ($turnoEvento->archivos as $archivo) {
+                            Storage::disk('do_spaces')->delete($archivo->url_archivo);
+                            $archivo->delete();
+                        }
+                    }
+                }
+            }
 
             Turno::where('id', $request->get('id'))->delete();
             TurnoEvento::where('id_turno', $request->get('id'))->delete();

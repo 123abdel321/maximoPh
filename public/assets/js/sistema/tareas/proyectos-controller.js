@@ -90,7 +90,7 @@ function proyectosInit() {
             $("#nombre_proyecto").val(data.nombre);
             $("#fecha_inicio_proyecto").val(data.fecha_inicio);
             $("#fecha_fin_proyecto").val(data.fecha_fin);
-            $("#valor_proyecto").val(data.valor_total);
+            $("#valor_proyecto").val(new Intl.NumberFormat("ja-JP").format(data.valor_total));
 
             $("#proyectoFormModal").modal('show');
         });
@@ -201,7 +201,7 @@ $(document).on('click', '#saveProyecto', function () {
         id_usuario: $("#id_responsable_proyecto").val(),
         fecha_inicio: $("#fecha_inicio_proyecto").val(),
         fecha_fin: $("#fecha_fin_proyecto").val(),
-        valor_total: $("#valor_proyecto").val(),
+        valor_total: stringToNumberFloat($("#valor_proyecto").val()),
     }
 
     $.ajax({
@@ -256,7 +256,7 @@ $(document).on('click', '#updateProyecto', function () {
         nombre: $("#nombre_proyecto").val(),
         fecha_inicio: $("#fecha_inicio_proyecto").val(),
         fecha_fin: $("#fecha_fin_proyecto").val(),
-        valor_total: $("#valor_proyecto").val(),
+        valor_total: stringToNumberFloat($("#valor_proyecto").val()),
     }
 
     $.ajax({
@@ -307,4 +307,15 @@ function clearFormProyecto(){
 
 $('.form-control').keyup(function() {
     $(this).val($(this).val().toUpperCase());
+});
+
+$("input[data-type='currency']").on({
+    keyup: function(event) {
+        if (event.keyCode >= 96 && event.keyCode <= 105 || event.keyCode == 110 || event.keyCode == 8 || event.keyCode == 46) {
+            formatCurrency($(this));
+        }
+    },
+    blur: function() {
+        formatCurrency($(this), "blur");
+    }
 });

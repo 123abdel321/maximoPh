@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label for="nombre_inmueble" class="form-control-label">Nombre</label>
+                        <label for="nombre_inmueble" class="form-control-label">Codigo inmueble</label>
                         <input type="text" class="form-control form-control-sm" name="nombre_inmueble" id="nombre_inmueble" onfocus="this.select();" required>
                     </div>
 

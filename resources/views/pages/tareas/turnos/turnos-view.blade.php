@@ -6,8 +6,8 @@
                     @can('turnos create')
                         <button type="button" class="btn btn-dark btn-sm" id="volverTurnos" style="display: none;"><i class="fas fa-step-backward back-icon-button" aria-hidden="true"></i>&nbsp;Volver</button>
                         <button type="button" class="btn btn-primary btn-sm" id="createTurno">Agregar tareas & turnos</button>
-                        <button type="button" class="btn btn-info btn-sm" id="detalleTurno">Ver detalle</button>
-                    @endcan
+                        @endcan
+                    <button type="button" class="btn btn-info btn-sm" id="detalleTurno">Ver detalle</button>
                     <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadTurnos">
                         <i id="reloadTurnosIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
                         <i id="reloadTurnosIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;

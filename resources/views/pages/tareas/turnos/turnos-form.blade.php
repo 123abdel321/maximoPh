@@ -72,31 +72,31 @@
                     <label for="exampleFormControlSelect1">Días </label><br/>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno1" name="diaTurno1">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno1">Lunes</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno1">Lunes</label>
                     </div>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno2" name="diaTurno2">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno2">Martes</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno2">Martes</label>
                     </div>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno3" name="diaTurno3">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno3">Miercoles</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno3">Miercoles</label>
                     </div>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno4" name="diaTurno4">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno4">Jueves</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno4">Jueves</label>
                     </div>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno5" name="diaTurno5">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno5">Viernes</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno5">Viernes</label>
                     </div>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno6" name="diaTurno6">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno6">Sabado</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno6">Sabado</label>
                     </div>
                     <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaTurno7" name="diaTurno7">
-                        <label style="font-size: 13px; margin-left: -2px;" class="form-check-label" for="diaTurno7">Domingo</label>
+                        <label style="font-size: 13px; margin-left: -2px; float: left;" class="form-check-label" for="diaTurno7">Domingo</label>
                     </div>
                 </div>
 
