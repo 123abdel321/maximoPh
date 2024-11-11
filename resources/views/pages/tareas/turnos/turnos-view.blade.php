@@ -3,8 +3,8 @@
         <div class="row" style="z-index: 9;">
             <div class="row" style="z-index: 9;">
                 <div class="col-12 col-md-12 col-sm-12">
+                    <button type="button" class="btn btn-dark btn-sm" id="volverTurnos" style="display: none;"><i class="fas fa-step-backward back-icon-button" aria-hidden="true"></i>&nbsp;Volver</button>
                     @can('turnos create')
-                        <button type="button" class="btn btn-dark btn-sm" id="volverTurnos" style="display: none;"><i class="fas fa-step-backward back-icon-button" aria-hidden="true"></i>&nbsp;Volver</button>
                         <button type="button" class="btn btn-primary btn-sm" id="createTurno">Agregar tareas & turnos</button>
                         @endcan
                     <button type="button" class="btn btn-info btn-sm" id="detalleTurno">Ver detalle</button>
