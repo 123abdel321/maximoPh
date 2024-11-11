@@ -56,7 +56,7 @@ class TurnosController extends Controller
                         ->where('fecha_fin', '>=', $end);
                 });
             })
-            ->when($tipo, function ($query) use($tipo) {
+            ->when($tipo || $tipo == '0' ? true : false, function ($query) use($tipo) {
 				$query->where('tipo', $tipo);
 			})
             ->when($estado, function ($query) use($estado) {
