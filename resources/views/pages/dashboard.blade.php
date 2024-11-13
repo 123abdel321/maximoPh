@@ -110,7 +110,7 @@
         <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('porteria', 'Familia', 'fas fa-user-shield')">
             <i class="fas fa-user-shield icon-menu-carta"></i>
             <p class="text-menu">
-                FAMILIA
+                PORTERIA
             </p>
         </div>
 
