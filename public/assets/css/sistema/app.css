@@ -149,7 +149,8 @@ thead tr:first-child th {
 .footer-navigation {
     margin: 0;
     position: fixed;
-    top: 97.5%;
+    margin-top: -15px;
+    top: 100%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
