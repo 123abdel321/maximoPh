@@ -76,27 +76,43 @@ function mostrarModalEvento(idTurno) {
 
 function mostrarDatosCabezaTurno(data) {
     if (data.archivos) agregarSwiperImgTurnos(data.archivos);
+    console.log('data: ',data);
+    let opciones = {
+        weekday: 'long',  // Día de la semana completo
+        year: 'numeric',  // Año
+        month: 'long',    // Mes completo
+        day: 'numeric',   // Día del mes
+        hour: 'numeric',  // Hora
+        minute: 'numeric', // Minuto
+        second: 'numeric', // Segundo
+    };
 
-    var asunto = document.createElement('p');
-    asunto.setAttribute("style", "font-weight: bold; margin-top: 15px;");
+    var tipoMensaje = 'Turno';
+    if (data.tipo == 1) tipoMensaje = 'Tarea';
+
+    var fechaInicio = new Intl.DateTimeFormat('es-ES', opciones).format(new Date(data.fecha_inicio.replace(" ", "T")));
+    var fechaFin = new Intl.DateTimeFormat('es-ES', opciones).format(new Date(data.fecha_fin.replace(" ", "T")));
+
+    var detalleTiempos = document.createElement('p');
+    detalleTiempos.setAttribute("style", "font-size: 13px;");
+    detalleTiempos.innerHTML = [
+        `<span class="badge bg-gradient-dark">${tipoMensaje}</span><br/><b>Fecha inicio:</b> ${fechaInicio} <br/> <b>Fecha fin</b>: ${fechaFin} <br/>`
+    ].join('');
+    document.getElementById('offcanvas-body-turnos').insertBefore(detalleTiempos, null);
+
+    var asunto = document.createElement('h3');
+    asunto.setAttribute("style", "font-weight: bold; margin-top: 15px; text-align: center; font-size: 20px;");
     asunto.innerHTML = [
         data.asunto
     ].join('');
     document.getElementById('offcanvas-body-turnos').insertBefore(asunto, null);
 
     var descripcion = document.createElement('p');
-    descripcion.setAttribute("style", "font-size: 13px;");
+    descripcion.setAttribute("style", "font-size: 14px; font-weight: 600;");
     descripcion.innerHTML = [
         data.descripcion
     ].join('');
     document.getElementById('offcanvas-body-turnos').insertBefore(descripcion, null);
-
-    var detalleTiempos = document.createElement('p');
-    detalleTiempos.setAttribute("style", "font-size: 13px;");
-    detalleTiempos.innerHTML = [
-        `Fecha inicio: ${data.fecha_inicio} <br/> Fecha fin: ${data.fecha_fin} <br/>${definirTiempo(data.created_at)}`
-    ].join('');
-    document.getElementById('offcanvas-body-turnos').insertBefore(detalleTiempos, null);
 
     if (data.estado == 2 && idRolUsuario != 1 && idRolUsuario != 2) $("#row-actios-pqrsf").hide();
     else $("#row-actios-pqrsf").show();

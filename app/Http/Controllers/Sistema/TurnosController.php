@@ -309,8 +309,8 @@ class TurnosController extends Controller
                 $turno
             ));
 
-            $mensajeText = '<b style="color: gold;">Tarea</b>: Ha recibido una nueva <b>TAREA</b> de '.$nombreUsuario;
-            if ($request->get("tipo_turno") == '1')  $mensajeText = '<b style="color: gold;">Turno</b>: Ha recibido un nuevo <b>TURNO</b> de '.$nombreUsuario;
+            $mensajeText = '<b style="color: gold;">TURNO</b>: Ha recibido una nueva <b>Turno</b> de '.$nombreUsuario;
+            if ($request->get("tipo_turno") == '1')  $mensajeText = '<b style="color: gold;">TAREA</b>: Ha recibido un nuevo <b>Tarea</b> de '.$nombreUsuario;
 
             $id_notificacion = $notificacion->crear((object)[
                 'id_usuario' => $request->get('id_usuario_turno'),

@@ -1,5 +1,10 @@
 <div class="row" style="padding: 4px;">
 
+    <div class="form-group col-12 col-sm-6 col-md-4" >
+        <label for="example-text-input" class="form-control-label">Buscar</label>
+        <input type="text" id="searchInputPorteriaEvento" class="form-control form-control-sm">
+    </div>
+
     <div class="form-group col-12 col-sm-6 col-md-4" style="align-self: center;">
         <label for="exampleFormControlSelect1">Tipo evento</label>
         <select class="form-control form-control-sm" id="tipo_evento_porteria_filter" name="tipo_evento_porteria_filter">
@@ -25,11 +30,6 @@
     <div class="form-group col-12 col-sm-6 col-md-4">
         <label for="example-text-input" class="form-control-label">Fecha hasta</label>
         <input name="fecha_hasta_porteria_evento_filter" id="fecha_hasta_porteria_evento_filter" class="form-control form-control-sm" type="date" required>
-    </div>
-
-    <div class="form-group col-12 col-sm-6 col-md-4" >
-        <label for="example-text-input" class="form-control-label">Buscar</label>
-        <input type="text" id="searchInputPorteriaEvento" class="form-control form-control-sm">
     </div>
 </div>
 
