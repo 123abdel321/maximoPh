@@ -625,9 +625,9 @@ class TurnosController extends Controller
             $usuarioNotificacion = $turno->id_usuario;
             if ($turno->id_usuario == request()->user()->id) {
                 $usuarioNotificacion = $turno->created_by;
+                $turno->estado = 1;
+                $turno->save();
             }
-
-            // dd($usuarioNotificacion);
 
             // CANALES DE NOTIFICACION
             $canalesNotificacion = [
