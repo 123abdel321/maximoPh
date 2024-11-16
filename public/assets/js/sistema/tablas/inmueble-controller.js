@@ -105,7 +105,7 @@ function inmuebleInit() {
                 render: function (row, type, data){
                     if (data.coeficiente) {
                         let coeficiente = parseFloat(data.coeficiente);
-                        return parseFloat(coeficiente * 100).toFixed(5);
+                        return parseFloat(coeficiente).toFixed(5);
                     }
                     return '';
                 }, className: 'dt-body-right'
