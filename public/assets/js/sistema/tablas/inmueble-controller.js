@@ -12,6 +12,7 @@ var $comboInmuebleConceptoFilter = null;
 var $comboConceptoFacturacionInmueble = null;
 
 function inmuebleInit() {
+    
     inmueble_table = $('#inmuebleTable').DataTable({
         pageLength: 15,
         dom: 'Brtip',
