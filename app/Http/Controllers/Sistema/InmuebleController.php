@@ -158,24 +158,36 @@ class InmuebleController extends Controller
         try {
             DB::connection('max')->beginTransaction();
             
-            $editar_valor_admon_inmueble =  Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor;
-            $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor;
-            $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual;
-            $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first()->valor;
+            $editar_valor_admon_inmueble = Entorno::where('nombre', 'editar_valor_admon_inmueble')->first();
+            $editar_valor_admon_inmueble = $editar_valor_admon_inmueble ? $editar_valor_admon_inmueble->valor : false;
 
-            $coeficiente = $request->get('area') / $area_total_m2;
+            $editar_valor_coeficiente_inmueble = Entorno::where('nombre', 'editar_coheficiente_admon_inmueble')->first();
+            $editar_valor_coeficiente_inmueble = $editar_valor_coeficiente_inmueble ? $editar_valor_coeficiente_inmueble->valor : false;
 
-            if ($editar_valor_admon_inmueble) {
-                if ($request->get('valor_total_administracion') <= 0) {
-                    return response()->json([
-                        "success"=>false,
-                        'data' => [],
-                        "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
-                    ], 422);
-                }
+            $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
+            $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual ? $valor_total_presupuesto_year_actual->valor : 0;
+
+            $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
+            $area_total_m2 = $area_total_m2 ? $area_total_m2->valor : 0;
+
+            if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
+                $coeficiente = $request->get('coeficiente');
                 $valor_total_administracion = $request->get('valor_total_administracion');
             } else {
-                $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                $coeficiente = $request->get('area') / $area_total_m2;
+    
+                if ($editar_valor_admon_inmueble) {
+                    if ($request->get('valor_total_administracion') <= 0) {
+                        return response()->json([
+                            "success"=>false,
+                            'data' => [],
+                            "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
+                        ], 422);
+                    }
+                    $valor_total_administracion = $request->get('valor_total_administracion');
+                } else {
+                    $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                }
             }
 
             $inmueble = Inmueble::create([
@@ -247,31 +259,43 @@ class InmuebleController extends Controller
         
         try {
             DB::connection('max')->beginTransaction();
-            $editar_valor_admon_inmueble =  Entorno::where('nombre', 'editar_valor_admon_inmueble')->first()->valor;
-            $editar_coheficiente_admon_inmueble =  Entorno::where('nombre', 'editar_coheficiente_admon_inmueble')->first()->valor;
 
-            $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first()->valor;
-            $valor_total_presupuesto_mes_actual = $valor_total_presupuesto_year_actual;
-            $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first()->valor;
+            $editar_valor_admon_inmueble = Entorno::where('nombre', 'editar_valor_admon_inmueble')->first();
+            $editar_valor_admon_inmueble = $editar_valor_admon_inmueble ? $editar_valor_admon_inmueble->valor : false;
+
+            $editar_valor_coeficiente_inmueble = Entorno::where('nombre', 'editar_coheficiente_admon_inmueble')->first();
+            $editar_valor_coeficiente_inmueble = $editar_valor_coeficiente_inmueble ? $editar_valor_coeficiente_inmueble->valor : false;
+
+            $valor_total_presupuesto_year_actual = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
+            $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual ? $valor_total_presupuesto_year_actual->valor : 0;
+
+            $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
+            $area_total_m2 = $area_total_m2 ? $area_total_m2->valor : 0;
+            
             $valor_total_administracion = 0;
 
-            if ($editar_valor_admon_inmueble && $editar_coheficiente_admon_inmueble) {
+            if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
                 $coeficiente = $request->get('coeficiente');
-            } else {
-                $coeficiente = $request->get('area') / $area_total_m2;
-            }
-            
-            if ($editar_valor_admon_inmueble) {
-                if ($request->get('valor_total_administracion') <= 0) {
-                    return response()->json([
-                        "success"=>false,
-                        'data' => [],
-                        "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
-                    ], 422);
-                }
                 $valor_total_administracion = $request->get('valor_total_administracion');
             } else {
-                $valor_total_administracion = $coeficiente * $valor_total_presupuesto_mes_actual;
+                if ($editar_valor_admon_inmueble && $editar_coheficiente_admon_inmueble) {
+                    $coeficiente = $request->get('coeficiente');
+                } else {
+                    $coeficiente = $request->get('area') / $area_total_m2;
+                }
+                
+                if ($editar_valor_admon_inmueble) {
+                    if ($request->get('valor_total_administracion') <= 0) {
+                        return response()->json([
+                            "success"=>false,
+                            'data' => [],
+                            "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
+                        ], 422);
+                    }
+                    $valor_total_administracion = $request->get('valor_total_administracion');
+                } else {
+                    $valor_total_administracion = $coeficiente * $valor_total_presupuesto_mes_actual;
+                }
             }
 
             $inmueble = Inmueble::where('id', $request->get('id'))
