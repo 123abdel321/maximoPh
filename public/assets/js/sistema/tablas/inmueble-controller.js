@@ -52,7 +52,11 @@ function inmuebleInit() {
             {"data": function (row, type, set){
                 if (row.personas && row.personas.length) {
                     var persona = row.personas[0].nit;
-                    return persona.numero_documento;
+                    if (persona) {
+                        return persona.numero_documento;
+                    } else {
+                        return `<span class="badge rounded-pill bg-danger">Error al leer nit id: ${row.personas[0].id_nit}</span>`;
+                    }
                 }
                 return '';
             }},
@@ -61,10 +65,14 @@ function inmuebleInit() {
                 render: function (row, type, data){
                     if (data.personas && data.personas.length) {
                         var persona = data.personas[0].nit;
-                        if (persona.otros_nombres) {
-                            return persona.primer_nombre+' '+persona.otros_nombres+' '+persona.primer_apellido;
+                        if (persona) {
+                            if (persona.otros_nombres) {
+                                return persona.primer_nombre+' '+persona.otros_nombres+' '+persona.primer_apellido;
+                            }
+                            return persona.primer_nombre+' '+persona.primer_apellido;
+                        } else {
+                            return `<span class="badge rounded-pill bg-danger">Error al leer nit id: ${row.personas[0].id_nit}</span>`;
                         }
-                        return persona.primer_nombre+' '+persona.primer_apellido;
                     }
                     return '';
                 }
