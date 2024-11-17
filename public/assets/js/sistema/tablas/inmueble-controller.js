@@ -278,7 +278,7 @@ function inmuebleInit() {
             }
             
             $("#area_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.area));
-            $("#coeficiente_inmueble").val(parseFloat(data.coeficiente * 100).toFixed(5));
+            $("#coeficiente_inmueble").val(parseFloat(data.coeficiente).toFixed(5));
             $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(totalInmueble));
 
             $("#inmuebleFormModal").modal('show');
@@ -933,7 +933,7 @@ function getTotalesInmuebles(){
             var countB = new CountUp('area2_registrados_inmueble', 0, res.data.area_registro_m2, 2);
                 countB.start();
 
-            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente * 100, 5);
+            var countC = new CountUp('coeficiente_registrados_inmueble', 0, res.data.valor_registro_coeficiente, 5);
                 countC.start();
 
             var countD = new CountUp('presupuesto_registrados_inmueble', 0, res.data.valor_registro_presupuesto);

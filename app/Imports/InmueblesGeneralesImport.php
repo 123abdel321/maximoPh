@@ -90,6 +90,7 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
                         ->where('id_zona', $zona->id)
                         ->first();
                 }
+                
                 if ($this->actualizar_valores && !$inmueble) {
                     $estado = 1;
                     $observacionMala.= 'El inmueble es requerido para la actualización! <br>';
@@ -138,6 +139,9 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
                     $estado = 1;
                     $observacionMala.= 'El tipo de propietario: '.$row['concepto'].', es incorrecto! <br>';
                 }
+            } else {
+                $estado = 1;
+                $observacionMala.= 'El tipo de usuario es requerido! <br>';
             }
 
             if (!$row['valor_admon'] && !$inmueble) {
@@ -181,7 +185,7 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
                 'nombre_inmueble' => $row['inmueble'],
                 'nombre_zona' => $zona ? $zona->nombre : '',
                 'area' => $area,
-                'coeficiente' => $coeficiente,
+                'coheficiente' => $coeficiente,
                 'porcentaje_aumento' => $row['aumento'],
                 'valor_aumento' => $row['valor_aumento'],
                 'nombre_nit' => $nit ? $nit->nombre_completo : '',
