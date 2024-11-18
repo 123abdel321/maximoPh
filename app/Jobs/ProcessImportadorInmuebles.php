@@ -81,17 +81,19 @@ class ProcessImportadorInmuebles implements ShouldQueue
 
                     if ($inmueble && is_object($inmueble) && $inmueble->id) {
 
-                        InmuebleNit::where('id_inmueble', $inmueble->id)
-                            ->where('id_nit', $inmuebleIm->id_nit)
-                            ->updateOrCreate([
-                                'id_nit' => $inmuebleIm->id_nit,
+                        InmuebleNit::updateOrCreate(
+                            [
                                 'id_inmueble' => $inmueble->id,
+                                'id_nit' => $inmuebleIm->id_nit,
+                            ],
+                            [
                                 'porcentaje_administracion' => $porcentajeAdmin,
                                 'valor_total' => $valorAdmin * ($porcentajeAdmin / 100),
                                 'tipo' => $inmuebleIm->tipo,
                                 'created_by' => $this->user_id,
-                                'updated_by' => $this->user_id
-                            ]);
+                                'updated_by' => $this->user_id,
+                            ]
+                        );
                     } else {
                         return response()->json([
                             "success"=>false,

@@ -114,6 +114,8 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
                 
                 if ($nit) {
                     if ($inmuebleNit && $inmuebleNit->nit && $inmuebleNit->nit->id == $nit->id) {
+                        $observacionBuena.= 'Actualización del inmueble! <br>';
+                    } else if ($inmuebleNit && $inmuebleNit->nit && $inmuebleNit->nit->id != $nit->id) {
                         $observacionBuena.= 'Actualización del propietario! <br>';
                     } else {
                         $observacionBuena.= 'Asignación del propietario!<br>';
@@ -135,7 +137,7 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
                     ->first();
             }
 
-            if ($this->actualizar_valores) {
+            if (!$this->actualizar_valores) {
                 if ($row['tipo'] || $row['tipo'] == '0' ) {
                     if ($row['tipo'] != '0' &&  $row['tipo'] != '1' && $row['tipo'] != '2') {
                         $estado = 1;
