@@ -263,7 +263,7 @@ function setNotificaciones(total = null) {
 function iniciarCanalesDeNotificacion () {
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
     channelTurno = pusher.subscribe('turno-mensaje-'+localStorage.getItem("notificacion_code"));
-    channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena2');
+    channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena');
 
     if (pqrsf_responder) {
         channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
