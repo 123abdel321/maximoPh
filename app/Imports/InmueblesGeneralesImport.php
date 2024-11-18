@@ -111,8 +111,9 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
 
             if ($row['cedula_nit']) {
                 $nit = Nits::where('numero_documento', $row['cedula_nit'])->first();
+                
                 if ($nit) {
-                    if ($inmuebleNit && $inmuebleNit->nit && $inmuebleNit->nit->numero_documento != $row['cedula_nit']) {
+                    if ($inmuebleNit && $inmuebleNit->nit && $inmuebleNit->nit->id == $nit->id) {
                         $observacionBuena.= 'Actualización del propietario! <br>';
                     } else {
                         $observacionBuena.= 'Asignación del propietario!<br>';
@@ -134,15 +135,17 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
                     ->first();
             }
 
-            if ($row['tipo']) {
-                if ($row['tipo'] != '0' &&  $row['tipo'] != '1' && $row['tipo'] != '2') {
+            if ($this->actualizar_valores) {
+                if ($row['tipo'] || $row['tipo'] == '0' ) {
+                    if ($row['tipo'] != '0' &&  $row['tipo'] != '1' && $row['tipo'] != '2') {
+                        $estado = 1;
+                        $observacionMala.= 'El tipo de propietario: '.$row['concepto'].', es incorrecto! <br>';
+                    }
+                } else {
                     $estado = 1;
-                    $observacionMala.= 'El tipo de propietario: '.$row['concepto'].', es incorrecto! <br>';
+                    $observacionMala.= 'El tipo de usuario es requerido! <br>';
                 }
-            } else {
-                $estado = 1;
-                $observacionMala.= 'El tipo de usuario es requerido! <br>';
-            }
+            } 
 
             if (!$row['valor_admon'] && !$inmueble) {
                 $estado = 1;

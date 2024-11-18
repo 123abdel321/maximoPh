@@ -42,7 +42,12 @@ function importinmueblesInit() {
             {"data":'valor_aumento', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'numero_documento'},
             {"data":'nombre_nit'},
-            {"data":'tipo_nit'},
+            {"data": function (row, type, set){
+                if (row.tipo == 0) return 'INQUILINO';
+                if (row.tipo == 1) return 'PROPIETARIO';
+                if (row.tipo == 2) return 'PROPIETARIO e INQUILINO';
+                return '';
+            }},
             {"data":'porcentaje_administracion'},
             {"data":'valor_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'observacion'}
