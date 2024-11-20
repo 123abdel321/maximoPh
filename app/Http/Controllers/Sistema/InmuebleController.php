@@ -294,7 +294,7 @@ class InmuebleController extends Controller
                     }
                     $valor_total_administracion = $request->get('valor_total_administracion');
                 } else {
-                    $valor_total_administracion = $coeficiente * $valor_total_presupuesto_mes_actual;
+                    $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
                 }
             }
 
