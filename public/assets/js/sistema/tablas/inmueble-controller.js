@@ -896,7 +896,7 @@ function changeArea(){
         var coeficiente = area / area_total_m2 ;
         var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual);
         totalInmueble = parseFloat(totalInmueble).toFixed(0);
-        coeficiente = parseFloat(coeficiente * 100).toFixed(5);
+        coeficiente = parseFloat(coeficiente).toFixed(5);
         
         $('#coeficiente_inmueble').val(coeficiente);
         $('#valor_total_administracion_inmueble').val(totalInmueble);
