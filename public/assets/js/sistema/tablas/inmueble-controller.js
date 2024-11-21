@@ -105,7 +105,7 @@ function inmuebleInit() {
                 render: function (row, type, data){
                     if (data.coeficiente) {
                         let coeficiente = parseFloat(data.coeficiente);
-                        return parseFloat(coeficiente).toFixed(5);
+                        return parseFloat(coeficiente).toFixed(6);
                     }
                     return '';
                 }, className: 'dt-body-right'
@@ -278,7 +278,7 @@ function inmuebleInit() {
             }
             
             $("#area_inmueble").val(new Intl.NumberFormat("ja-JP").format(data.area));
-            $("#coeficiente_inmueble").val(parseFloat(data.coeficiente).toFixed(5));
+            $("#coeficiente_inmueble").val(parseFloat(data.coeficiente).toFixed(6));
             $("#valor_total_administracion_inmueble").val(new Intl.NumberFormat("ja-JP").format(totalInmueble));
 
             $("#inmuebleFormModal").modal('show');
@@ -896,7 +896,7 @@ function changeArea(){
         var coeficiente = area / area_total_m2 ;
         var totalInmueble = coeficiente * (valor_total_presupuesto_year_actual);
         totalInmueble = parseFloat(totalInmueble).toFixed(0);
-        coeficiente = parseFloat(coeficiente).toFixed(5);
+        coeficiente = parseFloat(coeficiente).toFixed(6);
         
         $('#coeficiente_inmueble').val(coeficiente);
         $('#valor_total_administracion_inmueble').val(totalInmueble);
