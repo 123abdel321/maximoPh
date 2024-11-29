@@ -16,7 +16,7 @@ use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\PorteriaEvento;
 use App\Models\Sistema\ArchivosGenerales;
 
-class PorteriaController extends Controller
+class FamiliaController extends Controller
 {
     protected $messages = null;
 
@@ -42,56 +42,7 @@ class PorteriaController extends Controller
             'usuario_rol' => $usuarioEmpresa->id_rol
         ];
 
-        return view('pages.administrativo.porteria.porteria-view', $data);
-    }
-
-    public function readPorteria (Request $request)
-    {
-        try {
-            $draw = $request->get('draw');
-            $start = $request->get("start");
-            $rowperpage = $request->get("length");
-
-            $columnIndex_arr = $request->get('order');
-            $columnName_arr = $request->get('columns');
-            $order_arr = $request->get('order');
-            $search_arr = $request->get('search');
-
-            $searchValue = $search_arr['value']; // Search value
-
-            $porteria = Porteria::orderBy('id', 'DESC')
-                ->with('eventos', 'usuario', 'inmueble')
-                ->select(
-                    '*',
-                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
-                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
-                    'created_by',
-                    'updated_by'
-                );
-
-            $porteriasTotals = $porterias->get();
-
-            $porteriasPaginate = $porterias->skip($start)
-                ->take($rowperpage);
-
-            return response()->json([
-                'success'=>	true,
-                'draw' => $draw,
-                'iTotalRecords' => $porteriasTotals->count(),
-                'iTotalDisplayRecords' => $porteriasTotals->count(),
-                'data' => $porteriasPaginate->get(),
-                'perPage' => $rowperpage,
-                'message'=> 'Zonas generados con exito!'
-            ]);
-
-
-        } catch (Exception $e) {
-            return response()->json([
-                "success"=>false,
-                'data' => [],
-                "message"=>$e->getMessage()
-            ], 422);
-        }
+        return view('pages.administrativo.familia.familia-view', $data);
     }
 
     public function read (Request $request)
@@ -103,8 +54,6 @@ class PorteriaController extends Controller
 
             $start = $request->get("start");
             $rowperpage = 24;
-            $filtroTipo = false;
-            $filtroTipo = $request->get("tipo") || $request->get("tipo") == '0' ? true : false;
 
             $porteria = Porteria::with('archivos', 'propietario', 'eventos', 'usuario', 'inmueble', 'nit')
                 ->select(
@@ -113,27 +62,23 @@ class PorteriaController extends Controller
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
                     'created_by',
                     'updated_by'
-                );
+                )
+                ->whereIn('tipo_porteria', [1,2,3]);
 
-            if (!$request->user()->can('porteria eventos')) {
-                $porteria->where('id_usuario', $request->user()->id)
-                    ->whereIn('tipo_porteria', [0,4,5,6]);
-            }
-
-            if ($request->user()->can('porteria eventos') && !$request->get("search") && !$filtroTipo) {
-                $porteria->whereIn('tipo_porteria', [0,4,5,6]);
+            if (!$request->user()->can('familia terceros')) {
+                $porteria->where('id_usuario', $request->user()->id);
             }
             
-            if ($request->user()->can('porteria eventos') && $request->get("search")) {
-                $porteria->whereIn('tipo_porteria', [0,3,4,5,6])
-                    ->where(function ($query) use ($request) {
-                        $query->where('nombre', 'like', '%' .$request->get("search"). '%')
-                            ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
-                            ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
-                            ->orWhere('email', 'like', '%' .$request->get("search"). '%')
-                            ->orWhere('telefono', 'like', '%' .$request->get("search"). '%')
-                            ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
-                    });
+            if ($request->user()->can('familia terceros') && $request->get("search")) {
+                $porteria->where(function ($query) use ($request) {
+                    $query->where('nombre', 'like', '%' .$request->get("search"). '%')
+                        ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
+                        ->orWhere('observacion', 'like', '%' .$request->get("search"). '%')
+                        ->orWhere('email', 'like', '%' .$request->get("search"). '%')
+                        ->orWhere('telefono', 'like', '%' .$request->get("search"). '%')
+                        ->orWhere('documento', 'like', '%' .$request->get("search"). '%');
+                });
+                    
             } else if ($request->get("search")) {
                 $porteria->where(function ($query) use ($request) {
                     $query->where('id_nit', $usuarioEmpresa->id_nit)
@@ -147,7 +92,7 @@ class PorteriaController extends Controller
             }
             
             if ($request->get("id_nit")) $porteria->where('id_nit', $request->get("id_nit"));
-            if ($filtroTipo) $porteria->where('tipo_porteria', $request->get("tipo"));
+            if ($request->get("tipo") || $request->get("tipo") == '0') $porteria->where('tipo_porteria', $request->get("tipo"));
             if ($request->get("fecha") && !$request->get("search")) {
                 $fechaFilter = Carbon::parse($request->get("fecha"));
                 $diaFilter = $fechaFilter->dayOfWeek;
@@ -162,7 +107,7 @@ class PorteriaController extends Controller
                 'iTotalDisplayRecords' => $totalData,
                 'data' => $porteria->orderBy('id', 'DESC')->get(),
                 'perPage' => $rowperpage,
-                'message'=> 'Porteria generada con exito!'
+                'message'=> 'Familia generada con exito!'
             ]);
 
         } catch (Exception $e) {
@@ -212,13 +157,13 @@ class PorteriaController extends Controller
     public function create (Request $request)
     {
         $rules = [
-            'tipo_porteria_create' => 'nullable',
-            'tipo_vehiculo_porteria' => 'nullable',
-            'tipo_mascota_porteria' => 'nullable',
-            'nombre_persona_porteria' => 'nullable|min:1|max:200',
-            'placa_persona_porteria' => 'nullable',
-            'observacion_persona_porteria' => 'nullable',
-            'imagen_porteria' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'tipo_familia_create' => 'nullable',
+            'tipo_vehiculo_familia' => 'nullable',
+            'tipo_mascota_familia' => 'nullable',
+            'nombre_persona_familia' => 'nullable|min:1|max:200',
+            'placa_persona_familia' => 'nullable',
+            'observacion_persona_familia' => 'nullable',
+            'imagen_familia' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -230,16 +175,16 @@ class PorteriaController extends Controller
                 "message"=>$validator->errors()
             ], 422);
         }
-
+        
         try {
             DB::connection('max')->beginTransaction();
 
             $file = $request->file('photos');
-            $nitData = Nits::find($request->get('id_nit_porteria'));
+            $nitData = Nits::find($request->get('id_nit_familia'));
 
             $usuarioEmpresa = null;
-            if ($request->get('id_nit_porteria')) {
-                $usuarioEmpresa = UsuarioEmpresa::where('id_nit', $request->get('id_nit_porteria'))
+            if ($request->get('id_nit_familia')) {
+                $usuarioEmpresa = UsuarioEmpresa::where('id_nit', $request->get('id_nit_familia'))
                     ->where('id_empresa', $request->user()->id_empresa)
                     ->first();
             } else {
@@ -248,13 +193,19 @@ class PorteriaController extends Controller
                     ->first();
             }
 
-            $idInmueble = $request->get('id_inmueble_porteria');
+            $idInmueble = $request->get('id_inmueble_familia');
 
             if (!$idInmueble && $usuarioEmpresa) {
                 $inmuebleNit = InmuebleNit::where('id_nit', $usuarioEmpresa->id_nit)
                     ->first();
-
                 if ($inmuebleNit) $idInmueble = $inmuebleNit->id_inmueble;
+                else {
+                    return response()->json([
+                        "success"=>false,
+                        'data' => [],
+                        "message" => 'El usuario no tiene inmuebles al cual se pueda registrar la familia'
+                    ], 422);
+                }
             }
 
             if (!$nitData && $usuarioEmpresa) {
@@ -262,27 +213,27 @@ class PorteriaController extends Controller
             }
 
             //ACTUALIZAR
-            if ($request->get('id_porteria_up')) {
-                Porteria::where('id', $request->get('id_porteria_up'))
+            if ($request->get('id_familia_up')) {
+                Porteria::where('id', $request->get('id_familia_up'))
                     ->update([
-                        'tipo_porteria' => $request->get('tipo_porteria_create'),
-                        'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
-                        'documento' => $request->get('documento_persona_porteria'),
-                        'nombre' => $request->get('nombre_persona_porteria'),
+                        'tipo_porteria' => $request->get('tipo_familia_create'),
+                        'tipo_vehiculo' => $request->get('tipo_vehiculo_familia'),
+                        'documento' => $request->get('documento_persona_familia'),
+                        'nombre' => $request->get('nombre_persona_familia'),
                         'dias' => $this->getDiasString($request),
-                        'placa' => $request->get('placa_persona_porteria'),
+                        'placa' => $request->get('placa_persona_familia'),
                         // 'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
-                        'observacion' => $request->get('observacion_persona_porteria'),
-                        'telefono' => $request->get('telefono_porteria'),
+                        'observacion' => $request->get('observacion_persona_familia'),
+                        'telefono' => $request->get('telefono_familia'),
                         'updated_by' => request()->user()->id
                     ]);
 
-                $porteria = Porteria::where('id', $request->get('id_porteria_up'))
+                $porteria = Porteria::where('id', $request->get('id_familia_up'))
                     ->first();
 
                 if ($file) {
                     ArchivosGenerales::where('relation_type', 1)
-                        ->where('relation_id', $request->get('id_porteria_up'))
+                        ->where('relation_id', $request->get('id_familia_up'))
                         ->delete();
                 }
             } else {
@@ -290,14 +241,14 @@ class PorteriaController extends Controller
                     'id_nit' => $nitData ? $nitData->id : null,
                     'id_inmueble' => $idInmueble,
                     'id_usuario' => $usuarioEmpresa ? $usuarioEmpresa->id_usuario : null,
-                    'tipo_porteria' => $request->get('tipo_porteria_create'),
-                    'tipo_vehiculo' => $request->get('tipo_vehiculo_porteria'),
-                    'nombre' => $request->get('nombre_persona_porteria'),
-                    'documento' => $request->get('documento_persona_porteria'),
+                    'tipo_porteria' => $request->get('tipo_familia_create'),
+                    'tipo_vehiculo' => $request->get('tipo_vehiculo_familia'),
+                    'nombre' => $request->get('nombre_persona_familia'),
+                    'documento' => $request->get('documento_persona_familia'),
                     'dias' => $this->getDiasString($request),
-                    'placa' => $request->get('placa_persona_porteria'),
+                    'placa' => $request->get('placa_persona_familia'),
                     // 'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
-                    'observacion' => $request->get('observacion_persona_porteria'),
+                    'observacion' => $request->get('observacion_persona_familia'),
                     'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id
                 ]);
@@ -340,7 +291,7 @@ class PorteriaController extends Controller
             return response()->json([
                 'success'=>	true,
                 'data' => $porteria,
-                'message'=> 'Datos porteria creados con exito!'
+                'message'=> 'Datos familia creados con exito!'
             ]);
 
         } catch (Exception $e) {
@@ -448,7 +399,8 @@ class PorteriaController extends Controller
     {
         $dias = "";
         for ($i = 1; $i <= 7; $i++) {
-            if ($request->get('diaPorteria'.$i)) {
+
+            if ($request->get('diaFamilia'.$i)) {
                 if ($dias) {
                     $dias.= ",".$i;
                 } else {

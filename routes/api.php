@@ -17,6 +17,7 @@ use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\RolesController;
 use App\Http\Controllers\Sistema\EntornoController;
+use App\Http\Controllers\Sistema\FamiliaController;
 use App\Http\Controllers\Sistema\PasarelaController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\PorteriaController;
@@ -191,6 +192,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('porteria', 'delete');
             Route::get('porteria-find', 'find');
             Route::get('porteria-combo', 'combo');
+        });
+        //FAMILIA
+        Route::controller(FamiliaController::class)->group(function () {
+            Route::get('familia', 'read');
+            Route::delete('familia', 'delete');
+            Route::get('familia-find', 'find');
+            Route::get('familia-combo', 'combo');
         });
         //PORTERIA EVENTOS
         Route::controller(PorteriaEventoController::class)->group(function () {

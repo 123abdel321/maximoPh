@@ -23,7 +23,7 @@ class Porteria extends Model
         'telefono',
         'genero',
         'email',
-        // 'fecha_nacimiento',
+        'fecha_nacimiento',
         'nombre',
         'documento',
         'dias',

@@ -113,7 +113,7 @@
                     <input type="text" class="form-control form-control-sm" name="observacion_persona_porteria" id="observacion_persona_porteria" onfocus="this.select();">
                 </div>
 
-                <div id="input_dias_porteria" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: center;">
+                <div id="input_dias_porteria" class="form-group col-12 col-sm-12 col-md-12 row" style="place-content: end;">
                     <label for="diaPorteria0">Días </label><br/>
                     <!-- <div class="form-check form-check-inline col-3">
                         <input class="form-check-input" type="checkbox" id="diaPorteria0" name="diaPorteria0" checked>

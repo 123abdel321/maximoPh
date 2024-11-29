@@ -25,6 +25,7 @@ use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 //ADMINISTRATIVO
 use App\Http\Controllers\Sistema\PqrsfController;
+use App\Http\Controllers\Sistema\FamiliaController;
 use App\Http\Controllers\Sistema\PorteriaController;
 use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
@@ -112,6 +113,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
 		Route::get('/porteria', [PorteriaController::class, 'index']);
+		Route::get('/familia', [FamiliaController::class, 'index']);
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
@@ -124,6 +126,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		//PORTERIA
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
+		//FAMILIA
+		Route::post('/familia', [FamiliaController::class, 'create']);
 		//PQRSF
 		Route::get('/pqrsf', [PqrsfController::class, 'index']);
 		Route::post('/pqrsf', [PqrsfController::class, 'create']);

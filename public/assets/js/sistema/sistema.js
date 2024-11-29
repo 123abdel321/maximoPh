@@ -121,6 +121,7 @@ var moduloCreado = {
     'proyectos': false,
     'turnos': false,
     'roles': false,
+    'familia': false,
 };
 
 var moduloRoute = {
@@ -149,6 +150,7 @@ var moduloRoute = {
     'proyectos': 'tareas',
     'turnos': 'tareas',
     'roles': 'configuracion',
+    'familia': 'administrativo',
 }
 
 $('.water').show();
