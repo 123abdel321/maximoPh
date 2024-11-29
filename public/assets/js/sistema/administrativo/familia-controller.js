@@ -440,6 +440,9 @@ function clearFormFamilia() {
     $("#placa_persona_familia").val("");
     $("#id_nit_familia").val('').change();
     $("#tipo_familia_create").val(1).change();
+    $('#id_inmueble_familia').val('').change();
+
+    $('#id_inmueble_familia').prop('disabled', true);
 
     $("#observacion_persona_familia").val("");
 
@@ -452,7 +455,24 @@ function clearFormFamilia() {
             $('#'+dia).prop('checked', false);
         }
     });
+
+    changeTipoFamilia(1);
+
+    $('.input-images-familia').imageUploader('destroy');
+    $('.input-images-familia').empty();
+    $('.input-images-familia').imageUploader({
+        imagesInputName: 'photos',
+        preloadedInputName: 'old',
+        // maxSize: 2 * 1024 * 1024,
+        maxFiles: 1
+    });
 }
+
+$('#id_nit_familia').on('change', function(e) {
+    var selectedValue = $(this).val();
+    if (selectedValue) $('#id_inmueble_familia').prop('disabled', false);
+    else $('#id_inmueble_familia').prop('disabled', true);
+});
 
 $(document).on('change', '#tipo_familia_create', function () {
     var tipoFamilia = $("#tipo_familia_create").val();
