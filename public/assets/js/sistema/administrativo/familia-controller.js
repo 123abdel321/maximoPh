@@ -1,3 +1,4 @@
+let searchTimeoutFamilia;
 var $comboInmuebleEventosFilter = null;
 var $comboNitFamiliaFilter = null;
 var $comboFamiliaEventos = null;
@@ -661,8 +662,8 @@ $(document).on('change', '#id_nit_familia_filter', function () {
 });
 
 $("#searchInputFamilia").on("input", function () {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(function () {
+    clearTimeout(searchTimeoutFamilia);
+    searchTimeoutFamilia = setTimeout(function () {
         familia_table.ajax.reload();
     }, 300);
 });
