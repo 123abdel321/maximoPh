@@ -19,7 +19,7 @@ class Porteria extends Model
         'id_nit',
         'tipo_porteria',
         'tipo_vehiculo',
-        // 'tipo_mascota',
+        'tipo_mascota',
         'telefono',
         'genero',
         'email',

@@ -91,7 +91,7 @@ function porteriaInit() {
                 
                 return `<img
                     id="eventoporteriaimagen_${row.id}"
-                    class="detalle-imagen"
+                    class="detalle-imagen-porteria"
                     style="height: 40px; width: 140px; border-radius: 10%; cursor: pointer; object-fit: contain;"
                     href="javascript:void(0)"
                     src="${bucketUrl}${urlImg}"
@@ -409,7 +409,7 @@ function porteriaInit() {
                     }).done((res) => {
                         if(res.success){
                             porteria_table.row(trPorteria).remove().draw();
-                            agregarToast('exito', 'Eliminación exitosa', 'Zona eliminada con exito!', true );
+                            agregarToast('exito', 'Eliminación exitosa', 'Porteria eliminada con exito!', true );
                         } else {
                             agregarToast('error', 'Eliminación errada', res.message);
                         }
@@ -540,7 +540,7 @@ function porteriaInit() {
             $("#porteriaEventoFormModal").modal('show');
         });
         //DETALLE PORTERIA
-        porteria_table.on('click', '.detalle-imagen', function() {
+        porteria_table.on('click', '.detalle-imagen-porteria', function() {
             var id = this.id.split('_')[1];
             var data = getDataById(id, porteria_table);
 
@@ -551,8 +551,6 @@ function porteriaInit() {
             } else {
                 $("#preview_header_img_porteria").attr("src", "/img/no-photo.jpg");
             }
-
-            
 
             $("#textPorteriaPreview").text(data.propietario.nombre_completo);
             $("#porteria-preview-ubicacion").text(data.propietario.apartamentos);

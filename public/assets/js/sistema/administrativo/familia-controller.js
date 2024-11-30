@@ -72,7 +72,7 @@ function familiaInit() {
                 
                 return `<img
                     id="eventofamiliaimagen_${row.id}"
-                    class="detalle-imagen"
+                    class="detalle-imagen-familia"
                     style="height: 40px; border-radius: 10%; cursor: pointer;"
                     href="javascript:void(0)"
                     src="${bucketUrl}${urlImg}"
@@ -130,29 +130,26 @@ function familiaInit() {
             }},
             {"data": function (row, type, set){  
                 const porteria = row;
-                if (porteria.tipo_porteria == 1 || porteria.tipo_porteria == 3) {
+                if (porteria.tipo_porteria == 3) {
                     return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
                 }
-                if (porteria.tipo_porteria == 4 || porteria.tipo_porteria == 0 || porteria.tipo_porteria == 5 || porteria.tipo_porteria == 6) {
-                    var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+                var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                     
-                    var numeroDia = new Date(dayNow).getDay() + 1;
-                    var hoyDia = new Date(porteria.hoy).getDay();
-                    
-                    if (porteria.hoy == dayNow) {
+                var numeroDia = new Date(dayNow).getDay() + 1;
+                var hoyDia = new Date(porteria.hoy).getDay();
+                
+                if (porteria.hoy == dayNow) {
+                    return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
+                }
+                
+                if (porteria.dias) {
+                    var diasArray = porteria.dias.split(",");
+                    if (diasArray.includes((numeroDia)+"")) {
                         return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
                     }
-                    
-                    if (porteria.dias) {
-                        var diasArray = porteria.dias.split(",");
-                        if (diasArray.includes((numeroDia)+"")) {
-                            return `<span class="badge badge-sm bg-gradient-success">AUTORIZADO</span>`;
-                        }
-                    }
-                    
-                    return `<span class="badge badge-sm bg-gradient-danger">NO AUTORIZADO</span>`;
                 }
-                return ``;
+                
+                return `<span class="badge badge-sm bg-gradient-danger">NO AUTORIZADO</span>`;
             }},
             {"data":'observacion'},
             {"data": function (row, type, set){  
@@ -202,7 +199,9 @@ function familiaInit() {
             var id = this.id.split('_')[1];
             var data = getDataById(id, familia_table);
 
-            console.log('data: ',data);
+            diaFamilia.forEach((dia, index) => {
+                $('#'+dia).prop('checked', false);
+            });
 
             if(data.propietario) {
                 var dataPropietario = {
@@ -259,6 +258,119 @@ function familiaInit() {
                 });
             }
             $("#familiaFormModal").modal('show');
+        });
+        //ELIMINAR FAMILIA
+        familia_table.on('click', '.drop-familia', function() {
+            var trPorteria = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, familia_table);
+
+            Swal.fire({
+                title: 'Eliminar item de familia: '+data.nombre+'?',
+                text: "No se podrá revertir!",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Borrar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'familia',
+                        method: 'DELETE',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            familia_table.row(trPorteria).remove().draw();
+                            agregarToast('exito', 'Eliminación exitosa', 'Familia eliminada con exito!', true );
+                        } else {
+                            agregarToast('error', 'Eliminación errada', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Eliminación errada', res.message);
+                    });
+                }
+            })
+        });
+        //DETALLE FAMILIA
+        familia_table.on('click', '.detalle-imagen-familia', function() {
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, familia_table);
+
+            if (data.propietario.logo_nit) {
+                $("#preview_header_img_familia").attr("src",bucketUrl + data.propietario.logo_nit);
+            } else if (data.usuario.avatar) {
+                $("#preview_header_img_familia").attr("src",bucketUrl + data.usuario.avatar);
+            } else {
+                $("#preview_header_img_familia").attr("src", "/img/no-photo.jpg");
+            }
+
+            $("#textFamiliaPreview").text(data.propietario.nombre_completo);
+            $("#familia-preview-ubicacion").text(data.propietario.apartamentos);
+
+            var texto = 'CARRO';
+            
+            if (data.tipo_porteria == 0) texto = 'PROPIETARIO';
+            if (data.tipo_porteria == 1) texto = 'FAMILIAR';
+            if (data.tipo_porteria == 2) {
+                texto = 'CANINO';
+                if (data.tipo_mascota == 1) texto = 'FELINO';
+                if (data.tipo_mascota == 2) texto = 'OTROS';
+            };
+            if (data.tipo_porteria == 3) {
+                if (data.tipo_vehiculo == 1) texto = 'MOTO';
+                if (data.tipo_vehiculo == 2) texto = 'MOTO ELECTRICA';
+                if (data.tipo_vehiculo == 2) texto = 'BICICLETA ELECTRICA';
+                if (data.tipo_vehiculo == 4) texto = 'OTROS';
+                
+            }
+            if (data.tipo_porteria == 4) texto = 'VISITANTE';
+            if (data.tipo_porteria == 5) texto = 'PAQUETE';
+            if (data.tipo_porteria == 6) texto = 'DOMICILIO';
+
+            $("#familia-preview-tipo").text(texto);
+            $("#familia-preview-nombre").text(data.nombre ? data.nombre : data.placa);
+            console.log('data: ',data);
+            if (data.tipo_porteria == 1 || data.tipo_porteria == 2 || data.tipo_porteria == 3) {
+                $("#familia-preview-autorizado").show();
+                $("#familia-preview-noautorizado").hide();
+            } else if (data.tipo_porteria == 4 || data.tipo_porteria == 0 || data.tipo_porteria == 5 || data.tipo_porteria == 6) {
+                console.log('heee eca');
+                var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
+                var numeroDia = new Date(dayNow).getDay() + 1;
+                var hoyDia = new Date(data.hoy).getDay();
+                
+                if (numeroDia == hoyDia) {
+                    $("#familia-preview-autorizado").show();
+                    $("#familia-preview-noautorizado").hide();
+                }
+        
+                if (data.dias) {
+                    var diasArray = data.dias.split(",");
+                    if (diasArray.includes((numeroDia)+"")) {
+                        $("#familia-preview-autorizado").show();
+                        $("#familia-preview-noautorizado").hide();
+                    }
+                }
+                
+            }else {
+                $("#familia-preview-autorizado").hide();
+                $("#familia-preview-noautorizado").show();
+            }
+            
+            if (data.archivos.length) {
+                var texto = data.nombre;
+                var img = bucketUrl+data.archivos[0].url_archivo;
+                if (data.tipo_porteria == 3 || data.tipo_porteria == 4 && data.placa) texto = data.placa;
+
+                $("#imagen-familia-preview").css("background-image", "url("+img+")");
+                
+                $("#familiaPreviewModal").modal('show');
+            }
         });
     }
 
@@ -447,13 +559,7 @@ function clearFormFamilia() {
     $("#observacion_persona_familia").val("");
 
     diaFamilia.forEach((dia, index) => {
-        var numerDate = new Date().getDay();
-        numerDate-=1;
-        if (numerDate == index) {
-            $('#'+dia).prop('checked', true);
-        } else {
-            $('#'+dia).prop('checked', false);
-        }
+        $('#'+dia).prop('checked', true);
     });
 
     changeTipoFamilia(1);
@@ -559,4 +665,8 @@ $("#searchInputFamilia").on("input", function () {
     searchTimeout = setTimeout(function () {
         familia_table.ajax.reload();
     }, 300);
+});
+
+$('.form-control').keyup(function() {
+    $(this).val($(this).val().toUpperCase());
 });

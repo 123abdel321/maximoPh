@@ -218,6 +218,7 @@ class FamiliaController extends Controller
                     ->update([
                         'tipo_porteria' => $request->get('tipo_familia_create'),
                         'tipo_vehiculo' => $request->get('tipo_vehiculo_familia'),
+                        'tipo_mascota' => $request->get('tipo_mascota_familia'),
                         'documento' => $request->get('documento_persona_familia'),
                         'nombre' => $request->get('nombre_persona_familia'),
                         'dias' => $this->getDiasString($request),
@@ -243,6 +244,7 @@ class FamiliaController extends Controller
                     'id_usuario' => $usuarioEmpresa ? $usuarioEmpresa->id_usuario : null,
                     'tipo_porteria' => $request->get('tipo_familia_create'),
                     'tipo_vehiculo' => $request->get('tipo_vehiculo_familia'),
+                    'tipo_mascota' => $request->get('tipo_mascota_familia'),
                     'nombre' => $request->get('nombre_persona_familia'),
                     'documento' => $request->get('documento_persona_familia'),
                     'dias' => $this->getDiasString($request),
@@ -323,41 +325,6 @@ class FamiliaController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
-            $existeNit = false;
-            $eventoPorteria = PorteriaEvento::where('id_porteria', $request->get('id'));
-            $porteria = Porteria::with('archivos')
-                ->where('id', $request->get('id'))
-                ->first();
-
-            if (count($porteria->archivos)) {
-                $existeNit = Nits::where('logo_nit', $porteria->archivos[0]->url_archivo)
-                    ->first();
-            }
-
-            if ($eventoPorteria->count() || $existeNit) {
-                $porteria->estado = true;
-                $porteria->save();
-
-                DB::connection('max')->commit();
-
-                return response()->json([
-                    'success'=>	true,
-                    'data' => [],
-                    'message'=> 'Evento porteria eliminado con exito!'
-                ]);
-            }
-
-            $archivos = ArchivosGenerales::where('relation_type', 1)
-                ->where('relation_id', $request->get('id'))
-                ->get();
-
-            if (count($archivos)) {
-                foreach ($archivos as $archivo) {
-                    Storage::disk('do_spaces')->delete($archivo->url_archivo);
-                    $archivo->delete();
-                }
-            }
-
             Porteria::where('id', $request->get('id'))->delete();
 
             DB::connection('max')->commit();
@@ -365,7 +332,7 @@ class FamiliaController extends Controller
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Evento porteria eliminado con exito!'
+                'message'=> 'Familia eliminada con exito!'
             ]);
 
         } catch (Exception $e) {

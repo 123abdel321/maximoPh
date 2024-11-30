@@ -99,6 +99,7 @@
             </div>
         </div>
 
+        @include('pages.administrativo.familia.familia_preview')
         @include('pages.administrativo.familia.familia-form', ['usuario_rol' => $usuario_rol])
 
     </div>

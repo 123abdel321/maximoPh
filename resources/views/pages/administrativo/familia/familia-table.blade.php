@@ -31,7 +31,7 @@
             <th>Documento</th>
             <th>Tipo</th>
             <th>Placa</th>
-            <th>Dias</th>
+            <th>Dias Aut.</th>
             <th>Estado</th>
             <th>Observacion</th>
             <th>Propietario / Residente</th>
