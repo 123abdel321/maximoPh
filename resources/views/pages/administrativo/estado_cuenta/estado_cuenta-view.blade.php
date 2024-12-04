@@ -56,11 +56,11 @@
 
         <script>
             
-            var $idNitEstadoCuenta = JSON.parse('<?php echo $id_nit; ?>');
-            var $idComprobante = JSON.parse('<?php echo $id_comprobante; ?>');
-            var $pasarela_pagos = JSON.parse('<?php echo $pasarela_pagos; ?>');
-            var $idCuentaIngreso = JSON.parse('<?php echo $id_cuenta_ingreso; ?>');
-            var $numeroDocumentoEstadoCuenta = JSON.parse('<?php echo $numero_documento; ?>');
+            var $idNitEstadoCuenta = @json($id_nit);
+            var $idComprobante = @json($id_comprobante);
+            var $pasarela_pagos = @json($pasarela_pagos);
+            var $idCuentaIngreso = @json($id_cuenta_ingreso);
+            var $numeroDocumentoEstadoCuenta = @json($numero_documento);
             
         </script>
 
