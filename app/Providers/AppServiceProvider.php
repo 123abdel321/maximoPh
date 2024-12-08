@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use App\Models\Sistema\Turno;
 use App\Models\Sistema\Pqrsf;
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\Novedades;
 use App\Models\Sistema\TurnoEvento;
 use App\Models\Portafolio\ConRecibos;
 use App\Models\Sistema\PqrsfMensajes;
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
             '13' => PqrsfMensajes::class,
             '14' => Turno::class,
             '15' => TurnoEvento::class,
+            '16' => Novedades::class
 		]);
     }
 

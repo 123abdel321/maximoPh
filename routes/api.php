@@ -21,6 +21,7 @@ use App\Http\Controllers\Sistema\FamiliaController;
 use App\Http\Controllers\Sistema\PasarelaController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\PorteriaController;
+use App\Http\Controllers\Sistema\NovedadesController;
 use App\Http\Controllers\Sistema\VisitantesController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
@@ -192,6 +193,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('porteria', 'delete');
             Route::get('porteria-find', 'find');
             Route::get('porteria-combo', 'combo');
+        });
+        //NOVEDADES
+        Route::controller(NovedadesController::class)->group(function () {
+            Route::get('novedades', 'read');
+            Route::post('novedades', 'create');
+            Route::put('novedades', 'update');
+            Route::delete('novedades', 'delete');
         });
         //FAMILIA
         Route::controller(FamiliaController::class)->group(function () {

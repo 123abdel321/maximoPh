@@ -27,6 +27,7 @@ use App\Http\Controllers\Sistema\CuotasMultasController;
 use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\FamiliaController;
 use App\Http\Controllers\Sistema\PorteriaController;
+use App\Http\Controllers\Sistema\NovedadesController;
 use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
@@ -45,6 +46,9 @@ use App\Http\Controllers\Informes\EstadisticasController;
 //TAREAS
 use App\Http\Controllers\Sistema\TurnosController;
 use App\Http\Controllers\Sistema\ProyectosController;
+//ARCHIVOS GENERALES
+use App\Http\Controllers\Sistema\ArchivosCacheController;
+
 
 //MODELOS
 use App\Models\Portafolio\Nits;
@@ -112,8 +116,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/facturacion-multiple-show-pdf', [FacturacionController::class, 'showMultiplePdf']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
-		Route::get('/porteria', [PorteriaController::class, 'index']);
-		Route::get('/familia', [FamiliaController::class, 'index']);
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
@@ -124,10 +126,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::post('/perfil-fondo', [PerfilController::class, 'fondo']);
 		Route::post('/perfil-avatar', [PerfilController::class, 'avatar']);
 		//PORTERIA
+		Route::get('/porteria', [PorteriaController::class, 'index']);
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
 		//FAMILIA
+		Route::get('/familia', [FamiliaController::class, 'index']);
 		Route::post('/familia', [FamiliaController::class, 'create']);
+		//NOVEDADES
+		Route::get('/novedades', [NovedadesController::class, 'index']);
 		//PQRSF
 		Route::get('/pqrsf', [PqrsfController::class, 'index']);
 		Route::post('/pqrsf', [PqrsfController::class, 'create']);
@@ -163,6 +169,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::post('/turnos-evento', [TurnosController::class, 'createEvento']);
 		// PASARELA
 		Route::get('/close-payment/{code}', [PasarelaController::class, 'close']);
+		// ARCHIVOS CACHE
+		Route::post('/archivos-cache', [ArchivosCacheController::class, 'store']);
 	});
 	
 });

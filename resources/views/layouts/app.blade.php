@@ -33,10 +33,11 @@
     <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
     <!-- ANIMATE CSS -->
     <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
-    <!-- FULL CALENDAR -->
-    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.0.0/main.min.css' rel='stylesheet' />
+    <!-- FILEPOND -->
+    <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet">
     
-
+    
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -243,6 +244,10 @@
     <script src="{{ secure_asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <!-- TURNOS -->
     <script src="{{ secure_asset('assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <!-- FILEPOND -->
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
     <!-- SISTEMA -->
     <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- NOTIFICACIONES -->

@@ -122,6 +122,7 @@ var moduloCreado = {
     'turnos': false,
     'roles': false,
     'familia': false,
+    'novedades': false,
 };
 
 var moduloRoute = {
@@ -151,6 +152,7 @@ var moduloRoute = {
     'turnos': 'tareas',
     'roles': 'configuracion',
     'familia': 'administrativo',
+    'novedades': 'administrativo',
 }
 
 $('.water').show();
@@ -223,10 +225,30 @@ if (idRolUsuario == 4) {
 
 $("#id_pqrsf_up").val(0);
 
+iniciarFilePond();
 iniciarScrollBar();
 buscarNotificaciones();
 actualizarAccionesPqrsf();
 iniciarCanalesDeNotificacion();
+
+function iniciarFilePond() {
+    FilePond.registerPlugin(FilePondPluginImagePreview);
+    FilePond.setOptions({
+        labelIdle: 'Arrastra y suelta tus archivos o <span class="filepond--label-action">Explorar</span>',
+        labelFileProcessing: 'Subiendo',
+        labelFileProcessingComplete: 'Subida completa',
+        labelFileProcessingAborted: 'Subida cancelada',
+        labelFileProcessingError: 'Error al subir el archivo',
+        labelTapToCancel: 'Toca para cancelar',
+        labelTapToRetry: 'Toca para reintentar',
+        labelTapToUndo: 'Toca para deshacer',
+        labelButtonRemoveItem: 'Eliminar',
+        labelButtonAbortItemLoad: 'Abortar',
+        labelButtonRetryItemLoad: 'Reintentar',
+        labelButtonRetryItemProcessing: 'Reintentar',
+        labelButtonProcessItem: 'Subir',
+    });
+}
 
 function actualizarAccionesPqrsf() {
     if (idRolUsuario == 1 || idRolUsuario == 2) {
