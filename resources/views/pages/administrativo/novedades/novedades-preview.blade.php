@@ -7,7 +7,9 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div id="novedades-preview-container"></div>
+                <div id="novedades-preview-container" class="row">
+
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn bg-gradient-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>

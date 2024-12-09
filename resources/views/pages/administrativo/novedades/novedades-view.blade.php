@@ -102,7 +102,7 @@
 </div>
 
 <script>
-    var crearNovedades = '<?php echo auth()->user()->can('novedades create'); ?>';
-    var updateNovedades = '<?php echo auth()->user()->can('novedades update'); ?>';
-    var deleteNovedades = '<?php echo auth()->user()->can('novedades delete'); ?>';
+    var crearNovedades = @json(auth()->user()->can('novedades create'));
+    var updateNovedades = @json(auth()->user()->can('novedades update'));
+    var deleteNovedades = @json(auth()->user()->can('novedades delete'));
 </script>

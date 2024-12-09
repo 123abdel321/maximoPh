@@ -2,6 +2,7 @@ let uploadedFilesNovedades = [];
 let pondNovedades = null;
 let $comboPorteriaNovedades;
 let novedades_table = null;
+let limpiarInputFileNovedades = false; 
 
 function novedadesInit() {
     initFilePondNovedades();
@@ -10,8 +11,8 @@ function novedadesInit() {
     $('.water').hide();
 }
 
-function initFilePondNovedades(){
-    pondNovedades = FilePond.create(document.querySelector('.filepond'), {
+function initFilePondNovedades() {
+    pondNovedades = FilePond.create(document.querySelector('#novedades-files'), {
         allowImagePreview: true,
         imagePreviewUpscale: true,
         allowMultiple: true,
@@ -46,9 +47,18 @@ function initFilePondNovedades(){
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
+                ondata: (uniqueFileId) => {
+                    // Aquí puedes construir los datos que se enviarán
+                    return JSON.stringify({ url: uniqueFileId });
+                },
             }
-        }
+        },
+        imagePreviewHeight: 150,
+        allowImagePreview: true,
+        imageCropAspectRatio: '1:1',
     });
+
+    clearFilesInputNovedades();
 }
 
 function initTablesNovedades() {
@@ -196,6 +206,25 @@ function initTablesNovedades() {
                 $comboPorteriaNovedades.append(newOption).trigger('change');
                 $comboPorteriaNovedades.val(dataResponsable.id).trigger('change');
             }
+            if (data.archivos.length) {
+                const archivosExistentes = data.archivos.map((archivo) => ({
+                    source: bucketUrl+archivo.url_archivo,
+                    options: {
+                        type: 'local',
+                        metadata: {
+                            id: archivo.id,
+                            relation_type: archivo.relation_type,
+                            base_path: archivo.url_archivo,
+                        },
+                        file: {
+                            name: archivo.url_archivo.split('/').pop(),
+                            size: 0,
+                            type: archivo.tipo_archivo,
+                        },
+                    },
+                }));
+                pondNovedades.addFiles(archivosExistentes);
+            }
 
             $("#id_novedades_up").val(data.id);
             $("#tipo_novedades").val(data.tipo).change();
@@ -255,13 +284,19 @@ function initTablesNovedades() {
                 const file = archivos[index];
                 const tipoArchivo = file.tipo_archivo.split('/')[0];
                 if (tipoArchivo == 'image') {
-                    container.innerHTML+= `<img src="${bucketUrl+file.url_archivo}" alt="Imagen" style="max-width: 100%; height: auto;"><br/><br/>`;
+                    container.innerHTML+= `<div class="col-12 col-sm-6 col-md-6"><img src="${bucketUrl+file.url_archivo}" alt="Imagen" style="max-width: 100%; height: auto;"></div><br/><br/>`;
                 }
                 if (tipoArchivo == 'video') {
-                    container.innerHTML+= `<video src="${bucketUrl+file.url_archivo}" controls style="max-width: 100%; height: auto;"></video><br/><br/>`;
+                    container.innerHTML+= `<video class="col-12 col-sm-6 col-md-6" src="${bucketUrl+file.url_archivo}" controls style="max-width: 100%; height: auto;"></video><br/><br/>`;
                 }
                 if (tipoArchivo == 'application') {
-                    container.innerHTML+= `<iframe src="${bucketUrl+file.url_archivo}" style="width: 100%; height: 400px;"></iframe><br/><br/>`;
+                    if (file.url_archivo.endsWith('.xlsx') || file.url_archivo.endsWith('.xls')) {
+                        container.innerHTML += `
+                            <iframe class="col-12 col-sm-12 col-md-12" src="https://docs.google.com/gview?url=${encodeURIComponent(bucketUrl+file.url_archivo)}&embedded=true" 
+                                    style="width: 100%; height: 400px;"></iframe><br/><br/>`;
+                    } else {
+                        container.innerHTML+= `<iframe src="${bucketUrl+file.url_archivo}" style="width: 100%; height: 400px;"></iframe><br/><br/>`;
+                    }
                 }
             }
 
@@ -371,15 +406,48 @@ $(document).on('click', '#generateNovedadesNueva', function () {
 function clearFormNovedades() {
     var now = new Date();
     var formattedDate = now.toISOString().slice(0, 16);
-    pondNovedades.removeFiles();
-    uploadedFilesNovedades = [];
-
+    limpiarInputFileNovedades = true;
+    clearFilesInputNovedades();
     $("#id_porteria_novedad").val(null);
     $("#area_novedades").val(1).change();
     $("#tipo_novedades").val(1).change();
     $("#fecha_novedades").val(formattedDate);
     $("#asunto_novedades").val(null);
     $("#mensaje_novedades").val(null);
+}
+
+function clearFilesInputNovedades() {
+    uploadedFilesNovedades = [];
+    pondNovedades.off('removefile');
+    pondNovedades.removeFiles();
+    pondNovedades.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFileNovedades) {
+            limpiarInputFileNovedades = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
+    });
 }
 
 $(document).on('click', '#saveNovedades', function () {

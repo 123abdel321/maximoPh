@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\ArchivosCache;
+use App\Models\Sistema\ArchivosGenerales;
 
 class ArchivosCacheController extends Controller
 {
@@ -20,16 +21,15 @@ class ArchivosCacheController extends Controller
         try {
             if ($request->hasFile('images')) {
 
-                $uniqueName = uniqid();
                 $file = $request->file('images')[0];
-                $mimeType = $file->getMimeType(); 
+
+                $mimeType = $file->getMimeType();
                 $extensionType = $file->getClientOriginalExtension();
-                $nameFile = "{$uniqueName}.{$extensionType}";
 
                 $path = Storage::disk('do_spaces')->putFileAs(
                     "archivos-cache",
                     $file,
-                    $nameFile,
+                    $file->getClientOriginalName(),
                     'public'
                 );
 
@@ -37,8 +37,8 @@ class ArchivosCacheController extends Controller
 
                 $archivo = ArchivosCache::create([
                     'tipo_archivo' => $mimeType,
-                    'name_file' => $nameFile,
-                    'relative_path' => 'archivos-cache/'.$nameFile,
+                    'name_file' => $file->getClientOriginalName(),
+                    'relative_path' => 'archivos-cache/'.$file->getClientOriginalName(),
                     'url_archivo' => $url,
                     'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id
@@ -56,6 +56,64 @@ class ArchivosCacheController extends Controller
                 'url' => '',
                 'message'=> 'Sin archivos para cargar'
             ], 400);
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function delete (Request $request)
+    {
+        $content = $request->getContent();
+        
+        try {
+            $file = ArchivosCache::where('url_archivo', $content)
+                ->first();
+                
+            if ($file) {
+                Storage::disk('do_spaces')->delete($file->url_archivo);
+                $file->delete();
+            }
+
+            return response()->json([
+                'success'=>	true,
+                'message'=> 'Archivo eliminado con exito'
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function deleteFile (Request $request)
+    {
+        try {
+            $file = ArchivosGenerales::where('relation_type', $request->get('relationType'))
+                ->where('id', $request->get('id'))
+                ->first();
+                
+            if ($file) {
+                $urlDelete = $file->url_archivo;
+                $file->delete();
+                Storage::disk('do_spaces')->delete($urlDelete);
+            } else {
+                return response()->json([
+                    'success'=>	true,
+                    'message'=> 'El archivo no existes'
+                ], 200);
+            }
+
+            return response()->json([
+                'success'=>	true,
+                'message'=> 'Archivo eliminado con exito'
+            ], 200);
+
         } catch (Exception $e) {
             return response()->json([
                 "success"=>false,

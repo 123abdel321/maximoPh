@@ -171,6 +171,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/close-payment/{code}', [PasarelaController::class, 'close']);
 		// ARCHIVOS CACHE
 		Route::post('/archivos-cache', [ArchivosCacheController::class, 'store']);
+		Route::delete('/archivos-cache', [ArchivosCacheController::class, 'delete']);
 	});
 	
 });

@@ -202,20 +202,11 @@ class NovedadesController extends Controller
             $novedad = Novedades::where('id', $request->get('id'))->first();
 
             $archivos = $request->get('archivos');
-            if (count($archivos)) {
-                $files = ArchivosGenerales::where('relation_type', 16)
-                    ->where('relation_id', $novedad->id)
-                    ->get();
-                
-                if (count($files)) {
-                    foreach ($files as $file) {
-                        Storage::disk('do_spaces')->delete($file->url_archivo);
-                        $file->delete();
-                    }
-                }
 
+            if (count($archivos)) {
                 foreach ($archivos as $archivo) {
                     $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                    if (!$archivoCache) continue;
                     $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/novedades/'.$archivoCache->name_file;
                     if (Storage::exists($archivoCache->relative_path)) {
                         Storage::move($archivoCache->relative_path, $finalPath);

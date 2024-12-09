@@ -32,6 +32,8 @@ use App\Http\Controllers\Informes\EstadisticasController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\NotificacionesController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
+//ARCHIVOS GENERALES
+use App\Http\Controllers\Sistema\ArchivosCacheController;
 //IMPORTADOR
 use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
@@ -289,6 +291,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('status', 'status');
             Route::post('pasarela', 'create');            
         });
+        //ARCHIVOS GENERALES
+        Route::controller(ArchivosCacheController::class)->group(function () {
+            Route::delete('archivo-general', 'deleteFile');           
+        });
+        
         
     });
 });
