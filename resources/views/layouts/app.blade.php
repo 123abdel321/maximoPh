@@ -14,29 +14,29 @@
              -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="{{ secure_asset'assets/css/nucleo-icons.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset'assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="{{ secure_asset'assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ secure_asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="{{ secure_asset'assets/css/argon-dashboard.css') }}" rel="stylesheet" />
+    <link id="pagestyle" href="{{ secure_asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="{{ secure_asset'assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset'assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset'assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="{{ secure_asset'assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset'assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
     <!-- UPLOAD IMG -->
-    <link href="{{ secure_asset'assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
+    <link href="{{ secure_asset('assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
     <!-- SWIPER -->
-    <link rel="stylesheet" href="{{ secure_asset'assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
     <!-- ANIMATE CSS -->
-    <link rel="stylesheet" href="{{ secure_asset'assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
     <!-- FILEPOND -->
-    <link rel="stylesheet" href="{{ secure_asset'assets/css/plugins/filepond.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ secure_asset'assets/css/plugins/filepond-plugin-image-preview.min.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ secure_asset'assets/css/plugins/filepond-plugin-file-poster.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/plugins/filepond.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/plugins/filepond-plugin-image-preview.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ secure_asset('assets/css/plugins/filepond-plugin-file-poster.min.css') }}" rel="stylesheet" />
     
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -212,53 +212,53 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="{{ secure_asset'assets/js/argon-dashboard.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/argon-dashboard.js') }}"></script>
     <!-- JQUERY -->
-    <script src="{{ secure_asset'assets/js/sistema/jquery-3.5.1.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="{{ secure_asset'assets/js/sistema/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/sistema/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
     
     <!-- SELECT 2  -->
-    <script src="{{ secure_asset'assets/js/sistema/select2.full.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="{{ secure_asset'assets/js/sistema/jquery.validate.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="{{ secure_asset'assets/js/sistema/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
     <!-- countUp -->
     <script src="https://cdn.jsdelivr.net/npm/countup@1.8.2/dist/countUp.min.js"></script>
     <!-- PUSHER -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js" rel="stylesheet"></script> -->
     <!-- WIZARD -->
-    <script src="{{ secure_asset'assets/js/sistema/jquery.bootstrap-wizard.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/jquery.bootstrap-wizard.js') }}"></script>
     <!-- UPLOADER IMG -->
-    <script src="{{ secure_asset'assets/js/sistema/image-uploader.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/image-uploader.js') }}"></script>
     <!-- SWIPER -->
-    <script src="{{ secure_asset'assets/js/sistema/swiper-bundle.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/sistema/swiper-bundle.min.js') }}"></script>
     <!-- MDB -->
-    <script src="{{ secure_asset'assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <!-- TURNOS -->
-    <script src="{{ secure_asset'assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ secure_asset('assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- FILEPOND -->
-    <!-- <script src="{{ secure_asset'assets/js/plugins/pintura.js') }}"></script> -->
-    <script src="{{ secure_asset'assets/js/plugins/filepond.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/plugins/filepond-plugin-image-transform.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/plugins/filepond-plugin-image-resize.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/plugins/filepond-plugin-image-preview.min.js') }}"></script>
-    <script src="{{ secure_asset'assets/js/plugins/filepond-plugin-image-editor.min.js') }}"></script>
+    <!-- <script src="{{ secure_asset('assets/js/plugins/pintura.js') }}"></script> -->
+    <script src="{{ secure_asset('assets/js/plugins/filepond.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-transform.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-resize.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-preview.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-editor.min.js') }}"></script>
     
     <!-- SISTEMA -->
-    <script src="{{ secure_asset'assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- NOTIFICACIONES -->
-    <script src="{{ secure_asset'assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ secure_asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->
-    <script src="{{ secure_asset'assets/js/plugins/fullcalendar.min.js') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
     <!-- Include the Quill library -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     
