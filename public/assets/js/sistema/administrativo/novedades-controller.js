@@ -9,11 +9,11 @@ function novedadesInit() {
     initFilePondNovedades();
     initCombosNovedades();
     initTablesNovedades();
-    initListenerFilter();
+    initFilterNovedades();
     $('.water').hide();
 }
 
-function initListenerFilter() {
+function initFilterNovedades() {
     $(document).on('change', '#id_porteria_novedad_filter', function () {
         novedades_table.ajax.reload();
     });

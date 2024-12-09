@@ -19,6 +19,7 @@ use App\Models\Portafolio\Nits;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\PqrsfTiempos;
 use App\Models\Sistema\PqrsfMensajes;
+use App\Models\Sistema\ArchivosCache;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\ArchivosGenerales;
@@ -191,70 +192,65 @@ class PqrsfController extends Controller
                 ->where('id_empresa', request()->user()->id_empresa)
                 ->first();
 
-            if (!$usuarioEmpresa->id_nit) {
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=>'El usuario '.$nombreUsuario.' no tiene nit asociado en la empresa'
-                ], 422);
-            }
-
             $pqrsf = Pqrsf::create([
                 'id_usuario' => null,
                 'id_nit' => $usuarioEmpresa->id_nit,
                 'tipo' => $request->get("tipo_pqrsf"),
                 'area' => $request->get("area_pqrsf"),
-                'dias' => $this->getDiasString($request),
-                'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                 'asunto' => $request->get("asunto_pqrsf"),
                 'descripcion' => $request->get("mensaje_pqrsf"),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
 
-            if ($request->file('photos')) {
-                foreach ($request->file('photos') as $photos) {
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/pqrsf/'. $photos->getClientOriginalName();
-                    $url = Storage::disk('do_spaces')->putFileAs($nameFile, $photos, $photos->getClientOriginalName(), 'public');
-    
-                    $archivo = new ArchivosGenerales([
-                        'tipo_archivo' => 'imagen',
-                        'url_archivo' => $url,
-                        'estado' => 1,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-        
-                    $archivo->relation()->associate($pqrsf);
-                    $pqrsf->archivos()->save($archivo);
+            $archivos = $request->get('archivos');
+            
+            if (count($archivos)) {
+                foreach ($archivos as $archivo) {
+                    $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                    $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/pqrsf/'.$archivoCache->name_file;
+                    if (Storage::exists($archivoCache->relative_path)) {
+                        Storage::move($archivoCache->relative_path, $finalPath);
+                        
+                        $archivo = new ArchivosGenerales([
+                            'tipo_archivo' => $archivoCache->tipo_archivo,
+                            'url_archivo' => $finalPath,
+                            'estado' => 1,
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+                        $archivo->relation()->associate($pqrsf);
+                        $pqrsf->archivos()->save($archivo);
+                    }
+                    $archivoCache->delete();
                 }
             }
             
-            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).' para el area: '.$this->areaPqrsf($pqrsf->area);
+            // $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).' para el area: '.$this->areaPqrsf($pqrsf->area);
             
-            $notificacion = (new NotificacionGeneral(
-                request()->user()->id,
-                $request->get('id_usuario_pqrsf'),
-                $pqrsf
-            ));
-            $idUsuarioNotificacion = $pqrsf->id_usuario;
+            // $notificacion = (new NotificacionGeneral(
+            //     request()->user()->id,
+            //     $request->get('id_usuario_pqrsf'),
+            //     $pqrsf
+            // ));
+            // $idUsuarioNotificacion = $pqrsf->id_usuario;
             
-            $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' =>  $idUsuarioNotificacion,
-                'mensaje' => $mensaje,
-                'function' => 'abrirPqrsfNotificacion',
-                'data' => $pqrsf->id,
-                'estado' => 0,
-                'id_rol' => 1,
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id
-            ], true);
-            $notificacion->notificar(
-                [
-                    'pqrsf-mensaje-responder-'.$request->user()['has_empresa']
-                ],
-                ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
-            );
+            // $id_notificacion = $notificacion->crear((object)[
+            //     'id_usuario' =>  $idUsuarioNotificacion,
+            //     'mensaje' => $mensaje,
+            //     'function' => 'abrirPqrsfNotificacion',
+            //     'data' => $pqrsf->id,
+            //     'estado' => 0,
+            //     'id_rol' => 1,
+            //     'created_by' => request()->user()->id,
+            //     'updated_by' => request()->user()->id
+            // ], true);
+            // $notificacion->notificar(
+            //     [
+            //         'pqrsf-mensaje-responder-'.$request->user()['has_empresa']
+            //     ],
+            //     ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
+            // );
 
             DB::connection('max')->commit();
 

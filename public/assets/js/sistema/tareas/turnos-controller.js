@@ -420,7 +420,7 @@ function clearFormTurno () {
         $('#'+dia).prop('checked', false);
     });
 
-    marcarDias();
+    marcarDiasTurnos();
 }
 
 $comboUsuarioTurno = $('#id_usuario_turno').select2({
@@ -907,14 +907,14 @@ function recorrerFechas(fechaInicio, fechaFin) {
 }
 
 $("#fecha_inicio_turno").on('change', function(event) {
-    marcarDias();
+    marcarDiasTurnos();
 });
 
 $("#fecha_fin_turno").on('change', function(event) {
-    marcarDias();
+    marcarDiasTurnos();
 });
 
-function marcarDias() {
+function marcarDiasTurnos() {
     let fechaInicio = $("#fecha_inicio_turno").val();
     let fechaFin = $("#fecha_fin_turno").val();
 

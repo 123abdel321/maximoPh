@@ -1,25 +1,220 @@
-var swiper = null;
-var pqrsf_table = null;
-var $comboUsuarioPqrsf = null;
-var quill = null;
-var diaPqrsf = [
-    "diaPqrsf0",
-    "diaPqrsf1",
-    "diaPqrsf2",
-    "diaPqrsf3",
-    "diaPqrsf4",
-    "diaPqrsf5",
-    "diaPqrsf6",
-    "diaPqrsf7"
-];
+let uploadedFilesPqrsf = [];
+let limpiarInputFilePqrsf = false;
+let swiper = null;
+let pqrsf_table = null;
+let $comboUsuarioPqrsf = null;
 
 function pqrsfInit() {
-    var fechaDesde = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     dateNow = new Date();
+    var fechaDesde = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
 
     $('#fecha_desde_pqrsf_filter').val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-01');
     $('#fecha_hasta_pqrsf_filter').val(fechaDesde);
 
+    initFilePondPqrsf();
+    initCombosPqrsf();
+    initTablesPqrsf();
+    initFilterPqrsf();
+
+    $('.water').hide();
+}
+
+function initFilePondPqrsf() {
+    pondPqrsf = FilePond.create(document.querySelector('#pqrsf-files'), {
+        allowImagePreview: true,
+        imagePreviewUpscale: true,
+        allowMultiple: true,
+        instantUpload: true,
+    });
+
+    $('.filepond--credits').remove();
+
+    pondPqrsf.setOptions({
+        server: {
+            process: {
+                url: '/archivos-cache',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                onload: (response) => {
+                    const uploadedImagePath = JSON.parse(response);
+                    uploadedFilesPqrsf.push({
+                        'id': uploadedImagePath.id,
+                        'url': uploadedImagePath.path
+                    });
+                    return uploadedImagePath.path;
+                },
+                onerror: (response) => {
+                    console.error('Error al subir la imagen: ', response);
+                }
+            },
+            revert: {
+                url: '/archivos-cache',
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            }
+        }
+    });
+
+    clearFilesInputPqrsf();
+}
+
+function initFilterPqrsf() {
+    $(document).on('change', '#fecha_desde_pqrsf_filter', function () {
+        pqrsf_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#fecha_hasta_pqrsf_filter', function () {
+        pqrsf_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#id_nit_pqrsf_filter', function () {
+        pqrsf_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#tipo_pqrsf_filter', function () {
+        pqrsf_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#area_pqrsf_filter', function () {
+        pqrsf_table.ajax.reload();
+    });
+    
+    $(document).on('change', '#estado_pqrsf_filter', function () {
+        pqrsf_table.ajax.reload();
+    });
+}
+
+function initCombosPqrsf() {
+    $comboUsuarioPqrsf = $('#id_usuario_pqrsf').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#pqrsfFormModal'),
+        delay: 250,
+        placeholder: "Seleccione un usuario",
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url + 'usuarios/combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_nit_email_filter').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#emailFormModal'),
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_zona_email_filter').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#emailFormModal'),
+        delay: 250,
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_nit_pqrsf_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una persona",
+        language: {
+            noResults: function() {
+                return "No hay resultado";          
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+}
+
+function initTablesPqrsf() {
     pqrsf_table = $('#pqrsfTable').DataTable({
         pageLength: 20,
         dom: 'Brtip',
@@ -152,137 +347,8 @@ function pqrsfInit() {
             findDataPqrsf(id);
         });
     }
-    
-    $comboUsuarioPqrsf = $('#id_usuario_pqrsf').select2({
-        theme: 'bootstrap-5',
-        dropdownParent: $('#pqrsfFormModal'),
-        delay: 250,
-        placeholder: "Seleccione un usuario",
-        language: {
-            noResults: function() {
-                return "No hay resultado";        
-            },
-            searching: function() {
-                return "Buscando..";
-            },
-            inputTooShort: function () {
-                return "Por favor introduce 1 o más caracteres";
-            }
-        },
-        ajax: {
-            url: base_url + 'usuarios/combo',
-            headers: headers,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
 
     pqrsf_table.ajax.reload();
-
-    quill = new Quill('#editor', {
-        placeholder: 'Redactar texto ...',
-        theme: 'snow'
-    });
-
-    $('#id_nit_email_filter').select2({
-        theme: 'bootstrap-5',
-        dropdownParent: $('#emailFormModal'),
-        delay: 250,
-        placeholder: "Seleccione una persona",
-        allowClear: true,
-        language: {
-            noResults: function() {
-                return "No hay resultado";        
-            },
-            searching: function() {
-                return "Buscando..";
-            },
-            inputTooShort: function () {
-                return "Por favor introduce 1 o más caracteres";
-            }
-        },
-        ajax: {
-            url: base_url_erp + 'nit/combo-nit',
-            headers: headersERP,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
-
-    $('#id_zona_email_filter').select2({
-        theme: 'bootstrap-5',
-        dropdownParent: $('#emailFormModal'),
-        delay: 250,
-        ajax: {
-            url: 'api/zona-combo',
-            headers: headers,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
-
-    $('#id_nit_pqrsf_filter').select2({
-        theme: 'bootstrap-5',
-        delay: 250,
-        placeholder: "Seleccione una persona",
-        language: {
-            noResults: function() {
-                return "No hay resultado";          
-            },
-            searching: function() {
-                return "Buscando..";
-            },
-            inputTooShort: function () {
-                return "Por favor introduce 1 o más caracteres";
-            }
-        },
-        ajax: {
-            url: base_url_erp + 'nit/combo-nit',
-            headers: headersERP,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
 }
 
 function loadingDataPqrsf() {
@@ -308,13 +374,6 @@ function loadingDataPqrsf() {
     document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
 }
 
-var dataImagenes = $('.input-images-pqrsf').imageUploader({
-    imagesInputName: 'photos',
-    preloadedInputName: 'old',
-    // maxSize: 2 * 1024 * 1024,
-    maxFiles: 10
-});
-
 $(document).on('click', '#generatePqrsfNuevo', function () {
     clearFormPqrsf();
     $("#pqrsfFormModal").modal('show');
@@ -325,35 +384,51 @@ $(document).on('click', '#generateEmailNuevo', function () {
     $("#emailFormModal").modal('show');
 });
 
+$(document).on('change', '#tipo_pqrsf', function () {
+    $("#input_id_usuario_pqrsf").hide();
+});
 
-$(document).on('click', '#sendEmail', function () {
-    var texto = quill.root.innerHTML;
+$(document).on('click', '#savePqrsf', function () {
+    var form = document.querySelector('#form-pqrsf');
 
-    if (texto == '<p><br></p>') {
-        agregarToast('error', 'Email errada', 'el mensaje es obligatorio');
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
         return;
     }
 
     let data = {
-        id_zona: $("#id_zona_email_filter").val(),
-        id_nit: $("#id_nit_email_filter").val(),
-        texto: texto
+        tipo_pqrsf: $("#tipo_pqrsf").val(),
+        area_pqrsf: $("#area_pqrsf").val(),
+        id_usuario_pqrsf: $("#id_usuario_pqrsf").val(),
+        hora_fin_pqrsf: $("#hora_fin_pqrsf").val(),
+        asunto_pqrsf: $("#asunto_pqrsf").val(),
+        mensaje_pqrsf: $("#mensaje_pqrsf").val(),
+        archivos: uploadedFilesPqrsf
     }
 
+    $("#savePqrsf").hide();
+    $("#savePqrsfLoading").show();
+
     $.ajax({
-        url: base_url + 'pqrsf-email',
+        url: base_url + 'pqrsf',
         method: 'POST',
         data: JSON.stringify(data),
         headers: headers,
         dataType: 'json',
     }).done((res) => {
         if(res.success){
-            agregarToast('exito', 'Email exitoso', 'Emails enviados con exito!', true);
-            $("#emailFormModal").modal('hide');
+            clearFormPqrsf();
+
+            $("#savePqrsf").show();
+            $("#savePqrsfLoading").hide();
+            $("#pqrsfFormModal").modal('hide');
+            
+            pqrsf_table.ajax.reload();
+            agregarToast('exito', 'Creación exitosa', 'Pqrsf creado con exito!', true);
         }
     }).fail((err) => {
-        $('#sendEmail').show();
-        $('#sendEmailLoading').hide();
+        $('#savePqrsf').show();
+        $('#savePqrsfLoading').hide();
         var errorsMsg = "";
         var mensaje = err.responseJSON.message;
         if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
@@ -370,121 +445,48 @@ $(document).on('click', '#sendEmail', function () {
     });
 });
 
-function clearEmailSender() {
-    quill.deleteText(0, quill.getLength());
-}
-
-$(document).on('change', '#tipo_pqrsf', function () {
-    var tipoPorteria = $("#tipo_pqrsf").val();
-    if (tipoPorteria == '5') {
-        $("#input_hora_inicio_pqrsf").show();
-        $("#input_id_usuario_pqrsf").show();
-        $("#input_hora_fin_pqrsf").show();
-        $("#input_dias_pqrsf").show();
-    } else {
-        $("#input_hora_inicio_pqrsf").hide();
-        $("#input_id_usuario_pqrsf").hide();
-        $("#input_hora_fin_pqrsf").hide();
-        $("#input_dias_pqrsf").hide();
-    }
-});
-
-$(document).on('change', '#fecha_desde_pqrsf_filter', function () {
-    pqrsf_table.ajax.reload();
-});
-
-$(document).on('change', '#fecha_hasta_pqrsf_filter', function () {
-    pqrsf_table.ajax.reload();
-});
-
-$(document).on('change', '#id_nit_pqrsf_filter', function () {
-    pqrsf_table.ajax.reload();
-});
-
-$(document).on('change', '#tipo_pqrsf_filter', function () {
-    pqrsf_table.ajax.reload();
-});
-
-$(document).on('change', '#area_pqrsf_filter', function () {
-    pqrsf_table.ajax.reload();
-});
-
-$(document).on('change', '#estado_pqrsf_filter', function () {
-    pqrsf_table.ajax.reload();
-});
-
-$("#form-pqrsf").submit(function(e) {
-    e.preventDefault();
-
-    var form = document.querySelector('#form-pqrsf');
-
-    if(!form.checkValidity()){
-        form.classList.add('was-validated');
-        return;
-    }
-
-    $("#savePqrsf").hide();
-    $("#savePqrsfLoading").show();
-
-    var ajxForm = document.getElementById("form-pqrsf");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "pqrsf");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        console.log('res: ',res);
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
-
-        var responseData = JSON.parse(res.currentTarget.response);
-        $('#savePqrsf').show();
-        $('#savePqrsfLoading').hide();
-
-        if (responseData.success) {
-            agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
-            pqrsf_table.ajax.reload();
-        } else {
-            agregarToast('error', 'Carga errada', responseData.message);
-            pqrsf_table.ajax.reload();
-        }
-
-        $("#pqrsfFormModal").modal('hide');
-    };
-    xhr.onerror = function (res) {
-        agregarToast('error', 'Carga errada', 'errorsMsg');
-        $('#savePqrsf').show();
-        $('#savePqrsfLoading').hide();
-    };
-});
-
 function clearFormPqrsf () {
-    
+    limpiarInputFilePqrsf = true;
+    clearFilesInputPqrsf();
     $("#id_usuario_pqrsf").val('').change();
-    $("#hora_inicio_pqrsf").val("");
-    $("#hora_fin_pqrsf").val("");
     $("#asunto_pqrsf").val("");
     $("#mensaje_pqrsf").val("");
     $("#asunto_pqrsf").val("");
     $("#area_pqrsf").val(1);
-    
-    $('.input-images-pqrsf').imageUploader('destroy');
-    // Eliminar todo el contenido del contenedor
-    $('.input-images-pqrsf').empty();
-    // Re-inicializar el componente imageUploader
-    $('.input-images-pqrsf').imageUploader({
-        imagesInputName: 'photos',
-        preloadedInputName: 'old',
-        // maxSize: 2 * 1024 * 1024,
-        maxFiles: 10
-    });
-    
-    diaPqrsf.forEach(dia => {
-        $('#'+dia).prop('checked', false);
+    $("#tipo_pqrsf").val('0').change();
+}
+
+function clearFilesInputPqrsf() {
+    uploadedFilesPqrsf = [];
+    pondPqrsf.off('removefile');
+    pondPqrsf.removeFiles();
+    pondPqrsf.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFilePqrsf) {
+            limpiarInputFilePqrsf = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
     });
 }
 
