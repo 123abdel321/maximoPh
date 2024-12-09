@@ -65,6 +65,13 @@ class NovedadesController extends Controller
                     'updated_by'
                 );
 
+            if ($request->get('id_responsable')) $novedades->where('id_porteria', $request->get('id_responsable'));
+            if ($request->get('tipo')) $novedades->where('tipo', $request->get('tipo'));
+            if ($request->get('area')) $novedades->where('area', $request->get('area'));
+            if ($request->get('area')) $novedades->where('area', $request->get('area'));
+            if ($request->get('fecha_desde')) $pqrsf->where('fecha', '>=', $request->get('fecha_desde'));
+            if ($request->get('fecha_hasta')) $pqrsf->where('fecha', '<=', $request->get('fecha_hasta'));
+
             $totalNovedades = $novedades->count();
             $novedadesPaginate = $novedades->skip($start)
                 ->take($rowperpage);

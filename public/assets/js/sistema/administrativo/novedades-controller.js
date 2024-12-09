@@ -1,6 +1,7 @@
 let uploadedFilesNovedades = [];
 let pondNovedades = null;
 let $comboPorteriaNovedades;
+let $comboPorteriaNovedadesFiltros;
 let novedades_table = null;
 let limpiarInputFileNovedades = false; 
 
@@ -8,7 +9,26 @@ function novedadesInit() {
     initFilePondNovedades();
     initCombosNovedades();
     initTablesNovedades();
+    initListenerFilter();
     $('.water').hide();
+}
+
+function initListenerFilter() {
+    $(document).on('change', '#id_porteria_novedad_filter', function () {
+        novedades_table.ajax.reload();
+    });
+    $(document).on('change', '#tipo_novedades_filter', function () {
+        novedades_table.ajax.reload();
+    });
+    $(document).on('change', '#area_novedades_filter', function () {
+        novedades_table.ajax.reload();
+    });
+    $(document).on('change', '#fecha_desde_novedades', function () {
+        novedades_table.ajax.reload();
+    });
+    $(document).on('change', '#id_porteria_nofecha_hasta_novedadesvedad_filter', function () {
+        novedades_table.ajax.reload();
+    });
 }
 
 function initFilePondNovedades() {
@@ -83,6 +103,13 @@ function initTablesNovedades() {
             type: "GET",
             headers: headers,
             url: base_url + 'novedades',
+            data: function ( d ) {
+                d.id_responsable = $('#id_porteria_novedad_filter').val();
+                d.tipo = $('#tipo_novedades_filter').val();
+                d.area = $('#area_novedades_filter').val();
+                d.fecha_desde = $('#fecha_desde_novedades').val();
+                d.fecha_hasta = $('#fecha_hasta_novedades').val();
+            }
         },
         columns: [
             {
@@ -312,7 +339,43 @@ function initCombosNovedades(){
         theme: 'bootstrap-5',
         dropdownParent: $('#novedadesFormModal'),
         delay: 250,
-        placeholder: "Seleccione una persona",
+        placeholder: "Seleccione un responsable",
+        language: {
+            noResults: function() {
+                return "No hay resultado";          
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url + 'porteria-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        },
+        templateResult: formatSelect2Novedades,
+        templateSelection: formatNovedadesSelection
+    });
+
+    $comboPorteriaNovedadesFiltros = $('#id_porteria_novedad_filter').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un responsable",
+        allowClear: true,
         language: {
             noResults: function() {
                 return "No hay resultado";          
