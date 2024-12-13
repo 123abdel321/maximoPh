@@ -27,6 +27,10 @@ class Pqrsf extends Model
         'created_by',
         'updated_by'
     ];
+    public function chats()
+    {
+        return $this->morphMany(Chat::class, 'relation');
+	}
 
     public function archivos()
     {

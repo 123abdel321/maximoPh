@@ -46,6 +46,8 @@
     })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
     <!-- End Google Tag Manager -->
 
+    @livewireStyles
+
 </head>
 
 <body class="body-basic" style="background-color: #060e26;">
@@ -185,22 +187,32 @@
     <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
     <button id="button-open-datelle-turnos" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTurnos" aria-controls="offcanvasTurnos" style="display: none;"></button>
     <button id="button-open-notificaciones" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificacionesMaximo" aria-controls="notificacionesMaximo" style="display: none;"></button>
+    <button id="button-open-chat" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#chatMaximo" aria-controls="chatMaximo" style="display: none;"></button>
 
     @include('components.pqrsf-canv')
     @include('components.turnos-canv')
     @include('components.notificaciones')
     <!-- FOOTER -->
     @include('layouts.footers.footer')
+    <!-- CHAT GENERA -->
+
+    @livewire('chat-general')
+
+    @livewireScripts
 
     <script>
-        var idRolUsuario = JSON.parse('<?php echo $rol_usuario; ?>');
-        var is_owner = JSON.parse('<?php echo $is_owner; ?>');
-        var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
-        var version_app = '<?php echo config('app.version'); ?>';
-        var pqrsf_responder = '<?php echo $pqrsf_responder; ?>';
-        var turno_responder = '<?php echo $turno_responder; ?>';
-    </script>
+        const idRolUsuario = @json($rol_usuario);
+        const is_owner = @json($is_owner);
+        const id_usuario_logeado = @json(auth()->user()->id);
+        const version_app = @json(config('app.version'));
+        const pqrsf_responder = @json($pqrsf_responder);
+        const turno_responder = @json($turno_responder);
 
+        const mensajePqrsf = @json(auth()->user()->can('mensajes pqrsf'));
+        const mensajeTurno = @json(auth()->user()->can('mensajes turnos'));
+        const mensajeNovedad = @json(auth()->user()->can('mensajes novedades'));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
@@ -256,12 +268,18 @@
     <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- NOTIFICACIONES -->
     <script src="{{ secure_asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ secure_asset('assets/js/sistema/mensajes.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->
     <script src="{{ secure_asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
     <!-- Include the Quill library -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    
+    <script>
+        //VALIDAR TOTAL DE NOTIFICACIONES PENDIENTES
+        setTimeout(function(){
+            actualizarNumeroNotificaciones();
+        },500);
+    </script>
     @stack('js')
 </body>
 

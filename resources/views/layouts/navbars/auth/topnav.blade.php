@@ -16,7 +16,7 @@
                     <div id="nombre-empresa" style="color: aliceblue; text-transform: uppercase; font-size: 16px; font-weight: bold;"></div>
                 </li>
 
-                <li class="nav-item px-2 d-flex align-items-center">
+                <!-- <li class="nav-item px-2 d-flex align-items-center">
                     <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarNotificacion" onclick="openDropDownNotificaciones(true)">
                         <div>
                             <p id="number_notification" class="number_notification" style="z-index: 99; display: none;"></p>
@@ -31,7 +31,7 @@
                             </div>
                         </div>
 
-                        <!-- <div class="dropdown-item" style="width: 231px;">
+                        <div class="dropdown-item" style="width: 231px;">
                             <div class="row texto-dropdown-notificacion-info">
                                 <div class="col-11 text-wrap texto-dropdown-notificacion">
                                     <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
@@ -46,9 +46,9 @@
                                     <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
 
-                        <!-- <div class="dropdown-item" style="width: 231px;">
+                        <<div class="dropdown-item" style="width: 231px;">
                             <div class="row texto-dropdown-notificacion-info">
                                 <div class="col-11 text-wrap texto-dropdown-notificacion">
                                     <span class="placeholder col-12 placeholder-sm" style="min-height: 0.7em;"></span>
@@ -80,9 +80,9 @@
                                     <span class="placeholder placeholder-sm" style="width: 45px; min-height: 0.5em;"></span>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
 
-                        <!-- <div class="dropdown-item">
+                        <div class="dropdown-item">
                             <div class="row texto-dropdown-notificacion-success">
                                 <div class="col-11 text-wrap texto-dropdown-notificacion"> Ha recibido un nuevo mensaje de Sandra Ovalle </div>
                                 <div class="col-1" style="align-self: center;">
@@ -108,9 +108,7 @@
                                     Hoy 8:45
                                 </div>
                             </div>
-                        </div> -->
-
-                        <!-- 
+                        </div>
 
                         
 
@@ -126,8 +124,7 @@
                                     Hoy 8:45
                                 </div>
                             </div>
-                        </div> -->
-                        <!-- <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Action</a>
                         <a class="dropdown-item" href="#">Another action</a>
                         <a class="dropdown-item" href="#">Something else here</a>
                         <a class="dropdown-item" href="#">Something else here</a>
@@ -137,8 +134,17 @@
                         <a class="dropdown-item" href="#">Something else here</a>
                         <a class="dropdown-item" href="#">Something else here</a>
                         <a class="dropdown-item" href="#">Something else here</a>
-                        <a class="dropdown-item" href="#">Something else here</a> -->
+                        <a class="dropdown-item" href="#">Something else here</a>
                     </div>
+                </li> -->
+
+                <li class="nav-item px-2 d-flex align-items-center">
+                    <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarChat" data-bs-toggle="offcanvas" data-bs-target="#chatMaximo">
+                        <div>
+                            <p id="number_mensajes" class="number_notification" style="z-index: 99; display: none;"></p>
+                            <i class="fas fa-comment" style="font-size: 15px;"></i>
+                        </div>
+                    </a>
                 </li>
                 
                 <li class="nav-item px-2 d-flex align-items-center">

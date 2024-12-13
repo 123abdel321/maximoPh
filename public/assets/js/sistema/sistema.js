@@ -39,6 +39,8 @@ let mostrarAgregarTiempos = false;
 let permisoAgregarTiempos = false;
 let channelPqrsfGeneral = null;
 let channelTurnoGeneral = null;
+let channelMensajeria = null;
+let channelMensajeriaPrivada = null;
 
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
@@ -260,12 +262,14 @@ function actualizarAccionesPqrsf() {
 
 function iniciarScrollBar() {
     var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
-    var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
-    var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
+    // var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
+    // var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
+    var offcanvasChat = document.querySelector('#mensaje-body');
 
     new PerfectScrollbar(offcanvasBodyPorteria);
-    new PerfectScrollbar(dropDownNotificacion);
-    new PerfectScrollbar(offcanvasBodyPqrsf);
+    // new PerfectScrollbar(dropDownNotificacion);
+    // new PerfectScrollbar(offcanvasBodyPqrsf);
+    new PerfectScrollbar(offcanvasChat);
 }
 
 function setNotificaciones(total = null) {
@@ -288,6 +292,8 @@ function iniciarCanalesDeNotificacion () {
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
     channelTurno = pusher.subscribe('turno-mensaje-'+localStorage.getItem("notificacion_code"));
     channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena');
+    channelMensajeria = pusher.subscribe('mensajeria-'+localStorage.getItem("notificacion_code_general"));
+    channelMensajeriaPrivada = pusher.subscribe('mensajeria-'+localStorage.getItem("notificacion_code"));
 
     if (pqrsf_responder) {
         channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));

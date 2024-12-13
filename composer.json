@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.10",
         "laravel/ui": "^4.4",
         "league/flysystem-aws-s3-v3": "^3.27",
+        "livewire/livewire": "^3.5",
         "maatwebsite/excel": "^3.1",
         "mailersend/laravel-driver": "^2.6",
         "marvinlabs/laravel-discord-logger": "^1.4",

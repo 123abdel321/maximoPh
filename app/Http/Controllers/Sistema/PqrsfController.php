@@ -13,9 +13,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Chat;
 use App\Models\Sistema\Pqrsf;
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Message;
 use App\Models\Portafolio\Nits;
+use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\PqrsfTiempos;
 use App\Models\Sistema\PqrsfMensajes;
@@ -192,6 +195,8 @@ class PqrsfController extends Controller
                 ->where('id_empresa', request()->user()->id_empresa)
                 ->first();
 
+            $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
+            
             $pqrsf = Pqrsf::create([
                 'id_usuario' => null,
                 'id_nit' => $usuarioEmpresa->id_nit,
@@ -225,32 +230,34 @@ class PqrsfController extends Controller
                     $archivoCache->delete();
                 }
             }
-            
-            // $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).' para el area: '.$this->areaPqrsf($pqrsf->area);
-            
-            // $notificacion = (new NotificacionGeneral(
-            //     request()->user()->id,
-            //     $request->get('id_usuario_pqrsf'),
-            //     $pqrsf
-            // ));
-            // $idUsuarioNotificacion = $pqrsf->id_usuario;
-            
-            // $id_notificacion = $notificacion->crear((object)[
-            //     'id_usuario' =>  $idUsuarioNotificacion,
-            //     'mensaje' => $mensaje,
-            //     'function' => 'abrirPqrsfNotificacion',
-            //     'data' => $pqrsf->id,
-            //     'estado' => 0,
-            //     'id_rol' => 1,
-            //     'created_by' => request()->user()->id,
-            //     'updated_by' => request()->user()->id
-            // ], true);
-            // $notificacion->notificar(
-            //     [
-            //         'pqrsf-mensaje-responder-'.$request->user()['has_empresa']
-            //     ],
-            //     ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
-            // );
+
+            $chat = new Chat([
+                'name' => 'PQRSF #'.$pqrsf->id,
+                'is_group' => true,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+
+            $chat->relation()->associate($pqrsf);
+            $pqrsf->chats()->save($chat);
+
+            ChatUser::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+            ]);
+
+            Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+                'content' => $request->get("mensaje_pqrsf"),
+                'status' => 1
+            ]);
+
+            event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo, [
+                'chat_id' => 1,
+                'permisos' => 'mensajes pqrsf',
+                'action' => 'creacion_pqrsf'
+            ]));
 
             DB::connection('max')->commit();
 

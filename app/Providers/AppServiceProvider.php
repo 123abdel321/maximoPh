@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Observers\MessageObserver;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Relations\Relation;
 //MODELS SISTEMA
 use App\Models\Sistema\Turno;
 use App\Models\Sistema\Pqrsf;
+use App\Models\Sistema\Message;
 use App\Models\Sistema\Porteria;
 use App\Models\Sistema\Novedades;
 use App\Models\Sistema\TurnoEvento;
@@ -42,5 +44,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        Message::observe(MessageObserver::class);
     }
 }
