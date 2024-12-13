@@ -44,7 +44,6 @@ channelMensajeria.bind('notificaciones', function(data) {
         }
     }
     if (data.action ==  'actualizar_estados') {
-        console.log('aca mero', chatId == data.chat_id);
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
         }
@@ -57,7 +56,6 @@ channelMensajeriaPrivada.bind('notificaciones', function(data) {
     var chatId = parseInt($("#id-mensaje-abierto").val());
 
     if (data.action ==  'actualizar_estados') {
-        console.log('aca mero', chatId == data.chat_id);
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
         }

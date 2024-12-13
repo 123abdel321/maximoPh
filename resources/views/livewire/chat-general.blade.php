@@ -147,6 +147,18 @@
     <div id="mensaje-body" class="offcanvas-body wrapper" style="{{ $mensajeActivoId ? '' : 'display: none !important;' }}">
         @if ($mensajes)
             @foreach($mensajes->mensajes as $mensaje)
+                @php
+                    $createdAt = \Carbon\Carbon::parse($mensaje->created_at);
+                    if ($createdAt->isToday()) {
+                        $formattedDate = $createdAt->format('h:m');
+                    } elseif ($createdAt->isYesterday()) {
+                        $formattedDate = 'Ayer '.$createdAt->format('h:m');
+                    } elseif ($createdAt->isSameYear(\Carbon\Carbon::now())) {
+                        $formattedDate = $createdAt->format('d M'); // Ej. 15 Dic
+                    } else {
+                        $formattedDate = $createdAt->format('d M Y'); // Ej. 15 Dic 2024
+                    }
+                @endphp
                 @if ($mensaje->user_id == $usuario_id)
                     <div class="mensaje-estilo-derecha">
                         <div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress swiper-cards">
@@ -166,7 +178,7 @@
                             {{ $mensaje->content }}
                         </p>
                         <div style="display: flex; float: right;">
-                            <p style="font-size: 10px; margin-bottom: 0; font-weight: 500; text-align: end; margin-top: -10px; color: #cecece;">{{ $mensaje->created_at }}</p>
+                            <p style="font-size: 10px; margin-bottom: 0; font-weight: 500; text-align: end; margin-top: -10px; color: #cecece;">{{ $formattedDate }}</p>
                             @if ($mensaje->status == 1)
                                 <i class="fas fa-check icono-status-no_entregado" aria-hidden="true"></i>
                             @elseif ($mensaje->status == 2)
@@ -193,7 +205,7 @@
                             <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
                         </div>
                         <p style="font-size: 13px; margin-bottom: 0; text-align-last: auto; font-weight: 600;">{{ $mensaje->content }}</p>
-                        <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">{{ $mensaje->created_at }}</p>
+                        <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">{{ $formattedDate }}</p>
                         <!-- <i class="fas fa-caret-down icono-mensaje-izquierda" aria-hidden="true"></i> -->
                     </div>
                 @endif
