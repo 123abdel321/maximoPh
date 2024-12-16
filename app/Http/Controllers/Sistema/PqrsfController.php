@@ -65,7 +65,7 @@ class PqrsfController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos')
+            $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos', 'chats')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),

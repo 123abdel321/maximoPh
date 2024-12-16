@@ -342,9 +342,12 @@ function initTablesPqrsf() {
         pqrsf_table.on('click', '.read-pqrsf', function() {
             $("#offcanvas-body-pqrsf").empty();
             var id = this.id.split('_')[1];
-            $("#id_pqrsf_up").val(id);
-            $("#mensaje_pqrsf_nuevo").val("");
-            findDataPqrsf(id);
+            var data = getDataById(id, pqrsf_table);
+            if (data.chats.length) {
+                Livewire.dispatch('cargarMensajes', {chatId: data.chats[0].id, observador: false});
+                const chatMaximo = document.getElementById('chatMaximo');
+                if (!chatMaximo.classList.contains('show')) document.getElementById('iconNavbarChat').click();
+            }
         });
     }
 
