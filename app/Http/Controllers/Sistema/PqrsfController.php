@@ -208,6 +208,28 @@ class PqrsfController extends Controller
                 'updated_by' => request()->user()->id
             ]);
 
+            $chat = new Chat([
+                'name' => 'PQRSF #'.$pqrsf->id,
+                'is_group' => true,
+                'created_by' => request()->user()->id,
+                'updated_by' => request()->user()->id
+            ]);
+
+            $chat->relation()->associate($pqrsf);
+            $pqrsf->chats()->save($chat);
+
+            ChatUser::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+            ]);
+
+            $mensaje = Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+                'content' => $request->get("mensaje_pqrsf"),
+                'status' => 1
+            ]);
+            
             $archivos = $request->get('archivos');
             
             if (count($archivos)) {
@@ -224,34 +246,12 @@ class PqrsfController extends Controller
                             'created_by' => request()->user()->id,
                             'updated_by' => request()->user()->id
                         ]);
-                        $archivo->relation()->associate($pqrsf);
-                        $pqrsf->archivos()->save($archivo);
+                        $archivo->relation()->associate($mensaje);
+                        $mensaje->archivos()->save($archivo);
                     }
                     $archivoCache->delete();
                 }
             }
-
-            $chat = new Chat([
-                'name' => 'PQRSF #'.$pqrsf->id,
-                'is_group' => true,
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id
-            ]);
-
-            $chat->relation()->associate($pqrsf);
-            $pqrsf->chats()->save($chat);
-
-            ChatUser::create([
-                'chat_id' => $chat->id,
-                'user_id' => request()->user()->id,
-            ]);
-
-            Message::create([
-                'chat_id' => $chat->id,
-                'user_id' => request()->user()->id,
-                'content' => $request->get("mensaje_pqrsf"),
-                'status' => 1
-            ]);
 
             event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo, [
                 'chat_id' => 1,

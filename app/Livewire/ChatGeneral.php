@@ -10,6 +10,7 @@ use App\Events\PrivateMessageEvent;
 use App\Models\Sistema\Chat;
 use App\Models\Sistema\Message;
 use App\Models\Sistema\MessageUser;
+use App\Models\Sistema\ArchivosGenerales;
 
 class ChatGeneral extends Component
 {
@@ -171,8 +172,13 @@ class ChatGeneral extends Component
                 )
                 ->where('chat_id', $chatId)
                 ->get();
-
-            foreach ($this->mensajes->mensajes as $mensaje) {
+                    
+            foreach ($this->mensajes->mensajes as $key => $mensaje) {
+                $archivos = ArchivosGenerales::where('relation_type', '17')
+                    ->where('relation_id', $mensaje->id)
+                    ->get();
+                    
+                $this->mensajes->mensajes[$key]->archivos = $archivos;
                 MessageUser::firstOrCreate([
                     'message_id' => $mensaje->id,
                     'user_id' => $this->usuario_id,
@@ -195,23 +201,6 @@ class ChatGeneral extends Component
                         'status' => 3
                     ]);
             }
-
-            // DB::connection('max')
-            //     ->table('messages')
-            //     ->where('chat_id', $chatId)
-            //     ->where('user_id', '!=', $this->usuario_id)
-            //     ->where(function ($query) {
-            //         $query->whereIn('status', [1, 2]);
-            //     })
-            //     ->update(['status' => 3]);
-
-            // if ($notificar) {
-            //     event(new PrivateMessageEvent('mensajeria-'.$this->token_db, [
-            //         'chat_id' => $chatId,
-            //         'permisos' => '',
-            //         'action' => 'actualizar_estados'
-            //     ]));
-            // }
         } else {
             $this->mensajes = false;
         }

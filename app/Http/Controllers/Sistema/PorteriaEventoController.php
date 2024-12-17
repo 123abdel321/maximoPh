@@ -55,12 +55,12 @@ class PorteriaEventoController extends Controller
             if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));
             if ($request->get("fecha_desde")) {
                 $fechaFilter = Carbon::parse($request->get("fecha_desde"))->format('Y-m-d');
-                $porteriaEvento->where('fecha_ingreso', '>=', $fechaFilter);
+                $porteriaEvento->where('created_at', '>=', $fechaFilter);
             }
             if ($request->get("fecha_hasta")) {
                 $fechaFilter = Carbon::parse($request->get("fecha_hasta"))->format('Y-m-d');
                 $porteriaEvento->where(function ($query) use ($fechaFilter) {
-                    $query->where('fecha_salida', '<=', $fechaFilter)
+                    $query->where('created_at', '<=', $fechaFilter)
                           ->orWhereNull('fecha_salida');
                 });
             }

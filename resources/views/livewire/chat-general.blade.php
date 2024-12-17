@@ -161,19 +161,17 @@
                 @endphp
                 @if ($mensaje->user_id == $usuario_id)
                     <div class="mensaje-estilo-derecha">
-                        <div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress swiper-cards">
-                            <div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden;">
-                    
-                                <div class="swiper-button-next swiper-button-disabled swiper-button-lock" tabindex="-1" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-730a983e14310fcd9" aria-disabled="true"></div>
-                                <div class="swiper-button-prev swiper-button-disabled swiper-button-lock" tabindex="-1" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-730a983e14310fcd9" aria-disabled="true"></div>
-                                <div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal swiper-pagination-clickable swiper-pagination-lock">
-                                    <span class="swiper-pagination-bullet swiper-pagination-bullet-active" tabindex="0" role="button" aria-label="Go to slide 1" aria-current="true"></span>
-                                </div>
-
-                                <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
-                            </div>
-                            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
-                        </div>
+                        @if (count($mensaje->archivos))
+                            @foreach ($mensaje->archivos as $archivo)
+                                @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
+                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
+                                @elseif (explode('/', $archivo->tipo_archivo)[0] == 'video')
+                                    <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;"></video>
+                                @else
+                                    <iframe src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" style="width: 100%; height: 250px;"></iframe>
+                                @endif
+                            @endforeach
+                        @endif
                         <p style="font-size: 13px; margin-bottom: 0; text-align: right; font-weight: 600; margin-top: -5px; padding-bottom: 10px; margin-left: 14px;">
                             {{ $mensaje->content }}
                         </p>
@@ -191,19 +189,17 @@
                     </div>
                 @else
                     <div class="mensaje-estilo-izquierda">
-                        <div class="swiper mySwiper swiper-flip swiper-3d swiper-initialized swiper-horizontal swiper-watch-progress swiper-cards">
-                            <div class="swiper-wrapper" id="swiper-wrapper-730a983e14310fcd9" aria-live="polite" style="cursor: grab; overflow: hidden;">
-                    
-                                <div class="swiper-button-next swiper-button-disabled swiper-button-lock" tabindex="-1" role="button" aria-label="Next slide" aria-controls="swiper-wrapper-730a983e14310fcd9" aria-disabled="true"></div>
-                                <div class="swiper-button-prev swiper-button-disabled swiper-button-lock" tabindex="-1" role="button" aria-label="Previous slide" aria-controls="swiper-wrapper-730a983e14310fcd9" aria-disabled="true"></div>
-                                <div class="swiper-pagination swiper-pagination-bullets swiper-pagination-horizontal swiper-pagination-clickable swiper-pagination-lock">
-                                    <span class="swiper-pagination-bullet swiper-pagination-bullet-active" tabindex="0" role="button" aria-label="Go to slide 1" aria-current="true"></span>
-                                </div>
-
-                                <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
-                            </div>
-                            <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span>
-                        </div>
+                        @if (count($mensaje->archivos))
+                            @foreach ($mensaje->archivos as $archivo)
+                                @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
+                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
+                                @elseif (explode('/', $archivo->tipo_archivo)[0] == 'video')
+                                    <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;"></video>
+                                @else
+                                    <iframe src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" style="width: 100%; height: 250px;"></iframe>
+                                @endif
+                            @endforeach
+                        @endif
                         <p style="font-size: 13px; margin-bottom: 0; text-align-last: auto; font-weight: 600;">{{ $mensaje->content }}</p>
                         <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">{{ $formattedDate }}</p>
                         <!-- <i class="fas fa-caret-down icono-mensaje-izquierda" aria-hidden="true"></i> -->
@@ -213,9 +209,9 @@
         @endif
     </div>
     <div id="offcanvas-footer-mensajes container-chat" class="offcanvas-footer" style="{{ $mensajeActivoId ? '' : 'display: none !important;' }} padding: 10px; background-color: #202c33; display: flex; box-shadow: -2px -2px 2px rgb(0 0 0 / 20%), 0px 0px 0px rgb(0 0 0 / 10%);">
-        <div class="dropdown" style="align-self: center;">
-            <i class="fas fa-plus icon-action" data-bs-toggle="dropdown" aria-expanded="false"></i>
-        </div>
+        <!-- <div class="accordion-item" style="align-content: center;">
+            <i class="fas fa-plus icon-action" aria-expanded="false" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree"></i>
+        </div> -->
         <input
             id="input-mensaje-chat"
             wire:model="textoEscrito"
@@ -230,6 +226,11 @@
             class="fas fa-paper-plane icon-send"
         >
         </i>
+    </div>
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="container accordion-body">
+            <input type="file" class="filepond" id="chat-general-files" wire:model="uploadedFilesMensajes" multiple>
+        </div>
     </div>
     <!-- END MENSAJES -->
     <!-- CHATS -->

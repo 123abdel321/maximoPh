@@ -23,7 +23,13 @@ class Message extends Model
         'status'
     ];
 
-    public function usuario (){
+    public function archivos()
+    {
+        return $this->morphMany(ArchivosGenerales::class, 'relation');
+	}
+
+    public function usuario ()
+    {
         return $this->belongsTo(User::class, "user_id");
     }
 

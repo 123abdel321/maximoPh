@@ -469,6 +469,8 @@ function porteriaInit() {
 
             if (itemPorteria.archivos.length) {
                 $("#img_porteria_evento").attr("src",bucketUrl + itemPorteria.archivos[0].url_archivo);
+            } else {
+                $("#img_porteria_evento").attr("src", "/img/no-photo.jpg");
             }
 
             $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
@@ -546,7 +548,7 @@ function porteriaInit() {
 
             if (data.propietario.logo_nit) {
                 $("#preview_header_img_porteria").attr("src",bucketUrl + data.propietario.logo_nit);
-            } else if (data.usuario.avatar) {
+            } else if (data.usuario && data.usuario.avatar) {
                 $("#preview_header_img_porteria").attr("src",bucketUrl + data.usuario.avatar);
             } else {
                 $("#preview_header_img_porteria").attr("src", "/img/no-photo.jpg");
@@ -582,7 +584,7 @@ function porteriaInit() {
                 $("#porteria-preview-autorizado").show();
                 $("#porteria-preview-noautorizado").hide();
             } else if (data.tipo_porteria == 4 || data.tipo_porteria == 0 || data.tipo_porteria == 5 || data.tipo_porteria == 6) {
-                console.log('heee eca');
+
                 var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                 var numeroDia = new Date(dayNow).getDay() + 1;
                 var hoyDia = new Date(data.hoy).getDay();
@@ -599,7 +601,6 @@ function porteriaInit() {
                         $("#porteria-preview-noautorizado").hide();
                     }
                 }
-                
             }else {
                 $("#porteria-preview-autorizado").hide();
                 $("#porteria-preview-noautorizado").show();
@@ -611,9 +612,11 @@ function porteriaInit() {
                 if (data.tipo_porteria == 3 || data.tipo_porteria == 4 && data.placa) texto = data.placa;
 
                 $("#imagen-porteria-preview").css("background-image", "url("+img+")");
-                
-                $("#porteriaPreviewModal").modal('show');
+            } else {
+                $("#imagen-porteria-preview").css("background-image", "url(/img/no-photo.jpg)");
             }
+
+            $("#porteriaPreviewModal").modal('show');
         });
     }
 

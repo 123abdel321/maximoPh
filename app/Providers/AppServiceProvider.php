@@ -34,7 +34,8 @@ class AppServiceProvider extends ServiceProvider
             '13' => PqrsfMensajes::class,
             '14' => Turno::class,
             '15' => TurnoEvento::class,
-            '16' => Novedades::class
+            '16' => Novedades::class,
+            '17' => Message::class
 		]);
     }
 
