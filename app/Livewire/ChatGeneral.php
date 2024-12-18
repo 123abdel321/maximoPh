@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use DB;
+use Config;
 use Carbon\Carbon;
 use Livewire\Component;
 use App\Events\PrivateMessageEvent;
@@ -36,6 +37,9 @@ class ChatGeneral extends Component
 
     public function mount()
     {
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->token_db);
+        
         $this->token_db = request()->user()->has_empresa;
         $this->usuario_id = request()->user()->id;
         
@@ -50,6 +54,9 @@ class ChatGeneral extends Component
     {        
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
+        // DB::purge('max');
+        // Config::set('database.connections.max.database', $this->token_db);
+        // DB::reconnect('max');
 
         $this->chats = [];
         $this->numeroNotificaciones = 0;
@@ -128,14 +135,6 @@ class ChatGeneral extends Component
                     ]);
             }
 
-            // DB::connection('max')
-            //     ->table('messages')
-            //     ->where([
-            //         ['chat_id', '=', $chat->id],
-            //         ['status', '=', 1]
-            //     ])
-            //     ->update(['status' => 2]);
-
             $this->chats[] = (object)[
                 'id' => $chat->id,
                 'nombre' => $chat->name,
@@ -150,6 +149,9 @@ class ChatGeneral extends Component
     {
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
+        // DB::purge('max');
+        // Config::set('database.connections.max.database', $this->token_db);
+        // DB::reconnect('max');
 
         $chat = DB::connection('max')->table('chats')->where('id', $chatId)->first();
         $this->mensajeActivoId = $chatId;
@@ -174,7 +176,9 @@ class ChatGeneral extends Component
                 ->get();
                     
             foreach ($this->mensajes->mensajes as $key => $mensaje) {
-                $archivos = ArchivosGenerales::where('relation_type', '17')
+                $archivos = DB::connection('max')
+                    ->table('archivos_generales AS AG')
+                    ->where('relation_type', '17')
                     ->where('relation_id', $mensaje->id)
                     ->get();
                     
@@ -208,6 +212,12 @@ class ChatGeneral extends Component
 
     public function totalMensajes()
     {
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->token_db);
+        // DB::purge('max');
+        // Config::set('database.connections.max.database', $this->token_db);
+        // DB::reconnect('max');
+
         $unreadMessages = DB::connection('max')
             ->table('messages')
             ->join('chat_users', 'messages.chat_id', '=', 'chat_users.chat_id') // Relaciona mensajes con los chats del usuario
@@ -225,8 +235,11 @@ class ChatGeneral extends Component
 
     public function volverChat()
     {
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->token_db);
+
         $this->mensajeActivoId = null;
-        $this->cargarChats();
+        // $this->cargarChats();
     }
 
     public function enviarMensaje()
@@ -235,6 +248,10 @@ class ChatGeneral extends Component
 
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
+
+        // DB::purge('max');
+        // Config::set('database.connections.max.database', $this->token_db);
+        // DB::reconnect('max');
         
         DB::connection('max')->beginTransaction();
 
