@@ -1,15 +1,13 @@
 <div class="modal fade" id="porteriaEventoFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" style="contain: content;" role="document">
-        <form id="form-porteria-evento" class="modal-content" style="margin-top: 10px;" enctype="multipart/form-data">
+        <div  class="modal-content" style="margin-top: 10px;">
             <div class="modal-header">
                 <h5 class="modal-title" id="textPorteriaEventoCreate" style="display: block;">Agregar evento</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
             
-            <div class="row modal-body">
-
-                {{ csrf_field() }}
+            <form id="form-porteria-evento" class="row modal-body">
 
                 <input type="text" class="form-control" name="id_porteria_evento" id="id_porteria_evento" style="display: none;">
 
@@ -61,12 +59,12 @@
                     <textarea class="form-control form-control-sm" id="observacion_porteria_evento" name="observacion_porteria_evento" rows="2"></textarea>
                 </div>
 
-                <div class="input-field">
-                    <label class="active">Imagenes</label>
-                    <div class="input-images-porteria" style="padding-top: .5rem;"></div>
+                <div class="container">
+                    <label for="porteria-eventos-files-input" class="form-control-label">Registro de novedades</label>
+                    <input type="file" class="filepond" id="porteria-eventos-files" name="images[]" multiple>
                 </div>
 
-            </div>
+            </form>
             
             <div class="modal-footer">
                 <span href="javascript:void(0)" class="btn bg-gradient-danger btn-sm" data-bs-dismiss="modal">
@@ -78,6 +76,6 @@
                     <i class="fas fa-spinner fa-spin"></i>
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 </div>

@@ -1,8 +1,9 @@
-let uploadedFilesPqrsf = [];
 let limpiarInputFilePqrsf = false;
-let swiper = null;
-let pqrsf_table = null;
 let $comboUsuarioPqrsf = null;
+let uploadedFilesPqrsf = [];
+let pqrsf_table = null;
+let pondPqrsf = null;
+let swiper = null;
 
 function pqrsfInit() {
     dateNow = new Date();

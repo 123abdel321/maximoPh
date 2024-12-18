@@ -254,7 +254,7 @@ class PqrsfController extends Controller
             }
 
             event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo, [
-                'chat_id' => 1,
+                'chat_id' => $chat->id,
                 'permisos' => 'mensajes pqrsf',
                 'action' => 'creacion_pqrsf'
             ]));

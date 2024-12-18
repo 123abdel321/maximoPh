@@ -1,15 +1,20 @@
+let uploadedFilesPorteriaNovedades = [];
+let $comboInmuebleEventosFilter = null;
+let limpiarInputFilePorteria = false;
+let $comboNitPorteriaFilter = null;
+let $comboNitPorteriaEvento = null;
+let $comboInmueblePorteria = null;
+let porteria_evento_table = null;
+let $comboPorteriaEventos = null;
+let $comboInmuebleEventos = null;
+let pondPorteriaNovedades = null;
+let uploadedFilesPorteria = [];
+let searchValuePorteria = null;
+let $comboNitPorteria = null;
+let porteria_table = null;
+let pondPorteria = null;
 let searchTimeout;
-var $comboInmuebleEventosFilter = null;
-var $comboNitPorteriaFilter = null;
-var $comboNitPorteriaEvento = null;
-var $comboInmueblePorteria = null;
-var porteria_evento_table = null;
-var $comboPorteriaEventos = null;
-var $comboInmuebleEventos = null;
-var searchValuePorteria = null;
-var $comboNitPorteria = null;
-var porteria_table = null;
-var diaPorteria = [
+let diaPorteria = [
     "diaPorteria1",
     "diaPorteria2",
     "diaPorteria3",
@@ -18,7 +23,7 @@ var diaPorteria = [
     "diaPorteria6",
     "diaPorteria7"
 ];
-var semanaPorteria = [
+let semanaPorteria = [
     'none',
     'lun',
     'mar',
@@ -28,7 +33,7 @@ var semanaPorteria = [
     'sab',
     'dom'
 ];
-var weekGoalkeeper = [
+let weekGoalkeeper = [
     'none',
     'Mon',
     'Tue',
@@ -46,6 +51,137 @@ function porteriaInit() {
     $('#fecha_desde_porteria_evento_filter').val(fecha);
     $('#fecha_hasta_porteria_evento_filter').val(fecha);
 
+    initFilePondPorteria();
+    initTablesPorteria();
+    initCombosPorteria();
+    initFilterPorteria();
+    
+    $("#form-porteria-evento").submit(function(e) {
+        e.preventDefault();
+    
+        $("#savePorteriaEvento").hide();
+        $("#savePorteriaEventoLoading").show();
+        $comboInmuebleEventos.prop('disabled', false);
+    
+        var ajxForm = document.getElementById("form-porteria-evento");
+        var data = new FormData(ajxForm);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "porteriaevento");
+        xhr.send(data);
+        xhr.onload = function(res) {
+
+            var data = res.currentTarget;
+            $('#savePorteriaEvento').show();
+            $('#savePorteriaEventoLoading').hide();
+            
+            if (data.responseURL == 'https://maximoph.com/login') {
+                caduqueSession();
+            }
+            if (data.status > 299) {
+                agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
+            }
+
+            var responseData = JSON.parse(res.currentTarget.response);
+
+            if (responseData.success) {
+                agregarToast('exito', 'Evento creado', 'Evento creado con exito!', true);
+                porteria_table.ajax.reload();
+                porteria_evento_table.ajax.reload();
+                $("#porteriaEventoFormModal").modal('hide');
+            } else {
+                agregarToast('error', 'Carga errada', responseData.message);
+            }
+        };
+        xhr.onerror = function (res) {
+            agregarToast('error', 'Evento errada', 'Error al crear evento');
+            $('#savePorteria').show();
+            $('#savePorteriaLoading').hide();
+        };
+    });
+}
+
+function initFilePondPorteria() {
+    pondPorteria = FilePond.create(document.querySelector('#porteria-files'), {
+        allowImagePreview: true,
+        imagePreviewUpscale: true,
+        allowMultiple: true,
+        instantUpload: true,
+    });
+
+    pondPorteriaNovedades = FilePond.create(document.querySelector('#porteria-eventos-files'), {
+        allowImagePreview: true,
+        imagePreviewUpscale: true,
+        allowMultiple: true,
+        instantUpload: true,
+    });
+
+    $('.filepond--credits').remove();
+
+    pondPorteria.setOptions({
+        server: {
+            process: {
+                url: '/archivos-cache',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                onload: (response) => {
+                    const uploadedImagePath = JSON.parse(response);
+                    uploadedFilesPorteria.push({
+                        'id': uploadedImagePath.id,
+                        'url': uploadedImagePath.path
+                    });
+                    return uploadedImagePath.path;
+                },
+                onerror: (response) => {
+                    console.error('Error al subir la imagen: ', response);
+                }
+            },
+            revert: {
+                url: '/archivos-cache',
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            }
+        }
+    });
+
+    pondPorteriaNovedades.setOptions({
+        server: {
+            process: {
+                url: '/archivos-cache',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                onload: (response) => {
+                    const uploadedImagePath = JSON.parse(response);
+                    uploadedFilesPorteria.push({
+                        'id': uploadedImagePath.id,
+                        'url': uploadedImagePath.path
+                    });
+                    return uploadedImagePath.path;
+                },
+                onerror: (response) => {
+                    console.error('Error al subir la imagen: ', response);
+                }
+            },
+            revert: {
+                url: '/archivos-cache',
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            }
+        }
+    });
+
+    clearFilesInputPorteria();
+}
+
+function initTablesPorteria() {
     porteria_table = $('#porteriaTable').DataTable({
         pageLength: 15,
         dom: 'Brtip',
@@ -92,7 +228,7 @@ function porteriaInit() {
                 return `<img
                     id="eventoporteriaimagen_${row.id}"
                     class="detalle-imagen-porteria"
-                    style="height: 40px; width: 140px; border-radius: 10%; cursor: pointer; object-fit: contain;"
+                    style="height: 50px; width: 50px; border-radius: 10%; cursor: pointer; object-fit: contain;"
                     href="javascript:void(0)"
                     src="${bucketUrl}${urlImg}"
                     alt="${nameImg}"
@@ -311,12 +447,35 @@ function porteriaInit() {
         porteria_table.on('click', '.edit-porteria', function() {
             clearFormPorteria();
 
+            $("#savePorteria").hide();
+            $("#updatePorteria").show();
             $("#textPorteriaCreate").hide();
             $("#textPorteriaUpdate").show();
+            $("#savePorteriaLoading").hide();
             $("#savePorteriaLoading").hide();
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, porteria_table);
+
+            if (data.archivos.length) {
+                const archivosExistentes = data.archivos.map((archivo) => ({
+                    source: bucketUrl+archivo.url_archivo,
+                    options: {
+                        type: 'local',
+                        metadata: {
+                            id: archivo.id,
+                            relation_type: archivo.relation_type,
+                            base_path: archivo.url_archivo,
+                        },
+                        file: {
+                            name: archivo.url_archivo.split('/').pop(),
+                            size: 0,
+                            type: archivo.tipo_archivo,
+                        },
+                    },
+                }));
+                pondPorteria.addFiles(archivosExistentes);
+            }
 
             if(data.propietario) {
                 var dataPropietario = {
@@ -380,6 +539,8 @@ function porteriaInit() {
                     $('#diaPorteria'+dia).prop('checked', true);
                 });
             }
+            $("#savePorteria").hide();
+            $("#updatePorteria").show();
             $("#porteriaFormModal").modal('show');
         });
         //ELIMINAR PORTERIA
@@ -681,6 +842,10 @@ function porteriaInit() {
         });
     }
 
+    porteria_table.ajax.reload();
+}
+
+function initCombosPorteria() {
     $comboNitPorteria = $('#id_nit_porteria').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#porteriaFormModal'),
@@ -925,96 +1090,9 @@ function porteriaInit() {
         templateResult: formatPorteriaCombo,
         templateSelection: formatPorteriaSelection
     });
+}
 
-    porteria_table.ajax.reload();
-
-    $("#form-porteria").submit(function(e) {
-        e.preventDefault();
-    
-        var update = false;
-        $("#savePorteria").hide();
-        $("#savePorteriaLoading").show();
-    
-        if ($("#id_porteria_up").val()) update = true;
-    
-        var ajxForm = document.getElementById("form-porteria");
-        var data = new FormData(ajxForm);
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "porteria");
-        xhr.send(data);
-        xhr.onload = function(res) {
-            console.log('res: ',res);
-            var data = res.currentTarget;
-            $('#savePorteria').show();
-            $('#savePorteriaLoading').hide();
-            if (data.responseURL == 'https://maximoph.com/login') {
-                caduqueSession();
-            }
-            if (data.status > 299) {
-                agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-            }
-
-            var responseData = JSON.parse(res.currentTarget.response);
-    
-            if (responseData.success) {
-                agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
-                porteria_table.ajax.reload();
-                $("#porteriaFormModal").modal('hide');
-            } else {
-                agregarToast('error', 'Carga errada', responseData.message);
-            }
-        };
-        xhr.onerror = function (res) {
-            agregarToast('error', 'Carga errada', 'errorsMsg');
-            $('#savePorteria').show();
-            $('#savePorteriaLoading').hide();
-        };
-    });
-    
-    $("#form-porteria-evento").submit(function(e) {
-        e.preventDefault();
-    
-        $("#savePorteriaEvento").hide();
-        $("#savePorteriaEventoLoading").show();
-        $comboInmuebleEventos.prop('disabled', false);
-    
-        var ajxForm = document.getElementById("form-porteria-evento");
-        var data = new FormData(ajxForm);
-
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "porteriaevento");
-        xhr.send(data);
-        xhr.onload = function(res) {
-
-            var data = res.currentTarget;
-            $('#savePorteriaEvento').show();
-            $('#savePorteriaEventoLoading').hide();
-            
-            if (data.responseURL == 'https://maximoph.com/login') {
-                caduqueSession();
-            }
-            if (data.status > 299) {
-                agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-            }
-
-            var responseData = JSON.parse(res.currentTarget.response);
-
-            if (responseData.success) {
-                agregarToast('exito', 'Evento creado', 'Evento creado con exito!', true);
-                porteria_table.ajax.reload();
-                porteria_evento_table.ajax.reload();
-                $("#porteriaEventoFormModal").modal('hide');
-            } else {
-                agregarToast('error', 'Carga errada', responseData.message);
-            }
-        };
-        xhr.onerror = function (res) {
-            agregarToast('error', 'Evento errada', 'Error al crear evento');
-            $('#savePorteria').show();
-            $('#savePorteriaLoading').hide();
-        };
-    });
-
+function initFilterPorteria() {
     $(document).on('change', '#tipo_porteria_filter', function () {
         porteria_table.ajax.reload();
     });
@@ -1044,8 +1122,271 @@ function porteriaInit() {
     });
 }
 
+function clearFilesInputPorteria() {
+    uploadedFilesPorteria = [];
+    pondPorteria.off('removefile');
+    pondPorteria.removeFiles();
+    pondPorteria.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFilePorteria) {
+            limpiarInputFilePorteria = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
+    });
+
+    uploadedFilesPorteriaNovedades = [];
+    pondPorteriaNovedades.off('removefile');
+    pondPorteriaNovedades.removeFiles();
+    pondPorteriaNovedades.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFilePorteria) {
+            limpiarInputFilePorteria = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
+    });
+}
+
+$(document).on('click', '#savePorteria', function () {
+    var form = document.querySelector('#form-porteria');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    let data = {
+        id_nit_porteria: $("#id_nit_porteria").val(),
+        id_inmueble_porteria: $("#id_inmueble_porteria").val(),
+        tipo_porteria_create: $("#tipo_porteria_create").val(),
+        documento_persona_porteria: $("#documento_persona_porteria").val(),
+        nombre_persona_porteria: $("#nombre_persona_porteria").val(),
+        genero_porteria: $("#genero_porteria").val(),
+        tipo_vehiculo_porteria: $("#tipo_vehiculo_porteria").val(),
+        placa_persona_porteria: $("#placa_persona_porteria").val(),
+        observacion_persona_porteria: $("#observacion_persona_porteria").val(),
+        diaPorteria1: $("#diaPorteria1").is(":checked"),
+        diaPorteria2: $("#diaPorteria2").is(":checked"),
+        diaPorteria3: $("#diaPorteria3").is(":checked"),
+        diaPorteria4: $("#diaPorteria4").is(":checked"),
+        diaPorteria5: $("#diaPorteria5").is(":checked"),
+        diaPorteria6: $("#diaPorteria6").is(":checked"),
+        diaPorteria7: $("#diaPorteria7").is(":checked"),
+        archivos: uploadedFilesPorteria
+    }
+
+    $("#savePorteria").hide();
+    $("#savePorteriaLoading").show();
+
+    $.ajax({
+        url: base_url + 'porteria',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            clearFormPorteria();
+
+            $("#savePorteria").show();
+            $("#savePorteriaLoading").hide();
+            $("#porteriaFormModal").modal('hide');
+            
+            porteria_table.ajax.reload();
+            agregarToast('exito', 'Creación exitosa', 'Porteria creado con exito!', true);
+        }
+    }).fail((err) => {
+        $('#savePorteria').show();
+        $('#savePorteriaLoading').hide();
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+});
+
+$(document).on('click', '#updatePorteria', function () {
+    var form = document.querySelector('#form-porteria');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    let data = {
+        id_porteria_up: $("#id_porteria_up").val(),
+        id_nit_porteria: $("#id_nit_porteria").val(),
+        id_inmueble_porteria: $("#id_inmueble_porteria").val(),
+        tipo_porteria_create: $("#tipo_porteria_create").val(),
+        documento_persona_porteria: $("#documento_persona_porteria").val(),
+        nombre_persona_porteria: $("#nombre_persona_porteria").val(),
+        genero_porteria: $("#genero_porteria").val(),
+        tipo_vehiculo_porteria: $("#tipo_vehiculo_porteria").val(),
+        placa_persona_porteria: $("#placa_persona_porteria").val(),
+        observacion_persona_porteria: $("#observacion_persona_porteria").val(),
+        diaPorteria1: $("#diaPorteria1").is(":checked"),
+        diaPorteria2: $("#diaPorteria2").is(":checked"),
+        diaPorteria3: $("#diaPorteria3").is(":checked"),
+        diaPorteria4: $("#diaPorteria4").is(":checked"),
+        diaPorteria5: $("#diaPorteria5").is(":checked"),
+        diaPorteria6: $("#diaPorteria6").is(":checked"),
+        diaPorteria7: $("#diaPorteria7").is(":checked"),
+        archivos: uploadedFilesPorteria
+    }
+
+    $("#updatePorteria").hide();
+    $("#savePorteriaLoading").show();
+
+    $.ajax({
+        url: base_url + 'porteria',
+        method: 'PUT',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            clearFormPorteria();
+
+            $("#updatePorteria").show();
+            $("#savePorteriaLoading").hide();
+            $("#porteriaFormModal").modal('hide');
+            
+            porteria_table.ajax.reload();
+            agregarToast('exito', 'Actualización exitosa', 'Porteria actualizada con exito!', true);
+        }
+    }).fail((err) => {
+        $('#updatePorteria').show();
+        $('#savePorteriaLoading').hide();
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+});
+
+$(document).on('click', '#savePorteriaEvento', function () {
+    var form = document.querySelector('#form-porteria-evento');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    let data = {
+        tipo_evento: $("#tipo_evento").val(),
+        id_porteria_evento: $("#id_porteria_evento").val(),
+        id_nit_porteria_evento: $("#id_nit_porteria_evento").val(),
+        persona_porteria_evento: $("#persona_porteria_evento").val(),
+        inmueble_porteria_evento: $("#inmueble_porteria_evento").val(),
+        fecha_ingreso_porteria_evento: $("#fecha_ingreso_porteria_evento").val(),
+        fecha_salida_porteria_evento: $("#fecha_salida_porteria_evento").val(),
+        observacion_porteria_evento: $("#observacion_porteria_evento").val(),
+        archivos: uploadedFilesPorteriaNovedades
+    }
+
+    $("#savePorteriaEvento").hide();
+    $("#savePorteriaEventoLoading").show();
+
+    $.ajax({
+        url: base_url + 'porteriaevento',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            clearFormPorteria();
+
+            $("#savePorteriaEvento").show();
+            $("#savePorteriaEventoLoading").hide();
+            $("#porteriaEventoFormModal").modal('hide');
+            
+            porteria_evento_table.ajax.reload();
+            agregarToast('exito', 'Creación exitosa', 'Porteria creado con exito!', true);
+        }
+    }).fail((err) => {
+        $('#savePorteriaEvento').show();
+        $('#savePorteriaEventoLoading').hide();
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
+});
+
 $(document).on('click', '#generatePorteriaNueva', function () {
     clearFormPorteria();
+    $("#savePorteria").show();
+    $("#updatePorteria").hide();
+    $("#savePorteriaLoading").hide();
     $("#porteriaFormModal").modal('show');
 });
 
@@ -1184,7 +1525,8 @@ $(document).on('click', '#updatePorteriaEvento', function () {
 });
 
 function clearFormPorteria() {
-
+    limpiarInputFilePorteria = true;
+    clearFilesInputPorteria();
     $('#imagen_porteria').val('');
     $('#new_avatar_porteria').hide();
     $('#default_avatar_porteria').show();
@@ -1222,15 +1564,6 @@ function clearFormPorteria() {
     });
 
     changeTipoPorteria(6);
-
-    $('.input-images-porteria').imageUploader('destroy');
-    $('.input-images-porteria').empty();
-    $('.input-images-porteria').imageUploader({
-        imagesInputName: 'photos',
-        preloadedInputName: 'old',
-        // maxSize: 2 * 1024 * 1024,
-        maxFiles: 1
-    });
 }
 
 $('#id_nit_porteria').on('change', function(e) {

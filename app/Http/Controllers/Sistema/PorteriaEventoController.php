@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Sistema;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Events\PrivateMessageEvent;
 use App\Http\Controllers\Controller;
 use App\Helpers\NotificacionGeneral;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Chat;
+use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Message;
+use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\Porteria;
 use App\Models\Sistema\PorteriaEvento;
 use App\Models\Sistema\ArchivosGenerales;
@@ -126,7 +131,7 @@ class PorteriaEventoController extends Controller
             DB::connection('max')->beginTransaction();
 
             $itemPorteria = Porteria::find($request->get('id_porteria_evento'));
-            
+
             $evento = PorteriaEvento::Create([
                 'id_porteria' => $itemPorteria->id,
                 'tipo' => $itemPorteria->tipo_porteria,
@@ -140,59 +145,70 @@ class PorteriaEventoController extends Controller
             $itemPorteria->estado = false;
             $itemPorteria->save();
 
-            if ($request->file('photos')) {
-                foreach ($request->file('photos') as $photos) {
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'. $photos->getClientOriginalName();
-                    $url = Storage::disk('do_spaces')->putFileAs($nameFile, $photos, $photos->getClientOriginalName(), 'public');
-    
-                    $archivo = new ArchivosGenerales([
-                        'tipo_archivo' => 'imagen',
-                        'url_archivo' => $url,
-                        'estado' => 1,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-        
-                    $archivo->relation()->associate($evento);
-                    $evento->archivos()->save($archivo);
+            //NOTIFICAR MEDIANTE EL CHAT
+            $chat = Chat::where('relation_type', '11')
+                ->whereHas('personas', function ($query) use($itemPorteria) {
+                    $query->where('user_id', $itemPorteria->id_usuario);
+                })
+                ->first();
+
+            if (!$chat) {
+                $chat = new Chat([
+                    'name' => 'PORTERIA',
+                    'is_group' => true,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+
+                $chat->relation()->associate($evento);
+                $evento->chats()->save($chat);
+
+                ChatUser::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => $itemPorteria->id_usuario,
+                ]);
+            }
+
+            $dataMensaje = 'Se ha grabado en ';
+            $dataMensaje.= $itemPorteria->nombre ? $itemPorteria->nombre : $itemPorteria->placa;
+
+            $mensaje = Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+                'content' => $dataMensaje,
+                'status' => 1
+            ]);
+
+            $archivos = $request->get('archivos');
+
+            if (count($archivos)) {
+                foreach ($archivos as $archivo) {
+                    $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                    $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'.$archivoCache->name_file;
+                    if (Storage::exists($archivoCache->relative_path)) {
+                        Storage::move($archivoCache->relative_path, $finalPath);
+                        
+                        $archivo = new ArchivosGenerales([
+                            'tipo_archivo' => $archivoCache->tipo_archivo,
+                            'url_archivo' => $finalPath,
+                            'estado' => 1,
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+                        $archivo->relation()->associate($mensaje);
+                        $mensaje->archivos()->save($archivo);
+                    }
+                    $archivoCache->delete();
                 }
             }
 
-            $evento->load('archivos');
+            $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
 
-            $notificacion =(new NotificacionGeneral(
-                request()->user()->id,
-                $itemPorteria->id_usuario,
-                $evento
-            ));
-
-            $dataMensaje = 'Se ha grabado evento en ';
-            $dataMensaje.= $itemPorteria->nombre ? $itemPorteria->nombre : $itemPorteria->placa;
-
-            $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' => $itemPorteria->id_usuario,
-                'mensaje' => $dataMensaje,
-                'function' => 'cerrarNotificacion',
-                'data' => $evento->id,
-                'estado' => 0,
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id
-            ], true);
-
-            $canalesNotificacion = [
-                'porteria-mensaje-'.$request->user()['has_empresa'].'_'.$itemPorteria->id_usuario
-            ];
-
-            $notificacion->notificar(
-                $canalesNotificacion,
-                [
-                    'id_porteria' => $itemPorteria->id,
-                    'data' => $dataMensaje,
-                    'estado' => 1,
-                    'id_notificacion' => $id_notificacion,
-                    'id_usuario' => $itemPorteria->id_usuario
-                ]
-            );
+            event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo.'_'.$itemPorteria->id_usuario, [
+                'chat_id' => $chat->id,
+                'permisos' => 'mensajes pqrsf',
+                'action' => 'creacion_pqrsf'
+            ]));
 
             DB::connection('max')->commit();
 
