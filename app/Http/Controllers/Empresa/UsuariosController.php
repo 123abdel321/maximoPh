@@ -127,7 +127,8 @@ class UsuariosController extends Controller
                 {$filterSearch}
                 {$filterMaximo}
                 {$filterGeneral}
-
+                
+            GROUP BY US.id
             LIMIT {$rowperpage} OFFSET {$start}
         ");
 

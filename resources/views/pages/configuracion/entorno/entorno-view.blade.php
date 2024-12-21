@@ -136,6 +136,13 @@
                                 </label>
                             </div>
 
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="recausar_meses" id="recausar_meses" style="height: 20px;">
+                                <label class="form-check-label" for="recausar_meses">
+                                    Recausar meses
+                                </label>
+                            </div>
+
                         </div>
 
                         <br/>

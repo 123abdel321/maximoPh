@@ -22,8 +22,12 @@ function facturacionInit() {
 function getFacturacionData() {
     let url = 'facturacion-preview';
     if (causacion_mensual_rapida) url = 'facturacion-preview';
+
+    document.getElementById('generateFacturacion').classList.add('disabled');
+
     $("#reloadFacturacionIconNormal").hide();
     $("#reloadFacturacionIconLoading").show();
+
     $.ajax({
         url: base_url + url,
         method: 'GET',
@@ -39,7 +43,15 @@ function getFacturacionData() {
             countIntereses = 0;
             nitsFacturando = res.data.nits;
             generarTablaPreview(res.data);
+            document.getElementById('generateFacturacion').classList.remove('disabled');
             $('#confirmarFacturacion').hide();
+        } else {
+            $("#confirmarFacturacion").show();
+            $("#reloadFacturacionIconNormal").show();
+            $("#reloadFacturacionIconLoading").hide();
+            var dateText = generateTextYear(res.data.periodo_facturacion);
+            $('#generateFacturacion').text('FACTURACIÓN CON INFORMACIÓN '+ dateText);
+            agregarToast('warning', 'Facturación con datos', 'Confirmar facturacion del mes '+ dateText, true, 5000);
         }
     }).fail((err) => {
     });

@@ -54,9 +54,6 @@ class ChatGeneral extends Component
     {        
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
-        // DB::purge('max');
-        // Config::set('database.connections.max.database', $this->token_db);
-        // DB::reconnect('max');
 
         $this->chats = [];
         $this->numeroNotificaciones = 0;
@@ -197,7 +194,6 @@ class ChatGeneral extends Component
             if ($mensajeDisparador && $observador) {
                 $mensajeDisparador->status = 3;
                 $mensajeDisparador->save();
-
                 Message::where('chat_id', $chatId)
                     ->where('user_id', '!=', $this->usuario_id)
                     ->whereIn('status', [1, 2])
@@ -214,23 +210,27 @@ class ChatGeneral extends Component
     {
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
-        // DB::purge('max');
-        // Config::set('database.connections.max.database', $this->token_db);
-        // DB::reconnect('max');
 
-        $unreadMessages = DB::connection('max')
-            ->table('messages')
-            ->join('chat_users', 'messages.chat_id', '=', 'chat_users.chat_id') // Relaciona mensajes con los chats del usuario
-            ->where('chat_users.user_id', $this->usuario_id) // Filtra los chats del usuario
-            ->whereNotIn('messages.id', function ($query) {
+        $totalMensajes = DB::connection('max')
+            ->table('chats AS CH')
+            ->where(function ($query) {
+                $query->whereExists(function ($subquery) {
+                    $subquery->select(DB::raw(1))
+                        ->from('chat_users AS CU')
+                        ->whereColumn('CU.chat_id', 'CH.id')
+                        ->where('CU.user_id', $this->usuario_id);
+                })
+                ->orWhereIn('CH.relation_type', $this->canalesAdmin);
+            })
+            ->join('messages AS ME', 'CH.id', '=', 'ME.chat_id')
+            ->whereNotIn('ME.id', function ($query) {
                 $query->select('message_id')
                     ->from('message_users')
                     ->where('user_id', $this->usuario_id); // Excluye mensajes ya leídos
             })
-            ->select('messages.*') // Trae todos los datos de los mensajes
-            ->get();
-
-        $this->numeroNotificaciones+= count($unreadMessages);
+            ->count();
+            
+        $this->numeroNotificaciones+= $totalMensajes;
     }
 
     public function volverChat()
@@ -239,7 +239,7 @@ class ChatGeneral extends Component
         setDBInConnection('max', $this->token_db);
 
         $this->mensajeActivoId = null;
-        // $this->cargarChats();
+        $this->cargarChats();
     }
 
     public function enviarMensaje()
@@ -248,36 +248,30 @@ class ChatGeneral extends Component
 
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
-
-        // DB::purge('max');
-        // Config::set('database.connections.max.database', $this->token_db);
-        // DB::reconnect('max');
         
         DB::connection('max')->beginTransaction();
 
-        Message::create([
+        $mensaje = Message::create([
             'chat_id' => $this->mensajeActivoId,
             'user_id' => $this->usuario_id,
             'content' => $this->textoEscrito,
             'status' => 1
         ]);
 
-        // $usuariosChat = DB::connection('max')
-        //     ->table('chat_users AS CUS')
-        //     ->select(
-        //         'CUS.chat_id',
-        //         'CUS.user_id',
-        //     )
-        //     ->where('chat_id', $chatId)
-        //     ->where('user_id', '!=',$this->usuario_id)
-        //     ->get();
+        MessageUser::firstOrCreate([
+            'message_id' => $mensaje->id,
+            'user_id' => $this->usuario_id,
+        ]);
 
         event(new PrivateMessageEvent('mensajeria-'.$this->token_db, [
             'chat_id' => $this->mensajeActivoId,
-            'action' => 'creacion_mensaje'
+            'action' => 'creacion_mensaje',
+            'user_id' => $this->usuario_id,
         ]));
 
         DB::connection('max')->commit();
+
+        $this->cargarMensajes($this->mensajeActivoId, false);
 
         $this->textoEscrito = '';
     }

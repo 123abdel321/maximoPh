@@ -111,6 +111,17 @@
             border-color: #2c3c45  !important;
             color: #8696a0 !important;
         }
+        .ultimo-mensaje {
+            font-size: 10px;
+            color: #fff;
+            font-weight: 500;
+            padding-right: 0px;
+            padding-left: 0px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+        }
     </style>
     <!-- MENSAJES -->
     <input
@@ -164,9 +175,9 @@
                         @if (count($mensaje->archivos))
                             @foreach ($mensaje->archivos as $archivo)
                                 @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
-                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
+                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
                                 @elseif (explode('/', $archivo->tipo_archivo)[0] == 'video')
-                                    <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;"></video>
+                                    <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;"></video>
                                 @else
                                     <iframe src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" style="width: 100%; height: 250px;"></iframe>
                                 @endif
@@ -192,9 +203,9 @@
                         @if (count($mensaje->archivos))
                             @foreach ($mensaje->archivos as $archivo)
                                 @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
-                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
+                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto;">
                                 @elseif (explode('/', $archivo->tipo_archivo)[0] == 'video')
-                                    <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-width: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;"></video>
+                                    <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto;"></video>
                                 @else
                                     <iframe src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" style="width: 100%; height: 250px;"></iframe>
                                 @endif
@@ -307,10 +318,10 @@
                 <div class="" style="align-self: center; margin-right: auto; padding-left: 20px;">
                     @if ($chat->total_mensajes)
                         <b style="font-size: 14px; color: white; font-weight: 600; padding-right: 0px; padding-left: 0px;">{{ $chat->nombre }}</b><br/>
-                        <b style="font-size: 10px; color: #fff; font-weight: 500; padding-right: 0px; padding-left: 0px;">{{ $chat->ultimo_mensaje->content }}</b>
+                        <b class="ultimo-mensaje">{{ $chat->ultimo_mensaje->content }}</b>
                     @else
                         <b style="font-size: 14px; color: white; font-weight: 400; padding-right: 0px; padding-left: 0px;">{{ $chat->nombre }}</b><br/>
-                        <b style="font-size: 10px; color: #a2b0ce; font-weight: 500; padding-right: 0px; padding-left: 0px;">{{ $chat->ultimo_mensaje->content }}</b>
+                        <b class="ultimo-mensaje">{{ $chat->ultimo_mensaje->content }}</b>
                     @endif
                 </div>
                 <div class="" style="align-self: center; padding-right: 0px;">
@@ -318,7 +329,7 @@
                         <b style="font-size: 13px; color: #00a884;; font-weight: 700; text-wrap-mode: nowrap; float: inline-end;">{{ $chat->ultimo_mensaje->formatted_created_at }}</b><br/>
                         <b style="font-size: 13px; color: #ffffff; font-weight: bold; background-color: #00a884; padding: 0px 6px 0px 6px; border-radius: 50px; float: right;">{{ $chat->total_mensajes }}</b>
                     @else
-                        <b style="font-size: 13px; color: #a2b0ce; font-weight: 500; align-self: start; margin-top: 5px; text-wrap-mode: nowrap; float: inline-end;">{{ $chat->ultimo_mensaje->formatted_created_at }}</b>
+                        <b class="ultimo-mensaje" style="font-size: 13px; color: #a2b0ce; font-weight: 500; align-self: start; margin-top: 5px; text-wrap-mode: nowrap; float: inline-end;">{{ $chat->ultimo_mensaje->formatted_created_at }}</b>
                     @endif
                 </div>
             </div>

@@ -26,35 +26,41 @@ $(document).on('blur', '#component-chat', function () {
 
 channelMensajeria.bind('notificaciones', function(data) {
     var chatId = parseInt($("#id-mensaje-abierto").val());
-
+    console.log('channelMensajeria: ',data);
     if (data.action == 'creacion_pqrsf') {//NUEVO PQRSF
         if (data.permisos == 'mensajes pqrsf' && mensajePqrsf) {
-            Livewire.dispatch('cargarChats');
+            // Livewire.dispatch('cargarChats');
         }
     }
     if (data.action ==  'actualizar_entrega') {
-        
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
+            actualizarNumeroNotificaciones();
         }
     }
     if (data.action ==  'creacion_mensaje') {
         if (chatId == data.chat_id) {
-            Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: true});
+            if (data.user_id != id_usuario_logeado) {
+                Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: true});
+            }
+            actualizarNumeroNotificaciones();
         } else {
-            Livewire.dispatch('cargarChats');
+            Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
+            actualizarNumeroNotificaciones();
         }
     }
     if (data.action ==  'actualizar_estados') {
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
+            // actualizarNumeroNotificaciones();
         }
     }
-    actualizarNumeroNotificaciones();
+    
     finalSroll();
 });
 
 channelMensajeriaPrivada.bind('notificaciones', function(data) {
+    console.log('channelMensajeriaPrivada: ',data);
     var chatId = parseInt($("#id-mensaje-abierto").val());
 
     if (data.action ==  'actualizar_estados') {
@@ -62,20 +68,31 @@ channelMensajeriaPrivada.bind('notificaciones', function(data) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
         }
     }
-
-    actualizarNumeroNotificaciones();
+    setTimeout(function(){
+        console.log('aca mismo')
+        // actualizarNumeroNotificaciones();
+    },500);
     finalSroll();
 });
 
 function actualizarNumeroNotificaciones() {
-    var totalNotificaiones = $("#input-numero-notificaciones-chat").val();
-    if (parseInt(totalNotificaiones)) {
-        $("#number_mensajes").text(totalNotificaiones);
-        $("#number_mensajes").show();
-    } else {
-        $("#number_mensajes").text('');
-        $("#number_mensajes").hide();
-    }
+    $.ajax({
+        url: base_url + 'notificaciones',
+        method: 'GET',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            if (parseInt(res.total)) {
+                $("#number_mensajes").text(res.total);
+                $("#number_mensajes").show();
+            } else {
+                $("#number_mensajes").text('');
+                $("#number_mensajes").hide();
+            }
+        }
+    }).fail((res) => {
+    });
 }
 
 function finalSroll() {

@@ -132,9 +132,9 @@
 </div>
 
 <script>
-    var crearPorteria = '<?php echo auth()->user()->can('porteria create'); ?>';
-    var updatePorteria = '<?php echo auth()->user()->can('porteria update'); ?>';
-    var deletePorteria = '<?php echo auth()->user()->can('porteria delete'); ?>';
-    var eventoPorteria = '<?php echo auth()->user()->can('porteria eventos'); ?>';
-    var usuario_rol = JSON.parse('<?php echo $usuario_rol; ?>');
+    var crearPorteria = @json(auth()->user()->can('porteria create'));
+    var updatePorteria = @json(auth()->user()->can('porteria update'));
+    var deletePorteria = @json(auth()->user()->can('porteria delete'));
+    var eventoPorteria = @json(auth()->user()->can('porteria eventos'));
+    var usuario_rol = @json($usuario_rol);
 </script>

@@ -21,10 +21,6 @@
                     </button>
                     <button type="button" class="btn btn-danger btn-sm" id="detenerFacturacion" style="display: none;">
                     </button>
-                    <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadFacturacion">
-                        <i id="reloadFacturacionIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
-                        <i id="reloadFacturacionIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
-                    </button>
                     <button type="button" class="btn btn-info btn-sm" id="continuarFacturacion" style="display: none;">
                         CONTINUAR FACTURACION
                     </button>
@@ -33,6 +29,10 @@
                     </button>
                     <button type="button" class="btn btn-success btn-sm" id="confirmarFacturacionDisabled" style="display: none;" disabled>
                         CONFIRMANDO FACTURACIÓN <i id="textLoadingFacturacionCreate"class="fas fa-spinner fa-spin"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadFacturacion">
+                        <i id="reloadFacturacionIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                        <i id="reloadFacturacionIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
                     </button>
                 @endcan
             </div>
@@ -162,5 +162,6 @@
 </div>
 
 <script>
-    var causacion_mensual_rapida = JSON.parse('<?php echo $causacion_mensual_rapida; ?>');
+    var causacion_mensual_rapida = @json($causacion_mensual_rapida);
+    var recausar_meses = @json($recausar_meses);
 </script>

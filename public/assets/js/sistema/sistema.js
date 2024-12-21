@@ -504,23 +504,6 @@ channelPorteria.bind('notificaciones', function(data) {
 });
 
 function buscarNotificaciones() {
-    $.ajax({
-        url: base_url + 'notificaciones',
-        method: 'GET',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        if(res.success){
-            localStorage.setItem("numero_notificaciones", res.total);
-            setNotificaciones(res.total);
-        }
-    }).fail((res) => {
-        // let timerInterval;
-        // setTimeout(() => {
-        //     window.location.href = '/login';
-        // }, 2200)
-        // caduqueSession();
-    });
 }
 
 function caduqueSession() {
@@ -959,7 +942,7 @@ function cerrarToast(id){
 }
 
 // Función para agregar la clase de cerrando al toast.
-function agregarToast (tipo, titulo, descripcion, autoCierre = false) {
+function agregarToast (tipo, titulo, descripcion, autoCierre = false, tiempoCierre = 3000) {
     // Crear el nuevo toast
     const nuevoToast = document.createElement('div');
 
@@ -1035,7 +1018,7 @@ function agregarToast (tipo, titulo, descripcion, autoCierre = false) {
     };
 
     if (autoCierre) {
-        setTimeout(() => cerrarToast(toastId), 3000);
+        setTimeout(() => cerrarToast(toastId), tiempoCierre);
     }
 
     // Agregamos event listener para detectar cuando termine la animación

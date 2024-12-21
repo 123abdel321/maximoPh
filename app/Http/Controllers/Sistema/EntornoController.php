@@ -58,6 +58,7 @@ class EntornoController extends Controller
                 'factura_texto2',
                 'dias_pronto_pago',
                 'descuento_pago_parcial',
+                'recausar_meses',
                 'documento_referencia_agrupado',
                 'placetopay_url',
                 'placetopay_login',

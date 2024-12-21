@@ -1065,6 +1065,7 @@ div.dataTables_processing {
     margin-left: auto;
     max-width: fit-content;
     margin-top: 5px;
+    width: 90%;
 }
 
 .mensaje-estilo-izquierda {
@@ -1074,6 +1075,7 @@ div.dataTables_processing {
     color: white;
     margin-top: 5px;
     max-width: fit-content;
+    width: 90%;
 }
 
 .texto-dropdown-notificacion {

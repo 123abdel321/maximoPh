@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Sistema;
 
 use DB;
 use Config;
-use App\Helpers\Extracto;
 use App\Mail\GeneralEmail;
 use Illuminate\Http\Request;
 use App\Events\PrivateMessageEvent;
@@ -14,9 +13,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Query\JoinClause;
+//JOBS
 use App\Jobs\ProcessFacturacionGeneral;
 use App\Jobs\ProcessFacturacionGeneralDelete;
 use App\Jobs\ProcessFacturacionGeneralCausar;
+//HELPERS
+use App\Helpers\Extracto;
 use App\Helpers\PortafolioERP\FacturacionERP;
 use App\Helpers\PortafolioERP\EliminarFactura;
 use App\Helpers\PortafolioERP\EliminarFacturas;
@@ -57,17 +59,19 @@ class FacturacionController extends Controller
         $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
         $valor_total_presupuesto = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
         $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
+        $recausar_meses = Entorno::where('nombre', 'recausar_meses')->first();
         $valor_total_presupuesto = $valor_total_presupuesto && $valor_total_presupuesto->valor ? $valor_total_presupuesto->valor : 0;
 
         $data = [
-            'numero_total_unidades' => $numero_total_unidades ? $numero_total_unidades->valor : '0',
+            'numero_total_unidades' => $numero_total_unidades ? $numero_total_unidades->valor : 0,
             'numero_registro_unidades' => $totalInmuebles,
-            'area_total_m2' => $area_total_m2 ? $area_total_m2->valor : '0',
+            'area_total_m2' => $area_total_m2 ? $area_total_m2->valor : 0,
             'area_registro_m2' => $areaM2Total,
-            'valor_total_presupuesto' => $valor_total_presupuesto ? $valor_total_presupuesto : '0',
-            'causacion_mensual_rapida' => $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : '0',
+            'valor_total_presupuesto' => $valor_total_presupuesto ? $valor_total_presupuesto : 0,
+            'causacion_mensual_rapida' => $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : 0,
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
             'valor_registro_coeficiente' => $coeficienteTotal,
+            'recausar_meses' => $recausar_meses ? intval($recausar_meses->valor) : 0
         ];
 
         return view('pages.operaciones.facturacion.facturacion-view', $data);
@@ -680,7 +684,21 @@ class FacturacionController extends Controller
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
         $causacion_mensual_rapida = $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : 0;
+        $recausar_meses = Entorno::where('nombre', 'recausar_meses')->first();
+        $recausar_meses = $recausar_meses ? intval($recausar_meses->valor) : 0;
 
+        if (!$recausar_meses) {
+            $existenFacturas = Facturacion::where('fecha_manual', $periodo_facturacion)->count();
+            if ($existenFacturas) {
+                return response()->json([
+                    "success" => false,
+                    'data' => [
+                        'accion' => 'confirmar_mes',
+                        'periodo_facturacion' => $periodo_facturacion
+                    ]
+                ], 200);
+            }
+        }
         $inmuebles = DB::connection('max')->table('inmueble_nits')->select(
                 'CFA.id_cuenta_cobrar',
                 'CFA.nombre_concepto AS nombre_concepto',
