@@ -240,7 +240,7 @@
     </div>
     <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
         <div class="container accordion-body">
-            <input type="file" class="filepond" id="chat-general-files" wire:model="uploadedFilesMensajes" multiple>
+            <input type="file" class="filepond" id="chat-general-files" multiple>
         </div>
     </div>
     <!-- END MENSAJES -->
