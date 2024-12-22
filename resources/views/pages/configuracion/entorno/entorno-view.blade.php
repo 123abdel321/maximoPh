@@ -66,6 +66,7 @@
                                 <select class="form-control form-control-sm" name="documento_referencia_agrupado" id="documento_referencia_agrupado">
                                     <option value="0">AÑO-MES_CANTIDAD INMUEBLES</option>
                                     <option value="1">NOMBRE INMUEBLE-NOMBRE ZONA</option>
+                                    <option value="2">(NOMBRE INMUEBLE)(NOMBRE ZONA)-AÑO-MES</option>
                                 </select>
                             </div>
 

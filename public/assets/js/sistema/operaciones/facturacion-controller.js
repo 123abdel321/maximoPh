@@ -63,7 +63,7 @@ function generarTablaPreview(data) {
     if (data.existe_facturacion) {
         $('#generateFacturacion').text('VALIDAR FACTURACIÓN '+ dateText);
     } else {
-        if (causacion_mensual_rapida) $('#generateFacturacion').text('FACTURACIÓN RAPIDA '+ dateText);
+        if (parseInt(causacion_mensual_rapida)) $('#generateFacturacion').text('FACTURACIÓN RAPIDA '+ dateText);
         else $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
     }
     //INMUEBLES
@@ -607,7 +607,7 @@ $(document).on('click', '#reloadFacturacion', function () {
 
 $(document).on('click', '#generateFacturacion', function () {
     detenerFacturacion = false;
-    if (causacion_mensual_rapida) facturarRapidamente();
+    if (parseInt(causacion_mensual_rapida)) facturarRapidamente();
     else facturarNitIndividual();
 });
 
