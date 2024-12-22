@@ -766,7 +766,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             return $inmuebleFactura->documento_referencia_group;
         }
         if ($this->documento_referencia_agrupado == '2') {
-            return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.$this->inicioMes;
+            return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.'-'.$this->inicioMes;
         }
         
         $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';

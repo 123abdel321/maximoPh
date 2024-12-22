@@ -1936,7 +1936,7 @@ class FacturacionController extends Controller
             return $inmuebleFactura->documento_referencia_group;
         }
         if ($this->documento_referencia_agrupado == '2') {
-            return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.$inicioMes;
+            return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.'-'.$inicioMes;
         }
         $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
         return $inicioMes.$countItems;
