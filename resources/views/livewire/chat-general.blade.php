@@ -122,6 +122,36 @@
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
         }
+
+        .nombre-usuario {
+            font-size: 10px;
+            color: springgreen;
+        }
+
+        .formato-fecha {
+            font-size: 10px;
+            margin-bottom: 0;
+            font-weight: 500;
+            float: inline-end;
+            margin-top: -7px;
+        }
+
+        .formato-fecha-propio {
+            font-size: 10px;
+            margin-bottom: 0;
+            font-weight: 500;
+            text-align: end;
+            margin-top: -10px;
+            color: #cecece;
+        }
+        
+        .texto-mensaje {
+            font-size: 13px;
+            margin-bottom: 0;
+            text-align-last: auto;
+            font-weight: 600;
+            padding-right: 40px;
+        }
     </style>
     <!-- MENSAJES -->
     <input
@@ -187,7 +217,7 @@
                             {{ $mensaje->content }}
                         </p>
                         <div style="display: flex; float: right;">
-                            <p style="font-size: 10px; margin-bottom: 0; font-weight: 500; text-align: end; margin-top: -10px; color: #cecece;">{{ $formattedDate }}</p>
+                            <p class="formato-fecha-propio">{{ $formattedDate }}</p>
                             @if ($mensaje->status == 1)
                                 <i class="fas fa-check icono-status-no_entregado" aria-hidden="true"></i>
                             @elseif ($mensaje->status == 2)
@@ -200,6 +230,13 @@
                     </div>
                 @else
                     <div class="mensaje-estilo-izquierda">
+                        @if ($mensaje->usuario->firstname && $mensaje->usuario->lastname)
+                            <b class="nombre-usuario">{{ $mensaje->usuario->firstname }} {{ $mensaje->usuario->lastname }}</b><br/>
+                        @elseif ($mensaje->usuario->firstname)
+                            <b class="nombre-usuario">{{ $mensaje->usuario->firstname }}</b><br/>
+                        @else
+                            <b class="nombre-usuario">{{ $mensaje->usuario->lastname }}</b><br/>
+                        @endif
                         @if (count($mensaje->archivos))
                             @foreach ($mensaje->archivos as $archivo)
                                 @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
@@ -211,8 +248,8 @@
                                 @endif
                             @endforeach
                         @endif
-                        <p style="font-size: 13px; margin-bottom: 0; text-align-last: auto; font-weight: 600;">{{ $mensaje->content }}</p>
-                        <p style="font-size: 10px; margin-bottom: 0; font-weight: 500;">{{ $formattedDate }}</p>
+                        <p class="texto-mensaje">{{ $mensaje->content }}</p>
+                        <p class="formato-fecha">{{ $formattedDate }}</p>
                         <!-- <i class="fas fa-caret-down icono-mensaje-izquierda" aria-hidden="true"></i> -->
                     </div>
                 @endif

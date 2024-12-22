@@ -146,9 +146,6 @@ class ChatGeneral extends Component
     {
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->token_db);
-        // DB::purge('max');
-        // Config::set('database.connections.max.database', $this->token_db);
-        // DB::reconnect('max');
 
         $chat = DB::connection('max')->table('chats')->where('id', $chatId)->first();
         $this->mensajeActivoId = $chatId;
@@ -178,8 +175,16 @@ class ChatGeneral extends Component
                     ->where('relation_type', '17')
                     ->where('relation_id', $mensaje->id)
                     ->get();
+
+                $usuario = DB::connection('clientes')
+                    ->table('users')
+                    ->select('firstname', 'lastname')
+                    ->where('id', $mensaje->user_id)
+                    ->first();
                     
                 $this->mensajes->mensajes[$key]->archivos = $archivos;
+                $this->mensajes->mensajes[$key]->usuario = $usuario;
+
                 MessageUser::firstOrCreate([
                     'message_id' => $mensaje->id,
                     'user_id' => $this->usuario_id,

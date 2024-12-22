@@ -206,8 +206,8 @@ class PorteriaEventoController extends Controller
 
             event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo.'_'.$itemPorteria->id_usuario, [
                 'chat_id' => $chat->id,
-                'permisos' => 'mensajes pqrsf',
-                'action' => 'creacion_pqrsf'
+                'permisos' => 'mensajes porteria',
+                'action' => 'creacion_porteria'
             ]));
 
             DB::connection('max')->commit();

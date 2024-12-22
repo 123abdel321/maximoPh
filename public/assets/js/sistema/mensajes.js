@@ -68,10 +68,14 @@ channelMensajeriaPrivada.bind('notificaciones', function(data) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
         }
     }
-    setTimeout(function(){
-        console.log('aca mismo')
-        // actualizarNumeroNotificaciones();
-    },500);
+
+    if (data.action ==  'creacion_porteria') {
+        if (chatId == data.chat_id) {
+            Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
+        }
+    }
+    
+    actualizarNumeroNotificaciones();
     finalSroll();
 });
 
