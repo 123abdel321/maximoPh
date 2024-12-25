@@ -229,6 +229,11 @@ class PqrsfController extends Controller
                 'content' => $request->get("mensaje_pqrsf"),
                 'status' => 1
             ]);
+
+            MessageUser::firstOrCreate([
+                'message_id' => $mensaje->id,
+                'user_id' => request()->user()->id,
+            ]);
             
             $archivos = $request->get('archivos');
             

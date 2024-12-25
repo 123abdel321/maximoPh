@@ -1024,6 +1024,7 @@ div.dataTables_processing {
     color: #1181ef;
     border-radius: 10px;
     padding: 2px 7px 2px 7px;
+    white-space: nowrap;
 }
 
 .pqrsf-chat-mensaje-proceso {
@@ -1031,6 +1032,7 @@ div.dataTables_processing {
     color: white;
     border-radius: 10px;
     padding: 2px 7px 2px 7px;
+    white-space: nowrap;
 }
 
 .pqrsf-chat-mensaje-cerrado {
@@ -1038,6 +1040,7 @@ div.dataTables_processing {
     color: white;
     border-radius: 10px;
     padding: 2px 7px 2px 7px;
+    white-space: nowrap;
 }
 
 .icono-mensaje-derecha {

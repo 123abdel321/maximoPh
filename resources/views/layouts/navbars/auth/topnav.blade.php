@@ -139,7 +139,7 @@
                 </li> -->
 
                 <li class="nav-item px-2 d-flex align-items-center">
-                    <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarChat" data-bs-toggle="offcanvas" data-bs-target="#chatMaximo">
+                    <a href="" class="nav-link text-white p-0" id="iconNavbarChat" data-bs-toggle="offcanvas" data-bs-target="#chatMaximo">
                         <div>
                             <p id="number_mensajes" class="number_notification" style="z-index: 99; display: none;"></p>
                             <i class="fas fa-comment" style="font-size: 15px;"></i>

@@ -9,6 +9,7 @@ use Livewire\Component;
 use App\Events\PrivateMessageEvent;
 //MODELS
 use App\Models\Sistema\Chat;
+use App\Models\Sistema\Pqrsf;
 use App\Models\Sistema\Message;
 use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\ArchivosGenerales;
@@ -32,7 +33,8 @@ class ChatGeneral extends Component
         'agregarChats' => 'agregarChats',
         'cargarChats' => 'cargarChats',
         'cargarMensajes' => 'cargarMensajes',
-        'enviarMensaje' => 'enviarMensaje'
+        'enviarMensaje' => 'enviarMensaje',
+        'actualizarEstado' => 'actualizarEstado'
     ];
 
     public function mount()
@@ -151,9 +153,12 @@ class ChatGeneral extends Component
         $this->mensajeActivoId = $chatId;
 
         if ($chat) {
+            
             $this->mensajes = (object)[
                 'nombre' => $chat->name,
                 'avatar' => '',
+                'relation_type' => $chat->relation_type,
+                'relation_module' => $this->getRelationModule($chat),
                 'mensajes' => []
             ];
     
@@ -281,6 +286,36 @@ class ChatGeneral extends Component
         $this->textoEscrito = '';
     }
 
+    public function actualizarEstado($chatId, $estado)
+    {
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->token_db);
+
+        $chat = DB::connection('max')
+            ->table('chats AS CH')
+            ->where('id', $chatId)
+            ->first();
+
+        $mensajeText = '';
+
+        $nombreEstado = '<b class="pqrsf-chat-mensaje-activo">Activo</b>';
+        if ($estado == 1) $nombreEstado = '<b class="pqrsf-chat-mensaje-proceso">En proceso</b>';
+        if ($estado == 2) $nombreEstado = '<b class="pqrsf-chat-mensaje-cerrado">Cerrado</b>';
+
+        if ($chat->relation_type == 12) {
+            Pqrsf::where('id', $chat->relation_id)
+                ->update([
+                    'estado' => $estado
+                ]);
+
+            $mensajeText = 'Se ha cambiado el estado del pqrsf a '.$nombreEstado;
+        }
+
+        $this->textoEscrito = $mensajeText;
+
+        $this->enviarMensaje();
+    }
+
     public function filtroChats()
     {
         $this->cargarChats();
@@ -295,5 +330,34 @@ class ChatGeneral extends Component
     public function render()
     {
         return view('livewire.chat-general');
+    }
+
+    private function getRelationModule($chat)
+    {
+        if (!$chat->relation_type) return [];
+
+        $relationModule = [];
+
+        switch ($chat->relation_type) {
+            case 12://PQRSF
+                $relationModule = DB::connection('max')
+                    ->table('pqrsf')
+                    ->where('id', $chat->relation_id)
+                    ->first();
+
+                if ($relationModule->estado == 0) {
+                    Pqrsf::where('id', $chat->relation_id)
+                        ->update([
+                            'estado' => 3
+                        ]);
+                }
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+
+        return $relationModule;
     }
 }

@@ -1,4 +1,16 @@
 let pondMensajes = null;
+let estadoBotones = false;
+
+const mensajeBody = document.getElementById("mensaje-body");
+const observer = new MutationObserver(() => {
+    scrollToBottom();
+});
+
+observer.observe(mensajeBody, { childList: true });
+
+function scrollToBottom() {
+    mensajeBody.scrollTop = mensajeBody.scrollHeight;
+}
 
 $(document).on('click', '#button-mensaje-chat', function () {
     $('#input-mensaje-chat').val('');
@@ -10,8 +22,12 @@ $('#input-mensaje-chat').on('keydown', function(event) {
     }
 });
 
-$(document).on('click', '#component-chat', function () {
-    finalSroll();
+$(document).on('click', '#icon-open-actions', function () {
+    $("#container-actions").show();
+    $("#container-estados").hide();
+    setTimeout(function(){
+        scrollToBottom();
+    },400);
 });
 
 $(document).on('focus', '#input-search', function () {
@@ -19,44 +35,71 @@ $(document).on('focus', '#input-search', function () {
     $(".button-clean-search").show();
 });
 
-$(document).on('blur', '#component-chat', function () {
+$(document).on('blur', '#input-search', function () {
     $(".button-search").show();
     $(".button-clean-search").hide();
+});
+
+$(document).on('click', '#component-chat', function () {
+    $("#icon-open-actions").show();
+    $("#icon-close-actions").hide();
+    $("#container-actions").show();
+    $("#container-estados").hide();
+});
+
+$(document).on('click', '#icon-open-actions', function () {
+    $("#icon-open-actions").hide();
+    $("#icon-close-actions").show();
+});
+
+$(document).on('click', '#icon-close-actions', function () {
+    $("#icon-open-actions").show();
+    $("#icon-close-actions").hide();
+});
+
+$(document).on('click', '#button-action-estado-chat', function () {
+    $("#container-actions").hide();
+    $("#container-estados").show();
 });
 
 channelMensajeria.bind('notificaciones', function(data) {
     var chatId = parseInt($("#id-mensaje-abierto").val());
     console.log('channelMensajeria: ',data);
+
     if (data.action == 'creacion_pqrsf') {//NUEVO PQRSF
         if (data.permisos == 'mensajes pqrsf' && mensajePqrsf) {
-            // Livewire.dispatch('cargarChats');
+            Livewire.dispatch('cargarChats');
+            actualizarNumeroNotificaciones();
+            return;
         }
     }
+
     if (data.action ==  'actualizar_entrega') {
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
-            actualizarNumeroNotificaciones();
         }
+        actualizarNumeroNotificaciones();
+        return;
     }
+
     if (data.action ==  'creacion_mensaje') {
         if (chatId == data.chat_id) {
             if (data.user_id != id_usuario_logeado) {
                 Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: true});
             }
-            actualizarNumeroNotificaciones();
         } else {
-            Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
-            actualizarNumeroNotificaciones();
+            // Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
+            Livewire.dispatch('cargarChats');
         }
+        actualizarNumeroNotificaciones();
+        return;
     }
+
     if (data.action ==  'actualizar_estados') {
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
-            // actualizarNumeroNotificaciones();
         }
-    }
-    
-    finalSroll();
+    }    
 });
 
 channelMensajeriaPrivada.bind('notificaciones', function(data) {
@@ -76,7 +119,6 @@ channelMensajeriaPrivada.bind('notificaciones', function(data) {
     }
     
     actualizarNumeroNotificaciones();
-    finalSroll();
 });
 
 function actualizarNumeroNotificaciones() {
@@ -97,12 +139,6 @@ function actualizarNumeroNotificaciones() {
         }
     }).fail((res) => {
     });
-}
-
-function finalSroll() {
-    setTimeout(function(){
-        document.getElementById("mensaje-body").scrollTop = 999999;
-    },500);
 }
 
 function initFilePondMensajes() {
@@ -172,8 +208,30 @@ function clearFilesInputMesanjes() {
     });
 }
 
-$(document).on('click', '#component-chat', function () {
-    setTimeout(function(){
-        // initFilePondMensajes();
-    },500);
+$(document).on('click', '#iconNavbarChat', function () {
+    var chatId = parseInt($("#id-mensaje-abierto").val());
+    if (chatId) {
+        Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
+    }
+    actualizarNumeroNotificaciones();
 });
+
+$(document).on('click', '#butonActionActivoAction', function () {
+    actualizarEstadoRelationModule(0);
+});
+
+$(document).on('click', '#butonActionProcesoAction', function () {
+    actualizarEstadoRelationModule(1);
+});
+
+$(document).on('click', '#butonActionCerradoAction', function () {
+    actualizarEstadoRelationModule(2);
+});
+
+function actualizarEstadoRelationModule(estado) {
+    var chatId = parseInt($("#id-mensaje-abierto").val());
+    if (chatId) {
+        Livewire.dispatch('actualizarEstado', {chatId: chatId, estado: estado});
+        document.getElementById("icon-close-actions").click();
+    }
+}

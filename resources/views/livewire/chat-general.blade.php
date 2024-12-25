@@ -152,6 +152,41 @@
             font-weight: 600;
             padding-right: 40px;
         }
+
+        .button-action-chat {
+            width: 50px;
+            height: 50px;
+            text-align: -webkit-center;
+        }
+        
+        .icon-action-chat {
+            padding: 10px;
+            background-color: #2a3942;
+            font-size: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .icon-action-chat:hover {
+            background-color: #34637f;
+        }
+
+        .turquoise {
+            color: turquoise;
+        }
+
+        .springgreen {
+            color: springgreen;
+        }
+
+        .nombre-container-estados {
+            color: #d5d5d5;
+            font-weight: 400;
+            font-size: 15px;
+            position: absolute;
+            margin-top: -12px;
+            margin-left: -40px;
+        }
     </style>
     <!-- MENSAJES -->
     <input
@@ -183,6 +218,17 @@
         </svg>
         <div style="align-self: center;">
             <b style="font-size: 14px; color: white; font-weight: 600; padding-right: 0px; padding-left: 0px; padding-left: 10px;">{{ $mensajes ? $mensajes->nombre : '' }}</b><br/>
+            @if ($mensajes)
+                @if ($mensajes->relation_type == 12)
+                    @if ($mensajes->relation_module->estado == 0 || $mensajes->relation_module->estado == 3)
+                        <span class="badge bg-gradient-info" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 9px; margin-left: 10px;">Activo</span>
+                    @elseif ($mensajes->relation_module->estado == 1)
+                        <span class="badge bg-gradient-warning" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 9px; margin-left: 10px;">En Proceso</span>
+                    @elseif ($mensajes->relation_module->estado == 2)
+                        <span class="badge bg-gradient-success" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 9px; margin-left: 10px;">Cerrado</span>
+                    @endif
+                @endif
+            @endif
         </div>
     </div>
     <div id="mensaje-body" class="offcanvas-body wrapper" style="{{ $mensajeActivoId ? '' : 'display: none !important;' }}">
@@ -214,7 +260,7 @@
                             @endforeach
                         @endif
                         <p style="font-size: 13px; margin-bottom: 0; text-align: right; font-weight: 600; margin-top: -5px; padding-bottom: 10px; margin-left: 14px;">
-                            {{ $mensaje->content }}
+                            {!! $mensaje->content !!}
                         </p>
                         <div style="display: flex; float: right;">
                             <p class="formato-fecha-propio">{{ $formattedDate }}</p>
@@ -248,7 +294,7 @@
                                 @endif
                             @endforeach
                         @endif
-                        <p class="texto-mensaje">{{ $mensaje->content }}</p>
+                        <p class="texto-mensaje">{!! $mensaje->content !!}</p>
                         <p class="formato-fecha">{{ $formattedDate }}</p>
                         <!-- <i class="fas fa-caret-down icono-mensaje-izquierda" aria-hidden="true"></i> -->
                     </div>
@@ -257,9 +303,10 @@
         @endif
     </div>
     <div id="offcanvas-footer-mensajes container-chat" class="offcanvas-footer" style="{{ $mensajeActivoId ? '' : 'display: none !important;' }} padding: 10px; background-color: #202c33; display: flex; box-shadow: -2px -2px 2px rgb(0 0 0 / 20%), 0px 0px 0px rgb(0 0 0 / 10%);">
-        <!-- <div class="accordion-item" style="align-content: center;">
-            <i class="fas fa-plus icon-action" aria-expanded="false" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree"></i>
-        </div> -->
+        <div id="accordion-collapse" class="accordion-item" style="align-content: center;">
+            <i id="icon-open-actions" class="fas fa-plus icon-action" aria-expanded="false" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree"></i>
+            <i id="icon-close-actions" class="fas fa-times icon-action" aria-expanded="false" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree" style="display: none;"></i>
+        </div>
         <input
             id="input-mensaje-chat"
             wire:model="textoEscrito"
@@ -277,7 +324,51 @@
     </div>
     <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
         <div class="container accordion-body">
-            <input type="file" class="filepond" id="chat-general-files" multiple>
+
+            <div id="container-actions" style="display: flex; gap: 10px;">
+                
+                @if ($mensajes)
+                    @if ($mensajes->relation_type == 12)
+                        @can('mensajes pqrsf')
+                            <div id="button-action-estado-chat" class="button-action-chat">
+                                <i class="fas fa-exchange-alt icon-action-chat turquoise"></i>
+                                <b style="color: white; font-weight: 400;">Estados</b>
+                            </div>
+                        @endcan
+                    @endif
+                @endif
+    
+                <div id="button-action-imagen-chat" class="button-action-chat">
+                    <i class="fas fa-image icon-action-chat springgreen"></i>
+                    <b style="color: white; font-weight: 400;">Archivos</b>
+                </div>
+            </div>
+
+            <div id="container-estados" style="text-align: center;">
+
+                <b class="nombre-container-estados">
+                    Acciones
+                </b>
+                <br/>
+
+                @if ($mensajes)
+                    @if ($mensajes->relation_type == 12)
+                        @can('mensajes pqrsf')
+                            @if ($mensajes->relation_module->estado != 0 || $mensajes->relation_module->estado == 3)
+                                <span id="butonActionActivoAction" href="javascript:void(0)" class="btn badge bg-gradient-info" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Activo</span>
+                            @endif
+                            @if ($mensajes->relation_module->estado != 1)
+                                <span id="butonActionProcesoAction" href="javascript:void(0)" class="btn badge bg-gradient-warning" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">En Proceso</span>
+                            @endif
+                            @if ($mensajes->relation_module->estado != 2)
+                                <span id="butonActionCerradoAction" href="javascript:void(0)" class="btn badge bg-gradient-success" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Cerrado</span>
+                            @endif
+                        @endcan
+                    @endif
+                @endif                
+                
+            </div>
+
         </div>
     </div>
     <!-- END MENSAJES -->
