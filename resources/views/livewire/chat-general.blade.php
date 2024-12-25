@@ -251,7 +251,7 @@
                         @if (count($mensaje->archivos))
                             @foreach ($mensaje->archivos as $archivo)
                                 @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
-                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
+                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-height: 250px; max-width: 300px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;">
                                 @elseif (explode('/', $archivo->tipo_archivo)[0] == 'video')
                                     <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto; display: flow;"></video>
                                 @else
@@ -286,7 +286,7 @@
                         @if (count($mensaje->archivos))
                             @foreach ($mensaje->archivos as $archivo)
                                 @if (explode('/', $archivo->tipo_archivo)[0] == 'image')
-                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto;">
+                                    <img class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" alt="Imagen" style="max-height: 250px; max-width: 300px; height: auto; margin-bottom: 10px; margin-left: auto;">
                                 @elseif (explode('/', $archivo->tipo_archivo)[0] == 'video')
                                     <video class="" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $archivo->url_archivo }}" controls style="max-height: 250px; height: auto; margin-bottom: 10px; margin-left: auto;"></video>
                                 @else

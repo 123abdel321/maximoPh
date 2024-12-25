@@ -20,6 +20,7 @@ use App\Models\Sistema\Message;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\InmuebleNit;
+use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\PqrsfTiempos;
 use App\Models\Sistema\PqrsfMensajes;
 use App\Models\Sistema\ArchivosCache;
