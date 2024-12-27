@@ -134,7 +134,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         
                         $this->countIntereses = 0;
 
-                        $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit);
+                        $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit, $this->periodo_facturacion.'-01');
                         $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($nit->id_nit, $this->periodo_facturacion);
                         $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($nit->id_nit, $this->periodo_facturacion);
                         
@@ -615,8 +615,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $number;
     }
 
-    private function inmueblesNitFacturar($id_nit)
+    private function inmueblesNitFacturar($id_nit, $periodo_facturacion)
     {
+        $validar_fecha_entrega_causacion = Entorno::where('nombre', 'validar_fecha_entrega_causacion')->first();
+        $validar_fecha_entrega_causacion = $validar_fecha_entrega_causacion ? intval($validar_fecha_entrega_causacion->valor) : 0;
+
         return DB::connection('max')->table('inmueble_nits')->select(
                 'inmueble_nits.id_nit',
                 'inmueble_nits.id_inmueble',
@@ -642,6 +645,12 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
             ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
             ->where('inmueble_nits.id_nit', $id_nit)
+            ->when($validar_fecha_entrega_causacion ? true : false, function ($query) use ($periodo_facturacion) {
+				$query->where(function ($subQuery) use ($periodo_facturacion) {
+                    $subQuery->where('INM.fecha_entrega', '<', $periodo_facturacion)
+                             ->orWhereNull('INM.fecha_entrega');
+                });
+			}) 
             ->get()->toArray();
     }
 

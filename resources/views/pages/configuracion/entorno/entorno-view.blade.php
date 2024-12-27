@@ -144,6 +144,13 @@
                                 </label>
                             </div>
 
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="validar_fecha_entrega_causacion" id="validar_fecha_entrega_causacion" style="height: 20px;">
+                                <label class="form-check-label" for="validar_fecha_entrega_causacion">
+                                    Validar fecha entrega causación mensual
+                                </label>
+                            </div>
+
                         </div>
 
                         <br/>

@@ -217,10 +217,11 @@ class FacturacionController extends Controller
                 'extras' => []
             ];
             
-            $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'));
+            $inmueblesFacturar = $this->inmueblesNitFacturar($request->get('id'), $inicioMes.'-01');
+            
             $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($request->get('id'), $periodo_facturacion);
             $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($request->get('id'), $periodo_facturacion);
-            // dd($inmueblesFacturar);
+
             $this->eliminarFactura($request->get('id'), $inicioMes);
 
             $factura = Facturacion::create([//CABEZA DE FACTURA
@@ -680,6 +681,7 @@ class FacturacionController extends Controller
         $inmueblesConceptos = [];
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
+        $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
         $causacion_mensual_rapida = $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : 0;
@@ -698,6 +700,10 @@ class FacturacionController extends Controller
                 ], 200);
             }
         }
+
+        $validar_fecha_entrega_causacion = Entorno::where('nombre', 'validar_fecha_entrega_causacion')->first();
+        $validar_fecha_entrega_causacion = $validar_fecha_entrega_causacion ? intval($validar_fecha_entrega_causacion->valor) : 0;
+
         $inmuebles = DB::connection('max')->table('inmueble_nits')->select(
                 'CFA.id_cuenta_cobrar',
                 'CFA.nombre_concepto AS nombre_concepto',
@@ -708,6 +714,12 @@ class FacturacionController extends Controller
             ->leftJoin('inmuebles AS INM', 'inmueble_nits.id_inmueble', 'INM.id')
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
             ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
+            ->when($validar_fecha_entrega_causacion ? true : false, function ($query) use ($inicioMes) {
+				$query->where(function ($subQuery) use ($inicioMes) {
+                    $subQuery->where('INM.fecha_entrega', '<', $inicioMes.'-01')
+                             ->orWhereNull('INM.fecha_entrega');
+                });
+			}) 
             ->groupBy('id_concepto_facturacion')
             ->get()
             ->toArray();
@@ -819,7 +831,7 @@ class FacturacionController extends Controller
         ];
 
         $inmuebleNitData = []; 
-        $query = $this->getInmueblesNitsQuery();
+        $query = $this->getInmueblesNitsQuery($validar_fecha_entrega_causacion, $inicioMes.'-01');
         $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($periodo_facturacion))));
 
         $facturarNit = DB::connection('max')
@@ -1147,13 +1159,20 @@ class FacturacionController extends Controller
         ], 200);
     }
 
-    private function getInmueblesNitsQuery()
+    private function getInmueblesNitsQuery($validar_fecha_entrega_causacion, $periodo_facturacion)
     {
         $nits = DB::connection('max')->table('inmueble_nits AS IN')
+            ->leftJoin('inmuebles AS INM', 'IN.id_inmueble', 'INM.id')
+            ->when($validar_fecha_entrega_causacion ? true : false, function ($query) use ($periodo_facturacion) {
+				$query->where(function ($subQuery) use ($periodo_facturacion) {
+                    $subQuery->where('INM.fecha_entrega', '<', $periodo_facturacion)
+                             ->orWhereNull('INM.fecha_entrega');
+                });
+			})
             ->select(
                 'IN.id_nit'
             );
-        
+
         return $nits;
     }
 
@@ -1585,8 +1604,11 @@ class FacturacionController extends Controller
         ];
     }
 
-    private function inmueblesNitFacturar($id_nit)
+    private function inmueblesNitFacturar($id_nit, $periodo_facturacion)
     {
+        $validar_fecha_entrega_causacion = Entorno::where('nombre', 'validar_fecha_entrega_causacion')->first();
+        $validar_fecha_entrega_causacion = $validar_fecha_entrega_causacion ? intval($validar_fecha_entrega_causacion->valor) : 0;
+
         return DB::connection('max')->table('inmueble_nits')->select(
                 'inmueble_nits.id_nit',
                 'inmueble_nits.id_inmueble',
@@ -1594,6 +1616,7 @@ class FacturacionController extends Controller
                 'INM.nombre',
                 'INM.id_concepto_facturacion',
                 'INM.coeficiente',
+                'INM.fecha_entrega',
                 'CFA.nombre_concepto',
                 'CFA.id_cuenta_cobrar',
                 'CFA.id_cuenta_ingreso',
@@ -1611,6 +1634,12 @@ class FacturacionController extends Controller
             ->leftJoin('zonas AS ZO', 'INM.id_zona', 'ZO.id')
             ->leftJoin('concepto_facturacions AS CFA', 'INM.id_concepto_facturacion', 'CFA.id')
             ->where('inmueble_nits.id_nit', $id_nit)
+            ->when($validar_fecha_entrega_causacion ? true : false, function ($query) use ($periodo_facturacion) {
+				$query->where(function ($subQuery) use ($periodo_facturacion) {
+                    $subQuery->where('INM.fecha_entrega', '<', $periodo_facturacion)
+                             ->orWhereNull('INM.fecha_entrega');
+                });
+			}) 
             ->get()->toArray();
     }
 
