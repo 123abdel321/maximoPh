@@ -142,13 +142,13 @@ class ChatGeneral extends Component
 
             switch ($chat->relation_type) {
                 case 12:
-                    $turno = Turno::where('id', $chat->relation_id)->first();
-                    $idUsuario = $turno->id_usuario;
+                    $pqrsf = Pqrsf::where('id', $chat->relation_id)->first();
+                    $idUsuario = $pqrsf->id_usuario;
                     break;
 
                 case 14:
                     $turno = Turno::where('id', $chat->relation_id)->first();
-                    $idUsuario = $turno->created_by;
+                    $idUsuario = $turno->id_usuario;
                     break;
             }
 
