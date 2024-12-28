@@ -203,6 +203,7 @@ class ChatGeneral extends Component
                 ->get();
                     
             foreach ($this->mensajes->mensajes as $key => $mensaje) {
+                
                 $archivos = DB::connection('max')
                     ->table('archivos_generales AS AG')
                     ->where('relation_type', '17')
@@ -214,9 +215,16 @@ class ChatGeneral extends Component
                     ->select('firstname', 'lastname')
                     ->where('id', $mensaje->user_id)
                     ->first();
-                    
+
+                $createdAt = Carbon::parse($mensaje->created_at);
+
                 $this->mensajes->mensajes[$key]->archivos = $archivos;
                 $this->mensajes->mensajes[$key]->usuario = $usuario;
+                $this->mensajes->mensajes[$key]->created_at = $createdAt->isToday()
+                    ? $createdAt->format('H:i')
+                    : ($createdAt->isYesterday()
+                        ? 'Ayer ' . $createdAt->format('H:i')
+                        : $createdAt->format('d/m/Y H:i'));
 
                 MessageUser::firstOrCreate([
                     'message_id' => $mensaje->id,

@@ -349,18 +349,6 @@
     <div id="mensaje-body" class="offcanvas-body wrapper" style="{{ $mensajeActivoId ? '' : 'display: none !important;' }}">
         @if ($mensajes)
             @foreach($mensajes->mensajes as $mensaje)
-                @php
-                    $createdAt = \Carbon\Carbon::parse($mensaje->created_at);
-                    if ($createdAt->isToday()) {
-                        $formattedDate = $createdAt->format('h:m');
-                    } elseif ($createdAt->isYesterday()) {
-                        $formattedDate = 'Ayer '.$createdAt->format('h:m');
-                    } elseif ($createdAt->isSameYear(\Carbon\Carbon::now())) {
-                        $formattedDate = $createdAt->format('d M'); // Ej. 15 Dic
-                    } else {
-                        $formattedDate = $createdAt->format('d M Y'); // Ej. 15 Dic 2024
-                    }
-                @endphp
                 @if ($mensaje->user_id == $usuario_id)
                     <div class="mensaje-estilo-derecha">
                         @if (count($mensaje->archivos))
@@ -378,7 +366,7 @@
                             {!! $mensaje->content !!}
                         </p>
                         <div style="display: flex; float: right;">
-                            <p class="formato-fecha-propio">{{ $formattedDate }}</p>
+                            <p class="formato-fecha-propio">{{ $mensaje->created_at }}</p>
                             @if ($mensaje->status == 1)
                                 <i class="fas fa-check icono-status-no_entregado" aria-hidden="true"></i>
                             @elseif ($mensaje->status == 2)
@@ -410,7 +398,7 @@
                             @endforeach
                         @endif
                         <p class="texto-mensaje">{!! $mensaje->content !!}</p>
-                        <p class="formato-fecha">{{ $formattedDate }}</p>
+                        <p class="formato-fecha">{{ $mensaje->created_at }}</p>
                         <!-- <i class="fas fa-caret-down icono-mensaje-izquierda" aria-hidden="true"></i> -->
                     </div>
                 @endif
