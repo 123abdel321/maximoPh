@@ -18,6 +18,7 @@ use App\Models\Sistema\Message;
 use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\TurnoEvento;
+use App\Models\Sistema\ArchivosCache;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\ArchivosGenerales;
