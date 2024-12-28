@@ -443,13 +443,13 @@
             <div id="container-actions" style="display: flex; gap: 10px;">
                 
                 @if ($mensajes)
-                    @if ($mensajes->relation_type == 12)
-                        @can('mensajes pqrsf')
+                    @if ($mensajes->relation_type == 12 || $mensajes->relation_type == 14)
+                        @canany(['mensajes pqrsf', 'mensajes turnos'])
                             <div id="button-action-estado-chat" class="button-action-chat">
                                 <i class="fas fa-exchange-alt icon-action-chat turquoise"></i>
                                 <b style="color: white; font-weight: 400;">Estados</b>
                             </div>
-                        @endcan
+                        @endcanany
                     @endif
 
                     @if ($mensajes->relation_type == 14)
@@ -484,8 +484,8 @@
                 <br/>
 
                 @if ($mensajes)
-                    @if ($mensajes->relation_type == 12)
-                        @can('mensajes pqrsf')
+                    @if ($mensajes->relation_type == 12 || $mensajes->relation_type == 14)
+                        @canany(['mensajes pqrsf', 'mensajes turnos'])
                             @if ($mensajes->relation_module->estado != 0 || $mensajes->relation_module->estado == 3)
                                 <span id="butonActionActivoAction" href="javascript:void(0)" class="btn badge bg-gradient-info" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Activo</span>
                             @endif
@@ -495,7 +495,7 @@
                             @if ($mensajes->relation_module->estado != 2)
                                 <span id="butonActionCerradoAction" href="javascript:void(0)" class="btn badge bg-gradient-success butonActionCerradoAction" style="margin-bottom: 0rem !important; min-width: 50px; font-size: 12px; margin-right: 5px;">Cerrado</span>
                             @endif
-                        @endcan
+                        @endcanany
                     @endif
                 @endif                
                 

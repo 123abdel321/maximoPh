@@ -266,10 +266,10 @@ class TurnosController extends Controller
                         $end = $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin;
 
                         $contentMensaje = "
-                            <b style='color: crimson;'>Asunto: </b>{$request->get("asunto_turno")}<br/>
-                            <b style='color: crimson;'>Descripción: </b>{$request->get("mensaje_turno")}<br/>
-                            <b style='color: crimson;'>Fecha inicio: </b>{$start}<br/>
-                            <b style='color: crimson;'>Fecha fin: </b>{$end}<br/>
+                            <b style='color: aqua;'>Asunto: </b>{$request->get("asunto_turno")}<br/>
+                            <b style='color: aqua;'>Descripción: </b>{$request->get("mensaje_turno")}<br/>
+                            <b style='color: aqua;'>Fecha inicio: </b>{$start}<br/>
+                            <b style='color: aqua;'>Fecha fin: </b>{$end}<br/>
                         ";
             
                         $mensaje = Message::create([
