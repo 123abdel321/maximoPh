@@ -27,6 +27,11 @@ class Turno extends Model
         'updated_by',
     ];
 
+    public function chats()
+    {
+        return $this->morphMany(Chat::class, 'relation');
+	}
+
     public function archivos()
     {
         return $this->morphMany(ArchivosGenerales::class, 'relation');

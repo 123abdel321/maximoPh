@@ -1,8 +1,11 @@
 var $comboTurnoUsuarioFilter = null;
+let limpiarInputFileTurnos = false;
 var $comboUsuarioTurno = null;
+let uploadedFilesTurnos = [];
 var calendarioTurnos = null;
 var $comboTurno = null;
 var turnos_table = null;
+let pondTurnos = null;
 var diaTurno = [
     "diaTurno1",
     "diaTurno2",
@@ -15,8 +18,60 @@ var diaTurno = [
 
 function turnosInit() {
 
-    var calendarEl = document.getElementById('turnos-fullcalender');
-    calendarioTurnos = new FullCalendar.Calendar(calendarEl, {
+    initFilePondTurnos();
+    initCalendarTurnos();
+    initTablesTurnos();
+    initFilterTurnos();
+
+    $('.water').hide();
+}
+
+function initFilePondTurnos() {
+    pondTurnos = FilePond.create(document.querySelector('#turnos-files'), {
+        allowImagePreview: true,
+        imagePreviewUpscale: true,
+        allowMultiple: true,
+        instantUpload: true,
+    });
+
+    $('.filepond--credits').remove();
+
+    pondTurnos.setOptions({
+        server: {
+            process: {
+                url: '/archivos-cache',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                onload: (response) => {
+                    const uploadedImagePath = JSON.parse(response);
+                    uploadedFilesTurnos.push({
+                        'id': uploadedImagePath.id,
+                        'url': uploadedImagePath.path
+                    });
+                    return uploadedImagePath.path;
+                },
+                onerror: (response) => {
+                    console.error('Error al subir la imagen: ', response);
+                }
+            },
+            revert: {
+                url: '/archivos-cache',
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            }
+        }
+    });
+
+    clearFilesInputTurnos();
+}
+
+function initCalendarTurnos() {
+    const calendarTurnos = document.getElementById('turnos-fullcalender');
+    calendarioTurnos = new FullCalendar.Calendar(calendarTurnos, {
         initialView: 'dayGridMonth',  // Vista inicial (mes)
         // timeZone: 'UTC',
         headerToolbar: {
@@ -115,7 +170,9 @@ function turnosInit() {
         }
     });
     calendarioTurnos.render();
+}
 
+function initTablesTurnos() {
     turnos_table = $('#turnosTable').DataTable({
         pageLength: 20,
         dom: 'Brtip',
@@ -243,7 +300,9 @@ function turnosInit() {
             });
         });
     }
+}
 
+function initFilterTurnos() {
     $("#id_usuario_filter_turno").on('change', function(event) {
         reloadTurnos();
     });
@@ -274,6 +333,40 @@ function turnosInit() {
 
     $("#fecha_hasta_turnos_filter").on('change', function(event) {
         turnos_table.ajax.reload();
+    });
+}
+
+function clearFilesInputTurnos() {
+    uploadedFilesTurnos = [];
+    pondTurnos.off('removefile');
+    pondTurnos.removeFiles();
+    pondTurnos.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFileTurnos) {
+            limpiarInputFileTurnos = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
     });
 }
 
@@ -629,9 +722,7 @@ $('#id_proyecto_filter_turno_table').select2({
     }
 });
 
-$("#form-turno").submit(function(e) {
-    e.preventDefault();
-
+$(document).on('click', '#saveTurno', function () {
     var form = document.querySelector('#form-turno');
 
     if(!form.checkValidity()){
@@ -639,61 +730,57 @@ $("#form-turno").submit(function(e) {
         return;
     }
 
+    let data = {
+        tipo_turno: $("input[type='checkbox']#tipo_turno").is(':checked') ? 1 : 0,
+        id_usuario_turno: $("#id_usuario_turno").val(),
+        id_proyecto_turno: $("#id_proyecto_turno").val(),
+        asunto_turno: $("#asunto_turno").val(),
+        mensaje_turno: $("#mensaje_turno").val(),
+        fecha_inicio_turno: $("#fecha_inicio_turno").val(),
+        hora_inicio_turno: $("#hora_inicio_turno").val(),
+        fecha_fin_turno: $("#fecha_fin_turno").val(),
+        hora_fin_turno: $("#hora_fin_turno").val(),
+        multiple_tarea_turno: $("input[type='checkbox']#multiple_tarea_turno").is(':checked') ? 1 : 0,
+        archivos: uploadedFilesTurnos
+    }
+
     $("#saveTurno").hide();
     $("#saveTurnoLoading").show();
 
-    var ajxForm = document.getElementById("form-turno");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "turnos");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
+    $.ajax({
+        url: base_url + 'turnos',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            clearFormTurno();
 
-        var responseData = JSON.parse(res.currentTarget.response);
-        $('#saveTurno').show();
-        $('#saveTurnoLoading').hide();
-
-        $("#reloadTurnosIconNormal").hide();
-        $("#reloadTurnosIconLoading").show();
-
-        setTimeout(function(){
-            $("#reloadTurnosIconNormal").show();
-            $("#reloadTurnosIconLoading").hide();
-        },500);
-
-        calendarioTurnos.removeAllEvents();
-        calendarioTurnos.refetchEvents();
-
-        if (responseData.success) {
-            agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
-            turnos_table.ajax.reload();
+            $("#saveTurno").show();
+            $("#saveTurnoLoading").hide();
             $("#turnoFormModal").modal('hide');
-        } else {
-
-            var errorsMsg = "";
-            var mensaje = responseData.message;
-            if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
-                for (field in mensaje) {
-                    var errores = mensaje[field];
-                    for (campo in errores) {
-                        errorsMsg += "- "+errores[campo]+" <br>";
-                    }
-                };
-            } else {
-                errorsMsg = mensaje
-            }
-            agregarToast('error', 'Creación errada', errorsMsg);
+            
+            turnos_table.ajax.reload();
+            agregarToast('exito', 'Creación exitosa', 'Turno creado con exito!', true);
         }
-    };
-    xhr.onerror = function (res) {
-        agregarToast('error', 'Carga errada', 'errorsMsg');
+    }).fail((err) => {
         $('#saveTurno').show();
         $('#saveTurnoLoading').hide();
-    };
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
 });
 
 $("#form-turno-evento").submit(function(e) {

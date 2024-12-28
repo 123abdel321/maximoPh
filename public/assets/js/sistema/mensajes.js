@@ -106,6 +106,14 @@ channelMensajeriaPrivada.bind('notificaciones', function(data) {
     console.log('channelMensajeriaPrivada: ',data);
     var chatId = parseInt($("#id-mensaje-abierto").val());
 
+    if (data.action == 'creacion_turnos') {//NUEVO TURNO
+        if (data.permisos == 'mensajes turnos' && mensajeTurno) {
+            Livewire.dispatch('cargarChats');
+            actualizarNumeroNotificaciones();
+            return;
+        }
+    }
+
     if (data.action ==  'actualizar_estados') {
         if (chatId == data.chat_id) {
             Livewire.dispatch('cargarMensajes', {chatId: chatId, observador: false});
@@ -220,11 +228,11 @@ $(document).on('click', '#butonActionActivoAction', function () {
     actualizarEstadoRelationModule(0);
 });
 
-$(document).on('click', '#butonActionProcesoAction', function () {
+$(document).on('click', '.butonActionProcesoAction', function () {
     actualizarEstadoRelationModule(1);
 });
 
-$(document).on('click', '#butonActionCerradoAction', function () {
+$(document).on('click', '.butonActionCerradoAction', function () {
     actualizarEstadoRelationModule(2);
 });
 

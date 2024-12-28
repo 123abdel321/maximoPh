@@ -9,6 +9,7 @@ use Livewire\Component;
 use App\Events\PrivateMessageEvent;
 //MODELS
 use App\Models\Sistema\Chat;
+use App\Models\Sistema\Turno;
 use App\Models\Sistema\Pqrsf;
 use App\Models\Sistema\Message;
 use App\Models\Sistema\MessageUser;
@@ -65,6 +66,8 @@ class ChatGeneral extends Component
             ->select(
                 'CH.id',
                 'CH.name',
+                'CH.relation_id',
+                'CH.relation_type',
             )
             ->where(function ($query) {
                 $query->whereExists(function ($subquery) {
@@ -134,12 +137,37 @@ class ChatGeneral extends Component
                     ]);
             }
 
+            $idUsuario = null;
+            $responsable = null;
+
+            switch ($chat->relation_type) {
+                case 12:
+                    $turno = Turno::where('id', $chat->relation_id)->first();
+                    $idUsuario = $turno->id_usuario;
+                    break;
+
+                case 14:
+                    $pqrsf = Pqrsf::where('id', $chat->relation_id)->first();
+                    $idUsuario = $pqrsf->created_by;
+                    break;
+            }
+
+            if ($idUsuario) {
+                $responsable = DB::connection('clientes')
+                    ->table('users')
+                    ->where('id', $idUsuario)
+                    ->first();
+            }
+
+            // dd($responsable);
+
             $this->chats[] = (object)[
                 'id' => $chat->id,
                 'nombre' => $chat->name,
                 'ultimo_mensaje' => $ultimo_mensaje,
                 'total_mensajes' => $total_mensajes,
-                'personas' => $personas
+                'personas' => $personas,
+                'responsable' => $responsable
             ];
         }
     }
@@ -311,6 +339,15 @@ class ChatGeneral extends Component
             $mensajeText = 'Se ha cambiado el estado del pqrsf a '.$nombreEstado;
         }
 
+        if ($chat->relation_type == 14) {
+            Turno::where('id', $chat->relation_id)
+                ->update([
+                    'estado' => $estado
+                ]);
+
+            $mensajeText = 'Se ha cambiado el estado del turno a '.$nombreEstado;
+        }
+
         $this->textoEscrito = $mensajeText;
 
         $this->enviarMensaje();
@@ -345,8 +382,22 @@ class ChatGeneral extends Component
                     ->where('id', $chat->relation_id)
                     ->first();
 
-                if ($relationModule->estado == 0) {
+                if ($relationModule->estado == 0 && $chat->created_by != $this->usuario_id) {
                     Pqrsf::where('id', $chat->relation_id)
+                        ->update([
+                            'estado' => 3
+                        ]);
+                }
+                break;
+
+            case 14://PQRSF
+                $relationModule = DB::connection('max')
+                    ->table('turnos')
+                    ->where('id', $chat->relation_id)
+                    ->first();
+
+                if ($relationModule->estado == 0 && $chat->created_by == $this->usuario_id) {
+                    Turno::where('id', $chat->relation_id)
                         ->update([
                             'estado' => 3
                         ]);

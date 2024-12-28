@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Sistema;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Events\PrivateMessageEvent;
 use App\Helpers\NotificacionGeneral;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Chat;
 use App\Models\Sistema\Turno;
+use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Message;
+use App\Models\Sistema\ChatUser;
+use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\TurnoEvento;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Sistema\Notificaciones;
@@ -170,7 +176,7 @@ class TurnosController extends Controller
             'asunto_turno' => 'required',
             'mensaje_turno' => 'required'
         ];
-
+        
         $validator = Validator::make($request->all(), $rules, $this->messages);
 
 		if ($validator->fails()){
@@ -183,7 +189,7 @@ class TurnosController extends Controller
 
         try {
             DB::connection('max')->beginTransaction();
-
+            
             $usuarioEmpresa = UsuarioEmpresa::with('usuario', 'nit')
                 ->where('id_usuario', $request->get('id_usuario_turno'))
                 ->where('id_empresa', request()->user()->id_empresa)
@@ -223,29 +229,94 @@ class TurnosController extends Controller
                             'created_by' => request()->user()->id,
                             'updated_by' => request()->user()->id
                         ]);
+                        
+                        $nombreTurno = $request->get("tipo_turno") ? 'TAREA' : 'TURNO';
 
-                        if ($request->file('photos')) {
-                            foreach ($request->file('photos') as $photos) {
+                        $chat = new Chat([
+                            'name' => "{$nombreTurno} #{$turno->id}",
+                            'is_group' => true,
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
             
-                                $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
-                                $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
+                        $chat->relation()->associate($turno);
+                        $turno->chats()->save($chat);
+            
+                        ChatUser::create([
+                            'chat_id' => $chat->id,
+                            'user_id' => $request->get('id_usuario_turno'),
+                        ]);
 
-                                $archivo = new ArchivosGenerales([
-                                    'tipo_archivo' => 'imagen',
-                                    'url_archivo' => $url,
-                                    'estado' => 1,
-                                    'created_by' => request()->user()->id,
-                                    'updated_by' => request()->user()->id
-                                ]);
-                    
-                                $archivo->relation()->associate($turno);
-                                $turno->archivos()->save($archivo);
+                        ChatUser::create([
+                            'chat_id' => $chat->id,
+                            'user_id' => request()->user()->id,
+                        ]);
+
+                        $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
+                        $fechaFin = Carbon::parse($turno->fecha_fin)->format('Y-m-d');
+                        
+                        $horaInicio = "00:00:00";
+                        $horaFin = "00:00:00";
+                        
+                        if ($turno->fecha_inicio) $horaInicio = Carbon::parse($turno->fecha_inicio)->format('H:i:s');
+                        if ($turno->fecha_fin) $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
+
+                        $start = $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio;
+                        $end = $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin;
+
+                        $contentMensaje = "
+                            <b style='color: crimson;'>Asunto: </b>{$request->get("asunto_turno")}<br/>
+                            <b style='color: crimson;'>Descripción: </b>{$request->get("mensaje_turno")}<br/>
+                            <b style='color: crimson;'>Fecha inicio: </b>{$start}<br/>
+                            <b style='color: crimson;'>Fecha fin: </b>{$end}<br/>
+                        ";
+            
+                        $mensaje = Message::create([
+                            'chat_id' => $chat->id,
+                            'user_id' => request()->user()->id,
+                            'content' => $contentMensaje,
+                            'status' => 1
+                        ]);
+            
+                        MessageUser::firstOrCreate([
+                            'message_id' => $mensaje->id,
+                            'user_id' => request()->user()->id,
+                        ]);
+                        
+                        $archivos = $request->get('archivos');
+                        
+                        if (count($archivos)) {
+                            foreach ($archivos as $archivo) {
+                                $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                                $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos/'.$archivoCache->name_file;
+                                if (Storage::exists($archivoCache->relative_path)) {
+                                    Storage::move($archivoCache->relative_path, $finalPath);
+                                    
+                                    $archivo = new ArchivosGenerales([
+                                        'tipo_archivo' => $archivoCache->tipo_archivo,
+                                        'url_archivo' => $finalPath,
+                                        'estado' => 1,
+                                        'created_by' => request()->user()->id,
+                                        'updated_by' => request()->user()->id
+                                    ]);
+                                    $archivo->relation()->associate($mensaje);
+                                    $mensaje->archivos()->save($archivo);
+                                }
+                                $archivoCache->delete();
                             }
                         }
                     }
 
                     $inicio->addDay();
                 }
+
+                $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
+    
+                event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo.'_'.$request->get('id_usuario_turno'), [
+                    'chat_id' => null,
+                    'permisos' => 'mensajes turnos',
+                    'action' => 'creacion_turnos'
+                ]));
 
             } else {
 
@@ -264,35 +335,93 @@ class TurnosController extends Controller
                     'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id
                 ]);
-                
-                if ($request->file('photos')) {
-                    foreach ($request->file('photos') as $photos) {
-    
-                        $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos';
-                        $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
 
-                        $archivo = new ArchivosGenerales([
-                            'tipo_archivo' => 'imagen',
-                            'url_archivo' => $url,
-                            'estado' => 1,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
-                        ]);
-            
-                        $archivo->relation()->associate($turno);
-                        $turno->archivos()->save($archivo);
+                $nombreTurno = $request->get("tipo_turno") ? 'TAREA' : 'TURNO';
+
+                $chat = new Chat([
+                    'name' => "{$nombreTurno} #{$turno->id}",
+                    'is_group' => true,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+    
+                $chat->relation()->associate($turno);
+                $turno->chats()->save($chat);
+
+                ChatUser::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => $request->get('id_usuario_turno'),
+                ]);
+    
+                ChatUser::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => request()->user()->id,
+                ]);
+
+                $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
+                $fechaFin = Carbon::parse($turno->fecha_fin)->format('Y-m-d');
+                
+                $horaInicio = "00:00:00";
+                $horaFin = "00:00:00";
+                
+                if ($turno->fecha_inicio) $horaInicio = Carbon::parse($turno->fecha_inicio)->format('H:i:s');
+                if ($turno->fecha_fin) $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
+
+                $start = $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio;
+                $end = $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin;
+
+                $contentMensaje = "
+                    <b style='color: crimson;'>Asunto: </b>{$request->get("asunto_turno")}<br/>
+                    <b style='color: crimson;'>Descripción: </b>{$request->get("mensaje_turno")}<br/>
+                    <b style='color: crimson;'>Fecha inicio: </b>{$start}<br/>
+                    <b style='color: crimson;'>Fecha fin: </b>{$end}<br/>
+                ";
+    
+                $mensaje = Message::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => request()->user()->id,
+                    'content' => $contentMensaje,
+                    'status' => 1
+                ]);
+    
+                MessageUser::firstOrCreate([
+                    'message_id' => $mensaje->id,
+                    'user_id' => request()->user()->id,
+                ]);
+                
+                $archivos = $request->get('archivos');
+                
+                if (count($archivos)) {
+                    foreach ($archivos as $archivo) {
+                        $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                        $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos/'.$archivoCache->name_file;
+                        if (Storage::exists($archivoCache->relative_path)) {
+                            Storage::move($archivoCache->relative_path, $finalPath);
+                            
+                            $archivo = new ArchivosGenerales([
+                                'tipo_archivo' => $archivoCache->tipo_archivo,
+                                'url_archivo' => $finalPath,
+                                'estado' => 1,
+                                'created_by' => request()->user()->id,
+                                'updated_by' => request()->user()->id
+                            ]);
+                            $archivo->relation()->associate($mensaje);
+                            $mensaje->archivos()->save($archivo);
+                        }
+                        $archivoCache->delete();
                     }
                 }
+
+                $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
+    
+                event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo.'_'.$request->get('id_usuario_turno'), [
+                    'chat_id' => $chat->id,
+                    'permisos' => 'mensajes turnos',
+                    'action' => 'creacion_turnos'
+                ]));
             }
 
-            $fechaInicio = Carbon::parse($turno->fecha_inicio)->format('Y-m-d');
-            $fechaFin = Carbon::parse($turno->fecha_fin)->format('Y-m-d');
-            
-            $horaInicio = "00:00:00";
-            $horaFin = "00:00:00";
-            
-            if ($turno->fecha_inicio) $horaInicio = Carbon::parse($turno->fecha_inicio)->format('H:i:s');
-            if ($turno->fecha_fin) $horaFin = Carbon::parse($turno->fecha_fin)->format('H:i:s');
+            DB::connection('max')->commit();
 
             $turnoData = (object)[
                 'id' => $turno->id,
@@ -300,46 +429,6 @@ class TurnosController extends Controller
                 'start' => $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio,
                 'end' => $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin,
             ];
-
-            $nombreUsuario = request()->user()->lastname ? request()->user()->firstname.' '.request()->user()->lastname : request()->user()->firstname;
-
-            $notificacion = (new NotificacionGeneral(
-                request()->user()->id,
-                $request->get('id_usuario_turno'),
-                $turno
-            ));
-
-            $mensajeText = '<b style="color: gold;">TURNO</b>: Ha recibido una nueva <b>Turno</b> de '.$nombreUsuario;
-            if ($request->get("tipo_turno") == '1')  $mensajeText = '<b style="color: gold;">TAREA</b>: Ha recibido un nuevo <b>Tarea</b> de '.$nombreUsuario;
-
-            $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' => $request->get('id_usuario_turno'),
-                'tipo' => 1,
-                'mensaje' => $mensajeText,
-                'function' => 'abrirTurnosNotificacion',
-                'data' => $turno->id,
-                'id_rol' => 1,
-                'estado' => 0,
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id
-            ], true);
-
-            $canalesNotificacion = [
-                'turno-mensaje-'.$request->user()['has_empresa'].'_'.$turno->id_usuario
-            ];
-            
-            $notificacion->notificar(
-                $canalesNotificacion,
-                [
-                    'id_turno' => $turno->id,
-                    'data' => [],
-                    'estado' => 1,
-                    'id_notificacion' => $id_notificacion,
-                    'id_usuario' => $turno->id_usuario
-                ]
-            );
-
-            DB::connection('max')->commit();
 
             return response()->json([
                 'success'=>	true,
