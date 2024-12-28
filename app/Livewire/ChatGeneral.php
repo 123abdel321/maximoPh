@@ -147,8 +147,8 @@ class ChatGeneral extends Component
                     break;
 
                 case 14:
-                    $pqrsf = Pqrsf::where('id', $chat->relation_id)->first();
-                    $idUsuario = $pqrsf->created_by;
+                    $turno = Turno::where('id', $chat->relation_id)->first();
+                    $idUsuario = $turno->created_by;
                     break;
             }
 
@@ -390,7 +390,7 @@ class ChatGeneral extends Component
                 }
                 break;
 
-            case 14://PQRSF
+            case 14://TURNOS
                 $relationModule = DB::connection('max')
                     ->table('turnos')
                     ->where('id', $chat->relation_id)
