@@ -363,6 +363,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function generarFacturaInmueble(Facturacion $factura, $inmuebleFactura, $totalInmuebles)
     {
         $documentoReferenciaNumeroInmuebles = $this->generarDocumentoReferencia($inmuebleFactura, $totalInmuebles);
+        $coeficiente = $inmuebleFactura->coeficiente ? 'Coef: '.$inmuebleFactura->coeficiente : null;
 
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
@@ -375,10 +376,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'fecha_manual' => $this->inicioMes.'-01',
             'documento_referencia' => $documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
-            'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Coef:'.$inmuebleFactura->coeficiente,
+            'concepto' => "{$inmuebleFactura->nombre_concepto} {$inmuebleFactura->nombre_zona} {$inmuebleFactura->nombre} {$coeficiente}",
             'naturaleza_opuesta' => false,
             'created_by' => $this->id_usuario,
             'updated_by' => $this->id_usuario,
+            
         ]);
         return $documentoReferenciaNumeroInmuebles;
     }

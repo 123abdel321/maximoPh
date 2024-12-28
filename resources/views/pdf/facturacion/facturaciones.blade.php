@@ -309,6 +309,7 @@
 							@endif
 							</b>
 						</td>
+						<td class="padding5 valor">{{ COUNT($cuentas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
