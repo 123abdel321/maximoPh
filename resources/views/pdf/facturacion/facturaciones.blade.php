@@ -274,6 +274,7 @@
 				</tr>
 				<tr class="header-factura padding5">
 					<th class="padding5">NOMBRE</th>
+					<th class="padding5">DOCUMENTO</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">ANTICIPOS</th>
@@ -287,6 +288,7 @@
 				@foreach ($cuentas as $cuenta)
 					<tr>
 						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
+						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->documento_referencia }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>

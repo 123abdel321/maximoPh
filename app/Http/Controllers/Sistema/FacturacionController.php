@@ -1225,6 +1225,7 @@ class FacturacionController extends Controller
         $documentoReferenciaNumeroInmuebles = $this->generarDocumentoReferencia($inmuebleFactura, $totalInmuebles, $inicioMes);
         
         $this->valoresBaseProximaAdmin+= 0;
+        $coeficiente = $inmuebleFactura->coeficiente ? 'Coef: '.$inmuebleFactura->coeficiente : null;
 
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
@@ -1237,7 +1238,7 @@ class FacturacionController extends Controller
             'fecha_manual' => $inicioMes.'-01',
             'documento_referencia' => $documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
-            'concepto' => $inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre_zona.' '.$inmuebleFactura->nombre.' Coef:'.$inmuebleFactura->coeficiente,
+            'concepto' => "{$inmuebleFactura->nombre_concepto} {$inmuebleFactura->nombre_zona} {$inmuebleFactura->nombre} {$coeficiente}",
             'naturaleza_opuesta' => false,
             'created_by' => request()->user()->id,
             'updated_by' => request()->user()->id,

@@ -206,6 +206,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'total_facturas' => $facturacion->total_facturas,
                 'total_abono' => $facturacion->total_abono,
                 'descuento' => $descuento,
+                'documento_referencia' => $facturacion->documento_referencia,
                 'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
                 'saldo_final' => $facturacion->saldo_final,
             ];
