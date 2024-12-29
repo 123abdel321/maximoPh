@@ -55,13 +55,14 @@ class TurnosController extends Controller
         $id_empleado = $request->id_empleado == 'null' ? null : $request->id_empleado;
         $id_proyecto = $request->id_proyecto == 'null' ? null : $request->id_proyecto;
 
-        $turnos = Turno::where(function($query) use ($start, $end) {
-            $query->whereBetween('fecha_inicio', [$start, $end])
-                ->orWhereBetween('fecha_fin', [$start, $end])
-                ->orWhere(function($query) use ($start, $end) {
-                    $query->where('fecha_inicio', '<=', $start)
-                        ->where('fecha_fin', '>=', $end);
-                });
+        $turnos = Turno::with('chats')
+            ->where(function($query) use ($start, $end) {
+                $query->whereBetween('fecha_inicio', [$start, $end])
+                    ->orWhereBetween('fecha_fin', [$start, $end])
+                    ->orWhere(function($query) use ($start, $end) {
+                        $query->where('fecha_inicio', '<=', $start)
+                            ->where('fecha_fin', '>=', $end);
+                    });
             })
             ->when($tipo || $tipo == '0' ? true : false, function ($query) use($tipo) {
 				$query->where('tipo', $tipo);
@@ -99,7 +100,7 @@ class TurnosController extends Controller
             array_push($data, array(
                 'backgroundColor' => $color,
                 'borderColor' => $color,
-                'id' => $turno->id,
+                'id' => count($turno->chats) ? $turno->chats[0]->id : null,
                 'title' => $turno->asunto,
                 'start' => $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio,
                 'end' => $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin,
@@ -120,7 +121,7 @@ class TurnosController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $turnos = Turno::with('responsable', 'creador', 'nit', 'archivos', 'eventos')
+            $turnos = Turno::with('responsable', 'creador', 'nit', 'archivos', 'eventos', 'chats')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),

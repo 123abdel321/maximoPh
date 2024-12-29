@@ -12,6 +12,8 @@ use App\Models\Sistema\Chat;
 use App\Models\Sistema\Turno;
 use App\Models\Sistema\Pqrsf;
 use App\Models\Sistema\Message;
+use App\Models\Sistema\Porteria;
+use App\Models\Sistema\Novedades;
 use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\ArchivosGenerales;
 
@@ -143,12 +145,21 @@ class ChatGeneral extends Component
             switch ($chat->relation_type) {
                 case 12:
                     $pqrsf = Pqrsf::where('id', $chat->relation_id)->first();
-                    $idUsuario = $pqrsf->id_usuario;
+                    $idUsuario = $pqrsf->created_by;
                     break;
 
                 case 14:
                     $turno = Turno::where('id', $chat->relation_id)->first();
                     $idUsuario = $turno->id_usuario;
+                    break;
+
+                case 16:
+                    $novedad = Novedades::where('id', $chat->relation_id)->first();
+                    $porteria = Porteria::where('id', $novedad->id_porteria)->first();
+
+                    if ($porteria && $porteria->id_usuario) {
+                        $idUsuario = $porteria->id_usuario;
+                    }
                     break;
             }
 
@@ -158,8 +169,6 @@ class ChatGeneral extends Component
                     ->where('id', $idUsuario)
                     ->first();
             }
-
-            // dd($responsable);
 
             $this->chats[] = (object)[
                 'id' => $chat->id,
@@ -389,7 +398,7 @@ class ChatGeneral extends Component
                     ->table('pqrsf')
                     ->where('id', $chat->relation_id)
                     ->first();
-
+                //AGREGAR ESTADO EN VISTO
                 if ($relationModule->estado == 0 && $chat->created_by != $this->usuario_id) {
                     Pqrsf::where('id', $chat->relation_id)
                         ->update([
@@ -403,13 +412,20 @@ class ChatGeneral extends Component
                     ->table('turnos')
                     ->where('id', $chat->relation_id)
                     ->first();
-
+                //AGREGAR ESTADO EN VISTO
                 if ($relationModule->estado == 0 && $chat->created_by == $this->usuario_id) {
                     Turno::where('id', $chat->relation_id)
                         ->update([
                             'estado' => 3
                         ]);
                 }
+                break;
+
+            case 16://NOVEDADES
+                $relationModule = DB::connection('max')
+                    ->table('novedades')
+                    ->where('id', $chat->relation_id)
+                    ->first();
                 break;
             
             default:

@@ -244,7 +244,7 @@ function initTablesTurnos() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    html+= '<span id="readturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success read-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Ver detalle</span>&nbsp;';
+                    html+= '<span id="readturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info read-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Chat</span>&nbsp;';
                     if (eliminarTurnos && row.eventos.length == 0) html+= '<span id="deleteturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
                 }
@@ -257,7 +257,12 @@ function initTablesTurnos() {
         //MOSTRAR TURNOS
         turnos_table.on('click', '.read-turnos', function() {
             var id = this.id.split('_')[1];
-            mostrarModalEvento(id);
+            var data = getDataById(id, turnos_table);
+            if (data.chats.length) {
+                Livewire.dispatch('cargarMensajes', {chatId: data.chats[0].id, observador: false});
+                const chatMaximo = document.getElementById('chatMaximo');
+                if (!chatMaximo.classList.contains('show')) document.getElementById('iconNavbarChat').click();
+            }
         });
         //BORRAR TURNOS
         turnos_table.on('click', '.drop-turnos', function() {

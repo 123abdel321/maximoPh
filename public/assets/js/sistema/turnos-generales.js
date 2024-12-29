@@ -2,76 +2,14 @@ let mostrarAgregarImagenesTurnos = false;
 let updatingStatusTurnos = false;
 let openStatusTurnos = false;
 
-function mostrarModalEvento(idTurno) {
-    console.log('mostrarModalEvento: ',idTurno);
-    $("#row-action-turnos").hide();
-    $("#offcanvas-body-turnos").empty();
-    document.getElementById('button-open-datelle-turnos').click();
+function mostrarModalEvento(idChat) {
+    console.log('mostrarModalEvento: ',idChat);
 
-    $.ajax({
-        url: base_url + 'turnos',
-        method: 'GET',
-        data: {id: idTurno},
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
+    if (!idChat) return;
 
-        var data = res.data;
-
-        $("#id_turnos_up").val(data.id);
-
-        if (id_usuario_logeado == data.id_usuario) {
-            $("#row-action-turnos").show();
-            var nombreCreador = data.creador.firstname;
-            nombreCreador+= data.creador.lastname ? ' '+data.creador.lastname : '';
-            if (data.nit) nombreCreador+= ' '+data.nit.apartamentos;
-            
-            $("#id_name_person_turnos").text(nombreCreador);
-
-            if (data.creador.avatar) {
-                $("#offcanvas_turnos_header_img").attr("src",bucketUrl + data.creador.avatar);
-            }
-        } else {
-            if (turno_responder) {
-                $("#row-action-turnos").show();
-            }
-            if (data.responsable) {
-                if (data.responsable.avatar) $("#offcanvas_turnos_header_img").attr("src",bucketUrl + data.responsable.avatar);
-                
-                if (data.responsable.lastname) {
-                    $("#id_name_person_turnos").text(data.responsable.firstname+' '+data.responsable.lastname);
-                } else {
-                    $("#id_name_person_turnos").text(data.responsable.firstname);
-                }
-            } else if (data.creador) {
-                if (data.creador.avatar) $("#offcanvas_turnos_header_img").attr("src",bucketUrl + data.creador.avatar);
-            }
-        }
-
-        mostrarDatosCabezaTurno(data);
-        mostrarMensajesTurno(data.eventos);
-        actualizarBotonesTurno(data);
-        initSwipers();
-
-        document.getElementById("offcanvas-body-turnos").scrollTop = 10000000;
-
-    }).fail((err) => {
-        $('#updateZona').show();
-        $('#saveZonaLoading').hide();
-        var errorsMsg = "";
-        var mensaje = err.responseJSON.message;
-        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
-            for (field in mensaje) {
-                var errores = mensaje[field];
-                for (campo in errores) {
-                    errorsMsg += "- "+errores[campo]+" <br>";
-                }
-            };
-        } else {
-            errorsMsg = mensaje
-        }
-        agregarToast('error', 'Actualización errada', errorsMsg);
-    });
+    Livewire.dispatch('cargarMensajes', {chatId: idChat, observador: false});
+    const chatMaximo = document.getElementById('chatMaximo');
+    if (!chatMaximo.classList.contains('show')) document.getElementById('iconNavbarChat').click();
 }
 
 function mostrarDatosCabezaTurno(data) {

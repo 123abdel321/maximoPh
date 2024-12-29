@@ -10,9 +10,13 @@ use App\Models\Empresa\UsuarioEmpresa;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Chat;
 use App\Models\Portafolio\Nits;
+use App\Models\Sistema\Message;
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\Novedades;
+use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ArchivosCache;
 use App\Models\Sistema\ArchivosGenerales;
@@ -52,6 +56,7 @@ class NovedadesController extends Controller
 
             $novedades = Novedades::orderBy('id', 'DESC')
                 ->with([
+                    'chats',
                     'archivos',
                     'responsable.nit',
                     'responsable.archivos',
@@ -131,24 +136,88 @@ class NovedadesController extends Controller
 
             $archivos = $request->get('archivos');
 
-            if (count($archivos)) {
-                foreach ($archivos as $archivo) {
-                    $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
-                    $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/novedades/'.$archivoCache->name_file;
-                    if (Storage::exists($archivoCache->relative_path)) {
-                        Storage::move($archivoCache->relative_path, $finalPath);
-                        
-                        $archivo = new ArchivosGenerales([
-                            'tipo_archivo' => $archivoCache->tipo_archivo,
-                            'url_archivo' => $finalPath,
-                            'estado' => 1,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
-                        ]);
-                        $archivo->relation()->associate($novedad);
-                        $novedad->archivos()->save($archivo);
+            $porteria = Porteria::where('id', $request->get('id_porteria'))->first();
+            
+            if ($porteria && $porteria->id_usuario) { //CREAR MENSAJE SI EL ITEM DE PORTERIA TIENE USUARIO
+
+                $chat = new Chat([
+                    'name' => "NOVEDAD #{$novedad->id}",
+                    'is_group' => true,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+    
+                $chat->relation()->associate($novedad);
+                $novedad->chats()->save($chat);
+    
+                ChatUser::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => $porteria->id_usuario,
+                ]);
+
+                ChatUser::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => request()->user()->id,
+                ]);
+
+                $contentMensaje = "
+                    <b style='color: aqua;'>Asunto: </b>{$request->get("asunto")}<br/>
+                    <b style='color: aqua;'>Descripción: </b>{$request->get("mensaje")}<br/>
+                ";
+
+                $mensaje = Message::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => request()->user()->id,
+                    'content' => $contentMensaje,
+                    'status' => 1
+                ]);
+
+                MessageUser::firstOrCreate([
+                    'message_id' => $mensaje->id,
+                    'user_id' => request()->user()->id,
+                ]);
+
+                if (count($archivos)) {
+                    foreach ($archivos as $archivo) {
+                        $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                        $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/turnos/'.$archivoCache->name_file;
+                        if (Storage::exists($archivoCache->relative_path)) {
+                            Storage::move($archivoCache->relative_path, $finalPath);
+                            
+                            $archivo = new ArchivosGenerales([
+                                'tipo_archivo' => $archivoCache->tipo_archivo,
+                                'url_archivo' => $finalPath,
+                                'estado' => 1,
+                                'created_by' => request()->user()->id,
+                                'updated_by' => request()->user()->id
+                            ]);
+                            $archivo->relation()->associate($mensaje);
+                            $mensaje->archivos()->save($archivo);
+                        }
+                        $archivoCache->delete();
                     }
-                    $archivoCache->delete();
+                }
+
+            } else {
+                if (count($archivos)) {
+                    foreach ($archivos as $archivo) {
+                        $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                        $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/novedades/'.$archivoCache->name_file;
+                        if (Storage::exists($archivoCache->relative_path)) {
+                            Storage::move($archivoCache->relative_path, $finalPath);
+                            
+                            $archivo = new ArchivosGenerales([
+                                'tipo_archivo' => $archivoCache->tipo_archivo,
+                                'url_archivo' => $finalPath,
+                                'estado' => 1,
+                                'created_by' => request()->user()->id,
+                                'updated_by' => request()->user()->id
+                            ]);
+                            $archivo->relation()->associate($novedad);
+                            $novedad->archivos()->save($archivo);
+                        }
+                        $archivoCache->delete();
+                    }
                 }
             }
 

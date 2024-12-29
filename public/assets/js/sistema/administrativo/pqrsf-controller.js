@@ -331,7 +331,7 @@ function initTablesPqrsf() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    html+= '<span id="readpqrsf_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success read-pqrsf" style="margin-bottom: 0rem !important; min-width: 50px;">Ver detalle</span>&nbsp;';
+                    html+= '<span id="readpqrsf_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info read-pqrsf" style="margin-bottom: 0rem !important; min-width: 50px;">Chat</span>&nbsp;';
                     return html;
                 }
             },
@@ -341,7 +341,6 @@ function initTablesPqrsf() {
 
     if (pqrsf_table) {
         pqrsf_table.on('click', '.read-pqrsf', function() {
-            $("#offcanvas-body-pqrsf").empty();
             var id = this.id.split('_')[1];
             var data = getDataById(id, pqrsf_table);
             if (data.chats.length) {

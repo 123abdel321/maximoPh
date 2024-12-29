@@ -201,7 +201,11 @@ function initTablesNovedades() {
             }},
             {
                 "data": function (row, type, set){
-                    var html = '';
+                    let chats = null;
+                    if (row.chats.length) chats = row.chats[0];
+
+                    let html = '';
+                    if (chats) html+= '<span id="editnovedad_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info read-novedad" style="margin-bottom: 0rem !important; min-width: 50px;">Chat</span>&nbsp;';
                     if (updateNovedades) html+= '<span id="editnovedad_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-novedad" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (deleteNovedades) html+= '<span id="deletenovedad_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-novedad" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
@@ -328,6 +332,16 @@ function initTablesNovedades() {
             }
 
             $("#novedadesPreviewModal").modal('show');
+        });
+        //CHAT NOVEDAD
+        novedades_table.on('click', '.read-novedad', function() {
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, novedades_table);
+            if (data.chats.length) {
+                Livewire.dispatch('cargarMensajes', {chatId: data.chats[0].id, observador: false});
+                const chatMaximo = document.getElementById('chatMaximo');
+                if (!chatMaximo.classList.contains('show')) document.getElementById('iconNavbarChat').click();
+            }
         });
     }
     
