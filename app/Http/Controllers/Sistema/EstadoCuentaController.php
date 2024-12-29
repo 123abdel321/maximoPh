@@ -89,7 +89,20 @@ class EstadoCuentaController extends Controller
     public function generate(Request $request)
     {
         try {
-            $nit = Nits::where('email', request()->user()->email)->first();
+
+            $nit = null;
+
+            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
+            if ($usuario_empresa && $usuario_empresa->id_nit) {
+                $nit = Nits::where('id', $usuario_empresa->id_nit)->first();
+            }
+
+            if (!$nit) {
+                $nit = Nits::where('email', request()->user()->email)->first();
+            }
 
             if (!$nit) {
                 return response()->json([
@@ -201,13 +214,25 @@ class EstadoCuentaController extends Controller
                 'total_pagos' => 0
             ];
     
-            $nit = Nits::where('email', request()->user()->email)->first();
-    
+            $nit = null;
+
+            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
+            if ($usuario_empresa && $usuario_empresa->id_nit) {
+                $nit = Nits::where('id', $usuario_empresa->id_nit)->first();
+            }
+
+            if (!$nit) {
+                $nit = Nits::where('email', request()->user()->email)->first();
+            }
+            
             if (!$nit) {
                 return response()->json([
                     "success"=>false,
                     'data' => [],
-                    "message"=>'Nit no existente'
+                    "message"=>'Nit asociado no se encuentra en nuestra base de datos'
                 ], 422);
             }
     

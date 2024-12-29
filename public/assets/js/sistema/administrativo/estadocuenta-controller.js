@@ -712,6 +712,19 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
                 
         }
     }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = "";
+        if (typeof mensaje === 'object') {
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += field+": "+errores[campo]+" <br>";
+                }
+                agregarToast('error', 'Creación errada', errorsMsg);
+            };
+        } else {
+            agregarToast('error', 'Creación errada', mensaje);
+        }
     });
 }
 
