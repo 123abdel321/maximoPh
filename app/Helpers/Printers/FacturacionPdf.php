@@ -72,6 +72,8 @@ class FacturacionPdf extends AbstractPrinterPdf
 		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
         $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
+        $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
+        $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
 		
 		if($getNit){ 
 			$nit = (object)[
@@ -155,7 +157,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 			)
 			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw('id_nit, id_cuenta, documento_referencia')
+            ->groupByRaw($detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
         ->get();
 
         $dataCuentas = [];

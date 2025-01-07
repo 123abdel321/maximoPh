@@ -105,7 +105,8 @@ function entornoInit() {
             'causacion_mensual_rapida',
             'descuento_pago_parcial',
             'recausar_meses',
-            'validar_fecha_entrega_causacion'
+            'validar_fecha_entrega_causacion',
+            'detallar_facturas'
         ];
 
         var dateEntorno = [
@@ -201,6 +202,7 @@ $(document).on('click', '#updateEntorno', function () {
         'descuento_pago_parcial': $("input[type='checkbox']#descuento_pago_parcial").is(':checked') ? '1' : '0',
         'recausar_meses': $("input[type='checkbox']#recausar_meses").is(':checked') ? '1' : '0',
         'validar_fecha_entrega_causacion': $("input[type='checkbox']#validar_fecha_entrega_causacion").is(':checked') ? '1' : '0',
+        'detallar_facturas': $("input[type='checkbox']#detallar_facturas").is(':checked') ? '1' : '0',
         'factura_texto1': $('#factura_texto1').val(),
         'factura_texto2': $('#factura_texto2').val(),
         'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),

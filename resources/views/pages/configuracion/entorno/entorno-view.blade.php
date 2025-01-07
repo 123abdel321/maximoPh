@@ -151,6 +151,13 @@
                                 </label>
                             </div>
 
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="detallar_facturas" id="detallar_facturas" style="height: 20px;">
+                                <label class="form-check-label" for="detallar_facturas">
+                                    Detallar facturas
+                                </label>
+                            </div>
+
                         </div>
 
                         <br/>
