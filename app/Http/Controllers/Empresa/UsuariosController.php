@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\envioEmail;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
@@ -634,13 +635,21 @@ class UsuariosController extends Controller
             $nombreUsuario = $usuario->firstname;
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
-            Mail::to($usuario->email)
-                ->cc('noreply@maximoph.com')
-                ->bcc('bcc@maximoph.com')
-                ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
-                    'nombre' => $nombreUsuario,
-                    'url' => $url_welcome,
-                ]));
+            if (filter_var($usuario->email, FILTER_VALIDATE_EMAIL)) {
+                Mail::to($usuario->email)
+                    ->cc('noreply@maximoph.com')
+                    ->bcc('bcc@maximoph.com')
+                    ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+                        'nombre' => $nombreUsuario,
+                        'url' => $url_welcome,
+                    ]));
+    
+                envioEmail::create([
+                    'id_nit' => $usuario->id,
+                    'email' => $usuario->email,
+                    'contexto' => 'emails.welcome'
+                ]);
+            }
 
             return response()->json([
                 'success'=>	true,
@@ -683,6 +692,12 @@ class UsuariosController extends Controller
                             'nombre' => $nombreUsuario,
                             'url' => $url_welcome,
                         ]));
+
+                    envioEmail::create([
+                        'id_nit' => $nit->id,
+                        'email' => $nit->email_2,
+                        'contexto' => 'envio_factura'
+                    ]);
                 }
             }
         }

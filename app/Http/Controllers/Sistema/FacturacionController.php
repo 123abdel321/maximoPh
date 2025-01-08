@@ -29,6 +29,7 @@ use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Inmueble;
+use App\Models\Sistema\envioEmail;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\CuotasMultas;
@@ -843,7 +844,6 @@ class FacturacionController extends Controller
             ->groupByRaw('id_nit')
             ->get();
 
-        // dd($facturarNit);
         $saldo_anterior = 0;
         $count_saldo_anterior = 0;
         $saldo_base = 0;
@@ -863,16 +863,14 @@ class FacturacionController extends Controller
                 }
             }
 
-            $sumaRapida = 0;
             if (array_key_exists($nit->id_nit, $extractosNits)) {
                 $count_saldo_anterior++;
-                $tieneCXC = false;                
+                $tieneCXC = false;
                 foreach ($extractosNits[$nit->id_nit] as $extracto) {
                     $saldo = floatval($extracto->saldo);
                     $saldo_anterior+= $saldo;
                     if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
                     $tieneCXC = true;
-                    $sumaRapida+= floatval($extracto->saldo);
                     $saldo_base+= $saldo;
                     $total_intereses+= $this->roundNumber($saldo * ($porcentaje_intereses_mora / 100));
                 }
@@ -890,7 +888,7 @@ class FacturacionController extends Controller
                 }
             }
         }
-        
+
         $extrasConceptos[] = (object)[
             'id_concepto_facturacion' => 'intereses',
             'concepto_facturacion' => 'INTERESES %'.$porcentaje_intereses_mora,
@@ -917,7 +915,7 @@ class FacturacionController extends Controller
         ];
 
         $existe_facturacion = Facturacion::where('fecha_manual', $finMes)->count();
-
+        
         return response()->json([
             "success"=>true,
             'data' => [
@@ -1111,12 +1109,12 @@ class FacturacionController extends Controller
             ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->chunk(34, function ($nits) use($empresa, $request) {
                 foreach ($nits as $nit) {
-                    
+
                     $facturaPdf = (new FacturacionPdf($empresa, $nit->id_nit, $request->get('periodo')))
                         ->buildPdf()
                         ->saveStorage();
 
-                    if ($nit->email) {
+                    if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL)) {
                         Mail::to($nit->email)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
@@ -1124,10 +1122,15 @@ class FacturacionController extends Controller
                             'nombre' => $nit->nombre_nit,
                             'factura' => $nit->consecutivo,
                             'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
+                        ]));
+                        envioEmail::create([
+                            'id_nit' => $nit->id_nit,
+                            'email' => $nit->email,
+                            'contexto' => 'emails.factura'
+                        ]);
                     }
 
-                    if ($nit->email_1 && $nit->email != $nit->email_1) {
+                    if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL)) {
                         Mail::to($nit->email_1)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
@@ -1136,9 +1139,14 @@ class FacturacionController extends Controller
                             'factura' => $nit->consecutivo,
                             'valor' => $nit->saldo_final,
                         ], $facturaPdf));
+                        envioEmail::create([
+                            'id_nit' => $nit->id_nit,
+                            'email' => $nit->email_1,
+                            'contexto' => 'emails.factura'
+                        ]);
                     }
 
-                    if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2) {
+                    if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL)) {
                         Mail::to($nit->email_2)
                         ->cc('noreply@maximoph.com')
                         ->bcc('bcc@maximoph.com')
@@ -1147,6 +1155,11 @@ class FacturacionController extends Controller
                             'factura' => $nit->consecutivo,
                             'valor' => $nit->saldo_final,
                         ], $facturaPdf));
+                        envioEmail::create([
+                            'id_nit' => $nit->id_nit,
+                            'email' => $nit->email_2,
+                            'contexto' => 'emails.factura'
+                        ]);
                     }
 
                     Storage::disk('do_spaces')->delete($facturaPdf);
