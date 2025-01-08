@@ -92,7 +92,8 @@ function facturacionesInit() {
                     }).done((res) => {
                         $("#enviarEmailFacturas").show();
                         $("#enviarEmailFacturasLoading").hide();
-                        agregarToast('exito', 'Email enviados', 'Emails enviados con exito!');
+                        
+                        agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
                     }).fail((err) => {
                         var mensaje = err.responseJSON.message;
                         var errorsMsg = arreglarMensajeError(mensaje);
@@ -259,7 +260,6 @@ function formatInmuebleReciboSelection (inmueble) {
 }
 
 channelEmailNofiticacion.bind('notificaciones', function(data) {
-
     let mensaje = `Total de facturas enviadas: ${data.total_envios}`;
     agregarToast('exito', 'Email enviados', mensaje, true);
 });
