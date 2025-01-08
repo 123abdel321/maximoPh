@@ -1122,7 +1122,7 @@ class FacturacionController extends Controller
                             'nombre' => $nit->nombre_nit,
                             'factura' => $nit->consecutivo,
                             'valor' => $nit->saldo_final,
-                        ]));
+                        ], $facturaPdf));
                         envioEmail::create([
                             'id_nit' => $nit->id_nit,
                             'email' => $nit->email,
