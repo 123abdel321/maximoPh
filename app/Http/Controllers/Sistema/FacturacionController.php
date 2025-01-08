@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Query\JoinClause;
 //JOBS
+use App\Jobs\ProcessEnvioFacturaEmail;
 use App\Jobs\ProcessFacturacionGeneral;
 use App\Jobs\ProcessFacturacionGeneralDelete;
 use App\Jobs\ProcessFacturacionGeneralCausar;
@@ -1088,87 +1089,16 @@ class FacturacionController extends Controller
 
     public function email (Request $request)
     {
-        $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-
-        $query = $this->carteraDocumentosQuery($request);
-        $query->unionAll($this->carteraAnteriorQuery($request));
-
-        DB::connection('sam')
-            ->table(DB::raw("({$query->toSql()}) AS cartera"))
-            ->select(
-                'id_nit',
-                'email',
-                'email_1',
-                'email_2',
-                'nombre_nit',
-                'consecutivo',
-                DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
-            )
-            ->mergeBindings($query)
-            ->groupByRaw('id_nit')
-            ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-            ->chunk(34, function ($nits) use($empresa, $request) {
-                foreach ($nits as $nit) {
-
-                    $facturaPdf = (new FacturacionPdf($empresa, $nit->id_nit, $request->get('periodo')))
-                        ->buildPdf()
-                        ->saveStorage();
-
-                    if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL)) {
-                        Mail::to($nit->email)
-                        ->cc('noreply@maximoph.com')
-                        ->bcc('bcc@maximoph.com')
-                        ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
-                            'nombre' => $nit->nombre_nit,
-                            'factura' => $nit->consecutivo,
-                            'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
-                        envioEmail::create([
-                            'id_nit' => $nit->id_nit,
-                            'email' => $nit->email,
-                            'contexto' => 'emails.factura'
-                        ]);
-                    }
-
-                    if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL)) {
-                        Mail::to($nit->email_1)
-                        ->cc('noreply@maximoph.com')
-                        ->bcc('bcc@maximoph.com')
-                        ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
-                            'nombre' => $nit->nombre_nit,
-                            'factura' => $nit->consecutivo,
-                            'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
-                        envioEmail::create([
-                            'id_nit' => $nit->id_nit,
-                            'email' => $nit->email_1,
-                            'contexto' => 'emails.factura'
-                        ]);
-                    }
-
-                    if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL)) {
-                        Mail::to($nit->email_2)
-                        ->cc('noreply@maximoph.com')
-                        ->bcc('bcc@maximoph.com')
-                        ->queue(new GeneralEmail($empresa->razon_social, 'emails.factura', [
-                            'nombre' => $nit->nombre_nit,
-                            'factura' => $nit->consecutivo,
-                            'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
-                        envioEmail::create([
-                            'id_nit' => $nit->id_nit,
-                            'email' => $nit->email_2,
-                            'contexto' => 'emails.factura'
-                        ]);
-                    }
-
-                    Storage::disk('do_spaces')->delete($facturaPdf);
-                }
-            });
+        $id_usuario = $request->user()->id;
+        $id_empresa = request()->user()->id_empresa;
+        
+        Bus::chain([
+            new ProcessEnvioFacturaEmail($request->all(), $id_empresa, $id_usuario)
+        ])->dispatch();
 
         return response()->json([
             "success"=> true,
-            "message"=> 'Emails enviados con exito'
+            "message"=> 'Se notificará cuando los correos hayan sido enviados'
         ], 200);
     }
 
