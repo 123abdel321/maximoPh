@@ -60,6 +60,7 @@ class EntornoController extends Controller
                 'descuento_pago_parcial',
                 'recausar_meses',
                 'validar_fecha_entrega_causacion',
+                'detallar_facturas',
                 'documento_referencia_agrupado',
                 'placetopay_url',
                 'placetopay_login',
