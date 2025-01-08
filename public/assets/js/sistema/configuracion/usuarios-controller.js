@@ -3,7 +3,7 @@ var $comboNitUsuario = null;
 var $comboBodegaUsuario = null;
 var $comboNitUsuarioFilter = null;
 var $comboResolucionUsuario = null;
-var channelFacturacionRapida = pusher.subscribe('sincronizar-usuarios-'+localStorage.getItem("notificacion_code"));
+var syncUsuarios = pusher.subscribe('sincronizar-usuarios-'+localStorage.getItem("notificacion_code"));
 
 function usuariosInit() {
     
@@ -441,9 +441,14 @@ function usuariosInit() {
     usuarios_table.ajax.reload();
 }
 
-channelFacturacionRapida.bind('notificaciones', function(data) {
+syncUsuarios.bind('notificaciones', function(data) {
     usuarios_table.ajax.reload();
-    agregarToast('exito', 'Sincronización exitosa', 'Usuarios sincronizados con exito!', true);
+
+    let mensaje = `
+        Total usuarios sincronizados: ${data.usuarios_creados} <br/>
+        Total usuarios existentes: ${data.usuarios_relaciados}
+    `
+    agregarToast('exito', 'Sincronización exitosa', mensaje, false);
 });
 
 $("#searchInputUsuarios").on("input", function (e) {

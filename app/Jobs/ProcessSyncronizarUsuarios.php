@@ -79,24 +79,30 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
             }
             
             $dataInmuebles = $inmueblesNits->get();
-            $totalUsuariosSincronizados = 0;
+
+            $totalUsuariosCreados = 0;
+            $totalUsuariosRelaciados = 0;
+            
             foreach ($dataInmuebles as $dataInmueble) {
-                $usuario = UsuarioEmpresa::where('id_nit', $dataInmueble->id_nit)
-                    ->count();
+                $nit = Nits::where('id', $dataInmueble->id_nit)->first();
+                $usuario = User::where('email', $nit->email)->first();
+                $usuarioEmpresa = null;
 
-                $nit = Nits::where('id', $dataInmueble->id_nit)
-                    ->first();
-
+                if ($usuario) {
+                    $usuarioEmpresa = UsuarioEmpresa::where('id_usuario', $usuario->id)
+                        ->where('id_empresa', $this->id_empresa)
+                        ->count();
+                }
+                
+                //CREAR USUARIO
                 if (!$usuario && $nit->email) {
-                    
-                    $totalUsuariosSincronizados++;
-                    
-                    $usuarioPropietario = User::create([
+                    $username = str_replace(' ', '', $nit->primer_nombre).rand(1, 10000);
+                    $usuario = User::create([
                         'id_empresa' => $this->id_empresa,
                         'has_empresa' => $this->empresa->token_db_maximo,
                         'firstname' => $nit->primer_nombre,
                         'lastname' => $nit->primer_apellido,
-                        'username' => '123'.$nit->primer_nombre.'321',
+                        'username' => $username,
                         'email' => $nit->email,
                         'telefono' => $nit->telefono_1,
                         'password' => $nit->numero_documento,
@@ -104,96 +110,49 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
                         'created_by' => $this->id_usuario,
                         'updated_by' => $this->id_usuario
                     ]);
-                    
-                    $idRol = $dataInmueble->tipo ? 3 : 5;
-                    $rolPropietario = RolesGenerales::find($idRol);
-                    
-                    UsuarioEmpresa::updateOrCreate([
-                        'id_usuario' => $usuarioPropietario->id,
-                        'id_empresa' => $this->id_empresa
-                    ],[
-                        'id_rol' => $idRol, // 3: PROPIETARIO; 4:RESIDENTE
-                        'id_nit' => $nit->id,
-                        'estado' => 1, // default: 1 activo
-                    ]);
-
-                    UsuarioPermisos::updateOrCreate([
-                        'id_user' => $usuarioPropietario->id,
-                        'id_empresa' => $this->id_empresa
-                    ],[
-                        'id_rol' => $idRol, // ROL PROPIETARIO
-                        'ids_permission' => $rolPropietario->ids_permission
-                    ]);
-
-                    Porteria::where('id_usuario', $usuarioPropietario->id)
-                        ->delete();
-
-                    $portero = Porteria::create([
-                        'id_usuario' => $usuarioPropietario->id,
-                        'id_nit' => $nit->id,
-                        'tipo_porteria' => $dataInmueble->tipo == 1 ? 1 : 0,
-                        'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
-                        'dias' => !$dataInmueble->tipo ? '1,2,3,4,5,6,7' : null,
-                        'created_by' => $this->id_usuario,
-                        'updated_by' => $this->id_usuario,
-                    ]);
-
-                    $tieneImagen = ArchivosGenerales::where('relation_type', 1)
-                        ->where('relation_id', $portero->id);
-                    
-                    if ($nit->logo_nit && !$tieneImagen->count()) {
-                        $archivo = new ArchivosGenerales([
-                            'tipo_archivo' => 'imagen',
-                            'url_archivo' => $nit->logo_nit,
-                            'estado' => 1,
-                            'created_by' => $this->id_usuario,
-                            'updated_by' => $this->id_usuario
-                        ]);
-            
-                        $archivo->relation()->associate($portero);
-                        $portero->archivos()->save($archivo);
-                    }
-                } else if ($usuario) {//REINICIAR ITEMS EN PORTERIA
-                    $usuarioEm = UsuarioEmpresa::where('id_nit', $dataInmueble->id_nit)
-                        ->with('usuario')
-                        ->first();
-
-                    if ($usuarioEm->usuario && !$usuarioEm->usuario->email_verified_at) {
-                        Porteria::where('id_usuario', $usuarioEm->usuario->id)
-                            ->delete();
-
-                        $portero = Porteria::create([
-                            'id_usuario' => $usuarioEm->usuario->id,
-                            'id_nit' => $nit->id,
-                            'tipo_porteria' => $dataInmueble->tipo == 1 ? 1 : 0,
-                            'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
-                            'dias' => !$dataInmueble->tipo ? '1,2,3,4,5,6,7' : null,
-                            'created_by' => $this->id_usuario,
-                            'updated_by' => $this->id_usuario,
-                        ]);
-
-                        $tieneImagen = ArchivosGenerales::where('relation_type', 1)
-                            ->where('relation_id', $portero->id);
-                        
-                        if ($nit->logo_nit && !$tieneImagen->count()) {
-                            $archivo = new ArchivosGenerales([
-                                'tipo_archivo' => 'imagen',
-                                'url_archivo' => $nit->logo_nit,
-                                'estado' => 1,
-                                'created_by' => $this->id_usuario,
-                                'updated_by' => $this->id_usuario
-                            ]);
-                
-                            $archivo->relation()->associate($portero);
-                            $portero->archivos()->save($archivo);
-                        }
-                    }
+                    $totalUsuariosCreados++;
+                } else if ($usuario){
+                    $totalUsuariosRelaciados++;
                 }
+                
+                //ASOCIAR USUARIO A LA EMPRESA
+                $idRol = $dataInmueble->tipo ? 3 : 5;
+                $rolPropietario = RolesGenerales::find($idRol);
+                
+                UsuarioEmpresa::updateOrCreate([
+                    'id_usuario' => $usuario->id,
+                    'id_empresa' => $this->id_empresa
+                ],[
+                    'id_rol' => $idRol, // 3: PROPIETARIO; 4:RESIDENTE
+                    'id_nit' => $nit->id,
+                    'estado' => 1, // default: 1 activo
+                ]);
+                //AGREGAR PERMISOS DE USUARIO
+                UsuarioPermisos::updateOrCreate([
+                    'id_user' => $usuario->id,
+                    'id_empresa' => $this->id_empresa
+                ],[
+                    'id_rol' => $idRol, // ROL PROPIETARIO
+                    'ids_permission' => $rolPropietario->ids_permission
+                ]);
+                //AGREGAR ITEM DE PORTERIA 
+                Porteria::where('id_usuario', $usuario->id)->delete();
+                $portero = Porteria::create([
+                    'id_usuario' => $usuario->id,
+                    'id_nit' => $nit->id,
+                    'tipo_porteria' => $dataInmueble->tipo == 1 ? 1 : 0,
+                    'nombre' => $nit->primer_nombre.' '.$nit->primer_apellido,
+                    'dias' => null,
+                    'created_by' => $this->id_usuario,
+                    'updated_by' => $this->id_usuario,
+                ]);
             }
             
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
             event(new PrivateMessageEvent('sincronizar-usuarios-'.$urlEventoNotificacion, [
                 'tipo' => 'exito',
+                'usuarios_creados' => $totalUsuariosCreados,
+                'usuarios_relaciados' => $totalUsuariosRelaciados,
                 'success' =>  true,
             ]));
 
