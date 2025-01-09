@@ -1,5 +1,5 @@
 let searchTimeoutFamilia;
-var $comboInmuebleEventosFilter = null;
+var $comboInmuebleFamiliaFilter = null;
 var $comboNitFamiliaFilter = null;
 var $comboFamiliaEventos = null;
 var $comboInmuebleFamilia = null;
