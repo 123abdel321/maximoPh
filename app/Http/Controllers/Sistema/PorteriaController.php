@@ -126,7 +126,7 @@ class PorteriaController extends Controller
             }
             
             if ($request->user()->can('porteria eventos') && $request->get("search")) {
-                $porteria->whereIn('tipo_porteria', [0,3,4,5,6])
+                $porteria->whereIn('tipo_porteria', [0,1,3,4,5,6])
                     ->where(function ($query) use ($request) {
                         $query->where('nombre', 'like', '%' .$request->get("search"). '%')
                             ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
