@@ -165,7 +165,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                             null,
                             $inicioMesMenosDia
                         ))->completo()->first();
-                        
+
                         $extracto = (new Extracto(
                             $nit->id,
                             [3,7],
@@ -182,8 +182,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                             
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
 
-                        if ($extracto && $extracto->saldo && !$sandoPendiente) {
-                            $valorPendiente = $extracto->saldo;
+                        $valorPendiente = $extracto->saldo;
+                        if ($extracto && $extracto->saldo && !$extractoCXC) {
                             $prontoPago = 0;
 
                             $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
@@ -196,7 +196,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                             $anticipo+= floatval($row['valor']);
                         }
                     }
-
                     $extractoSaldo = (new Extracto(
                         $nit->id,
                         [3,7]
@@ -212,7 +211,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     $anticipo+= $extractoCXP ? $extractoCXP->saldo : 0;
                 }
             }
-
             if (!$conceptoFacturacion) {
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
             }
