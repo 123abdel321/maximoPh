@@ -69,10 +69,12 @@ class UsuariosController extends Controller
         $searchValue = $request->get('search');
 
         if ($searchValue) {
-            $filterSearch = 'AND US.firstname LIKE "%'.$searchValue.'%" ';
-            $filterSearch.= 'OR US.lastname LIKE "%'.$searchValue.'%" ';
-            $filterSearch.= 'OR US.email LIKE "%'.$searchValue.'%" ';
-            $filterSearch.= 'OR US.username LIKE "%'.$searchValue.'%" ';
+            $filterSearch = "AND (
+                US.firstname LIKE '%$searchValue%' 
+                OR US.lastname LIKE '%$searchValue%' 
+                OR US.email LIKE '%$searchValue%' 
+                OR US.username LIKE '%$searchValue%'
+            )";
         }
 
         if ($request->get('id_rol')) {
