@@ -81,8 +81,25 @@ class ChatGeneral extends Component
                 ->orWhereIn('CH.relation_type', $this->canalesAdmin);
             })
             ->when($this->textoBuscarChat, function ($query) {
-				$query->where('CH.name', 'LIKE', $this->textoBuscarChat.'%');
-			})
+                $query->where(function ($subQuery) {
+                    $subQuery->where('CH.name', 'LIKE', $this->textoBuscarChat . '%')
+                        ->orWhereExists(function ($subSubQuery) {
+                            $subSubQuery->select(DB::raw(1))
+                                ->from('chat_users AS CU')
+                                ->join(
+                                    DB::connection('clientes')->getDatabaseName() . '.users AS U',
+                                    'CU.user_id',
+                                    '=',
+                                    'U.id'
+                                )
+                                ->whereColumn('CU.chat_id', 'CH.id')
+                                ->where(function ($nameQuery) {
+                                    $nameQuery->where('U.firstname', 'LIKE', $this->textoBuscarChat . '%')
+                                        ->orWhere('U.lastname', 'LIKE', $this->textoBuscarChat . '%');
+                                });
+                        });
+                });
+            })
             ->when($this->relationTypeBuscarChat, function ($query) {
 				$query->where('CH.relation_type', $this->relationTypeBuscarChat);
 			})
