@@ -107,6 +107,13 @@
             </p>
         </div>
 
+        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('familia', 'Familia', 'fas fa-user-shield')">
+            <i class="fas fa-table icon-menu-carta"></i>
+            <p class="text-menu">
+                FAMILIA
+            </p>
+        </div>
+
         <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('porteria', 'Porteria', 'fas fa-user-shield')">
             <i class="fas fa-user-shield icon-menu-carta"></i>
             <p class="text-menu">
