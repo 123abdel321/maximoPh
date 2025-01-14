@@ -413,7 +413,7 @@
         <input
             id="input-mensaje-chat"
             wire:model="textoEscrito"
-            class="form-control"
+            class="form-control-no-upp"
             type="text"
             placeholder="Escribe un mensaje"
             style="background-color: #2a3942; border: 0px; color: #FFF; padding: 10px;"

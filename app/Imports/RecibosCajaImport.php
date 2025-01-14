@@ -182,7 +182,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                             
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
 
-                        $valorPendiente = $extracto->saldo;
+                        $valorPendiente = $extracto ? $extracto->saldo : 0;
                         if ($extracto && $extracto->saldo && !$extractoCXC) {
                             $prontoPago = 0;
 
