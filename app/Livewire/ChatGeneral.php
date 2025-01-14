@@ -172,10 +172,12 @@ class ChatGeneral extends Component
 
                 case 16:
                     $novedad = Novedades::where('id', $chat->relation_id)->first();
-                    $porteria = Porteria::where('id', $novedad->id_porteria)->first();
-
-                    if ($porteria && $porteria->id_usuario) {
-                        $idUsuario = $porteria->id_usuario;
+                    if ($novedad) {
+                        $porteria = Porteria::where('id', $novedad->id_porteria)->first();
+    
+                        if ($porteria && $porteria->id_usuario) {
+                            $idUsuario = $porteria->id_usuario;
+                        }
                     }
                     break;
             }
