@@ -11,7 +11,7 @@
 				margin: 0;
 				font-family: "Lato", sans-serif;
 				line-height: 16px;
-				font-size: 12px;
+				font-size: 15px;
 				width: 100%;
 				text-transform: uppercase;
 			}
@@ -46,7 +46,7 @@
 			}
 
 			.table-detail {
-				font-size: 12px;
+				font-size: 15px;
 				width: 100%;
 				border-collapse: collapse;
 				height: 100%;

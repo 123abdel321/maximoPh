@@ -11,7 +11,7 @@
 				margin: 0;
 				font-family: "Lato", sans-serif;
 				line-height: 16px;
-				font-size: 10px;
+				font-size: 15px;
 				width: 100%;
 				text-transform: uppercase;
 			}
@@ -42,7 +42,7 @@
 			}
 
 			.table-detail {
-				font-size: 12px;
+				font-size: 15px;
 				width: 100%;
 				border-collapse: collapse;
 				height: 100%;
@@ -279,6 +279,35 @@
 							</tr>
 						</tbody>
 					</table>
+
+					@if ($texto_1 || $texto_2)
+						<table>
+							<tr>
+								@if ($texto_1)
+								<td class="aling-top padding5">
+									<table>
+										<thead>
+											<tr>
+												<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
+											</tr>
+										</thead>
+									</table>
+								</td>
+								@endif
+								@if ($texto_2)
+								<td class="table-total-factura padding5">
+									<table>
+										<thead>
+											<tr>
+												<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
+											</tr>
+										</thead>
+									</table>
+								</td>
+								@endif
+							</tr>
+						</table>
+					@endif
 							
 					<script type="text/php">
 						if ( isset($pdf) ) {

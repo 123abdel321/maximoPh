@@ -5,6 +5,7 @@ namespace App\Helpers\Printers;
 use DB;
 use Illuminate\Support\Carbon;
 //MODELS
+use App\Models\Sistema\Entorno;
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\InmuebleNit;
@@ -20,7 +21,10 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 		parent::__construct($empresa);
 
 		copyDBConnection('max', 'max');
-        setDBInConnection('max', $empresa->token_db);
+        setDBInConnection('max', $empresa->token_db_maximo);
+
+        copyDBConnection('sam', 'sam');
+        setDBInConnection('sam', $empresa->token_db_portafolio);
 
 		$this->nits = $nits;
 		$this->empresa = $empresa;
@@ -124,8 +128,16 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 ]);
             }
         }
+
+        // $texto1 = DB::connection('max')->table("entornos")->where('nombre', 'factura_texto1')->first();
+        // $texto1 = DB::connection('max')->table("entornos")->where('nombre', 'factura_texto1')->first();
+        // dd($texto1);
+        $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
+        $texto2 = Entorno::where('nombre', 'factura_texto2')->first();
         
         return [
+            'texto_1' => $texto1 ? $texto1->valor : '',
+            'texto_2' => $texto2 ? $texto2->valor : '',
             'empresa' => $this->empresa,
             'facturas' => $dataFacturas,
             'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
