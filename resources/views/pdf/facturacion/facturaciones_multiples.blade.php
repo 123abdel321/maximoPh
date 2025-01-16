@@ -107,6 +107,16 @@
 				font-size: 2.8em;
 			}
 			
+			.fecha-factura {
+				color: black;
+				font-size: 1.3em;
+			}
+
+			.ubicacion-factura {
+				color: black;
+				font-size: 1.5em;
+			}
+			
 			.generado {
 				width: 40%;
 			}
@@ -156,13 +166,13 @@
 										<tr>
 											<td class="consecutivo padding5">
 												<p>
-													<span span class="numero-consecutivo">N°
-														@if ($factura->totales)
-															{{ $factura->totales->consecutivo }}
-														@else
-															N/A
-														@endif
-													</span>
+													@if ($factura->totales)
+														<span span class="numero-consecutivo">N° {{ $factura->totales->consecutivo }}</span><br/>
+														<span span class="fecha-factura">{{ $factura->totales->fecha_manual }}</span><br/>
+														<span span class="ubicacion-factura">{{ $factura->cuentas[0]->apartamentos }}</span>
+													@else
+														N/A
+													@endif
 												</p>
 											</td>
 											

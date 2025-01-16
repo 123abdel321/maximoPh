@@ -84,6 +84,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 				'tipo_documento' => $getNit->tipo_documento->nombre,
 				'numero_documento' => $getNit->numero_documento,
 				"ciudad" => $getNit->ciudad ? $getNit->ciudad->nombre_completo : '',
+                'apartamentos' => $getNit->apartamentos
 			];
 		}
 

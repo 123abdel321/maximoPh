@@ -27,7 +27,6 @@
 				height: 100%;
 			}
 
-
 			.spacer {
 				height: 30px;
 			}
@@ -114,12 +113,17 @@
 
 			.numero-consecutivo {
 				color: #8d00ff;
-				font-size: 1.8em;
+				font-size: 2.8em;
 			}
 
 			.fecha-factura {
 				color: black;
 				font-size: 1.3em;
+			}
+
+			.ubicacion-factura {
+				color: black;
+				font-size: 1.5em;
 			}
 			
 			.generado {
@@ -174,7 +178,10 @@
 									<p>
 										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span><br/>
 										<span span class="fecha-factura">{{ $totales->fecha_texto }}</span>
-
+										@if ($nit)
+										<br/>
+										<span span class="ubicacion-factura">{{ $nit->apartamentos }}</span>
+										@endif
 									</p>
 								</td>
 								
