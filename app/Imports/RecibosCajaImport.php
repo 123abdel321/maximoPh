@@ -56,7 +56,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
         
         foreach ($rows as $key => $row) {
-            
+
             if (!count($row)) continue;
 
             $estado = 0;
@@ -81,7 +81,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
                 $nit = Nits::where('id', $nitPorDefecto)->first();
             }
-
+            
             $fechaManual = null;
             $fechaFormato = $row['fecha_manual'];
             
@@ -121,11 +121,17 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             if ($row['cedula_nit']) {
                 
                 $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
-                $nitConcepto = Nits::where('email', $row['email'])->first();
+                $nitConcepto = null;
+                if ($row['email']) {
+                    $nitConcepto = Nits::where('email', $row['email'])->first();
+                } else {
+                    $nitConcepto = Nits::where('id', $nitPorDefecto)->first();
+                }
+
                 $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])
                     ->whereRaw('LENGTH(numero_documento) = ?', [strlen($row['cedula_nit'])])
                     ->first();
-                    
+                
                 if (!$nitDocumento && $nitConcepto && ($concepto || $conceptoFacturacionSinIdentificar)) {
                     $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
                     $conceptoFacturacion = $concepto;
@@ -146,7 +152,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     }
                 }
             }
-
+            
             if ($row['valor'] && $fechaManual) {
                 if ($nit) {
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
@@ -211,6 +217,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     $anticipo+= $extractoCXP ? $extractoCXP->saldo : 0;
                 }
             }
+            
             if (!$conceptoFacturacion) {
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
             }
