@@ -80,7 +80,7 @@ class FamiliaController extends Controller
                 });
                     
             } else if ($request->get("search") && $usuarioEmpresa) {
-                $porteria->where(function ($query) use ($request) {
+                $porteria->where(function ($query) use ($request, $usuarioEmpresa) {
                     $query->where('id_nit', $usuarioEmpresa->id_nit)
                         ->orWhere('nombre', 'like', '%' .$request->get("search"). '%')
                         ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
