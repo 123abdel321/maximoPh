@@ -60,6 +60,9 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             $query = $this->carteraDocumentosQuery($id_nit);
             $query->unionAll($this->carteraAnteriorQuery($id_nit));
 
+            $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
+            $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
+
             $totales = DB::connection('sam')
                 ->table(DB::raw("({$query->toSql()}) AS cartera"))
                 ->mergeBindings($query)
@@ -121,7 +124,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 )
             ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw('id_nit, id_cuenta, documento_referencia')
+            ->groupByRaw($detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
             ->get();
             
             if (count($facturaciones)) {
