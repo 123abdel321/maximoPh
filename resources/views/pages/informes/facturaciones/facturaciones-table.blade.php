@@ -3,6 +3,7 @@
         <tr>
             <th style="border-radius: 15px 0px 0px 0px !important;">Documento</th>
             <th>Nombre</th>
+            <th>Ubicación</th>
             <th>Saldo anterior</th>
             <th>Total factura</th>
             <th>Total abono</th>

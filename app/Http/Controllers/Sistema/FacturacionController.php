@@ -26,6 +26,7 @@ use App\Helpers\PortafolioERP\EliminarFacturas;
 use App\Helpers\Printers\FacturacionPdf;
 use App\Helpers\Printers\FacturacionPdfMultiple;
 //MODELS
+use App\Models\Sistema\Zonas;
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
@@ -994,6 +995,7 @@ class FacturacionController extends Controller
                     'naturaleza_cuenta',
                     'auxiliar',
                     'nombre_cuenta',
+                    'apartamentos',
                     'documento_referencia',
                     'id_centro_costos',
                     'codigo_cecos',
@@ -1712,6 +1714,7 @@ class FacturacionController extends Controller
                 "N.email",
                 "N.email_1",
                 "N.email_2",
+                "N.apartamentos",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",
@@ -1752,6 +1755,12 @@ class FacturacionController extends Controller
             ->when($request->get('id_nit'), function ($query) use($request) {
 				$query->where('DG.id_nit', '=', $request->get('id_nit'));
 			})
+            ->when($request->get('id_zona'), function ($query) use($request) {
+                $zona = Zonas::where('id', $request->get('id_zona'))->first();
+                if ($zona) {
+                    $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
+                }
+			})
             ->when($request->get('factura_fisica'), function ($query) {
                 $nits = $this->nitFacturaFisica(true);
 				$query->whereIn('DG.id_nit', $nits);
@@ -1777,6 +1786,7 @@ class FacturacionController extends Controller
                 "N.email",
                 "N.email_1",
                 "N.email_2",
+                "N.apartamentos",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",
@@ -1816,6 +1826,12 @@ class FacturacionController extends Controller
 			})
             ->when($request->get('id_nit'), function ($query) use($request) {
 				$query->where('DG.id_nit', '=', $request->get('id_nit'));
+			})
+            ->when($request->get('id_zona'), function ($query) use($request) {
+                $zona = Zonas::where('id', $request->get('id_zona'))->first();
+                if ($zona) {
+                    $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
+                }
 			})
             ->when($request->get('factura_fisica'), function ($query) {
                 $nits = $this->nitFacturaFisica(true);

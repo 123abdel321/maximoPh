@@ -13,25 +13,31 @@
                 <form id="facturacionesInformeForm" style="margin-top: 10px;">
 
                     <div class="row">
-                        <div class="form-group col-12 col-sm-6 col-md-2">
+                        <div class="form-group col-12 col-sm-6 col-md-4">
                             <label for="exampleFormControlSelect1">Periodo</label>
                             <select name="periodo_facturaciones" id="periodo_facturaciones" class="form-control form-control-sm">
                                 <option value="">Seleccionar</option>
                             </select>
                         </div>
-                        <div class="form-group col-12 col-sm-6 col-md-2">
+                        <div class="form-group col-12 col-sm-6 col-md-4">
                             <label for="exampleFormControlSelect1">Nit</label>
                             <select class="form-control form-control-sm" name="id_nit_facturaciones" id="id_nit_facturaciones">
                                 <option value="">Seleccionar</option>
                             </select>
                         </div>
+                        <div class="form-group col-12 col-sm-6 col-md-4">
+                            <label for="exampleFormControlSelect1">Zona</label>
+                            <select class="form-control form-control-sm" name="id_zona_facturaciones" id="id_zona_facturaciones">
+                                <option value="">Seleccionar</option>
+                            </select>
+                        </div>
 
-                        <div class="form-check form-switch col-6 col-sm-4 col-md-2" style="place-content: center;">
+                        <div class="form-check form-switch col-6 col-sm-4 col-md-4" style="place-content: center;">
                             <input class="form-check-input" type="checkbox" name="nit_fisica_facturaciones" id="nit_fisica_facturaciones" style="height: 20px;">
                             <label class="form-check-label" for="nit_fisica_facturaciones">Facturacion fisica</label>
                         </div>
 
-                        <div class="form-check form-switch col-6 col-sm-4 col-md-2" style="">
+                        <div class="form-check form-switch col-6 col-sm-4 col-md-4" style="">
                             <span id="imprimirMultipleFacturacion" href="javascript:void(0)" class="btn badge bg-gradient-success" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
                                 <i class="fas fa-print" style="font-size: 17px;"></i>&nbsp;
                                 <b style="vertical-align: text-top;">IMPRIMIR FACTURAS</b>
@@ -39,7 +45,7 @@
                         </div>
 
                         @can('facturaciones email')
-                            <div class="form-check form-switch col-6 col-sm-4 col-md-2" style="">
+                            <div class="form-check form-switch col-6 col-sm-4 col-md-4" style="">
                                 <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
                                     <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
                                     <b style="vertical-align: text-top;">ENVIAR FACTURAS</b>

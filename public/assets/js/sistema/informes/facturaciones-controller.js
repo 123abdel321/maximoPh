@@ -27,19 +27,21 @@ function facturacionesInit() {
             data: function ( d ) {
                 d.periodo = formatoFechaFacturacion();
                 d.id_nit = $("#id_nit_facturaciones").val();
+                d.id_zona = $("#id_zona_facturaciones").val();
                 d.factura_fisica = $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : ''
             }
         },
         columns: [
-            {"data":'numero_documento'},
-            {"data": 'nombre_nit'},
+            { data:'numero_documento'},
+            { data: 'nombre_nit'},
+            { data: 'apartamentos'},
             { data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'saldo_final', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
-            {"data": 'email'},
-            {"data": 'email_1'},
-            {"data": 'email_2'},
+            { data: 'email'},
+            { data: 'email_1'},
+            { data: 'email_2'},
             {
                 "data": function (row, type, set){
                     var html = ``;
@@ -110,6 +112,7 @@ function facturacionesInit() {
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione un nit",
+        allowClear: true,
         language: {
             noResults: function() {
                 return "No hay resultado";        
@@ -123,6 +126,40 @@ function facturacionesInit() {
         },
         ajax: {
             url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        }
+    });
+
+    $('#id_zona_facturaciones').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una zona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/zona-combo',
             headers: headers,
             dataType: 'json',
             data: function (params) {
@@ -174,6 +211,10 @@ function facturacionesInit() {
     $("#id_nit_facturaciones").on('change', function(event) {
         facturaiones_table.ajax.reload();
     });
+
+    $("#id_zona_facturaciones").on('change', function(event) {
+        facturaiones_table.ajax.reload();
+    });
     
     $("#nit_fisica_facturaciones").on('change', function(event) {
         facturaiones_table.ajax.reload();
@@ -190,7 +231,8 @@ $("#enviarEmailFacturas").on('click', function(event) {
     let data = {
         factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
         periodo: formatoFechaFacturacion(),
-        id_nit: $("#id_nit_facturaciones").val()
+        id_nit: $("#id_nit_facturaciones").val(),
+        id_zona: $("#id_zona_facturaciones").val(),
     }
 
     Swal.fire({
