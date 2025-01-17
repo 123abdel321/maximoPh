@@ -55,7 +55,7 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
                 'tipo_archivo' => '.pdf',
                 'name_file' => 'facturacion.pdf',
                 'relative_path' => '',
-                'url_archivo' => "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com".$facturasPdf,
+                'url_archivo' => $facturasPdf,
                 'created_by' => $this->idUser,
                 'updated_by' => $this->idUser
             ]);
@@ -63,7 +63,7 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
             event(new PrivateMessageEvent('facturacion-factura-'.$urlEventoNotificacion, [
                 'tipo' => 'exito',
-                'urf_factura' => "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com".$facturasPdf,
+                'urf_factura' => $facturasPdf,
                 'success' =>  true,
                 'action' => 3
             ]));
