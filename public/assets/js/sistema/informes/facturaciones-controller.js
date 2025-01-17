@@ -1,6 +1,7 @@
 var facturaiones_table = null;
 var $comboPeriodoFacturaciones = null;
 let channelEmailNofiticacion = pusher.subscribe('facturacion-email-'+localStorage.getItem("notificacion_code"));
+let channelFacturaNofiticacion = pusher.subscribe('facturacion-factura-'+localStorage.getItem("notificacion_code"));
 
 function facturacionesInit() {
 
@@ -222,8 +223,25 @@ function facturacionesInit() {
 }
 
 $("#imprimirMultipleFacturacion").on('click', function(event) {
-    var facturaFisica = $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : ''
-    window.open("/facturacion-multiple-show-pdf?factura_fisica="+facturaFisica+"&periodo="+formatoFechaFacturacion(), "_blank");
+    $("#imprimirMultipleFacturacion").hide();
+    $("#imprimirMultipleFacturacionLoading").show();
+    $.ajax({
+        url: base_url + 'facturacion-multiple',
+        method: 'POST',
+        data: JSON.stringify({
+            factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
+            periodo: formatoFechaFacturacion(),
+            id_nit: $("#id_nit_facturaciones").val(),
+            id_zona: $("#id_zona_facturaciones").val(),
+        }),
+        headers: headers
+    }).done((res) => {
+        agregarToast('info', 'Generando facturas pdf', 'Se notificará cuando se hayan generado las facturas pdf!', true);
+    }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
 });
 
 $("#enviarEmailFacturas").on('click', function(event) {
@@ -304,4 +322,11 @@ function formatInmuebleReciboSelection (inmueble) {
 channelEmailNofiticacion.bind('notificaciones', function(data) {
     let mensaje = `Total de facturas enviadas: ${data.total_envios}`;
     agregarToast('exito', 'Email enviados', mensaje, true);
+});
+
+channelFacturaNofiticacion.bind('notificaciones', function(data) {
+    $("#imprimirMultipleFacturacion").show();
+    $("#imprimirMultipleFacturacionLoading").hide();
+    agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
+    window.open(data.urf_factura, "_blank");
 });

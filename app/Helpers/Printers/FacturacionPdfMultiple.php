@@ -5,6 +5,7 @@ namespace App\Helpers\Printers;
 use DB;
 use Illuminate\Support\Carbon;
 //MODELS
+use App\Models\Sistema\Zonas;
 use App\Models\Sistema\Entorno;
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
@@ -13,20 +14,22 @@ use App\Models\Sistema\InmuebleNit;
 class FacturacionPdfMultiple extends AbstractPrinterPdf
 {
     public $nits;
+    public $id_zona;
 	public $empresa;
 	public $periodo;
 
-    public function __construct(Empresa $empresa, $nits = [], $periodo)
+    public function __construct(Empresa $empresa, $nits = [], $periodo, $id_zona)
 	{
 		parent::__construct($empresa);
 
-		copyDBConnection('max', 'max');
-        setDBInConnection('max', $empresa->token_db_maximo);
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->empresa->token_db_maximo);
 
         copyDBConnection('sam', 'sam');
-        setDBInConnection('sam', $empresa->token_db_portafolio);
+        setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
 		$this->nits = $nits;
+		$this->id_zona = $id_zona;
 		$this->empresa = $empresa;
 		$this->periodo = $periodo;
 	}
@@ -38,7 +41,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 
     public function name()
 	{
-		return 'factura_'.uniqid();
+		return 'facturas_'.uniqid();
 	}
 
     public function paper()
@@ -52,7 +55,6 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
     public function data()
     {
         $dataFacturas = [];
-
         foreach ($this->nits as $id_nit) {
 
             $query = $this->carteraDocumentosQuery($id_nit);
@@ -121,7 +123,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
             ->groupByRaw('id_nit, id_cuenta, documento_referencia')
             ->get();
-
+            
             if (count($facturaciones)) {
                 array_push($dataFacturas, (object)[
                     'cuentas' => $facturaciones,
@@ -129,10 +131,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 ]);
             }
         }
-
-        // $texto1 = DB::connection('max')->table("entornos")->where('nombre', 'factura_texto1')->first();
-        // $texto1 = DB::connection('max')->table("entornos")->where('nombre', 'factura_texto1')->first();
-        // dd($texto1);
+        
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
         $texto2 = Entorno::where('nombre', 'factura_texto2')->first();
         

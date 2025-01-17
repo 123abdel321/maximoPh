@@ -18,6 +18,7 @@ use App\Jobs\ProcessEnvioFacturaEmail;
 use App\Jobs\ProcessFacturacionGeneral;
 use App\Jobs\ProcessFacturacionGeneralDelete;
 use App\Jobs\ProcessFacturacionGeneralCausar;
+use App\Jobs\ProcessGenerateFacturaMultiplePdf;
 //HELPERS
 use App\Helpers\Extracto;
 use App\Helpers\PortafolioERP\FacturacionERP;
@@ -1065,13 +1066,15 @@ class FacturacionController extends Controller
     public function showMultiplePdf(Request $request)
     {
         $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-        // if ($request->get('factura_fisica')
-        $nits = $this->nitFacturaFisica($request->get('factura_fisica'));
-        // $data = (new FacturacionPdfMultiple($empresa, $nits, $request->get('periodo')))->buildPdf()->getData();
-        // return view('pdf.facturacion.facturaciones_multiples', $data);
-        return (new FacturacionPdfMultiple($empresa, $nits, $request->get('periodo')))
-            ->buildPdf()
-            ->showPdf();
+        $nits = $this->nitFacturaFisica($request->get('factura_fisica'), $request->get('id_zona'));
+        
+        ProcessGenerateFacturaMultiplePdf::dispatch($empresa, $nits, $request->get('periodo'), $request->get('id_zona'), $request->user()->id);
+
+        return response()->json([
+            "success"=>false,
+            'data' => [],
+            "message"=> 'Generando facturas pdf, se notificará apenas finalice'
+        ], 200);
     }
 
     public function comboPeriodos (Request $request)
@@ -1873,12 +1876,17 @@ class FacturacionController extends Controller
         return $number;
     }
 
-    private function nitFacturaFisica($fisica = false)
+    private function nitFacturaFisica($fisica = false, $id_zona = false)
     {
         $nits = [];
         $inmuebleNit = InmuebleNit::select('id_nit')
             ->when($fisica, function ($query) {
                 $query->where('enviar_notificaciones_fisica', 1);
+            })
+            ->when($id_zona, function ($query) use($id_zona) {
+                $query->whereHas('inmueble', function($q) use ($id_zona) {
+                    $q->where('id_zona', $id_zona);
+                });
             })
             ->groupBy('id_nit')
             ->get();

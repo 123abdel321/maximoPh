@@ -42,6 +42,10 @@
                                 <i class="fas fa-print" style="font-size: 17px;"></i>&nbsp;
                                 <b style="vertical-align: text-top;">IMPRIMIR FACTURAS</b>
                             </span>
+                            <span id="imprimirMultipleFacturacionLoading" class="btn disabled badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important; display: none;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
+                                <b style="vertical-align: text-top;">GENERANDO FACTURAS</b>
+                            </span>
                         </div>
 
                         @can('facturaciones email')
