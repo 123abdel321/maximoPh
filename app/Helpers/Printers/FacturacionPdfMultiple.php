@@ -22,12 +22,6 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 	{
 		parent::__construct($empresa);
 
-        copyDBConnection('max', 'max');
-        setDBInConnection('max', $this->empresa->token_db_maximo);
-
-        copyDBConnection('sam', 'sam');
-        setDBInConnection('sam', $this->empresa->token_db_portafolio);
-
 		$this->nits = $nits;
 		$this->id_zona = $id_zona;
 		$this->empresa = $empresa;
@@ -55,13 +49,14 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
     public function data()
     {
         $dataFacturas = [];
+
+        $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
+        $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
+
         foreach ($this->nits as $id_nit) {
 
             $query = $this->carteraDocumentosQuery($id_nit);
             $query->unionAll($this->carteraAnteriorQuery($id_nit));
-
-            $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
-            $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
 
             $totales = DB::connection('sam')
                 ->table(DB::raw("({$query->toSql()}) AS cartera"))

@@ -1027,7 +1027,7 @@ class FacturacionController extends Controller
                     DB::raw('SUM(total_columnas) AS total_columnas')
                 )
                 ->groupByRaw('id_nit')
-                ->orderByRaw('cuenta, id_nit, documento_referencia, created_at');
+                ->orderBy('id_nit', 'ASC');
 
             $facturacionTotals = $facturaciones->get();
 
@@ -1889,6 +1889,7 @@ class FacturacionController extends Controller
                 });
             })
             ->groupBy('id_nit')
+            ->orderBy('id', 'ASC')
             ->get();
 
         foreach ($inmuebleNit as $key => $nit) {
