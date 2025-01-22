@@ -10,13 +10,13 @@
 
         </select>
     </div>
-
+    @can('familia terceros')
     <div class="form-group col-12 col-sm-4 col-md-4">
         <label>Cédula / Nit</label>
         <select name="id_nit_familia_filter" id="id_nit_familia_filter" class="form-control form-control-sm" style="width: 100%; font-size: 13px;" required>
         </select>
     </div>
-
+    @endcan
     <div class="form-group col-12 col-sm-4 col-md-4" >
         <label for="example-text-input" class="form-control-label">Buscar</label>
         <input type="text" id="searchInputFamilia" class="form-control form-control-sm">
