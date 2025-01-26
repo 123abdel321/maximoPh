@@ -19,6 +19,7 @@ class ArchivosCacheController extends Controller
     public function store (Request $request)
     {
         try {
+            ini_set('memory_limit','256M');
             if ($request->hasFile('images')) {
 
                 $file = $request->file('images')[0];
