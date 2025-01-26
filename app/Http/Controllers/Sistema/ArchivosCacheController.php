@@ -19,7 +19,10 @@ class ArchivosCacheController extends Controller
     public function store (Request $request)
     {
         try {
+            ini_set('upload_max_filesize', '100M');
+            ini_set('post_max_size', '100M');
             ini_set('memory_limit','256M');
+            
             if ($request->hasFile('images')) {
 
                 $file = $request->file('images')[0];
