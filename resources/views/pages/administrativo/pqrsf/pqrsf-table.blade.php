@@ -1,6 +1,6 @@
 <div class="row" style="padding: 4px;">
 
-    @can('pqrsf create')
+    @can('pqrsf responder')
         <div class="form-group  col-12 col-sm-4 col-md-4">
             <label>Cédula / Nit</label>
             <select name="id_nit_pqrsf_filter" id="id_nit_pqrsf_filter" class="form-control form-control-sm" style="width: 100%; font-size: 13px;" required>
