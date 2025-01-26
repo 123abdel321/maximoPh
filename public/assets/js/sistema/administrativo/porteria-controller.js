@@ -148,6 +148,11 @@ function initFilePondPorteria() {
         }
     });
 
+    pondPorteria.on('addfile', actualizarEstadoPondPorteria);
+    pondPorteria.on('processfile', actualizarEstadoPondPorteria);
+    pondPorteria.on('processfileprogress', actualizarEstadoPondPorteria);
+    pondPorteria.on('removefile', actualizarEstadoPondPorteria);
+
     pondPorteriaNovedades.setOptions({
         server: {
             process: {
@@ -177,6 +182,11 @@ function initFilePondPorteria() {
             }
         }
     });
+
+    pondPorteriaNovedades.on('addfile', actualizarEstadoPondPorteriaNovedad);
+    pondPorteriaNovedades.on('processfile', actualizarEstadoPondPorteriaNovedad);
+    pondPorteriaNovedades.on('processfileprogress', actualizarEstadoPondPorteriaNovedad);
+    pondPorteriaNovedades.on('removefile', actualizarEstadoPondPorteriaNovedad);
 
     clearFilesInputPorteria();
 }
@@ -1481,49 +1491,6 @@ function changeTipoPorteria(tipoPorteria) {
     }
 }
 
-$(document).on('change', '#tipo_vehiculo_porteria', function () {
-    var tipoVehiculo = $("#tipo_vehiculo_porteria").val();
-
-    if (tipoVehiculo == '') $("#input_placa_persona_porteria").hide();
-    else $("#input_placa_persona_porteria").show();
-});
-
-$(document).on('click', '#generateEventoPorteria', function () {
-    clearFormEventoPorteria();
-    $("#porteriaEventoFormModal").modal('show');
-});
-
-$(document).on('click', '#updatePorteriaEvento', function () {
-
-    $("#updatePorteriaEvento").hide();
-    $("#updatePorteriaEventoLoading").show();
-
-    let data = {
-        id: $("#id_evento_porteria_up").val(),
-        fecha_ingreso: $("#fecha_ingreso_evento_valor").val(),
-        fecha_salida: $("#fecha_salida_evento_valor").val(),
-        observacion: $("#observacion_evento_valor").val(),
-    };
-
-    $.ajax({
-        url: base_url + 'porteriaevento',
-        method: 'PUT',
-        data: JSON.stringify(data),
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        $('#saveEstadoCuentaPago').show();
-        $('#updatePorteriaEventoLoading').hide();
-        if (porteria_evento_table) {
-            porteria_evento_table.ajax.reload();
-        }
-        $("#porteriaEventoShowFormModal").modal('hide');
-        agregarToast('exito', 'Evento actualziado', 'Evento actualizado con exito!', true);
-    }).fail((err) => {
-        agregarToast('error', 'Actualización errada', 'Actualización con errores');
-    });
-});
-
 function clearFormPorteria() {
     limpiarInputFilePorteria = true;
     clearFilesInputPorteria();
@@ -1565,12 +1532,6 @@ function clearFormPorteria() {
 
     changeTipoPorteria(6);
 }
-
-$('#id_nit_porteria').on('change', function(e) {
-    var selectedValue = $(this).val();
-    if (selectedValue) $('#id_inmueble_porteria').prop('disabled', false);
-    else $('#id_inmueble_porteria').prop('disabled', true);
-});
 
 function mostrarEventoPorteria (id) {
     clearEventoPreview();
@@ -1724,20 +1685,6 @@ function readURLEvento(input) {
     }
 }
 
-$("#searchInputPorteria").on("input", function () {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(function () {
-        porteria_table.ajax.reload();
-    }, 300);
-});
-
-$("#searchInputPorteriaEvento").on("input", function () {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(function () {
-        porteria_evento_table.ajax.reload();
-    }, 300);
-});
-
 function formatNitPorteria (nit) {
     if (nit.loading) return nit.text;
 
@@ -1805,6 +1752,16 @@ function formatPorteriaSelection (producto) {
     return producto.text;
 }
 
+function actualizarEstadoPondPorteria() {
+    const algunArchivoCargando = pondPorteria.getFiles().some(file => file.status === 5);
+    $("#savePorteria").prop("disabled", !algunArchivoCargando);
+}
+
+function actualizarEstadoPondPorteriaNovedad() {
+    const algunArchivoCargando = pondPorteriaNovedades.getFiles().some(file => file.status === 5);
+    $("#savePorteriaEvento").prop("disabled", !algunArchivoCargando);
+}
+
 $(document).on('click', '#reloadPorteria', function () {
     $("#reloadPorteriaIconNormal").hide();
     $("#reloadPorteriaIconLoading").show();
@@ -1823,6 +1780,69 @@ $(document).on('click', '#reloadPorteriaEvento', function () {
     }); 
 });
 
+$(document).on('change', '#tipo_vehiculo_porteria', function () {
+    var tipoVehiculo = $("#tipo_vehiculo_porteria").val();
+
+    if (tipoVehiculo == '') $("#input_placa_persona_porteria").hide();
+    else $("#input_placa_persona_porteria").show();
+});
+
+$(document).on('click', '#generateEventoPorteria', function () {
+    clearFormEventoPorteria();
+    $("#porteriaEventoFormModal").modal('show');
+});
+
+$(document).on('click', '#updatePorteriaEvento', function () {
+
+    $("#updatePorteriaEvento").hide();
+    $("#updatePorteriaEventoLoading").show();
+
+    let data = {
+        id: $("#id_evento_porteria_up").val(),
+        fecha_ingreso: $("#fecha_ingreso_evento_valor").val(),
+        fecha_salida: $("#fecha_salida_evento_valor").val(),
+        observacion: $("#observacion_evento_valor").val(),
+    };
+
+    $.ajax({
+        url: base_url + 'porteriaevento',
+        method: 'PUT',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        $('#saveEstadoCuentaPago').show();
+        $('#updatePorteriaEventoLoading').hide();
+        if (porteria_evento_table) {
+            porteria_evento_table.ajax.reload();
+        }
+        $("#porteriaEventoShowFormModal").modal('hide');
+        agregarToast('exito', 'Evento actualziado', 'Evento actualizado con exito!', true);
+    }).fail((err) => {
+        agregarToast('error', 'Actualización errada', 'Actualización con errores');
+    });
+});
+
 $('.form-control').keyup(function() {
     $(this).val($(this).val().toUpperCase());
+});
+
+$("#searchInputPorteria").on("input", function () {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function () {
+        porteria_table.ajax.reload();
+    }, 300);
+});
+
+$("#searchInputPorteriaEvento").on("input", function () {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function () {
+        porteria_evento_table.ajax.reload();
+    }, 300);
+});
+
+$('#id_nit_porteria').on('change', function(e) {
+    var selectedValue = $(this).val();
+    if (selectedValue) $('#id_inmueble_porteria').prop('disabled', false);
+    else $('#id_inmueble_porteria').prop('disabled', true);
 });

@@ -60,6 +60,11 @@ function initFilePondPqrsf() {
         }
     });
 
+    pondPqrsf.on('addfile', actualizarEstadoPondPqrsf);
+    pondPqrsf.on('processfile', actualizarEstadoPondPqrsf);
+    pondPqrsf.on('processfileprogress', actualizarEstadoPondPqrsf);
+    pondPqrsf.on('removefile', actualizarEstadoPondPqrsf);
+
     clearFilesInputPqrsf();
 }
 
@@ -375,6 +380,11 @@ function loadingDataPqrsf() {
         </div>`
     ].join('');
     document.getElementById('offcanvas-body-pqrsf').insertBefore(descripcion, null);
+}
+
+function actualizarEstadoPondPqrsf() {
+    const algunArchivoCargando = pondPqrsf.getFiles().some(file => file.status === 5);
+    $("#savePqrsf").prop("disabled", !algunArchivoCargando);
 }
 
 $(document).on('click', '#generatePqrsfNuevo', function () {
