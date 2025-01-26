@@ -104,7 +104,7 @@ function familiaInit() {
             {"data": function (row, type, set){  
                 const porteria = row;
                 
-                if (porteria.tipo_porteria == 1) {
+                if (porteria.tipo_porteria == 1 || porteria.tipo_porteria == 3) {
                     if (porteria.dias) {
                         var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                         var numeroDia = new Date(dayNow).getDay() + 1;
