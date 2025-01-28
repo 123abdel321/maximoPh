@@ -63,13 +63,14 @@ class ChatGeneral extends Component
         $this->chats = [];
         $this->numeroNotificaciones = 0;
 
+
         $chats = DB::connection('max')
             ->table('chats AS CH')
             ->select(
                 'CH.id',
                 'CH.name',
                 'CH.relation_id',
-                'CH.relation_type',
+                'CH.relation_type'
             )
             ->where(function ($query) {
                 $query->whereExists(function ($subquery) {
@@ -103,6 +104,7 @@ class ChatGeneral extends Component
             ->when($this->relationTypeBuscarChat, function ($query) {
 				$query->where('CH.relation_type', $this->relationTypeBuscarChat);
 			})
+            ->orderBy(DB::raw('(SELECT MES.created_at FROM messages AS MES WHERE MES.chat_id = CH.id ORDER BY MES.created_at DESC LIMIT 1)'), 'DESC')
             ->get();
 
         foreach ($chats as $chat) {

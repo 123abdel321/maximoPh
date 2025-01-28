@@ -750,7 +750,7 @@ function initTablesPorteria() {
 
             $("#porteria-preview-tipo").text(texto);
             $("#porteria-preview-nombre").text(data.nombre ? data.nombre : data.placa);
-            console.log('data: ',data);
+            
             if (data.tipo_porteria == 1 || data.tipo_porteria == 2 || data.tipo_porteria == 3) {
                 $("#porteria-preview-autorizado").show();
                 $("#porteria-preview-noautorizado").hide();
@@ -778,11 +778,9 @@ function initTablesPorteria() {
             }
             
             if (data.archivos.length) {
-                var texto = data.nombre;
-                var img = bucketUrl+data.archivos[0].url_archivo;
-                if (data.tipo_porteria == 3 || data.tipo_porteria == 4 && data.placa) texto = data.placa;
+                var img = `${bucketUrl}${data.archivos[0].url_archivo}`;
+                $("#imagen-porteria-preview").css("background-image", `url("${img}")`);
 
-                $("#imagen-porteria-preview").css("background-image", "url("+img+")");
             } else {
                 $("#imagen-porteria-preview").css("background-image", "url(/img/no-photo.jpg)");
             }

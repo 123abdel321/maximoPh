@@ -264,7 +264,7 @@ function iniciarScrollBar() {
     var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
     // var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
     // var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
-    var offcanvasChat = document.querySelector('#mensaje-body');
+    var offcanvasChat = document.querySelector('#chat-body');
 
     new PerfectScrollbar(offcanvasBodyPorteria);
     // new PerfectScrollbar(dropDownNotificacion);
@@ -827,7 +827,6 @@ function showUser (id_usuario, fecha, creado) {
     $('#fecha_accion').val('');
     $("#modal-title-usuario-accion").html("Buscando usuario ...");
 
-    $('#modal-usuario-accion').modal('show');
     $('.water').show();
     $.ajax({
         url: base_url + 'usuario-accion',
@@ -1036,7 +1035,9 @@ function removejscssfile(filename, filetype){
 }
 
 function loadExcel(data) {
-    window.open('https://'+data.url_file, "_blank");
+    setTimeout(function(){
+        window.open('https://'+data.url_file, "_blank");
+    },100);
     agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
 }
 
