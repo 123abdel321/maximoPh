@@ -759,6 +759,9 @@ function initTablesPorteria() {
                 var dayNow = (dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2));
                 var numeroDia = new Date(dayNow).getDay() + 1;
                 var hoyDia = new Date(data.hoy).getDay();
+
+                $("#porteria-preview-autorizado").hide();
+                $("#porteria-preview-noautorizado").show();
                 
                 if (numeroDia == hoyDia) {
                     $("#porteria-preview-autorizado").show();

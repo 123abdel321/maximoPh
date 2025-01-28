@@ -83,10 +83,6 @@ class PqrsfController extends Controller
             if ($request->get('area')) $pqrsf->where('area', $request->get('area'));
             if ($request->get('estado') || $request->get('estado') == '0') $pqrsf->where('estado', $request->get('estado'));
 
-            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
-                ->where('id_usuario', $request->user()['id'])
-                ->first();
-
             if (!$request->user()->can('pqrsf responder')) {
                 $pqrsf->where('created_by', $request->user()['id']);
             }

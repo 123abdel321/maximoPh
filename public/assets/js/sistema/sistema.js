@@ -261,15 +261,13 @@ function actualizarAccionesPqrsf() {
 }
 
 function iniciarScrollBar() {
+    var chatBody = document.querySelector('#chat-body');
+    var mensajeBody = document.querySelector('#mensaje-body');
     var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
-    // var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
-    // var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
-    var offcanvasChat = document.querySelector('#chat-body');
 
+    new PerfectScrollbar(chatBody);
+    new PerfectScrollbar(mensajeBody);
     new PerfectScrollbar(offcanvasBodyPorteria);
-    // new PerfectScrollbar(dropDownNotificacion);
-    // new PerfectScrollbar(offcanvasBodyPqrsf);
-    new PerfectScrollbar(offcanvasChat);
 }
 
 function setNotificaciones(total = null) {

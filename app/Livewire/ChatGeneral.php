@@ -50,6 +50,7 @@ class ChatGeneral extends Component
         
         if (auth()->user()->can('mensajes pqrsf')) $this->canalesAdmin[] = 12;
         if (auth()->user()->can('mensajes turnos')) $this->canalesAdmin[] = 14;
+        if (auth()->user()->can('mensajes porteria')) $this->canalesAdmin[] = 10;
         if (auth()->user()->can('mensajes novedades')) $this->canalesAdmin[] = 16;
 
         $this->cargarChats();
@@ -62,7 +63,6 @@ class ChatGeneral extends Component
 
         $this->chats = [];
         $this->numeroNotificaciones = 0;
-
 
         $chats = DB::connection('max')
             ->table('chats AS CH')
@@ -162,6 +162,11 @@ class ChatGeneral extends Component
             $responsable = null;
 
             switch ($chat->relation_type) {
+                case 10:
+                    $porteria = Porteria::where('id', $chat->relation_id)->first();
+                    $idUsuario = $porteria->id_usuario;
+                    break;
+
                 case 12:
                     $pqrsf = Pqrsf::where('id', $chat->relation_id)->first();
                     $idUsuario = $pqrsf->created_by;
