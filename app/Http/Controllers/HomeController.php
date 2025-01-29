@@ -38,13 +38,14 @@ class HomeController extends Controller
         // terminos_condiciones_id
         $mostrarModalTerminosCondicion = null;
         if ($terminosCondiciones) {
-            $terminosCondiciones = $terminosCondiciones->content;
             $aceptoTerminos = TerminosCondicionesUser::where('user_id', $request->user()->id)
                 ->where('terminos_condiciones_id', $terminosCondiciones->id)
                 ->count();
             if (!$aceptoTerminos) {
                 $mostrarModalTerminosCondicion = true;
             } 
+
+            $terminosCondiciones = $terminosCondiciones->content;
         }
 
         
