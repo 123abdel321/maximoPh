@@ -46,7 +46,7 @@ class HomeController extends Controller
             } 
         }
 
-        $terminosCondiciones = $terminosCondiciones->content ? $terminosCondiciones->content : null;
+        $terminosCondiciones = $terminosCondiciones && $terminosCondiciones->content ? $terminosCondiciones->content : null;
 
         foreach ($menus as $key => $menu) {
             if ($menu->code_name && !$request->user()->hasPermissionTo($menu->code_name.' read')) {
