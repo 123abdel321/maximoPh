@@ -21,10 +21,10 @@ use App\Jobs\ProcessFacturacionGeneralCausar;
 use App\Jobs\ProcessGenerateFacturaMultiplePdf;
 //HELPERS
 use App\Helpers\Extracto;
+use App\Helpers\Printers\FacturacionPdf;
 use App\Helpers\PortafolioERP\FacturacionERP;
 use App\Helpers\PortafolioERP\EliminarFactura;
 use App\Helpers\PortafolioERP\EliminarFacturas;
-use App\Helpers\Printers\FacturacionPdf;
 use App\Helpers\Printers\FacturacionPdfMultiple;
 //MODELS
 use App\Models\Sistema\Zonas;
@@ -250,7 +250,7 @@ class FacturacionController extends Controller
                 null,
                 $periodo_facturacion
             ))->actual()->get();
-            // dd($periodo_facturacion, $extractos);
+
             //AGRUPAMOS 
             $this->extractosAgrupados = [];
             foreach ($extractos as $extracto) {
@@ -273,10 +273,9 @@ class FacturacionController extends Controller
                     ];
                 }
             }
-
+            
             $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
             [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble, request()->user()->id_empresa, $periodo_facturacion);
-
             $valoresIntereses+= $valores;
 
             if ($valoresIntereses) {
