@@ -24,6 +24,9 @@ use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
+use App\Models\Sistema\TerminosCondiciones;
+use App\Models\Sistema\TerminosCondicionesUser;
+
 use Spatie\Permission\Models\Permission;
 
 class ApiController extends Controller
@@ -257,20 +260,20 @@ class ApiController extends Controller
 
         $captcha_token = $request->get("g-recaptcha-response");
 
-        if($captcha_token){
-			$captcha_response = $this->validateReCaptcha($captcha_token);
-			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'validateEmail') {
-				return response()->json([
-					'success' => false,
-					'message' => 'Falló la validación de reCAPTCHA'
-				], 401);
-			}
-		}else{
-			return response()->json([
-                'success' => false,
-				'message' => 'Falló la validación de reCAPTCHA'
-			], 401);
-		}
+        // if($captcha_token){
+		// 	$captcha_response = $this->validateReCaptcha($captcha_token);
+		// 	if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'validateEmail') {
+		// 		return response()->json([
+		// 			'success' => false,
+		// 			'message' => 'Falló la validación de reCAPTCHA'
+		// 		], 401);
+		// 	}
+		// }else{
+		// 	return response()->json([
+        //         'success' => false,
+		// 		'message' => 'Falló la validación de reCAPTCHA'
+		// 	], 401);
+		// }
 
         $rules = [
             'email' => 'required|email'
@@ -523,6 +526,35 @@ class ApiController extends Controller
             return response()->json([
                 "success"=>false,
                 'data' => $e->getLine(),
+                "message"=>$e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function terminosCondiciones(Request $request)
+    {
+        try {
+            DB::connection('max')->beginTransaction();
+
+            $terminosCondiciones = TerminosCondiciones::orderBy('id', 'DESC')->first();
+            
+            TerminosCondicionesUser::create([
+                'user_id' => request()->user()->id,
+                'terminos_condiciones_id' => $terminosCondiciones->id
+            ]);
+
+            DB::connection('max')->commit();
+
+            return response()->json([
+                "success" => 200,
+                'data' => '',
+                "message" => 'Terminos y condiciones aceptados con exito'
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Fallo actualizando terminos y condiciones');
+            return response()->json([
+                "success"=>false,
+                'data' => [],
                 "message"=>$e->getMessage()
             ], 422);
         }

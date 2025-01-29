@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 //MODELS
 use App\Models\Sistema\Entorno;
+use App\Models\Sistema\TerminosCondiciones;
 use App\Models\Sistema\ConceptoFacturacion;
 
 class EntornoController extends Controller
@@ -66,6 +67,8 @@ class EntornoController extends Controller
                 'placetopay_login',
                 'placetopay_trankey',
                 'placetopay_forma_pago',
+                'terminos_condiciones',
+                'aceptar_terminos',
             ];
 
             foreach ($variablesEntorno as $variable) {
@@ -78,6 +81,16 @@ class EntornoController extends Controller
                 if ($variable == 'dias_pronto_pago') {
                     ConceptoFacturacion::whereNotNull('id')
                         ->update(['dias_pronto_pago' => $request->get($variable)]);
+                }
+                if ($variable == 'terminos_condiciones') {
+                    $existe = TerminosCondiciones::where('content', $request->get($variable))->count();
+                    if (!$existe) {
+                        TerminosCondiciones::create([
+                            'content' => $request->get($variable),
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+                    }
                 }
             }
 

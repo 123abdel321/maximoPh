@@ -20,6 +20,11 @@
                             <p style="margin-bottom: 0; font-weight: 600;">Pasarela</p>
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="terminos-tab" data-bs-toggle="tab" data-bs-target="#terminos" type="button" role="tab" aria-controls="terminos" aria-selected="false">
+                            <p style="margin-bottom: 0; font-weight: 600;">Terminos & condiciones</p>
+                        </button>
+                    </li>
                     <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>
                     </li> -->
@@ -193,6 +198,24 @@
                                 </select>
                             </div>
 
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="terminos" role="tabpanel" aria-labelledby="terminos-tab">
+                        <br/>
+                        <div class="row" style="padding: 5px;">
+
+                            <div class="mb-3 col-12">
+                                <label for="exampleFormControlTextarea1" class="form-label">Terminos y condiciones</label>
+                                <textarea class="form-control" id="terminos_condiciones" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch col-12">
+                                <input class="form-check-input" type="checkbox" name="aceptar_terminos" id="aceptar_terminos" style="height: 20px;">
+                                <label class="form-check-label" for="aceptar_terminos">
+                                    Obligatorio aceptar terminos & condiciones
+                                </label>
+                            </div>
+                            
                         </div>
                     </div>
                     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>

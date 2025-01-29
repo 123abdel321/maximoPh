@@ -171,6 +171,26 @@
             </div>
         </div>
     </div>
+    <!-- MODAL ACEPTAR TERMINOS & CONDICIÓN -->
+    <div class="modal fade loader" id="modal-terminos-condiciones" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="modal-title-usuario-accion">Terminos & condiciones</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="row">  
+                        <div class="justify-content-center col-12">
+                            <h6 style="font-size: 14px; font-weight: 500;" id="terminos_condiciones_contenido"></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="aceptar_terminos_condiciones" type="button" class="btn btn-sm btn-success ml-auto" data-bs-dismiss="modal">Aceptar y continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- NOTIFICAIONES TOAST -->
     <div class="contenedor-toast" id="contenedor-toast"></div>
     <!-- LOADING GLOBAL WATER + TE -->
@@ -207,6 +227,9 @@
         const version_app = @json(config('app.version'));
         const pqrsf_responder = @json($pqrsf_responder);
         const turno_responder = @json($turno_responder);
+        const terminos_condiciones = @json($terminos_condiciones);
+        const obligar_aceptar_terminos = @json($obligar_aceptar_terminos);
+        const mostrar_modal_terminos_condicion = @json($mostrar_modal_terminos_condicion);
 
         const mensajePqrsf = @json(auth()->user()->can('mensajes pqrsf'));
         const mensajeTurno = @json(auth()->user()->can('mensajes turnos'));

@@ -81,7 +81,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::group(['middleware' => ['clientconnection']], function() {
+        //ACEPTAR TERMINOS & CONDICIONES
         
+        Route::controller(ApiController::class)->group(function () {
+            Route::post('terminos-condiciones', 'terminosCondiciones');
+        });
         Route::controller(LoginController::class)->group(function () {
             Route::post('select-empresa', 'selectEmpresa');
             Route::post('login-portafolioerp', 'loginPortafolioERP');

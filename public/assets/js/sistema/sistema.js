@@ -445,6 +445,17 @@ $("#butonActionCerrado").click( function(){
     ajaxActualizarEstadoPqrsf(2);
 });
 
+$("#aceptar_terminos_condiciones").click( function(){
+    $.ajax({
+        url: base_url + 'terminos-condiciones',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+    }).fail((res) => {
+    });
+});
+
 function ajaxActualizarEstadoPqrsf(estado) {
     if (!updatingStatusPqrsf) {
 
@@ -1875,4 +1886,15 @@ function arreglarMensajeError(mensaje) {
 
 function soloLetras(e) {
     this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
+}
+
+if (terminos_condiciones && mostrar_modal_terminos_condicion) {
+    setTimeout(function(){
+        mostrarTerminosCondiciones();
+    },200);
+}
+
+function mostrarTerminosCondiciones() {
+    $("#terminos_condiciones_contenido").html(terminos_condiciones);
+    $('#modal-terminos-condiciones').modal('show');
 }
