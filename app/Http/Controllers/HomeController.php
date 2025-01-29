@@ -38,6 +38,7 @@ class HomeController extends Controller
         // terminos_condiciones_id
         $mostrarModalTerminosCondicion = null;
         if ($terminosCondiciones) {
+            $terminosCondiciones = $terminosCondiciones->content;
             $aceptoTerminos = TerminosCondicionesUser::where('user_id', $request->user()->id)
                 ->where('terminos_condiciones_id', $terminosCondiciones->id)
                 ->count();
@@ -46,7 +47,7 @@ class HomeController extends Controller
             } 
         }
 
-        $terminosCondiciones = $terminosCondiciones && $terminosCondiciones->content ? $terminosCondiciones->content : null;
+        
 
         foreach ($menus as $key => $menu) {
             if ($menu->code_name && !$request->user()->hasPermissionTo($menu->code_name.' read')) {
