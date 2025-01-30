@@ -15,6 +15,11 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
+        ini_set('upload_max_filesize', '100M');
+        ini_set('post_max_size', '110M');
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', '300');
+        
         $hasEmpresa = $request->user()->has_empresa;
 
         $empresa = Empresa::where('token_db_maximo', $hasEmpresa)
