@@ -305,6 +305,5 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('archivo-general', 'deleteFile');           
         });
         
-        
     });
 });
