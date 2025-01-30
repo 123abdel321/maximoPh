@@ -19,8 +19,6 @@ class ArchivosCacheController extends Controller
     public function store (Request $request)
     {
         try {
-            \Log::info('Solicitud recibida:', $request->all());
-            \Log::info('Archivos recibidos:', $request->file('images'));
             
             if ($request->hasFile('images')) {
 
