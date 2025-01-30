@@ -116,7 +116,7 @@ function initFilePondPorteria() {
         instantUpload: true,
     });
 
-    $('.filepond--credits').remove();
+    $('.filepond--credits').remove(); 
 
     pondPorteria.setOptions({
         server: {
