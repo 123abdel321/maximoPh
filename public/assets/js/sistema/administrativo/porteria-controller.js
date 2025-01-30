@@ -180,7 +180,9 @@ function initFilePondPorteria() {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
             }
-        }
+        },
+        chunkUploads: false,
+        allowMultiple: true,
     });
 
     pondPorteriaNovedades.on('addfile', actualizarEstadoPondPorteriaNovedad);

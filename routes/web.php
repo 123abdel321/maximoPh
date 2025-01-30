@@ -64,6 +64,10 @@ Route::get('/', function (Request $request) {
 	return view('pages.landing-page');
 });
 
+Route::get('/phpinfo_acartaca', function (Request $request) {
+	return phpinfo();
+});
+
 Auth::routes();
 
 Route::get('/login', [LoginController::class, 'show'])->name('login')->middleware('guest');
