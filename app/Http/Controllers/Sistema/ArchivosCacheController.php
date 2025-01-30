@@ -19,7 +19,6 @@ class ArchivosCacheController extends Controller
     public function store (Request $request)
     {
         try {
-            
             if ($request->hasFile('images')) {
 
                 $file = $request->file('images')[0];
@@ -54,7 +53,7 @@ class ArchivosCacheController extends Controller
             }
             return response()->json([
                 'success'=>	false,
-                'url_archivo' => null,
+                'url' => '',
                 'message'=> 'Sin archivos para cargar'
             ], 400);
         } catch (Exception $e) {

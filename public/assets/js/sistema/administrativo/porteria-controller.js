@@ -124,8 +124,7 @@ function initFilePondPorteria() {
                 url: '/archivos-cache',
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                    'Content-Type': 'multipart/form-data'
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 onload: (response) => {
                     const uploadedImagePath = JSON.parse(response);
@@ -143,8 +142,7 @@ function initFilePondPorteria() {
                 url: '/archivos-cache',
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                    'Content-Type': 'multipart/form-data'
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
             }
         },
