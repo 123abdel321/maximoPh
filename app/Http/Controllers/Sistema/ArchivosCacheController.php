@@ -52,7 +52,6 @@ class ArchivosCacheController extends Controller
                     'message'=> 'Archivo cargado con exito'
                 ], 200);
             }
-            $file = $request->file('images')[0];
             return response()->json([
                 'success'=>	false,
                 'url_archivo' => null,
