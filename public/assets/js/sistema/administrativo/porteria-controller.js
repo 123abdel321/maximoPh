@@ -145,8 +145,7 @@ function initFilePondPorteria() {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
             }
-        },
-        maxFileSize: '100MB'
+        }
     });
 
     pondPorteria.on('addfile', actualizarEstadoPondPorteria);

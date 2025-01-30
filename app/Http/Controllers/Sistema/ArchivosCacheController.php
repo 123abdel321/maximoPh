@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Sistema;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Empresa\UsuarioEmpresa;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,9 @@ class ArchivosCacheController extends Controller
 
     public function store (Request $request)
     {
+        Log::info('Request data:', $request->all());
+        Log::info('Files:', $request->file('images'));
+        
         try {
             if ($request->hasFile('images')) {
 

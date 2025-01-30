@@ -8,7 +8,7 @@
                 </button>
             </div>
             
-            <form id="form-porteria" class="row modal-body">
+            <form id="form-porteria" class="row modal-body" enctype="multipart/form-data">
 
                 <input type="text" class="form-control" name="id_porteria_up" id="id_porteria_up" style="display: none;">
 
