@@ -19,9 +19,6 @@ class ArchivosCacheController extends Controller
 
     public function store (Request $request)
     {
-        Log::info('Request data:', $request->all());
-        Log::info('Files:', $request->file('images'));
-        
         try {
             if ($request->hasFile('images')) {
 
@@ -55,6 +52,8 @@ class ArchivosCacheController extends Controller
                     'message'=> 'Archivo cargado con exito'
                 ], 200);
             }
+            $idUsuario = request()->user()->id;
+            Log::info("Usuario id: {$idUsuario}, cargo archivo muy pesado");
             return response()->json([
                 'success'=>	false,
                 'url' => '',
