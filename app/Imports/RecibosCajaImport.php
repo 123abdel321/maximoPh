@@ -46,7 +46,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
-
+        
         $columna = 0;
         $conceptoFacturacionSinIdentificar = Entorno::where('nombre', 'id_concepto_pago_none')->first();
         $conceptoFacturacionSinIdentificar = $conceptoFacturacionSinIdentificar ? $conceptoFacturacionSinIdentificar->valor : 0;
@@ -54,7 +54,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
-        
+        $fechaCargaArchivos = Carbon::now()->format('Y-m-d H:i:s');
+
         foreach ($rows as $key => $row) {
 
             if (!count($row)) continue;
@@ -163,7 +164,10 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                     $pagoTotal = floatval($row['valor']);
 
-                    if (!$conceptoFacturacion) {
+                    if ($this->existeRegistro($nit->id, $fechaManual->format('Y-m-d'), $pagoTotal, $fechaCargaArchivos)){
+                        $estado = 1;
+                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fechaManual->format('Y-m-d').'!<br>';
+                    } else if (!$conceptoFacturacion) {
 
                         $sandoPendiente = (new Extracto(
                             $nit->id,
@@ -352,6 +356,80 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             return round($number / $this->redondeo) * $this->redondeo;
         }
         return $number;
+    }
+
+    public function existeRegistro($id_nit = null, $fecha = null, $valor = null, $fecha_limite = null)
+    {
+        $fechaHoy = Carbon::now();
+        // dd($fecha_limite);
+        // dd($id_nit, $fecha, $valor, $fecha_limite);
+        return DB::connection('sam')->table('documentos_generals AS DG')
+            ->select(
+                "N.id AS id_nit",
+                "TD.nombre AS tipo_documento",
+                "N.numero_documento",
+                "N.id_ciudad",
+                DB::raw("(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, otros_nombres, primer_apellido, segundo_apellido)
+                    ELSE NULL
+                END) AS nombre_nit"),
+                "N.razon_social",
+                "N.telefono_1",
+                "N.telefono_2",
+                "N.email",
+                "N.direccion",
+                "N.plazo",
+                "PC.id AS id_cuenta",
+                "PC.cuenta",
+                "PC.nombre AS nombre_cuenta",
+                "DG.documento_referencia",
+                "DG.id_centro_costos",
+                "CC.codigo AS codigo_cecos",
+                "CC.nombre AS nombre_cecos",
+                "DG.id_comprobante AS id_comprobante",
+                "CO.codigo AS codigo_comprobante",
+                "CO.nombre AS nombre_comprobante",
+                "CO.tipo_comprobante",
+                "DG.consecutivo",
+                "DG.concepto",
+                "DG.fecha_manual",
+                "DG.created_at",
+                "PC.naturaleza_ingresos",
+                "PC.naturaleza_egresos",
+                "PC.naturaleza_compras",
+                "PC.naturaleza_ventas",
+                "PC.naturaleza_cuenta",
+                "PC.exige_nit",
+                "PC.exige_documento_referencia",
+                "PC.exige_concepto",
+                "PC.exige_centro_costos",
+                DB::raw("DG.debito AS debito"),
+                DB::raw("DG.credito AS credito"),
+            )
+            ->leftJoin('nits AS N', 'DG.id_nit', 'N.id')
+            ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
+            ->leftJoin('plan_cuentas_tipos AS PCT', 'DG.id_cuenta', 'PCT.id_cuenta')
+            ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
+            ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
+            ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
+            ->where('anulado', 0)
+            ->when($id_nit ? $id_nit : false, function ($query) use($id_nit) {
+				$query->where('N.id', $id_nit);
+			})
+            ->when($fecha ? $fecha : false, function ($query) use($fecha) {
+				$query->where('DG.fecha_manual', $fecha);
+			})
+            ->when($valor ? $valor : false, function ($query) use($valor) {
+                $query->where(function ($q) use($valor) {
+                    $q->where('DG.credito', $valor)
+                        ->orWhere('DG.debito', $valor);
+                });
+			})
+            ->when($fecha_limite ? $fecha_limite : false, function ($query) use($fecha_limite) {
+				$query->where('DG.created_at', '<=', $fecha_limite);
+			})
+            ->first();
     }
 
     public function headingRow(): int
