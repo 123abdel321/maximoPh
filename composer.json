@@ -56,6 +56,10 @@
         }
     },
     "scripts": {
+        "compile": [
+            "mkdir -p heroku/php/etc/php",
+            "cp heroku/php/php.ini heroku/php/etc/php/php.ini"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
