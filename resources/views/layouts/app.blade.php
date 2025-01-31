@@ -286,7 +286,7 @@
     <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-resize.min.js') }}"></script>
     <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-preview.min.js') }}"></script>
     <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-image-editor.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-file-validate-type') }}"></script>
+    <script src="{{ secure_asset('assets/js/plugins/filepond-plugin-file-validate-type.js') }}"></script>
     
     <!-- SISTEMA -->
     <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
