@@ -119,6 +119,7 @@ function initFilePondPorteria() {
     $('.filepond--credits').remove(); 
 
     pondPorteria.setOptions({
+        acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'],
         server: {
             process: {
                 url: '/archivos-cache',
