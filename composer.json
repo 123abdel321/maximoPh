@@ -76,6 +76,10 @@
         }
     },
     "config": {
+        "php.ini": {
+            "upload_max_filesize": "30M",
+            "post_max_size": "30M"
+        },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
