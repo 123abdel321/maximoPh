@@ -70,7 +70,7 @@ class ProcessImportarRecibos implements ShouldQueue
             
             $recibosImport = ConRecibosImport::where('estado', 0)
                 ->get();
-
+            
             if ($recibosImport->count()) {
                 foreach ($recibosImport as $reciboImport) {
                     
@@ -92,6 +92,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $this->fechaManual,
                         $this->consecutivo
                     );
+                    
                     //AGREGAR PAGOS EN CONCEPTOS
                     if ($reciboImport->id_concepto_facturacion) {
                         $conceptoFacturacion = ConceptoFacturacion::find($reciboImport->id_concepto_facturacion);
@@ -285,7 +286,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $formaPago = FacFormasPago::where('id_cuenta', $id_cuenta_ingreso)
                             ->with('cuenta.tipos_cuenta')
                         ->first();
-                        
+
                         $pagoRecibo = ConReciboPagos::create([
                             'id_recibo' => $recibo->id,
                             'id_forma_pago' => $formaPago->id,
@@ -310,7 +311,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $documentoGeneral->addRow($doc, $formaPago->cuenta->naturaleza_ventas);
                     }
                     $this->updateConsecutivo($this->id_comprobante, $this->consecutivo);
-
+                    
                     if (!$documentoGeneral->save()) {
 
                         return response()->json([
