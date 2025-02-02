@@ -39,6 +39,23 @@ function carteraInit() {
         },
         'rowCallback': function(row, data, index){
             var nivel = getNivelCartera();
+            var nivelData = parseInt(data.nivel);
+            var naturaleza = parseInt(data.naturaleza_cuenta);
+            
+            if (naturaleza == 0 && nivelData == 2) {
+                if (parseInt(data.saldo_anterior) < 0 || parseInt(data.saldo) < 0) {
+                    $('td', row).css('background-color', '#ff00004d');
+                    $('td', row).css('color', 'black');
+                    return;
+                }
+            }
+            if (naturaleza == 1 && nivelData == 2) {
+                if (parseInt(data.saldo_anterior) > 0 || parseInt(data.saldo) > 0) {
+                    $('td', row).css('background-color', '#ff00004d');
+                    $('td', row).css('color', 'black');
+                    return;
+                }
+            }
             if (nivel == 1) {
                 if (data.nivel == 0) {
                     $('td', row).css('background-color', 'rgb(28 69 135)');
@@ -46,8 +63,18 @@ function carteraInit() {
                     $('td', row).css('color', 'white');
                     return;
                 }
+                if (data.nivel == 9) {
+                    $('td', row).css('background-color', 'rgb(64 164 209 / 40%)');
+                    $('td', row).css('font-weight', '600');
+                    return;
+                }
                 if (data.errores) $('td', row).css('background-color', 'rgb(209 64 64 / 40%)');
             } else if (nivel == 2) {
+                if (data.nivel == 9) {
+                    $('td', row).css('background-color', 'rgb(64 164 209 / 50%)');
+                    $('td', row).css('font-weight', '600');
+                    return;
+                }
                 if (data.nivel == 0) {
                     $('td', row).css('background-color', 'rgb(28 69 135)');
                     $('td', row).css('font-weight', 'bold');
@@ -55,12 +82,22 @@ function carteraInit() {
                     return;
                 }
                 if(data.nivel == 1){
-                    if (data.errores) $('td', row).css('background-color', 'rgb(209 64 64 / 40%)');
-                    else $('td', row).css('background-color', 'rgb(64 164 209 / 40%)');
-                    $('td', row).css('font-weight', 'bold');
-                    return;
+                    if (data.errores) {
+                        $('td', row).css('background-color', 'rgb(209 64 64 / 55%)');
+                        $('td', row).css('font-weight', 'bold');
+                        return;
+                    } else {
+                        $('td', row).css('background-color', 'rgb(64 164 209 / 30%)');
+                        $('td', row).css('font-weight', '450');
+                        return ;
+                    }
                 }
             } else if (nivel == 3) {
+                if (data.nivel == 9) {
+                    $('td', row).css('background-color', 'rgb(64 164 209 / 70%)');
+                    $('td', row).css('font-weight', '700');
+                    return;
+                }
                 if (data.nivel == 0) {
                     $('td', row).css('background-color', 'rgb(28 69 135)');
                     $('td', row).css('font-weight', 'bold');
@@ -68,14 +105,20 @@ function carteraInit() {
                     return;
                 }
                 if(data.nivel == 1){
-                    if (data.errores) $('td', row).css('background-color', 'rgb(209 64 64 / 40%)');
-                    else $('td', row).css('background-color', 'rgb(64 164 209 / 70%)');
-                    $('td', row).css('font-weight', 'bold');
+                    if (data.errores) {
+                        $('td', row).css('background-color', 'rgb(209 64 64 / 55%)');
+                        $('td', row).css('font-weight', 'bold');
+                        return;
+                    } else {
+                        $('td', row).css('background-color', 'rgb(64 164 209 / 35%)');
+                        $('td', row).css('font-weight', '550');
+                        return ;
+                    }
                     return;
                 }
                 if(data.nivel == 2){
                     $('td', row).css('background-color', 'rgb(64 164 209 / 20%)');
-                    $('td', row).css('font-weight', 'bold');
+                    $('td', row).css('font-weight', '400');
                     return;
                 }
             }
