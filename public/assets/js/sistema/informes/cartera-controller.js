@@ -87,6 +87,16 @@ function carteraInit() {
                         $('td', row).css('font-weight', 'bold');
                         return;
                     } else {
+                        if (data.numero_documento == 'TOTALES POR COBRAR' || data.numero_documento == 'CUENTAS POR COBRAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 202 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        if (data.numero_documento == 'TOTALES POR PAGAR' || data.numero_documento == 'CUENTAS POR PAGAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 123 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
                         $('td', row).css('background-color', 'rgb(64 164 209 / 40%)');
                         $('td', row).css('font-weight', '600');
                         return ;
@@ -110,7 +120,17 @@ function carteraInit() {
                         $('td', row).css('font-weight', 'bold');
                         return;
                     } else {
-                        $('td', row).css('background-color', 'rgb(64 164 209 / 35%)');
+                        if (data.numero_documento == 'TOTALES POR COBRAR' || data.numero_documento == 'CUENTAS POR COBRAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 202 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        if (data.numero_documento == 'TOTALES POR PAGAR' || data.numero_documento == 'CUENTAS POR PAGAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 123 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        $('td', row).css('background-color', 'rgb(64 164 209 / 15%)');
                         $('td', row).css('font-weight', '550');
                         return ;
                     }
