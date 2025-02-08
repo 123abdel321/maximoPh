@@ -76,6 +76,7 @@ Route::get('/login', [LoginController::class, 'show'])->name('login')->middlewar
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
 Route::get('/welcome', [LoginController::class, 'welcome'])->middleware('guest');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/paz-y-salvo-publico', [PazSalvoController::class, 'showPdfPublico']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
@@ -105,7 +106,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		});
 		//PAZ Y SALVO
 		Route::get('/paz-y-salvo', [PazSalvoController::class, 'showPdfPersonal']);
-		Route::get('/paz-y-salvo-publico', [PazSalvoController::class, 'showPdfPublico']);
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
