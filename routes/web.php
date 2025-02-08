@@ -48,6 +48,8 @@ use App\Http\Controllers\Sistema\TurnosController;
 use App\Http\Controllers\Sistema\ProyectosController;
 //ARCHIVOS GENERALES
 use App\Http\Controllers\Sistema\ArchivosCacheController;
+//PAZ Y SALVO
+use App\Http\Controllers\Sistema\PazSalvoController;
 
 
 //MODELOS
@@ -73,7 +75,6 @@ Auth::routes();
 Route::get('/login', [LoginController::class, 'show'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
 Route::get('/welcome', [LoginController::class, 'welcome'])->middleware('guest');
-
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -102,7 +103,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 			}
 			return 'actualizado con exito!';
 		});
-
+		//PAZ Y SALVO
+		Route::get('/paz-y-salvo', [PazSalvoController::class, 'showPdfPersonal']);
+		Route::get('/paz-y-salvo-publico', [PazSalvoController::class, 'showPdfPublico']);
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');

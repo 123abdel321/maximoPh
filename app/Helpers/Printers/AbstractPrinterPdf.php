@@ -60,7 +60,7 @@ abstract class AbstractPrinterPdf
 
         $url = Storage::disk('do_spaces')->put($nameFile, $pdfBuilder, 'public');
 
-        return env('DO_SPACES_ENDPOINT',null).$nameFile;
+        return env('DO_SPACES_ENDPOINT').$nameFile;
     }
     
 }

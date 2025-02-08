@@ -36,6 +36,7 @@ class UsuariosController extends Controller
             'numeric' => 'El campo :attribute debe ser un valor numérico.',
             'string' => 'El campo :attribute debe ser texto',
             'array' => 'El campo :attribute debe ser un arreglo.',
+            'unique' => 'El :attribute ya existe.',
             'date' => 'El campo :attribute debe ser una fecha válida.',
         ];
 	}

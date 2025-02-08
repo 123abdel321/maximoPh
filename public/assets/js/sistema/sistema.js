@@ -235,6 +235,8 @@ iniciarCanalesDeNotificacion();
 
 function iniciarFilePond() {
     FilePond.registerPlugin(FilePondPluginImagePreview);
+    FilePond.registerPlugin(FilePondPluginFileValidateType);
+    
     FilePond.setOptions({
         labelIdle: 'Arrastra y suelta tus archivos o <span class="filepond--label-action">Explorar</span>',
         labelFileProcessing: 'Subiendo',

@@ -25,6 +25,11 @@
                             <p style="margin-bottom: 0; font-weight: 600;">Terminos & condiciones</p>
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pazysalvo-tab" data-bs-toggle="tab" data-bs-target="#pazysalvo" type="button" role="tab" aria-controls="pazysalvo" aria-selected="false">
+                            <p style="margin-bottom: 0; font-weight: 600;">Paz y Salvo</p>
+                        </button>
+                    </li>
                     <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>
                     </li> -->
@@ -218,7 +223,25 @@
                             
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                    <div class="tab-pane fade" id="pazysalvo" role="tabpanel" aria-labelledby="pazysalvo-tab">
+                        <br/>
+                        <div class="row" style="padding: 5px;">
+                            <div class="form-group col-6" >
+                                <label for="example-text-input" class="form-control-label">Nombre Administrador</label>
+                                <input type="text" class="form-control form-control-sm" name="nombre_administrador" id="nombre_administrador">
+                            </div>
+
+                            <div class="justify-content-center col-6">
+                                <label for="example-text-input" class="form-control-label">Firma digital</label>
+                                <div style="with: 190px;">
+                                    <img id="preview_firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
+                                    <img id="firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
+                                    <input type="file" name="firma_digital_paz_salvo_nueva" id="firma_digital_paz_salvo_nueva" onchange="readURLFirmaDigitalNueva(this);" style="display: none" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
                 <div style="background-color: white;">
                     <button type="button" class="btn btn-primary btn-sm" id="updateEntorno">Actualizar datos</button>

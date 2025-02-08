@@ -121,6 +121,13 @@
             </p>
         </div>
 
+        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="window.open('/paz-y-salvo', '_blank');">
+            <i class="fas fa-scroll icon-menu-carta" aria-hidden="true"></i>
+            <p class="text-menu">
+                PAZ Y SALVO
+            </p>
+        </div>
+
         <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary-disabled">
             <i class="fa fa-lock icon-menu-carta-disabled" aria-hidden="true"></i>
             <p class="text-menu-disabled">
@@ -132,13 +139,6 @@
             <i class="fa fa-lock icon-menu-carta-disabled" aria-hidden="true"></i>
             <p class="text-menu-disabled">
                 ZONAS COMUNES
-            </p>
-        </div>
-
-        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary-disabled">
-            <i class="fa fa-lock icon-menu-carta-disabled" aria-hidden="true"></i>
-            <p class="text-menu-disabled">
-                PAZ Y SALVO
             </p>
         </div>
 
