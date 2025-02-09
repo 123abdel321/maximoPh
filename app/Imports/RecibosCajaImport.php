@@ -414,6 +414,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
             ->where('anulado', 0)
+            ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($id_nit ? $id_nit : false, function ($query) use($id_nit) {
 				$query->where('N.id', $id_nit);
 			})

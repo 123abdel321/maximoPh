@@ -257,6 +257,12 @@
 											<tr>
 												<td>
 													{!! $nombre_administrador !!}
+													Administrador(a)
+												</td>
+											</tr>
+											<tr>
+												<td>
+													Administrador(a)
 												</td>
 											</tr>
 										</tbody>
@@ -272,6 +278,11 @@
 											<tr>
 												<td>
 													<img src="{{ $qrCode }}" alt="QR Code" style="width: 150px; height: 150px;">
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<span class="empresa-footer"> Validar autenticidad <br/>del documento </span>
 												</td>
 											</tr>
 										</tbody>
