@@ -361,8 +361,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     public function existeRegistro($id_nit = null, $fecha = null, $valor = null, $fecha_limite = null)
     {
         $fechaHoy = Carbon::now();
-        // dd($fecha_limite);
-        // dd($id_nit, $fecha, $valor, $fecha_limite);
+
         return DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
                 "N.id AS id_nit",
@@ -414,7 +413,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
             ->where('anulado', 0)
-            ->whereIn('PCT.id_tipo_cuenta', [3,7])
+            ->whereIn('PCT.id_tipo_cuenta', [2])
             ->when($id_nit ? $id_nit : false, function ($query) use($id_nit) {
 				$query->where('N.id', $id_nit);
 			})
