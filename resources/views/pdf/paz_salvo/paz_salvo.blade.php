@@ -158,12 +158,26 @@
 				text-transform: lowercase;
 			}
 
+			.watermark {
+				position: fixed;
+				top: 40%;
+				left: 20%;
+				width: 60%;
+				text-align: center;
+				font-size: 60px;
+				color: rgba(255, 0, 0, 0.2); /* Rojo con transparencia */
+				transform: rotate(-30deg);
+				z-index: -1;
+			}
+
 		</style>
 
 	</head>
 
 	<body class="main">
-
+		@if ($marca_agua_svg)
+		<div class="watermark">NO VÁLIDO</div>
+		@endif
 		<table >
 			<thead>
 				<tr>

@@ -112,7 +112,9 @@ class PazSalvoPdf extends AbstractPrinterPdf
         $fechaVencimiento = Carbon::now()->endOfMonth()->format('Y-m-d');
         $texto = "";
 
-        if (!count($extractos)) {
+        $texto_marca_agua = false;
+
+        if (!count($extractos)) {//PAZ Y SALVO
             $texto = "$razonSocial hace constar que <b>{$getNit->nombre_completo}</b> con identificación 
                 <b>{$nit->tipo_documento} N° {$nit->numero_documento}</b> quien figura en los registros de la copropiedad como 
                 <b>$obligaciones</b>, se encuentra a <b>PAZ Y SALVO</b> por <b>todo concepto</b> con la oficina de administración, 
@@ -120,7 +122,8 @@ class PazSalvoPdf extends AbstractPrinterPdf
                 Este certificado se expide a solicitud de la interesada el <b>$fechaEmicion</b> y tiene una vigencia hasta el 
                 <b>$fechaVencimiento</b>, para los fines que estime convenientes.<br/><br/> 
                 Atentamente.";
-        } else {
+        } else {//NO ESTA PAZ Y SALVO
+            $texto_marca_agua = true;
             $texto = "$razonSocial hace constar que <b>{$getNit->nombre_completo}</b> con identificación 
                 <b>{$nit->tipo_documento} N° {$nit->numero_documento}</b>, quien figura en los registros de la copropiedad como 
                 <b>$obligaciones</b>, <b>NO se encuentra a PAZ Y SALVO</b> con la oficina de administración, debido a obligaciones pendientes hasta la fecha de expedición del presente documento.<br/><br/>
@@ -141,6 +144,7 @@ class PazSalvoPdf extends AbstractPrinterPdf
             'nombre_administrador' => $nombre_administrador,
             'firma_digital' => $firma_digital,
             'qrCode' => $qrCodeBase64,
+            'marca_agua_svg' => $texto_marca_agua,
 			'usuario' => request()->user() ? request()->user()->username : 'MaximoPH'
 		];
     }
