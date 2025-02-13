@@ -164,26 +164,25 @@ class ChatGeneral extends Component
             switch ($chat->relation_type) {
                 case 10:
                     $porteria = Porteria::where('id', $chat->relation_id)->first();
-                    $idUsuario = $porteria->id_usuario;
+                    $idUsuario = $porteria ? $porteria->id_usuario : null;
                     break;
 
                 case 12:
                     $pqrsf = Pqrsf::where('id', $chat->relation_id)->first();
-                    $idUsuario = $pqrsf->created_by;
+                    $idUsuario = $pqrsf ? $pqrsf->created_by : null;
                     break;
 
                 case 14:
                     $turno = Turno::where('id', $chat->relation_id)->first();
-                    $idUsuario = $turno->id_usuario;
+                    $idUsuario = $turno ? $turno->id_usuario : null;
                     break;
 
                 case 16:
                     $novedad = Novedades::where('id', $chat->relation_id)->first();
                     if ($novedad) {
-                        $porteria = Porteria::where('id', $novedad->id_porteria)->first();
-    
-                        if ($porteria && $porteria->id_usuario) {
-                            $idUsuario = $porteria->id_usuario;
+                        if ($novedad->id_porteria) {
+                            $porteria = Porteria::where('id', $novedad->id_porteria)->first();
+                            $idUsuario = $porteria ? $porteria->id_usuario : null;
                         }
                     }
                     break;
