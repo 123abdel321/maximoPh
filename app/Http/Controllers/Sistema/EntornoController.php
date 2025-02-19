@@ -76,11 +76,12 @@ class EntornoController extends Controller
 
             foreach ($variablesEntorno as $variable) {
                 if ($variable == 'firma_digital') {
-                    $base64Image = $request->get('firma_digital');
-                    // 1. Extraer el tipo de imagen y decodificar
-                    preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type);
-                    $data = substr($base64Image, strpos($base64Image, ',') + 1);
-                    if (!count($type)) {
+                    if ($request->get('firma_digital')) {
+                        $base64Image = $request->get('firma_digital');
+                        // 1. Extraer el tipo de imagen y decodificar
+                        preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type);
+                        $data = substr($base64Image, strpos($base64Image, ',') + 1);
+    
                         $imageType = $type[1];
                         $data = base64_decode($data);
                         // 2. Generar un nombre único para la imagen
@@ -93,8 +94,8 @@ class EntornoController extends Controller
                             [ 'nombre' => $variable ],
                             [ 'valor' =>  $url ]
                         );
-                        continue;
                     }
+                    continue;
                 }
                 if ($request->get($variable) || $request->get($variable) == '0') {
                     Entorno::updateOrCreate(
