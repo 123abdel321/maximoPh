@@ -319,24 +319,25 @@ class ProcessInformeEstadisticas implements ShouldQueue
     private function getInmueblesMemo()
     {
         $dataInforme = [];
-
-        $inmuebles = Inmueble::where('id_zona', $this->request['id_zona'])
-            ->with('personas')
+        
+        $inmuebles = Inmueble::with('personas')
+            ->when($this->request['id_zona'] ? true : false, function ($query) {
+                $query->where('id_zona', '=', $this->request['id_zona']);
+            })
+            ->when($this->request['id_nit'] ? true : false, function ($query) {
+                $query->whereHas('personas', function ($q) {
+                    $q->where('id_nit', $this->request['id_nit']);
+                });
+            })
             ->whereHas('concepto', function ($query) {
                 $query->where('tipo_concepto', 0);
             });
 
-        if ($this->request['id_nit']) {
-            $inmuebles->whereHas('personas', function ($q) {
-                $q->where('id_nit', $this->request['id_nit']);
-            });
-        }
-
         $inmuebles = $inmuebles->get();
         
         foreach ($inmuebles as $inmueble) {
-
             $id_nit = count($inmueble->personas) ? $inmueble->personas[0]->id_nit : null;
+            
             if (!$id_nit) continue;
 
             $inmueblesNit = InmuebleNit::where('id_nit', $id_nit)
@@ -344,7 +345,14 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 ->get();
 
             foreach ($inmueblesNit as $inmuebleNit) {
-                if ($inmuebleNit->inmueble->id_zona == $this->request['id_zona']) {
+                if ($this->request['id_zona']) {
+                    if ($inmuebleNit->inmueble->id_zona == $this->request['id_zona']) {
+                        $cuentaFiltro = $inmuebleNit->inmueble->concepto->id_cuenta_cobrar;
+                        $dataInforme[$id_nit][] = [
+                            'id_cuenta' => $cuentaFiltro
+                        ];
+                    }
+                } else {
                     $cuentaFiltro = $inmuebleNit->inmueble->concepto->id_cuenta_cobrar;
                     $dataInforme[$id_nit][] = [
                         'id_cuenta' => $cuentaFiltro
@@ -353,8 +361,15 @@ class ProcessInformeEstadisticas implements ShouldQueue
             }
         }
 
-        $inmueblesNo = Inmueble::where('id_zona', $this->request['id_zona'])
-            ->with('personas')
+        $inmueblesNo = Inmueble::with('personas')
+            ->when($this->request['id_zona'] ? true : false, function ($query) {
+                $query->where('id_zona', '=', $this->request['id_zona']);
+            })
+            ->when($this->request['id_nit'] ? true : false, function ($query) {
+                $query->whereHas('personas', function ($q) {
+                    $q->where('id_nit', $this->request['id_nit']);
+                });
+            })
             ->whereHas('concepto', function ($query) {
                 $query->where('tipo_concepto', 1);
             })
@@ -374,15 +389,27 @@ class ProcessInformeEstadisticas implements ShouldQueue
                 $zonaItem = $inmuebleNit->inmueble->id_zona;
                 $concepto = $inmuebleNit->inmueble->id_concepto_facturacion;
 
-                if ($zonaItem != $this->request['id_zona'] && $concepto == 1) {
+                if ($this->request['id_zona']) {
+                    if ($zonaItem != $this->request['id_zona'] && $concepto == 1) {
+                        $existeEnOtraTorre = true;
+                    }
+                } else {
                     $existeEnOtraTorre = true;
                 }
+
             }
 
             if (!$existeEnOtraTorre) continue;
             //IF EXISTE
             foreach ($inmueblesNit as $inmuebleNit) {
-                if ($inmuebleNit->inmueble->id_zona == $this->request['id_zona']) {
+                if ($this->request['id_zona']) {
+                    if ($inmuebleNit->inmueble->id_zona == $this->request['id_zona']) {
+                        $cuentaFiltro = $inmuebleNit->inmueble->concepto->id_cuenta_cobrar;
+                        $dataInforme[$id_nit][] = [
+                            'id_cuenta' => $cuentaFiltro
+                        ];
+                    }
+                } else {
                     $cuentaFiltro = $inmuebleNit->inmueble->concepto->id_cuenta_cobrar;
                     $dataInforme[$id_nit][] = [
                         'id_cuenta' => $cuentaFiltro
