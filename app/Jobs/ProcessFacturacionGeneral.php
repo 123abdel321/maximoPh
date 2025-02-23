@@ -187,9 +187,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
-
                         [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble);
-                        
                         $valoresIntereses+= $valores;
                         
                         if ($valoresIntereses) {
@@ -779,7 +777,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
         if ($this->documento_referencia_agrupado == '2') {
             return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.'-'.$this->inicioMes;
         }
-        
+        if ($this->documento_referencia_agrupado == '3') {
+            return $inmuebleFactura->nombre_zona.$inmuebleFactura->nombre.'-'.$this->inicioMes;
+        }
         $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
         return $this->inicioMes.$countItems;
     }

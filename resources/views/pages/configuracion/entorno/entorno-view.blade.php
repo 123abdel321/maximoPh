@@ -77,6 +77,7 @@
                                     <option value="0">AÑO-MES_CANTIDAD INMUEBLES</option>
                                     <option value="1">NOMBRE INMUEBLE-NOMBRE ZONA</option>
                                     <option value="2">(NOMBRE INMUEBLE)(NOMBRE ZONA)-AÑO-MES</option>
+                                    <option value="3">(NOMBRE ZONA)(NOMBRE INMUEBLE)-AÑO-MES</option>
                                 </select>
                             </div>
 
@@ -258,5 +259,5 @@
 </div>
 
 <script>
-    var variablesEntorno = JSON.parse('<?php echo $variables_entorno; ?>');
+    var variablesEntorno = @json($variables_entorno);
 </script>

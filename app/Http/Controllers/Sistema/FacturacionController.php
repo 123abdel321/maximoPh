@@ -1935,6 +1935,9 @@ class FacturacionController extends Controller
         if ($this->documento_referencia_agrupado == '2') {
             return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.'-'.$inicioMes;
         }
+        if ($this->documento_referencia_agrupado == '3') {
+            return $inmuebleFactura->nombre_zona.$inmuebleFactura->nombre.'-'.$inicioMes;
+        }
         $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
         return $inicioMes.$countItems;
     }
