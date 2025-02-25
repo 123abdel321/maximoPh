@@ -1,23 +1,24 @@
+const host = window.location.host;
 
-//LOCAL
-// const base_url = 'http://127.0.0.1:8090/api/';
-// const base_web = 'http://127.0.0.1:8090/';
-// const base_web_erp = 'http://localhost:8000/';
-// const base_url_erp = 'http://localhost:8000/api/';
-//LOCAL PUBLIC
-// const base_url = 'http://192.168.1.6:80/api/';
-// const base_web = 'http://192.168.1.6:80/';
-// const base_web_erp = 'http://localhost:8000/';
-// const base_url_erp = 'http://localhost:8000/api/';
-//DEV
-const base_url = 'https://maximoph.com/api/';
-const base_web = 'https://maximoph.com/';
-const base_web_erp = 'https://test.portafolioerp.com/';
-const base_url_erp = 'https://test.portafolioerp.com/api/';
+let base_url, base_web, base_web_erp, base_url_erp;
 
-//PRO
-// const base_url = 'https://app.portafolioerp.com/api/';
-// const base_web = 'https://app.portafolioerp.com/';
+if (host.includes("maximoph.com")) {
+    base_url = "https://maximoph.com/api/";
+    base_web = "https://maximoph.com/";
+    base_web_erp = "https://test.portafolioerp.com/";
+    base_url_erp = "https://test.portafolioerp.com/api/";
+} else if (host.includes("maximoph.co")) {
+    base_url = "https://maximoph.co/api/";
+    base_web = "https://maximoph.co/";
+    base_web_erp = "https://test.portafolioerp.com/";
+    base_url_erp = "https://test.portafolioerp.com/api/";
+} else if (host.includes("127.0.0.1:8090")) {
+    // Desarrollo en red local
+    base_url = "http://127.0.0.1:8090/api/";
+    base_web = "http://127.0.0.1:8090/";
+    base_web_erp = "http://localhost:8000/";
+    base_url_erp = "http://localhost:8000/api/";
+}
 
 const pusher = new Pusher('9ea234cc370d308638af', {cluster: 'us2'});
 // Pusher.logToConsole = true;
@@ -263,9 +264,9 @@ function actualizarAccionesPqrsf() {
 }
 
 function iniciarScrollBar() {
-    var chatBody = document.querySelector('#chat-body');
-    var mensajeBody = document.querySelector('#mensaje-body');
-    var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
+    const chatBody = document.querySelector('#chat-body');
+    const mensajeBody = document.querySelector('#mensaje-body');
+    const offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
 
     new PerfectScrollbar(chatBody);
     new PerfectScrollbar(mensajeBody);
