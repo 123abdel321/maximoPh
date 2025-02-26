@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 //MODELS
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Entorno;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Informes\InfEstadisticas;
@@ -45,6 +46,13 @@ class ProcessInformeEstadisticas implements ShouldQueue
         foreach ($conceptosIntereses as $conceptosInteres) {
             $this->cuentasIntereses[] = $conceptosInteres->id_cuenta_interes;
         }
+
+        $cuentaIntereses = Entorno::where('nombre', 'id_cuenta_intereses')->first();
+        $cuentaIntereses = $cuentaIntereses ? $cuentaIntereses->valor : null;
+
+        if ($cuentaIntereses) {
+            $this->cuentasIntereses[] = $cuentaIntereses;
+        }
     }
 
     /**
@@ -76,7 +84,7 @@ class ProcessInformeEstadisticas implements ShouldQueue
 			]);
             
             $this->id_estadistica = $estadistica->id;
-
+            
             $dataTotal = [
                 'id_estadisticas' => $this->id_estadistica,
                 'id_nit' => '',

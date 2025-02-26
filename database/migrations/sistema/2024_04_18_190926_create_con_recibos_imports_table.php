@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('nombre_inmueble', 100)->nullable();
             $table->string('nombre_zona', 100)->nullable();
             $table->string('email', 100)->nullable();
+            $table->integer('id_concepto_facturacion')->nullable();
             $table->string('numero_concepto_facturacion', 100)->nullable();
             $table->string('nombre_nit', 100)->nullable();
             $table->date('fecha_manual')->nullable();
