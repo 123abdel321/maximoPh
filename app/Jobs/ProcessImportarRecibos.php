@@ -52,6 +52,7 @@ class ProcessImportarRecibos implements ShouldQueue
 
     public function handle()
     {
+        
         try {            
             copyDBConnection('max', 'max');
             setDBInConnection('max', $this->empresa->token_db_maximo);
@@ -67,7 +68,13 @@ class ProcessImportarRecibos implements ShouldQueue
             $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
             $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
             $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
-            
+
+            $ordenFacturacion = ConceptoFacturacion::select('id_cuenta_cobrar')
+                ->orderBy('orden', 'ASC')
+                ->pluck('id_cuenta_cobrar')
+                ->toArray();
+            $ordenFacturacion = array_flip($ordenFacturacion);
+
             $recibosImport = ConRecibosImport::where('estado', 0)
                 ->get();
             
@@ -140,7 +147,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $inicioMes =  Carbon::parse($this->fechaManual)->format('Y-m');
                         $inicioMes = $inicioMes.'-01';
                         $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
-                        
+
                         $sandoPendiente = (new Extracto(
                             $reciboImport->id_nit,
                             [3,7],
@@ -152,8 +159,12 @@ class ProcessImportarRecibos implements ShouldQueue
                             $reciboImport->id_nit,
                             [3,7],
                             null,
-                            $this->fechaManual
+                            $finMes
                         ))->actual()->get();
+
+                        $extractos = $extractos->sortBy(function ($item) use ($ordenFacturacion) {
+                            return $ordenFacturacion[$item->id_cuenta] ?? 9999;
+                        })->values();
                         
                         $realizarDescuento = false;
                         

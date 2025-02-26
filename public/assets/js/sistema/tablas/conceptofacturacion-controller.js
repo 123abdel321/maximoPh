@@ -68,7 +68,8 @@ function conceptofacturacionInit() {
                 }
                 return 'FACTURACIÓN';
             }},
-            {"data":'valor'},
+            {"data":'valor', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'orden'},
             {"data": function (row, type, set){  
                 if (row.pronto_pago) {
                     return 'SI'
@@ -186,6 +187,7 @@ function conceptofacturacionInit() {
             }
 
             $("#id_concepto_facturacion_up").val(data.id);
+            $("#orden_concepto_facturacion").val(data.orden);
             $("#codigo_concepto_facturacion").val(data.codigo);
             $("#tipo_concepto_facturacion").val(data.tipo_concepto);
             $("#nombre_concepto_facturacion").val(data.nombre_concepto);
@@ -476,6 +478,7 @@ $(document).on('click', '#saveConceptoFacturacion', function () {
         intereses: $("input[type='checkbox']#intereses_concepto_facturacion").is(':checked') ? '1' : '',
         tipo_concepto: $('#tipo_concepto_facturacion').val(),
         valor: $("#valor_concepto_facturacion").val(),
+        orden: $('#orden_concepto_facturacion').val(),
         pronto_pago: $("input[type='checkbox']#pronto_pago_concepto_facturacion").is(':checked') ? '1' : '',
         id_cuenta_pronto_pago_anticipo: $('#id_cuenta_pronto_pago_anticipo').val(),
         id_cuenta_pronto_pago_gasto: $('#id_cuenta_pronto_pago_gasto').val(),
@@ -541,6 +544,7 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
         intereses: $("input[type='checkbox']#intereses_concepto_facturacion").is(':checked') ? '1' : '',
         tipo_concepto: $('#tipo_concepto_facturacion').val(),
         valor: $("#valor_concepto_facturacion").val(),
+        orden: $('#orden_concepto_facturacion').val(),
         pronto_pago: $("input[type='checkbox']#pronto_pago_concepto_facturacion").is(':checked') ? '1' : '',
         id_cuenta_pronto_pago_anticipo: $('#id_cuenta_pronto_pago_anticipo').val(),
         id_cuenta_pronto_pago_gasto: $('#id_cuenta_pronto_pago_gasto').val(),

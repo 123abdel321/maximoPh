@@ -53,8 +53,7 @@ class ConceptoFacturacionController extends Controller
 
             $searchValue = $search_arr['value']; // Search value
 
-            $conceptoFacturacion = ConceptoFacturacion::orderBy('codigo', 'ASC')
-                ->with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
+            $conceptoFacturacion = ConceptoFacturacion::with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
                 ->where('nombre_concepto', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
@@ -62,7 +61,9 @@ class ConceptoFacturacionController extends Controller
                     DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
                     'created_by',
                     'updated_by'
-                );
+                )
+                ->orderBy('orden', 'ASC')
+                ->orderBy('codigo', 'ASC');
 
             $conceptoFacturacionTotals = $conceptoFacturacion->get();
 
@@ -135,6 +136,7 @@ class ConceptoFacturacionController extends Controller
                 'intereses' => $request->get('intereses'),
                 'tipo_concepto' => $request->get('tipo_concepto'),
                 'valor' => $request->get('valor'),
+                'orden' => $request->get('orden'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
@@ -210,6 +212,7 @@ class ConceptoFacturacionController extends Controller
                     
                     'tipo_concepto' => $request->get('tipo_concepto'),
                     'valor' => $request->get('valor'),
+                    'orden' => $request->get('orden'),
                     'updated_by' => request()->user()->id
                 ]);
 
