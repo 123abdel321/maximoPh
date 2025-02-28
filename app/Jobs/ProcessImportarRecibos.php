@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use DB;
+use Error;
 use Exception;
 use Carbon\Carbon;
 use App\Helpers\helpers;
@@ -68,6 +69,20 @@ class ProcessImportarRecibos implements ShouldQueue
             $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
             $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
             $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
+
+            if (!$id_cuenta_ingreso) {
+                throw new Error("La cuenta de ingreso id: $id_cuenta_ingreso no existe.");
+            }
+
+            //GREGAR PAGO
+            $formaPago = FacFormasPago::where('id_cuenta', $id_cuenta_ingreso)
+                ->with('cuenta.tipos_cuenta')
+                ->first();
+
+            if (!$formaPago) {
+                $cuenta = PlanCuentas::where('id', $id_cuenta_ingreso)->first();
+                throw new Error("La cuenta de ingreso $cuenta->cuenta - $cuenta->nombre, no tiene forma de pago asociada.");
+            }
 
             $ordenFacturacion = ConceptoFacturacion::select('id_cuenta_cobrar')
                 ->orderBy('orden', 'ASC')
@@ -324,12 +339,7 @@ class ProcessImportarRecibos implements ShouldQueue
                     $this->updateConsecutivo($this->id_comprobante, $this->consecutivo);
                     
                     if (!$documentoGeneral->save()) {
-
-                        return response()->json([
-                            'success'=>	false,
-                            'data' => [],
-                            'message'=> $documentoGeneral->getErrors()
-                        ], 422);
+                        throw new Error($documentoGeneral->getErrors());
                     }
                 }
             }
@@ -337,10 +347,9 @@ class ProcessImportarRecibos implements ShouldQueue
             ConRecibosImport::whereIn('estado', [0])->delete();
 
 		} catch (Exception $exception) {
-			Log::error('ProcessImportarRecibos', [
-                'message' => $exception->getMessage(),
-                'line' => $exception->getLine()
-            ]);
+            $message = $exception->getMessage();
+            $line = $exception->getLine();
+            throw new Error("Mensaje: $message; Line: $line");
 		}
     }
 
