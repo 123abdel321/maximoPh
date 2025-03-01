@@ -206,7 +206,7 @@ class FacturacionController extends Controller
     {
         try {
             DB::connection('max')->beginTransaction();
-
+            
             $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
             $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
             $id_cuenta_pronto_pago = Entorno::where('nombre', 'id_cuenta_pronto_pago')->first();
@@ -241,6 +241,8 @@ class FacturacionController extends Controller
             $valoresExtra = 0;
             $valoresAdmon = 0;
             $totalInmuebles = 0;
+            $totalCuotasCxC = 0;
+            $totalCuotasCxP = 0;
             $valoresIntereses = 0;
 
             //COBRAR INTERESES
@@ -292,6 +294,9 @@ class FacturacionController extends Controller
             
             //RECORREMOS CUOTAS Y MULTAS CXP
             foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
+
+                if (count($cuotasMultasFacturarCxP) > 1) $totalCuotasCxP++;
+
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
                     $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->items+= 1;
                     $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->valor_causado+= $cuotaMultaFactura->valor_total;
@@ -304,14 +309,15 @@ class FacturacionController extends Controller
                 }
                 $valoresExtra+= $cuotaMultaFactura->valor_total;
                 $anticiposDisponibles+= $cuotaMultaFactura->valor_total;
-                
-                $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
+                $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxP);
+
                 $this->facturas[] = (object)[
                     'documento_referencia' => $documentoReferencia,
                     'saldo' => floatval($cuotaMultaFactura->valor_total)
                 ];
             }
 
+            //SI TIENE ANTICIPOS ABONAMOS A LOS INTERESES
             $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
             if ($anticiposDisponibles > 0 && $valoresIntereses) {
                 $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
@@ -319,6 +325,9 @@ class FacturacionController extends Controller
 
             //RECORREMOS CUOTAS Y MULTAS CXC
             foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
+
+                if (count($cuotasMultasFacturarCxC) > 1) $totalCuotasCxC++;
+
                 if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $dataGeneral['extras'])) {
                     $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->items+= 1;
                     $dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->valor_causado+= $cuotaMultaFactura->valor_total;
@@ -331,8 +340,8 @@ class FacturacionController extends Controller
                 }
                 
                 $valoresExtra+= $cuotaMultaFactura->valor_total;
-                $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
-                $documentoReferencia = date('Y-m', strtotime($periodo_facturacion));
+                $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxC);
+
                 if ($anticiposDisponibles > 0) {
                     $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
                 }
@@ -342,6 +351,7 @@ class FacturacionController extends Controller
             foreach ($inmueblesFacturar as $inmuebleFactura) {
 
                 if (count($inmueblesFacturar) > 1) $totalInmuebles++;
+                
                 if (array_key_exists($inmuebleFactura->id_concepto_facturacion, $dataGeneral['inmuebles'])) {
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->items+= 1;
                     $dataGeneral['inmuebles'][$inmuebleFactura->id_concepto_facturacion]->valor_causado+= $inmuebleFactura->valor_total;
@@ -1135,13 +1145,15 @@ class FacturacionController extends Controller
         return $nits;
     }
 
-    private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura)
+    private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura, $totalCuota)
     {
         $id_comprobante_ventas = Entorno::where('nombre', 'id_comprobante_ventas')->first()->valor;
         $periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
-        
+
+        $documentoReferenciaCuotaMulta = $this->generarDocumentoReferenciaCuotaMulta($cuotaMultaFactura->id_inmueble, $totalCuota, $inicioMes);
+
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $cuotaMultaFactura->id_nit,
@@ -1151,7 +1163,7 @@ class FacturacionController extends Controller
             'id_comprobante' => $id_comprobante_ventas,
             'id_centro_costos' => $cuotaMultaFactura->id_centro_costos,
             'fecha_manual' => $inicioMes.'-01',
-            'documento_referencia' => $inicioMes,
+            'documento_referencia' => $documentoReferenciaCuotaMulta,
             'valor' => round($cuotaMultaFactura->valor_total),
             'concepto' => $cuotaMultaFactura->nombre_concepto.' '.$cuotaMultaFactura->observacion,
             'naturaleza_opuesta' => false,
@@ -1159,7 +1171,7 @@ class FacturacionController extends Controller
             'updated_by' => request()->user()->id,
         ]);
 
-        return $inicioMes;
+        return $documentoReferenciaCuotaMulta;
     }
 
     private function generarFacturaInmueble(Facturacion $factura, $inmuebleFactura, $totalInmuebles)
@@ -1933,12 +1945,29 @@ class FacturacionController extends Controller
             return $inmuebleFactura->documento_referencia_group;
         }
         if ($this->documento_referencia_agrupado == '2') {
-            return $inmuebleFactura->nombre.$inmuebleFactura->nombre_zona.'-'.$inicioMes;
+            return "{$inmuebleFactura->nombre}{$inmuebleFactura->nombre_zona}-{$inicioMes}";
         }
         if ($this->documento_referencia_agrupado == '3') {
-            return $inmuebleFactura->nombre_zona.$inmuebleFactura->nombre.'-'.$inicioMes;
+            return "{$inmuebleFactura->nombre_zona}{$inmuebleFactura->nombre}-{$inicioMes}";
         }
-        $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
+        $countItems = $totalInmuebles ? "_{$totalInmuebles}" : "";
+        return $inicioMes.$countItems;
+    }
+
+    private function generarDocumentoReferenciaCuotaMulta($id_inmueble, $totalCuotas, $inicioMes)
+    {
+        $inmuebleFactura = Inmueble::with('zona')->where('id', $id_inmueble)->first();
+
+        if ($this->documento_referencia_agrupado == '1') {
+            return "{$inmuebleFactura->nombre}-{$inmuebleFactura->zona->nombre}";
+        }
+        if ($this->documento_referencia_agrupado == '2') {
+            return "{$inmuebleFactura->nombre}{$inmuebleFactura->zona->nombre}-{$inicioMes}";
+        }
+        if ($this->documento_referencia_agrupado == '3') {
+            return "{$inmuebleFactura->zona->nombre}{$inmuebleFactura->nombre}-{$inicioMes}";
+        }
+        $countItems = $totalInmuebles ? "_{$totalInmuebles}" : "";
         return $inicioMes.$countItems;
     }
 

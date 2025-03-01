@@ -151,6 +151,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         $valoresExtra = 0;
                         $valoresAdmon = 0;
                         $totalInmuebles = 0;
+                        $totalCuotasCxC = 0;
+                        $totalCuotasCxP = 0;
                         $valoresIntereses = 0;
 
                         //COBRAR INTERESES
@@ -201,6 +203,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         
                         //RECORREMOS CUOTAS Y MULTAS CXP
                         foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
+
+                            if (count($cuotasMultasFacturarCxP) > 1) $totalCuotasCxP++;
+
                             if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $this->dataGeneral['extras'])) {
                                 $this->dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->items+= 1;
                                 $this->dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->valor_causado+= $cuotaMultaFactura->valor_total;
@@ -213,8 +218,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             }
                             $valoresExtra+= $cuotaMultaFactura->valor_total;
                             $anticiposDisponibles+= $cuotaMultaFactura->valor_total;
-                            
-                            $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
+                            $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxP);
+
                             $this->facturas[] = (object)[
                                 'documento_referencia' => $documentoReferencia,
                                 'saldo' => floatval($cuotaMultaFactura->valor_total)
@@ -228,6 +233,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         
                         //RECORREMOS CUOTAS Y MULTAS CXC
                         foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
+
+                            if (count($cuotasMultasFacturarCxC) > 1) $totalCuotasCxC++;
+
                             if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $this->dataGeneral['extras'])) {
                                 $this->dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->items+= 1;
                                 $this->dataGeneral['extras'][$cuotaMultaFactura->id_concepto_facturacion]->valor_causado+= $cuotaMultaFactura->valor_total;
@@ -240,8 +248,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             }
 
                             $valoresExtra+= $cuotaMultaFactura->valor_total;
-                            $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura);
-                            $documentoReferencia = date('Y-m', strtotime($this->periodo_facturacion));
+                            $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxC);
+
                             if ($anticiposDisponibles > 0) {
                                 $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
                             }
@@ -534,8 +542,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $randomString;
     }
 
-    private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura)
+    private function generarFacturaCuotaMulta(Facturacion $factura, $cuotaMultaFactura, $totalCuota)
     {
+        $documentoReferenciaCuotaMulta = $this->generarDocumentoReferenciaCuotaMulta($cuotaMultaFactura->id_inmueble, $totalCuota);
+
         $facturaDetalle = FacturacionDetalle::create([
             'id_factura' => $factura->id,
             'id_nit' => $cuotaMultaFactura->id_nit,
@@ -545,14 +555,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'id_comprobante' => $this->id_comprobante_ventas,
             'id_centro_costos' => $cuotaMultaFactura->id_centro_costos,
             'fecha_manual' => $this->inicioMes.'-01',
-            'documento_referencia' => $this->inicioMes,
+            'documento_referencia' => $documentoReferenciaCuotaMulta,
             'valor' => round($cuotaMultaFactura->valor_total),
             'concepto' => $cuotaMultaFactura->nombre_concepto.' '.$cuotaMultaFactura->observacion,
             'naturaleza_opuesta' => false,
             'created_by' => $this->id_usuario,
             'updated_by' => $this->id_usuario,
         ]);
-        return $this->inicioMes;
+        return $documentoReferenciaCuotaMulta;
     }
 
     private function totalAnticipos($id_nit, $id_empresa)
@@ -781,6 +791,23 @@ class ProcessFacturacionGeneral implements ShouldQueue
             return $inmuebleFactura->nombre_zona.$inmuebleFactura->nombre.'-'.$this->inicioMes;
         }
         $countItems = $totalInmuebles ? '_'.$totalInmuebles : '';
+        return $this->inicioMes.$countItems;
+    }
+
+    private function generarDocumentoReferenciaCuotaMulta($id_inmueble, $totalCuotas)
+    {
+        $inmuebleFactura = Inmueble::with('zona')->where('id', $id_inmueble)->first();
+
+        if ($this->documento_referencia_agrupado == '1') {
+            return "{$inmuebleFactura->nombre}-{$inmuebleFactura->zona->nombre}";
+        }
+        if ($this->documento_referencia_agrupado == '2') {
+            return "{$inmuebleFactura->nombre}{$inmuebleFactura->zona->nombre}-{$this->inicioMes}";
+        }
+        if ($this->documento_referencia_agrupado == '3') {
+            return "{$inmuebleFactura->zona->nombre}{$inmuebleFactura->nombre}-{$this->inicioMes}";
+        }
+        $countItems = $totalInmuebles ? "_{$totalInmuebles}" : "";
         return $this->inicioMes.$countItems;
     }
 
