@@ -64,6 +64,7 @@ class ProcessImportarRecibos implements ShouldQueue
             $this->id_comprobante = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
             $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor;
             $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
+            $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
             $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
             $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
             $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
@@ -88,6 +89,8 @@ class ProcessImportarRecibos implements ShouldQueue
                 ->orderBy('orden', 'ASC')
                 ->pluck('id_cuenta_cobrar')
                 ->toArray();
+
+            array_unshift($ordenFacturacion, $id_cuenta_intereses);
             $ordenFacturacion = array_flip($ordenFacturacion);
 
             $recibosImport = ConRecibosImport::where('estado', 0)
