@@ -31,6 +31,7 @@ function reciboInit () {
             data: function ( d ) {
                 d.id_nit = $('#id_nit_recibo_hide').val();
                 d.fecha_manual = $('#fecha_manual_recibo').val();
+                d.orden_cuentas = ordenCuentas
             }
         },
         columns: [

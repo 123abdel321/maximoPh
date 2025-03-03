@@ -183,7 +183,8 @@
     </div>
 
     <script>
-        var comprobantesRecibos = JSON.parse('<?php echo $comprobantes; ?>');
+        var comprobantesRecibos = @json($comprobantes);
+        var ordenCuentas = @json($ordenCuentas);
     </script>
     
 </div>
