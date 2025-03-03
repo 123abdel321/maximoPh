@@ -192,6 +192,10 @@ function inmuebleInit() {
                     return 'INMOBILIARIA';
                 }
 
+                if (row.tipo == 3) {
+                    return 'PROPIETARIO RESIDENTE';
+                }
+
                 return '';
             }},
             {"data":'valor_total', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},

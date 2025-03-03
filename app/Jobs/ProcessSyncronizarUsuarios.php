@@ -116,7 +116,11 @@ class ProcessSyncronizarUsuarios implements ShouldQueue
                 }
                 
                 //ASOCIAR USUARIO A LA EMPRESA
-                $idRol = $dataInmueble->tipo ? 3 : 5;
+                $idRol = 5;
+                if ($dataInmueble->tipo == 0) $idRol = 3;
+                if ($dataInmueble->tipo == 2) $idRol = 9;
+                if ($dataInmueble->tipo == 3) $idRol = 11;
+
                 $rolPropietario = RolesGenerales::find($idRol);
                 
                 UsuarioEmpresa::updateOrCreate([
