@@ -222,6 +222,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         }
         $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
         $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
+        $fechaPlazo = Carbon::parse($totales->fecha_manual)->endOfMonth()->format('Y-m-d');
 
         $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
         $totalDescuento = $this->roundNumber($totalDescuento);
@@ -240,6 +241,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'descuento' => $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
+            'fecha_plazo' => $fechaPlazo,
             'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
             'saldo_final' => $totales->saldo_final
         ];

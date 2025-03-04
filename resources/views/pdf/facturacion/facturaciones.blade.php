@@ -259,6 +259,10 @@
 												<th class="valor padding5">{{ $totales->fecha_manual }}</th>
 											</tr>
 											<tr >
+												<th class="padding5">FECHA VENCIMIENTO</th>
+												<th class="valor padding5">{{ $totales->fecha_plazo }}</th>
+											</tr>
+											<tr >
 												<th class="padding5">TOTAL DOCUMENTO</th>
 												<th class="valor padding5">{{ number_format($totales->saldo_final) }}</th>
 											</tr>
