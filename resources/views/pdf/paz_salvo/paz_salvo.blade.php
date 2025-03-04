@@ -336,7 +336,7 @@
 						<tr>
 							<td class="empresa-footer-left padding5">
 								ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
-								www.maximoph.com
+								www.maximoph.co
 							</td>
 						</tr>
 					</table>
