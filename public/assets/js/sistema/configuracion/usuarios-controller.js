@@ -95,6 +95,8 @@ function usuariosInit() {
 
     if (usuarios_table) {
         usuarios_table.on('click', '.edit-usuarios', function() {
+            clearFormUsuarios();
+            
             $("#textUsuariosCreate").hide();
             $("#textUsuariosUpdate").show();
             $("#saveUsuariosLoading").hide();
@@ -107,6 +109,7 @@ function usuariosInit() {
             $('#password_usuario').val('');
             $('#password_confirm').val('');
             $("#id_usuarios_up").val(data.id);
+            
             $("#rol_usuario").val(data.id_rol).change();
             $("#usuario").val(data.username);
             
