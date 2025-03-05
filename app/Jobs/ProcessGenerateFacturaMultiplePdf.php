@@ -16,8 +16,8 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 5;
-    public $timeout = 240000;
+    public $tries = 1;
+    public $timeout = 1200;
 
     protected $empresa;
     protected $nits;
