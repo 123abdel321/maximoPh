@@ -84,7 +84,7 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 		}
     }
 
-    public function failed(Exception $exception)
+    public function failed($exception)
     {
         Log::error('Error al generar PDF de facturación', [
             'error' => $exception->getMessage(),
