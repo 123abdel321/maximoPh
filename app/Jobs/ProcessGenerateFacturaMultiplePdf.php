@@ -16,8 +16,8 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
-    public $timeout = 500;
+    public $tries = 5;
+    public $timeout = 240000;
 
     protected $empresa;
     protected $nits;
@@ -47,6 +47,7 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
+        
         try {
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
 
