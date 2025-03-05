@@ -517,7 +517,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return DB::connection('max')->table('inmueble_nits AS IN')
             ->select(
                 'IN.id_nit'
-            );
+            )
+            ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
     private function getCuotasMultasNitsQuery($fecha_facturar)

@@ -1128,7 +1128,8 @@ class FacturacionController extends Controller
 			})
             ->select(
                 'IN.id_nit'
-            );
+            )
+            ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
 
         return $nits;
     }
