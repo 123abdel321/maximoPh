@@ -17,6 +17,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
     public $id_zona;
 	public $empresa;
 	public $periodo;
+	public $detallar_facturas;
 
     public function __construct(Empresa $empresa, $nits = [], $periodo, $id_zona)
 	{
@@ -26,6 +27,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 		$this->id_zona = $id_zona;
 		$this->empresa = $empresa;
 		$this->periodo = $periodo;
+        $this->detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
+        $this->detallar_facturas = $this->detallar_facturas ? $this->detallar_facturas->valor : 0;
 	}
 
     public function view()
@@ -49,9 +52,6 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
     public function data()
     {
         $dataFacturas = [];
-
-        $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
-        $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
 
         foreach ($this->nits as $id_nit) {
 
@@ -119,7 +119,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 )
             ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw($detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
+            ->groupByRaw($this->detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
             ->get();
             
             if (count($facturaciones)) {

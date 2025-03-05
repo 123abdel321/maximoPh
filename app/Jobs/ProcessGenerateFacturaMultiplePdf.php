@@ -17,7 +17,7 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
-    public $timeout = 1200;
+    public $timeout = 240000;
 
     protected $empresa;
     protected $nits;
@@ -82,5 +82,18 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 
             throw $exception;
 		}
+    }
+
+    public function failed(Exception $exception)
+    {
+        Log::error('Error al generar PDF de facturación', [
+            'error' => $exception->getMessage(),
+            'line' => $exception->getLine(),
+            'file' => $exception->getFile(),
+            'user' => $this->idUser,
+            'empresa' => $this->empresa->id,
+        ]);
+
+        throw $exception;
     }
 }

@@ -734,6 +734,7 @@ class FacturacionController extends Controller
                 });
 			}) 
             ->groupBy('id_concepto_facturacion')
+            ->whereRaw('CAST(valor_total AS DECIMAL) > 0')
             ->get()
             ->toArray();
 
