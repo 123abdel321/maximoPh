@@ -425,16 +425,9 @@ class TurnosController extends Controller
 
             DB::connection('max')->commit();
 
-            $turnoData = (object)[
-                'id' => $turno->id,
-                'title' => $turno->asunto,
-                'start' => $horaInicio == "00:00:00" ? $fechaInicio : $fechaInicio.' '.$horaInicio,
-                'end' => $horaFin == "00:00:00" ? $fechaFin : $fechaFin.' '.$horaFin,
-            ];
-
             return response()->json([
                 'success'=>	true,
-                'data' => $turnoData,
+                'data' => [],
                 'message'=> 'Turno creado con exito!'
             ]);
             
