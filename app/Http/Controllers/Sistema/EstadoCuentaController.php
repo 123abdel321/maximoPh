@@ -351,8 +351,20 @@ class EstadoCuentaController extends Controller
     {
         try {
 
-            $nit = Nits::where('email', request()->user()->email)->first();
-    
+            $nit = null;
+
+            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
+                ->where('id_usuario', $request->user()['id'])
+                ->first();
+
+            if ($usuario_empresa && $usuario_empresa->id_nit) {
+                $nit = Nits::where('id', $usuario_empresa->id_nit)->first();
+            }
+
+            if (!$nit) {
+                $nit = Nits::where('email', request()->user()->email)->first();
+            }
+
             if (!$nit) {
                 return response()->json([
                     "success"=>false,
