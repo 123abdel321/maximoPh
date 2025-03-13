@@ -766,7 +766,7 @@ $(document).on('click', '#saveTurno', function () {
             $("#saveTurnoLoading").hide();
             $("#turnoFormModal").modal('hide');
             
-            turnos_table.ajax.reload();
+            reloadTurnos();
             agregarToast('exito', 'Creación exitosa', 'Turno creado con exito!', true);
         }
     }).fail((err) => {
