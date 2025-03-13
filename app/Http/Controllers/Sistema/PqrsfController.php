@@ -710,8 +710,8 @@ class PqrsfController extends Controller
 
                 if ($nit->email_1) {
                     Mail::to($nit->email_1)
-                    ->cc('noreply@maximoph.com')
-                    ->bcc('bcc@maximoph.com')
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
                     ->queue(new GeneralEmail($empresa->razon_social, 'emails.mensaje', [
                         'nombre' => $nit->nombre_completo,
                         'mensaje' => $request->get('texto'),

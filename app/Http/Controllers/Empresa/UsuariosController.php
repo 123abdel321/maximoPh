@@ -640,8 +640,8 @@ class UsuariosController extends Controller
 
             if (filter_var($usuario->email, FILTER_VALIDATE_EMAIL)) {
                 Mail::to($usuario->email)
-                    ->cc('noreply@maximoph.com')
-                    ->bcc('bcc@maximoph.com')
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
                     ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                         'nombre' => $nombreUsuario,
                         'url' => $url_welcome,
@@ -689,7 +689,7 @@ class UsuariosController extends Controller
                     $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
                     
                     Mail::to($usuario->email)
-                        ->cc('noreply@maximoph.com')
+                        ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.com')
                         ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                             'nombre' => $nombreUsuario,

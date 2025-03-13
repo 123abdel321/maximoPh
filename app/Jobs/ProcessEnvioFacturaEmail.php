@@ -83,8 +83,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($nit->email)
-                    ->cc('noreply@maximoph.com')
-                    ->bcc('bcc@maximoph.com')
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
                     ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
                         'nombre' => $nit->nombre_nit,
                         'factura' => $nit->consecutivo,
@@ -99,8 +99,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($nit->email_1)
-                    ->cc('noreply@maximoph.com')
-                    ->bcc('bcc@maximoph.com')
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
                     ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
                         'nombre' => $nit->nombre_nit,
                         'factura' => $nit->consecutivo,
@@ -115,8 +115,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($nit->email_2)
-                    ->cc('noreply@maximoph.com')
-                    ->bcc('bcc@maximoph.com')
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
                     ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
                         'nombre' => $nit->nombre_nit,
                         'factura' => $nit->consecutivo,

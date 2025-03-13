@@ -13,7 +13,7 @@
                     <!-- Encabezado -->
                     <tr>
                         <td style="background-color: #075260; padding: 20px; text-align: center;">
-                            <img src="https://maximoph.com/img/logo_blanco.png" alt="Logo" style="max-width: 200px;">
+                            <img src="https://maximoph.co/img/logo_blanco.png" alt="Logo" style="max-width: 200px;">
                         </td>
                     </tr>
 

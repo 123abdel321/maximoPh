@@ -75,7 +75,7 @@ function porteriaInit() {
             $('#savePorteriaEvento').show();
             $('#savePorteriaEventoLoading').hide();
             
-            if (data.responseURL == 'https://maximoph.com/login') {
+            if (data.responseURL == 'https://maximoph.co/login') {
                 caduqueSession();
             }
             if (data.status > 299) {

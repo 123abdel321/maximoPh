@@ -81,7 +81,7 @@ function importinmueblesInit() {
         xhr.onload = function(res) {
     
             var data = res.currentTarget;
-            if (data.responseURL == 'https://maximoph.com/login') {
+            if (data.responseURL == 'https://maximoph.co/login') {
                 caduqueSession();
             }
             if (data.status > 299) {

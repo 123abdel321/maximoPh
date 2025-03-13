@@ -33,8 +33,8 @@ class PaymentRequest extends AbstractPlacetoPaySender
         $expire = now()->addMinutes(10)->toIso8601String();
 		$codere = base64_encode($recibo->id.'_'.$recibo->id_nit.'_'.$recibo->created_by);
 
-		$return = "https://maximoph.com/close-payment/".$codere;
-		$cancel = "https://maximoph.com/close-payment/".$codere;
+		$return = "https://maximoph.co/close-payment/".$codere;
+		$cancel = "https://maximoph.co/close-payment/".$codere;
 
         return [
             'payment' => [

@@ -91,7 +91,7 @@
             {!! $mensaje !!}
 
             <div class="center">
-                <a href="https://maximoph.com/login" class="button">Visitanos</a>
+                <a href="https://maximoph.co/login" class="button">Visitanos</a>
             </div>
         </div>
 

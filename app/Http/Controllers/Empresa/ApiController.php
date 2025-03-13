@@ -329,8 +329,8 @@ class ApiController extends Controller
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
             Mail::to($usuario->email)
-                ->cc('noreply@maximoph.com')
-                ->bcc('bcc@maximoph.com')
+                ->cc('noreply@maximoph.co')
+                ->bcc('bcc@maximoph.co')
                 ->queue(new GeneralEmail('MAXIMOPH', 'emails.recover', [
                     'nombre' => $nombreUsuario,
                     'code_general' => $usuario->code_general

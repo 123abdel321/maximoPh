@@ -13,7 +13,7 @@
                     <!-- Encabezado -->
                     <tr>
                         <td style="background-color: #075260; padding: 20px; text-align: center;">
-                            <img src="https://maximoph.com/img/logo_blanco.png" alt="Logo" style="max-width: 200px;">
+                            <img src="https://maximoph.co/img/logo_blanco.png" alt="Logo" style="max-width: 200px;">
                         </td>
                     </tr>
 
@@ -30,7 +30,7 @@
                             </p>
 
                             <div style="text-align: center;">
-                                <a href="https://maximoph.com/login" style="display: inline-block; background-color: #075260; color: #ffffff; padding: 10px 20px; text-align: center; border-radius: 5px; text-decoration: none; margin-top: 20px; box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);">
+                                <a href="https://maximoph.co/login" style="display: inline-block; background-color: #075260; color: #ffffff; padding: 10px 20px; text-align: center; border-radius: 5px; text-decoration: none; margin-top: 20px; box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);">
                                     Visítanos
                                 </a>
                             </div>
