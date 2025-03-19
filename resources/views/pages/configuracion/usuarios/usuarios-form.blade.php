@@ -60,19 +60,19 @@
                     </div>
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Nombres</label>
-                        <input type="text" class="form-control form-control-sm" name="firstname_usuario" id="firstname_usuario">
+                        <input type="text" class="form-control form-control-sm" name="firstname_usuario" id="firstname_usuario" disabled>
                     </div>
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Apellidos</label>
-                        <input type="text" class="form-control form-control-sm" name="lastname_usuario" id="lastname_usuario">
+                        <input type="text" class="form-control form-control-sm" name="lastname_usuario" id="lastname_usuario" disabled>
                     </div>
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Telefono</label>
-                        <input type="text" class="form-control form-control-sm" name="telefono_usuario" id="telefono_usuario">
+                        <input type="text" class="form-control form-control-sm" name="telefono_usuario" id="telefono_usuario" disabled>
                     </div>
                     <div class="form-group form-group col-12 col-sm-6 col-md-6">
                         <label for="example-text-input" class="form-control-label">Dirección</label>
-                        <input type="text" class="form-control form-control-sm" name="address_usuario" id="address_usuario">
+                        <input type="text" class="form-control form-control-sm" name="address_usuario" id="address_usuario" disabled>
                     </div>
 
                 </form>
