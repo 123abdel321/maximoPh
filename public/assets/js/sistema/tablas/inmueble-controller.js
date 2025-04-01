@@ -565,7 +565,6 @@ function inmuebleInit() {
             data: function (params) {
                 var query = {
                     search: params.term,
-                    tipo_concepto: 0
                 }
                 return query;
             },
@@ -589,7 +588,6 @@ function inmuebleInit() {
             data: function (params) {
                 var query = {
                     search: params.term,
-                    tipo_concepto: 0
                 }
                 return query;
             },
