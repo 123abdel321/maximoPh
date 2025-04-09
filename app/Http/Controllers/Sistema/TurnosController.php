@@ -217,7 +217,7 @@ class TurnosController extends Controller
                     if (in_array($numero_dia, $dias)) {
 
                         $fechaInicio = $inicio->format('Y-m-d').' '.$request->get('hora_inicio_turno');
-                        $fechaFin = $inicio->format('Y-m-d').' '.$request->get('hora_fin_turno');
+                        $fechaFin = $fin->format('Y-m-d').' '.$request->get('hora_fin_turno');
 
                         $turno = Turno::create([
                             'id_usuario' => $request->get('id_usuario_turno'),

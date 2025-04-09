@@ -41,6 +41,8 @@ use App\Http\Controllers\Sistema\ImportadorRecibosController;
 //TAREAS
 use App\Http\Controllers\Sistema\TurnosController;
 use App\Http\Controllers\Sistema\ProyectosController;
+//PLACE TO PAY
+use App\Http\Controllers\PlacetoPayNotificationController;
 
 
 /*
@@ -53,6 +55,8 @@ use App\Http\Controllers\Sistema\ProyectosController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post('/placetopay/notification', [PlacetoPayNotificationController::class, 'handle']);
 
 
 Route::controller(VisitantesController::class)->group(function () {
