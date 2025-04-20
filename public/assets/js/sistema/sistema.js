@@ -2,16 +2,16 @@ const host = window.location.host;
 
 let base_url, base_web, base_web_erp, base_url_erp;
 
-if (host.includes("maximoph.com")) {
-    base_url = "https://maximoph.com/api/";
-    base_web = "https://maximoph.com/";
-    base_web_erp = "https://test.portafolioerp.com/";
-    base_url_erp = "https://test.portafolioerp.com/api/";
+if (host.includes("maximoph.co")) {
+    base_url = "https://maximoph.co/api/";
+    base_web = "https://maximoph.co/";
+    base_web_erp = "https://app.portafolioerp.com/";
+    base_url_erp = "https://app.portafolioerp.com/api/";
 } else if (host.includes("maximoph.co")) {
     base_url = "https://maximoph.co/api/";
     base_web = "https://maximoph.co/";
-    base_web_erp = "https://test.portafolioerp.com/";
-    base_url_erp = "https://test.portafolioerp.com/api/";
+    base_web_erp = "https://app.portafolioerp.com/";
+    base_url_erp = "https://app.portafolioerp.com/api/";
 } else if (host.includes("127.0.0.1:8090")) {
     // Desarrollo en red local
     base_url = "http://127.0.0.1:8090/api/";
