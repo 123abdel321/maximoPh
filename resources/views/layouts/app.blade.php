@@ -46,8 +46,6 @@
     })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
     <!-- End Google Tag Manager -->
 
-    @livewireStyles
-
 </head>
 
 <body class="body-basic" style="background-color: #060e26;">
