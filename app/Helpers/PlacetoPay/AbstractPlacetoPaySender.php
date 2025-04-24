@@ -14,7 +14,7 @@ abstract class AbstractPlacetoPaySender
     public abstract function getMethod(): string;
     public abstract function getParams(): array;
 
-    public function send($id_empresa = null)
+    public function send()
     {
         $url = $this->getUrl();
         $method = $this->getMethod();

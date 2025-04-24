@@ -513,8 +513,9 @@ class EstadoCuentaController extends Controller
             ]);
 
             $response = (new PaymentRequest(
-                $recibo->id
-            ))->send(request()->user()->id_empresa);
+                $recibo->id,
+                request()->user()->id_empresa
+            ))->send();
 
             if ($response->status < 300) {
                 

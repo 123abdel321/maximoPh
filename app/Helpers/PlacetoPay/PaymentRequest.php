@@ -11,10 +11,12 @@ class PaymentRequest extends AbstractPlacetoPaySender
 	private $endpoint = '/api/session';
 
 	private $id_pago;
+	private $id_empresa;
 
-	public function __construct($id_pago)
+	public function __construct($id_pago, $id_empresa)
 	{
 		$this->id_pago = $id_pago;
+		$this->id_empresa = $id_empresa;
 	}
 
 	public function getMethod(): string
@@ -45,6 +47,9 @@ class PaymentRequest extends AbstractPlacetoPaySender
                     'total' => $recibo->total_abono
                 ],
             ],
+			'metadata' => [
+				'id_empresa' => $this->id_empresa
+			],
 			"expiration" => $expire,
 			"returnUrl" => $return,
 			"cancelUrl" => $cancel,

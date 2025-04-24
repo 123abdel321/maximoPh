@@ -1,5 +1,5 @@
 <div class="modal fade" id="estadoCuentaPagoFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen modal-dialog-scrollable" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="textEstadoCuentaPagoCreate" style="display: block;">Agregar pago total: </h5>
