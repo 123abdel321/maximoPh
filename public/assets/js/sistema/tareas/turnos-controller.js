@@ -1,7 +1,11 @@
 var $comboTurnoUsuarioFilter = null;
+let limpiarInputFileTurnos = false;
 var $comboUsuarioTurno = null;
+let uploadedFilesTurnos = [];
 var calendarioTurnos = null;
 var $comboTurno = null;
+var turnos_table = null;
+let pondTurnos = null;
 var diaTurno = [
     "diaTurno1",
     "diaTurno2",
@@ -14,8 +18,60 @@ var diaTurno = [
 
 function turnosInit() {
 
-    var calendarEl = document.getElementById('turnos-fullcalender');
-    calendarioTurnos = new FullCalendar.Calendar(calendarEl, {
+    initFilePondTurnos();
+    initCalendarTurnos();
+    initTablesTurnos();
+    initFilterTurnos();
+
+    $('.water').hide();
+}
+
+function initFilePondTurnos() {
+    pondTurnos = FilePond.create(document.querySelector('#turnos-files'), {
+        allowImagePreview: true,
+        imagePreviewUpscale: true,
+        allowMultiple: true,
+        instantUpload: true,
+    });
+
+    $('.filepond--credits').remove();
+
+    pondTurnos.setOptions({
+        server: {
+            process: {
+                url: '/archivos-cache',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                onload: (response) => {
+                    const uploadedImagePath = JSON.parse(response);
+                    uploadedFilesTurnos.push({
+                        'id': uploadedImagePath.id,
+                        'url': uploadedImagePath.path
+                    });
+                    return uploadedImagePath.path;
+                },
+                onerror: (response) => {
+                    console.error('Error al subir la imagen: ', response);
+                }
+            },
+            revert: {
+                url: '/archivos-cache',
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            }
+        }
+    });
+
+    clearFilesInputTurnos();
+}
+
+function initCalendarTurnos() {
+    const calendarTurnos = document.getElementById('turnos-fullcalender');
+    calendarioTurnos = new FullCalendar.Calendar(calendarTurnos, {
         initialView: 'dayGridMonth',  // Vista inicial (mes)
         // timeZone: 'UTC',
         headerToolbar: {
@@ -33,9 +89,10 @@ function turnosInit() {
             method: 'GET',
             extraParams: function() {
                 return {
-                    id_empleado: $("#id_usuario_filter_turno").val(),
-                    tipo: $("#tipo_actividad_filter_turno").val(),
-                    estado: $("#estado_filter_turno").val(),
+                    id_empleado: $("#id_usuario_filter_turno").val() ?? '',
+                    id_proyecto: $("#id_proyecto_filter_turno").val() ?? '',
+                    tipo: $("#tipo_actividad_filter_turno").val() ?? '',
+                    estado: $("#estado_filter_turno").val() ?? '',
                 };
             },
             failure: function() {
@@ -55,7 +112,7 @@ function turnosInit() {
             seleccionarRangoDeTurnos(info);
         },
         eventClick: function(info) {
-            mostrarModalEvento(info.event);
+            mostrarModalEvento(info.event.id);
         },
         height: 'auto',
         contentHeight: 'auto',
@@ -113,7 +170,144 @@ function turnosInit() {
         }
     });
     calendarioTurnos.render();
+}
 
+function initTablesTurnos() {
+    turnos_table = $('#turnosTable').DataTable({
+        pageLength: 20,
+        dom: 'Brtip',
+        paging: true,
+        responsive: false,
+        processing: true,
+        serverSide: true,
+        fixedHeader: true,
+        deferLoading: 0,
+        initialLoad: false,
+        ordering: false,
+        language: lenguajeDatatable,
+        sScrollX: "100%",
+        fixedColumns : {
+            left: 0,
+            right : 1,
+        },
+        ajax:  {
+            type: "GET",
+            headers: headers,
+            url: base_url + 'turnos-table',
+            data: function ( d ) {
+                d.fecha_desde = $('#fecha_desde_turnos_filter').val();
+                d.fecha_hasta = $('#fecha_hasta_turnos_filter').val();
+                d.id_proyecto = $('#id_proyecto_filter_turno_table').val();
+                d.id_usuario = $('#id_usuario_filter_turno_table').val();
+                d.tipo = $('#tipo_actividad_filter_turno_table').val();
+                d.estado = $('#estado_turnos_filter_table').val();
+            }
+        },
+        columns: [
+            {"data":'id'},
+            {"data": function (row, type, set){
+                if (row.estado == '1') {
+                    return `<span class="badge bg-info">EN PROCESO</span><br/>`;
+                }
+                if (row.estado == '2') {
+                    return `<span class="badge bg-success">CERRADO</span><br/>`;
+                }
+                if (row.estado == '3') {
+                    return `<span class="badge bg-dark">VISTO</span><br/>`;
+                }
+                return `<span class="badge bg-danger">SIN LEER</span><br/>`;
+            }},
+            {"data": function (row, type, set){
+                if (row.tipo == 0) {
+                    return `TURNO`;
+                }
+                if (row.tipo == 1) {
+                    return `TAREA`;
+                }
+                return `NINGUNO`;
+            }},
+            {"data": function (row, type, set){
+                if (row.responsable) {
+                    return row.responsable.firstname+' '+row.responsable.lastname;
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
+                return row.asunto;
+            }},
+            {"data": function (row, type, set){
+                return `<div  class="text-wrap width-500">${row.descripcion}</div >`;
+            }},
+            {"data":'fecha_inicio'},
+            {"data":'fecha_fin'},
+            {"data":'fecha_creacion'},
+            {
+                "data": function (row, type, set){
+                    var html = '';
+                    html+= '<span id="readturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info read-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Chat</span>&nbsp;';
+                    if (eliminarTurnos && row.eventos.length == 0) html+= '<span id="deleteturnos_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-turnos" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    return html;
+                }
+            },
+        ],
+        columnDefs: [{ width: 500, targets: 5 }],
+    });
+
+    if (turnos_table) {
+        //MOSTRAR TURNOS
+        turnos_table.on('click', '.read-turnos', function() {
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, turnos_table);
+            if (data.chats.length) {
+                Livewire.dispatch('cargarMensajes', {chatId: data.chats[0].id, observador: false});
+                const chatMaximo = document.getElementById('chatMaximo');
+                if (!chatMaximo.classList.contains('show')) document.getElementById('iconNavbarChat').click();
+            }
+        });
+        //BORRAR TURNOS
+        turnos_table.on('click', '.drop-turnos', function() {
+            var trTurno = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, turnos_table);
+            var texto = 'Turno';
+            var responsable = data.responsable.firstname+' '+data.responsable.lastname;
+            if (data.tipo == 1) texto = 'Tarea';
+            
+            Swal.fire({
+                title: 'Eliminar '+texto+' de: '+responsable+'?',
+                text: "No se podrá revertir!",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Borrar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'turnos',
+                        method: 'DELETE',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            turnos_table.row(trTurno).remove().draw();
+                            agregarToast('exito', 'Eliminación exitosa', texto+' eliminada con exito!', true );
+                        } else {
+                            agregarToast('error', 'Eliminación errada', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Eliminación errada', res.message);
+                    });
+                }
+            });
+        });
+    }
+}
+
+function initFilterTurnos() {
     $("#id_usuario_filter_turno").on('change', function(event) {
         reloadTurnos();
     });
@@ -124,6 +318,60 @@ function turnosInit() {
 
     $("#estado_filter_turno").on('change', function(event) {
         reloadTurnos();
+    });
+
+    $("#id_usuario_filter_turno_table").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#tipo_actividad_filter_turno_table").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#estado_turnos_filter_table").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#fecha_desde_turnos_filter").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+
+    $("#fecha_hasta_turnos_filter").on('change', function(event) {
+        turnos_table.ajax.reload();
+    });
+}
+
+function clearFilesInputTurnos() {
+    uploadedFilesTurnos = [];
+    pondTurnos.off('removefile');
+    pondTurnos.removeFiles();
+    pondTurnos.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFileTurnos) {
+            limpiarInputFileTurnos = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
     });
 }
 
@@ -148,7 +396,7 @@ $('.input-images-turno-evento').imageUploader({
     maxFiles: 10
 });
 
-$(document).on('click', '#createProyecto', function () {
+$(document).on('click', '#createTurno', function () {
     clearFormTurno();
     $("#turnoFormModal").modal('show');
 });
@@ -168,6 +416,7 @@ function reloadTurnos() {
 
     calendarioTurnos.removeAllEvents();
     calendarioTurnos.refetchEvents();
+    turnos_table.ajax.reload();
 }
 
 $(document).on('click', '#deleteTurno', function () {
@@ -208,6 +457,20 @@ $(document).on('click', '#deleteTurno', function () {
     })
 });
 
+$(document).on('click', '#detalleTurno', function () {
+    turnos_table.ajax.reload();
+    $('#tabla_turnos').show();
+    $('#volverTurnos').show();
+    $('#detalleTurno').hide();
+    $('#calendar_turnos').hide();
+});
+
+$(document).on('click', '#volverTurnos', function () {
+    $('#tabla_turnos').hide();
+    $('#volverTurnos').hide();
+    $('#detalleTurno').show();
+    $('#calendar_turnos').show();
+});
 
 $("#multiple_tarea_turno").on('change', function(event) {
     if ($("input[type='checkbox']#multiple_tarea_turno").is(':checked')) {
@@ -220,8 +483,7 @@ $("#multiple_tarea_turno").on('change', function(event) {
 function clearFormTurno () {
     
     $("#id_usuario_turno").val('').change();
-    $("#fecha_inicio_turno").val("");
-    $("#fecha_fin_turno").val("");
+    $("#id_proyecto_turno").val('').change();
     $("#hora_inicio_turno").val("");
     $("#hora_fin_turno").val("");
     $("#asunto_turno").val("");
@@ -239,10 +501,24 @@ function clearFormTurno () {
         // maxSize: 2 * 1024 * 1024,
         maxFiles: 10
     });
+
+    const today = new Date().toLocaleDateString('en-CA');
+    
+    // Asignar la fecha mínima al campo de fecha
+    document.getElementById("fecha_inicio_turno").setAttribute("min", today);
+    document.getElementById("fecha_fin_turno").setAttribute("min", today);
+
+    $("#fecha_inicio_turno").val(today);
+    $("#fecha_fin_turno").val(today);
+
+    $("#hora_inicio_turno").val("08:00");
+    $("#hora_fin_turno").val("20:00");
     
     diaTurno.forEach(dia => {
         $('#'+dia).prop('checked', false);
     });
+
+    marcarDiasTurnos();
 }
 
 $comboUsuarioTurno = $('#id_usuario_turno').select2({
@@ -250,6 +526,40 @@ $comboUsuarioTurno = $('#id_usuario_turno').select2({
     dropdownParent: $('#turnoFormModal'),
     delay: 250,
     placeholder: "Seleccione un usuario",
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'usuarios/combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+$('#id_usuario_filter_turno_table').select2({
+    theme: 'bootstrap-5',
+    delay: 250,
+    placeholder: "Seleccione un usuario",
+    allowClear: true,
     language: {
         noResults: function() {
             return "No hay resultado";        
@@ -348,9 +658,76 @@ $comboTurno  = $('#id_proyecto_turno').select2({
     }
 });
 
-$("#form-turno").submit(function(e) {
-    e.preventDefault();
 
+$('#id_proyecto_filter_turno').select2({
+    theme: 'bootstrap-5',
+    delay: 250,
+    placeholder: "Seleccione un proyecto",
+    allowClear: true,
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'proyectos-combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+$('#id_proyecto_filter_turno_table').select2({
+    theme: 'bootstrap-5',
+    delay: 250,
+    placeholder: "Seleccione un proyecto",
+    allowClear: true,
+    language: {
+        noResults: function() {
+            return "No hay resultado";        
+        },
+        searching: function() {
+            return "Buscando..";
+        },
+        inputTooShort: function () {
+            return "Por favor introduce 1 o más caracteres";
+        }
+    },
+    ajax: {
+        url: base_url + 'proyectos-combo',
+        headers: headers,
+        dataType: 'json',
+        data: function (params) {
+            var query = {
+                search: params.term
+            }
+            return query;
+        },
+        processResults: function (data) {
+            return {
+                results: data.data
+            };
+        }
+    }
+});
+
+$(document).on('click', '#saveTurno', function () {
     var form = document.querySelector('#form-turno');
 
     if(!form.checkValidity()){
@@ -358,52 +735,57 @@ $("#form-turno").submit(function(e) {
         return;
     }
 
+    let data = {
+        tipo_turno: $("input[type='checkbox']#tipo_turno").is(':checked') ? 1 : 0,
+        id_usuario_turno: $("#id_usuario_turno").val(),
+        id_proyecto_turno: $("#id_proyecto_turno").val(),
+        asunto_turno: $("#asunto_turno").val(),
+        mensaje_turno: $("#mensaje_turno").val(),
+        fecha_inicio_turno: $("#fecha_inicio_turno").val(),
+        hora_inicio_turno: $("#hora_inicio_turno").val(),
+        fecha_fin_turno: $("#fecha_fin_turno").val(),
+        hora_fin_turno: $("#hora_fin_turno").val(),
+        multiple_tarea_turno: $("input[type='checkbox']#multiple_tarea_turno").is(':checked') ? 1 : 0,
+        archivos: uploadedFilesTurnos
+    }
+
     $("#saveTurno").hide();
     $("#saveTurnoLoading").show();
 
-    var ajxForm = document.getElementById("form-turno");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "turnos");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        console.log('res: ',res);
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
+    $.ajax({
+        url: base_url + 'turnos',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            clearFormTurno();
 
-        var responseData = JSON.parse(res.currentTarget.response);
+            $("#saveTurno").show();
+            $("#saveTurnoLoading").hide();
+            $("#turnoFormModal").modal('hide');
+            
+            reloadTurnos();
+            agregarToast('exito', 'Creación exitosa', 'Turno creado con exito!', true);
+        }
+    }).fail((err) => {
         $('#saveTurno').show();
         $('#saveTurnoLoading').hide();
-
-        $("#reloadTurnosIconNormal").hide();
-        $("#reloadTurnosIconLoading").show();
-
-        setTimeout(function(){
-            $("#reloadTurnosIconNormal").show();
-            $("#reloadTurnosIconLoading").hide();
-        },500);
-
-        calendarioTurnos.removeAllEvents();
-        calendarioTurnos.refetchEvents();
-
-        if (responseData.success) {
-            agregarToast('exito', 'Datos cargados', 'Datos creados con exito!', true);
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
         } else {
-            agregarToast('error', 'Carga errada', responseData.message);
+            errorsMsg = mensaje
         }
-
-        $("#turnoFormModal").modal('hide');
-    };
-    xhr.onerror = function (res) {
-        agregarToast('error', 'Carga errada', 'errorsMsg');
-        $('#saveTurno').show();
-        $('#saveTurnoLoading').hide();
-    };
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
 });
 
 $("#form-turno-evento").submit(function(e) {
@@ -425,9 +807,8 @@ $("#form-turno-evento").submit(function(e) {
     xhr.open("POST", "turnos-evento");
     xhr.send(data);
     xhr.onload = function(res) {
-        console.log('res: ',res);
         var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
+        if (data.responseURL == 'https://maximoph.co/login') {
             caduqueSession();
         }
         if (data.status > 299) {
@@ -514,58 +895,6 @@ function cambiarRangoDeTurno(info) {
 
 }
 
-function mostrarModalEvento(info) {
-    $.ajax({
-        url: base_url + 'turnos',
-        method: 'GET',
-        data: {id: info.id},
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        $("#id_turno_evento").val(res.data.id);
-        $("#texTurnoEvento").text(res.data.asunto);
-        
-        console.log(res.data);
-        var nombreResponsable = 'NINGUNO';
-        if (res.data.responsable) {
-            nombreResponsable = res.data.responsable.firstname
-            if (res.data.responsable.lastname) {
-                nombreResponsable+= ' '+res.data.responsable.lastname;
-            }
-        }
-
-        var estadoTexto = 'SIN LEER';
-        var estadoColor = '#868686';
-
-        // if () {
-            
-        // }
-
-        $("#responsable_turno").val(nombreResponsable);
-
-        agregarEventoPrincipal(res.data);
-        agregarEventoSecundario(res.data.eventos);
-
-        $("#turnoEventoFormModal").modal('show');
-    }).fail((err) => {
-        $('#updateZona').show();
-        $('#saveZonaLoading').hide();
-        var errorsMsg = "";
-        var mensaje = err.responseJSON.message;
-        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
-            for (field in mensaje) {
-                var errores = mensaje[field];
-                for (campo in errores) {
-                    errorsMsg += "- "+errores[campo]+" <br>";
-                }
-            };
-        } else {
-            errorsMsg = mensaje
-        }
-        agregarToast('error', 'Actualización errada', errorsMsg);
-    });
-}
-
 function agregarEventoPrincipal (data) {
     $("#div-contenido-eventos").html("");
 
@@ -580,9 +909,6 @@ function agregarEventoPrincipal (data) {
     }
 
     var html = `<div class="row" style="padding: 5px; background-color: #defaff; border-radius: 10px;">
-            <div id="imagen-usuario-evento" class="col-2">
-                <img src="${imagen}" alt="profile_image" style="width: 50px; border-radius: 50%;">
-            </div>
             <div id="text-usuario-evento" class="col-10" style="place-self: center; color: black;">
                 
                 ${htmlImagen}<br/>
@@ -603,7 +929,6 @@ function agregarEventoPrincipal (data) {
 }
 
 function agregarEventoSecundario (eventos) {
-    console.log('eventos: ',eventos)
     eventos.forEach(evento => {
         var htmlImagen = '';
         var imagen = evento.creador.avatar ? evento.creador.avatar : "/img/no-photo.jpg";
@@ -672,3 +997,37 @@ function recorrerFechas(fechaInicio, fechaFin) {
         currentDate.setDate(currentDate.getDate() + 1);
     }
 }
+
+$("#fecha_inicio_turno").on('change', function(event) {
+    marcarDiasTurnos();
+});
+
+$("#fecha_fin_turno").on('change', function(event) {
+    marcarDiasTurnos();
+});
+
+function marcarDiasTurnos() {
+    let fechaInicio = $("#fecha_inicio_turno").val();
+    let fechaFin = $("#fecha_fin_turno").val();
+
+    if (!fechaInicio || !fechaFin) {
+        return;
+    }
+
+    let startDate = new Date(fechaInicio);
+    let endDate = new Date(fechaFin);
+
+    $("#input_dias_turno .form-check-input").prop("checked", false);
+
+    while (startDate <= endDate) {
+        let dayOfWeek = (startDate.getDay() === 0) ? 7 : startDate.getDay();
+        dayOfWeek+= 1;
+        if (dayOfWeek == 8) dayOfWeek = 1; 
+        $(`#diaTurno${dayOfWeek}`).prop("checked", true);
+        startDate.setDate(startDate.getDate() + 1);
+    }
+}
+
+$('.form-control').keyup(function() {
+    $(this).val($(this).val().toUpperCase());
+});

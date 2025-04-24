@@ -29,4 +29,9 @@ class Entorno extends Model
     {
         return $this->belongsTo("App\Models\Portafolio\Nits", 'valor');
     }
+
+    public function formas_pago()
+    {
+        return $this->belongsTo("App\Models\Portafolio\FacFormasPago", 'valor');
+    }
 }

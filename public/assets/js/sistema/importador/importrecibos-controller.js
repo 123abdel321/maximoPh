@@ -1,4 +1,5 @@
 var import_recibos_table = null;
+var channelImportadorRecibos = pusher.subscribe('importador-recibos-'+localStorage.getItem("notificacion_code"));
 
 function importrecibosInit() {
     import_recibos_table = $('#importRecibos').DataTable({
@@ -59,10 +60,83 @@ function importrecibosInit() {
     var btnImportRecibo = document.getElementById('actualizarPlantillaRecibos');
     btnImportRecibo.removeEventListener('click', handleReciboClick);
     btnImportRecibo.addEventListener('click', handleReciboClick);
+
+    $("#form-importador-recibos").submit(function(event) {
+        event.preventDefault();
+        
+        $('#cargarPlantillaRecibos').hide();
+        $('#actualizarPlantillaRecibos').hide();
+        $('#cargarPlantillaRecibosLoagind').show();
+    
+        import_recibos_table.rows().remove().draw();
+    
+        var ajxForm = document.getElementById("form-importador-recibos");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "importrecibos-importar");
+        xhr.send(data);
+        xhr.onload = function(res) {
+            
+            var data = res.currentTarget;
+            if (data.responseURL == 'https://maximoph.co/login') {
+                caduqueSession();
+            }
+            if (data.status > 299) {
+                return;
+            }
+            var responseData = JSON.parse(res.currentTarget.response);
+            
+            if (responseData.success) {
+                agregarToast('info', 'Cargando recibos', 'Se le notificará cuando la importación haya terminado!', true);
+            } else {
+                $('#cargarPlantillaRecibos').show();
+                $('#cargarPlantillaRecibosLoagind').hide();
+                agregarToast('error', 'Carga errada', 'errorsMsg');
+            }
+        };
+        xhr.onerror = function (res) {
+            $('#cargarPlantillaRecibos').show();
+            $('#cargarPlantillaRecibosLoagind').hide();
+        };
+        return false;
+    });
 }
 
-function handleReciboClick(event) {
-    event.preventDefault();
+channelImportadorRecibos.bind('notificaciones', function(data) {
+
+    if (data.success) {
+        $('#cargarPlantillaRecibosLoagind').hide();
+
+        if (data.accion == 1) {
+            agregarToast(data.tipo, data.titulo, data.mensaje);
+            $('#cargarPlantillaRecibos').show();
+            $('#actualizarPlantillaRecibos').show();
+            import_recibos_table.ajax.reload(function(res) {
+                if (res.success) {
+                    totalesRecibosImport();
+                }
+            });
+        }
+
+        if (data.accion == 2) {
+            agregarToast(data.tipo, data.titulo, data.mensaje);
+            $('#cargarPlantillaRecibos').show();
+            import_recibos_table.ajax.reload(function(res) {
+                if (res.success) {
+                    totalesRecibosImport();
+                }
+            });
+        }
+        
+    } else {
+        $('#cargarPlantillaRecibos').show();
+        $('#actualizarPlantillaRecibos').hide();
+        $('#cargarPlantillaRecibosLoagind').hide();
+        agregarToast(data.tipo, data.titulo, data.mensaje);
+    }
+});
+
+function handleReciboClick() {
     
     $('#cargarPlantillaRecibos').hide();
     $('#actualizarPlantillaRecibos').hide();
@@ -74,38 +148,25 @@ function handleReciboClick(event) {
         headers: headers,
         dataType: 'json',
     }).done((res) => {
-        $('#cargarPlantillaRecibos').show();
-        $('#actualizarPlantillaRecibos').hide();
-        $('#cargarPlantillaRecibosLoagind').hide();
-        import_recibos_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                totalesRecibosImport();
-            }
-        });
-        agregarToast('exito', 'Recibos importadas', 'Recibos importadas con exito!', true);
+
+        agregarToast('info', 'Importando pagos', 'Se le notificará cuando la importación haya terminado!', true);
     }).fail((err) => {
         $('#cargarPlantillaRecibos').show();
         $('#cargarPlantillaRecibosLoagind').hide();
-        import_recibos_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                totalesRecibosImport();
-            } else {
-                var mensaje = res.message;
-                var errorsMsg = '';
-                if (typeof mensaje === 'object') {
-                    for (field in mensaje) {
-                        var errores = mensaje[field];
-                        for (campo in errores) {
-                            errorsMsg += field+": "+errores[campo]+" <br>";
-                        }
-                    };
+
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
                 }
-                else if (typeof mensaje === 'string') {
-                    errorsMsg = mensaje;
-                }
-                agregarToast('error', 'Importación de Recibos errado', errorsMsg);
-            }
-        });
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Importación errada', errorsMsg);
     });
 }
 
@@ -152,50 +213,4 @@ $(document).on('click', '#descargarPlantillaRecibos', function () {
         window.open(res.url, "_blank");
     }).fail((err) => {
     });
-});
-
-$("#form-importador-recibos").submit(function(event) {
-    event.preventDefault();
-
-    $('#cargarPlantillaRecibos').hide();
-    $('#actualizarPlantillaRecibos').hide();
-    $('#cargarPlantillaRecibosLoagind').show();
-
-    import_recibos_table.rows().remove().draw();
-
-    var ajxForm = document.getElementById("form-importador-recibos");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "importrecibos-importar");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        console.log('res: ',res);
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
-        var responseData = JSON.parse(res.currentTarget.response);
-        var errorsMsg = '';
-        $('#cargarPlantillaRecibos').show();
-        $('#cargarPlantillaRecibosLoagind').hide();
-
-        if (responseData.success) {
-            import_recibos_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
-                    totalesRecibosImport();
-                }
-            });
-            agregarToast('exito', 'Datos cargados', 'Recibos cargados con exito!', true);
-        } else {
-            agregarToast('error', 'Carga errada', 'errorsMsg');
-        }
-    };
-    xhr.onerror = function (res) {
-        $('#cargarPlantillaRecibos').hide();
-        $('#cargarPlantillaRecibosLoagind').show();
-    };
-    return false;
 });

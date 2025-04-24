@@ -6,10 +6,10 @@
             <th>Ubicación</th>
             <th>Factura</th>
             <th>Fecha</th>
-            <th>Saldo anterior</th>
-            <th>Total factura</th>
-            <th>Total abono</th>
-            <th>Saldo final</th>
+            <th id="nombre_saldo_anterior">Saldo anterior</th>
+            <th id="nombre_total_factura">Total factura</th>
+            <th id="nombre_total_abono">Total abono</th>
+            <th id="nombre_saldo_final">Saldo final</th>
             <th>Consecutivo</th>
             <th>Dias</th>
             <th>Mora</th>

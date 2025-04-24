@@ -27,6 +27,11 @@ class Turno extends Model
         'updated_by',
     ];
 
+    public function chats()
+    {
+        return $this->morphMany(Chat::class, 'relation');
+	}
+
     public function archivos()
     {
         return $this->morphMany(ArchivosGenerales::class, 'relation');
@@ -50,5 +55,9 @@ class Turno extends Model
     public function responsable()
     {
 		return $this->belongsTo("App\Models\User","id_usuario");
+	}
+
+    public function nit(){
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
 	}
 }

@@ -39,6 +39,23 @@ function carteraInit() {
         },
         'rowCallback': function(row, data, index){
             var nivel = getNivelCartera();
+            var nivelData = parseInt(data.nivel);
+            var naturaleza = parseInt(data.naturaleza_cuenta);
+            
+            if (naturaleza == 0 && nivelData == 2) {
+                if (parseInt(data.saldo_anterior) < 0 || parseInt(data.saldo) < 0) {
+                    $('td', row).css('background-color', '#ff00004d');
+                    $('td', row).css('color', 'black');
+                    return;
+                }
+            }
+            if (naturaleza == 1 && nivelData == 2) {
+                if (parseInt(data.saldo_anterior) > 0 || parseInt(data.saldo) > 0) {
+                    $('td', row).css('background-color', '#ff00004d');
+                    $('td', row).css('color', 'black');
+                    return;
+                }
+            }
             if (nivel == 1) {
                 if (data.nivel == 0) {
                     $('td', row).css('background-color', 'rgb(28 69 135)');
@@ -46,8 +63,18 @@ function carteraInit() {
                     $('td', row).css('color', 'white');
                     return;
                 }
+                if (data.nivel == 9) {
+                    $('td', row).css('background-color', 'rgb(64 164 209 / 40%)');
+                    $('td', row).css('font-weight', '600');
+                    return;
+                }
                 if (data.errores) $('td', row).css('background-color', 'rgb(209 64 64 / 40%)');
             } else if (nivel == 2) {
+                if (data.nivel == 9) {
+                    $('td', row).css('background-color', 'rgb(64 164 209 / 60%)');
+                    $('td', row).css('font-weight', '700');
+                    return;
+                }
                 if (data.nivel == 0) {
                     $('td', row).css('background-color', 'rgb(28 69 135)');
                     $('td', row).css('font-weight', 'bold');
@@ -55,12 +82,32 @@ function carteraInit() {
                     return;
                 }
                 if(data.nivel == 1){
-                    if (data.errores) $('td', row).css('background-color', 'rgb(209 64 64 / 40%)');
-                    else $('td', row).css('background-color', 'rgb(64 164 209 / 40%)');
-                    $('td', row).css('font-weight', 'bold');
-                    return;
+                    if (data.errores) {
+                        $('td', row).css('background-color', 'rgb(209 64 64 / 55%)');
+                        $('td', row).css('font-weight', 'bold');
+                        return;
+                    } else {
+                        if (data.numero_documento == 'TOTALES POR COBRAR' || data.numero_documento == 'CUENTAS POR COBRAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 202 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        if (data.numero_documento == 'TOTALES POR PAGAR' || data.numero_documento == 'CUENTAS POR PAGAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 123 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        $('td', row).css('background-color', 'rgb(64 164 209 / 40%)');
+                        $('td', row).css('font-weight', '600');
+                        return ;
+                    }
                 }
             } else if (nivel == 3) {
+                if (data.nivel == 9) {
+                    $('td', row).css('background-color', 'rgb(64 164 209 / 70%)');
+                    $('td', row).css('font-weight', '700');
+                    return;
+                }
                 if (data.nivel == 0) {
                     $('td', row).css('background-color', 'rgb(28 69 135)');
                     $('td', row).css('font-weight', 'bold');
@@ -68,14 +115,30 @@ function carteraInit() {
                     return;
                 }
                 if(data.nivel == 1){
-                    if (data.errores) $('td', row).css('background-color', 'rgb(209 64 64 / 40%)');
-                    else $('td', row).css('background-color', 'rgb(64 164 209 / 70%)');
-                    $('td', row).css('font-weight', 'bold');
+                    if (data.errores) {
+                        $('td', row).css('background-color', 'rgb(209 64 64 / 55%)');
+                        $('td', row).css('font-weight', 'bold');
+                        return;
+                    } else {
+                        if (data.numero_documento == 'TOTALES POR COBRAR' || data.numero_documento == 'CUENTAS POR COBRAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 202 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        if (data.numero_documento == 'TOTALES POR PAGAR' || data.numero_documento == 'CUENTAS POR PAGAR') {
+                            $('td', row).css('background-color', 'rgb(64 209 123 / 40%)');
+                            $('td', row).css('font-weight', '600');
+                            return ;
+                        }
+                        $('td', row).css('background-color', 'rgb(64 164 209 / 15%)');
+                        $('td', row).css('font-weight', '550');
+                        return ;
+                    }
                     return;
                 }
                 if(data.nivel == 2){
                     $('td', row).css('background-color', 'rgb(64 164 209 / 20%)');
-                    $('td', row).css('font-weight', 'bold');
+                    $('td', row).css('font-weight', '400');
                     return;
                 }
             }
@@ -145,10 +208,84 @@ function carteraInit() {
             }},
             {data: 'documento_referencia'},
             {data: 'fecha_manual'},
-            {data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right', responsivePriority: 5, targets: -4},
-            {data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right', responsivePriority: 4, targets: -3},
-            {data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right', responsivePriority: 3, targets: -2},
-            {data: 'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right', responsivePriority: 2, targets: -1},
+            {
+                data: null,
+                render: function (row, type, set) {
+                    var nivelData = parseInt(row.nivel);
+                    var naturaleza = parseInt(row.naturaleza_cuenta);
+                    const formattedNumber = $.fn.dataTable.render.number(',', '.', 2, '').display(row.saldo_anterior);
+
+                    if (naturaleza == 0 && nivelData == 2) {
+                        if (parseInt(row.saldo_anterior) < 0) {
+                            return `<div class="">
+                                <i class="fas fa-exclamation-triangle error-triangle"></i>&nbsp;
+                                ${formattedNumber}
+                            </div>`;
+                        }
+                    }
+                    if (naturaleza == 1 && nivelData == 2) {
+                        if (parseInt(row.saldo_anterior) > 0) {
+                            return `<div class="">
+                                <i class="fas fa-exclamation-triangle error-triangle"></i>&nbsp;
+                                ${formattedNumber}
+                            </div>`;
+                        }
+                    }
+                    return formattedNumber;
+                },
+                className: 'dt-body-right',
+                responsivePriority: 5,
+                targets: -4
+            },
+            {
+                data: null,
+                render: function (row, type, set) {
+                    const formattedNumber = $.fn.dataTable.render.number(',', '.', 2, '').display(row.total_facturas);
+                    return formattedNumber;
+                },
+                className: 'dt-body-right',
+                responsivePriority: 4,
+                targets: -3
+            },
+            {
+                data: null,
+                render: function (row, type, set) {
+                    const formattedNumber = $.fn.dataTable.render.number(',', '.', 2, '').display(row.total_abono);
+                    return formattedNumber;
+                },
+                className: 'dt-body-right',
+                responsivePriority: 3,
+                targets: -2
+            },
+            {
+                data: null,
+                render: function (row, type, set) {
+                    var nivelData = parseInt(row.nivel);
+                    var naturaleza = parseInt(row.naturaleza_cuenta);
+                    const formattedNumber = $.fn.dataTable.render.number(',', '.', 2, '').display(row.saldo);
+
+                    if (naturaleza == 0 && nivelData == 2) {
+                        if (parseInt(row.saldo) < 0) {
+                            return `<div class="">
+                                <i class="fas fa-exclamation-triangle error-triangle"></i>&nbsp;
+                                ${formattedNumber}
+                            </div>`;
+                        }
+                    }
+                    if (naturaleza == 1 && nivelData == 2) {
+                        if (parseInt(row.saldo) > 0) {
+                            return `<div class="">
+                                <i class="fas fa-exclamation-triangle error-triangle"></i>&nbsp;
+                                ${formattedNumber}
+                            </div>`;
+                        }
+                    }
+                    return formattedNumber;
+                },
+                className: 'dt-body-right',
+                responsivePriority: 2,
+                targets: -1
+            },
             {"data": function (row, type, set){
                 if (row.nivel == 3) {
                     return row.consecutivo
@@ -287,23 +424,34 @@ function carteraInit() {
         findCartera();
     });
 
+    $(".tipo_informe_cartera").on('change', function(){
+        clearCartera();
+        findCartera();
+        ctualizarColumnas();
+    });
+
     findCartera();
     actualizarColumnas();
 }
 
 function actualizarColumnas() {
-    var nivel = getNivelCartera();
-    var agrupado = $("#agrupar_cartera").val();
+    const nivel = getNivelCartera();
+    const agrupado = $("#agrupar_cartera").val();
+    const tipoInforme = $("#tipo_informe_cartera").val();
 
-    var columnUbicacionMaximoPH = cartera_table.column(2);
-    var columnFactura = cartera_table.column(3);
-    var columnFecha = cartera_table.column(4);
-    var columnConcecutivo = cartera_table.column(9);
-    var columnDias = cartera_table.column(10);
-    var columnMora = cartera_table.column(11);
-    var columnComprobante = cartera_table.column(12);
-    var columnConcepto = cartera_table.column(13);
+    const columnUbicacionMaximoPH = cartera_table.column(2);
+    const columnFactura = cartera_table.column(3);
+    const columnFecha = cartera_table.column(4);
+    const columnConcecutivo = cartera_table.column(9);
+    const columnDias = cartera_table.column(10);
+    const columnMora = cartera_table.column(11);
+    const columnComprobante = cartera_table.column(12);
+    const columnConcepto = cartera_table.column(13);
     
+    $("#nombre_saldo_anterior").html('Saldo anterior');
+    $("#nombre_total_factura").html('Total factura');
+    $("#nombre_total_abono").html('Total abono');
+    $("#nombre_saldo_final").html('Saldo final');
 
     if (nivel == 1 || nivel == 2) {
         columnFactura.visible(false);
@@ -322,6 +470,13 @@ function actualizarColumnas() {
         columnMora.visible(true);
         columnComprobante.visible(true);
         columnConcepto.visible(true);
+    }
+
+    if (!tipoInforme) {
+        $("#nombre_saldo_anterior").html('');
+        $("#nombre_total_factura").html('');
+        $("#nombre_total_abono").html('');
+        $("#nombre_saldo_final").html('');
     }
 
     if (ubicacion_maximoph_cartera) {

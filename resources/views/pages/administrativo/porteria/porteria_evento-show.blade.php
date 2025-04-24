@@ -12,11 +12,14 @@
 
                     <input type="text" class="form-control" name="id_evento_porteria_up" id="id_evento_porteria_up" style="display: none;">
 
-                    <div id="div-porteria-persona" class="col-12" style="text-align-last: center; margin-bottom: 0.4rem;">
-                        <img id="persona_evento_imagen" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/maximo/empresas/3/imagen/porteria/YWGival1Kputs4KYNErEzLkYygG5Gaob4MiLSU5M.jpg" class="img-fluid border border-2 border-white" style="height: 60px; width: 60px; border-radius: 50%; object-fit: cover; object-position: top;">
-                        <p style="font-size: 14px; margin-bottom: 0px; place-self: center;">
-                            <b id="persona_evento_nombre"></b>
-                        </p>
+                    <div id="div-porteria-persona" class="justify-content-center col-12 col-sm-12 col-md-12">
+                        <div style="text-align: -webkit-center; margin-bottom: 10px;">
+                            <img id="persona_evento_imagen"  src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/maximo/empresas/3/imagen/porteria/YWGival1Kputs4KYNErEzLkYygG5Gaob4MiLSU5M.jpg" class="img-fluid border border-2 border-white" style="height: 130px; border-radius: 5%; width: auto; object-fit: contain;">
+                        </div>
+                    </div>
+
+                    <div style="font-size: 14px; margin-bottom: 0px; text-align: center;">
+                        <h3 id="persona_evento_nombre"></h3>
                     </div>
 
                     <div id="div-porteria-inmueble" class="col-12" style="display: flex; justify-content: center;">

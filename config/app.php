@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'version' => '1.12.137 - 2024/10/05',
+    'version' => '1.16.235 - 2025/04/24',
 
     /*
     |--------------------------------------------------------------------------
@@ -181,6 +181,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -197,6 +198,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class
     ])->toArray(),
 
 ];

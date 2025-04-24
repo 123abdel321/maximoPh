@@ -41,51 +41,34 @@ class NotificacionesController extends Controller
     public function read (Request $request)
     {
         try {
-            $notificaciones = Notificaciones::orderByRaw("id DESC, estado ASC")
-                ->with('creador')
-                ->where('estado', '!=', 2)
-                ->select(
-                    '*',
-                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
-                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
-                    'created_by',
-                    'updated_by'
-                );
+            $canalesAdmin = [];
 
-            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
-                ->where('id_usuario', $request->user()['id'])
-                ->first();
-                
-            if ($request->user()->can('pqrsf responder')) {
-                $notificaciones->where('notificacion_type', '!=', 11)
-                    ->whereNull('id_usuario')
-                    ->orWhere('id_rol', 1);
-            } else {
-                $notificaciones->where('id_usuario', request()->user()->id);
-            }
+            if (auth()->user()->can('mensajes pqrsf')) $canalesAdmin[] = 12;
+            if (auth()->user()->can('mensajes turnos')) $canalesAdmin[] = 14;
+            if (auth()->user()->can('mensajes novedades')) $canalesAdmin[] = 16;
 
-            $notificacionesCount = Notificaciones::with('creador')
-                ->where('estado', '=', 0)
-                ->select(
-                    '*',
-                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
-                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
-                    'created_by',
-                    'updated_by'
-                );
-
-            if ($request->user()->can('pqrsf responder')) {
-                $notificacionesCount->where('notificacion_type', '!=', 11)
-                    ->whereNull('id_usuario')
-                    ->orWhere('id_rol', 1);
-            } else {
-                $notificacionesCount->where('id_usuario', request()->user()->id);
-            }
+            $totalMensajes = DB::connection('max')
+                ->table('chats AS CH')
+                ->where(function ($query) use($canalesAdmin) {
+                    $query->whereExists(function ($subquery) use($canalesAdmin) {
+                        $subquery->select(DB::raw(1))
+                            ->from('chat_users AS CU')
+                            ->whereColumn('CU.chat_id', 'CH.id')
+                            ->where('CU.user_id', auth()->user()->id);
+                    })
+                    ->orWhereIn('CH.relation_type', $canalesAdmin);
+                })
+                ->join('messages AS ME', 'CH.id', '=', 'ME.chat_id')
+                ->whereNotIn('ME.id', function ($query) {
+                    $query->select('message_id')
+                        ->from('message_users')
+                        ->where('user_id', auth()->user()->id); // Excluye mensajes ya leídos
+                })
+                ->count();
 
             return response()->json([
                 'success'=>	true,
-                'data' => $notificaciones->get(),
-                'total' => $notificacionesCount->count(),
+                'total' => $totalMensajes,
                 'message'=> 'Notificaciones generados con exito!'
             ]);
 

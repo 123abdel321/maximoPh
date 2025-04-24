@@ -79,23 +79,22 @@
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-8 col-sm-8">
                 
-                @can('porteria eventos')
-                    <button type="button" class="btn btn-dark btn-sm" id="volverEventoPorteria" style="width: 10px; height: 34px; display: none;">
-                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
-                    </button>
-                    <button type="button" class="btn btn-info btn-sm" id="verEventoPorteria">
-                        Ver eventos
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria" style="display: none;">
-                        Agregar evento
-                    </button>
-                @endcan
                 @can('porteria create')
                     <button type="button" class="btn btn-primary btn-sm" id="generatePorteriaNueva">
                         Nuevo registro
                     </button>
                 @endcan
-
+                @can('porteria eventos')
+                    <button type="button" class="btn btn-dark btn-sm" id="volverEventoPorteria" style="width: 10px; height: 34px; display: none;">
+                        <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria" style="display: none;">
+                        Agregar evento
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm" id="verEventoPorteria">
+                        Ver minuta
+                    </button>
+                @endcan
                 <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadPorteria">
                     <i id="reloadPorteriaIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
                     <i id="reloadPorteriaIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;
@@ -133,9 +132,9 @@
 </div>
 
 <script>
-    var crearPorteria = '<?php echo auth()->user()->can('porteria create'); ?>';
-    var updatePorteria = '<?php echo auth()->user()->can('porteria update'); ?>';
-    var deletePorteria = '<?php echo auth()->user()->can('porteria delete'); ?>';
-    var eventoPorteria = '<?php echo auth()->user()->can('porteria eventos'); ?>';
-    var usuario_rol = JSON.parse('<?php echo $usuario_rol; ?>');
+    var crearPorteria = @json(auth()->user()->can('porteria create'));
+    var updatePorteria = @json(auth()->user()->can('porteria update'));
+    var deletePorteria = @json(auth()->user()->can('porteria delete'));
+    var eventoPorteria = @json(auth()->user()->can('porteria eventos'));
+    var usuario_rol = @json($usuario_rol);
 </script>

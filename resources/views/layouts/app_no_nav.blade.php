@@ -13,18 +13,18 @@
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="{{ secure_asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="{{ secure_asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="{{ secure_asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
+    <link id="pagestyle" href="{{ asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="{{ secure_asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
     <style>
         .select2-selection{
             font-size: 13px !important;
@@ -619,40 +619,59 @@
     @endguest
 
     <!--   Core JS Files   -->
-    <script src="{{ secure_asset('assets/js/core/popper.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
     <!-- <script src="assets/js/plugins/perfect-scrollbar.min.js"></script> -->
-    <script src="{{ secure_asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js') }}"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="{{ secure_asset('assets/js/argon-dashboard.js') }}"></script>
+    <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
     <!-- JQUERY -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
     <!-- SELECT 2  -->
-    <script src="{{ secure_asset('assets/js/sistema/select2.full.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="{{ secure_asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
 
     <script type="module">
-        //LOCAL
-        // const base_url = 'http://127.0.0.1:8090/api/';
-        // const base_web = 'http://127.0.0.1:8090/';
+
+        const host = window.location.host;
         
+        let base_url, base_web, base_web_erp, base_url_erp;
+
+        if (host.includes("maximoph.co")) {
+            base_url = "https://maximoph.co/api/";
+            base_web = "https://maximoph.co/";
+            base_web_erp = "https://app.portafolioerp.com/";
+            base_url_erp = "https://app.portafolioerp.com/api/";
+        } else if (host.includes("maximoph.co")) {
+            base_url = "https://maximoph.co/api/";
+            base_web = "https://maximoph.co/";
+            base_web_erp = "https://app.portafolioerp.com/";
+            base_url_erp = "https://app.portafolioerp.com/api/";
+        } else if (host.includes("127.0.0.1:8090")) {
+            // Desarrollo en red local
+            base_url = "http://127.0.0.1:8090/api/";
+            base_web = "http://127.0.0.1:8090/";
+            base_web_erp = "http://localhost:8000/";
+            base_url_erp = "http://localhost:8000/api/";
+        }
+
         //LOCAL PUBLIC
         // const base_url = 'http://192.168.1.6:80/api/';
         // const base_web = 'http://192.168.1.6:80/';
         //DEV
-        const base_url = 'https://maximoph.com/api/';
-        const base_web = 'https://maximoph.com/';
+        // const base_url = 'https://maximoph.co/api/';
+        // const base_web = 'https://maximoph.co/';
         //PRO
         // const base_url = 'https://app.portafolioerp.com/api/';
         // const base_web = 'https://app.portafolioerp.com/';

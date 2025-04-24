@@ -11,12 +11,26 @@
 
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Variables de entorno</button>
-                    </li>
-                    <!-- <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
+                            <p style="margin-bottom: 0; font-weight: 600;">Variables de entorno</p>
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pasarela-tab" data-bs-toggle="tab" data-bs-target="#pasarela" type="button" role="tab" aria-controls="pasarela" aria-selected="false">
+                            <p style="margin-bottom: 0; font-weight: 600;">Pasarela</p>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="terminos-tab" data-bs-toggle="tab" data-bs-target="#terminos" type="button" role="tab" aria-controls="terminos" aria-selected="false">
+                            <p style="margin-bottom: 0; font-weight: 600;">Terminos & condiciones</p>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pazysalvo-tab" data-bs-toggle="tab" data-bs-target="#pazysalvo" type="button" role="tab" aria-controls="pazysalvo" aria-selected="false">
+                            <p style="margin-bottom: 0; font-weight: 600;">Paz y Salvo</p>
+                        </button>
+                    </li>
+                    <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>
                     </li> -->
                 </ul>
@@ -62,6 +76,8 @@
                                 <select class="form-control form-control-sm" name="documento_referencia_agrupado" id="documento_referencia_agrupado">
                                     <option value="0">AÑO-MES_CANTIDAD INMUEBLES</option>
                                     <option value="1">NOMBRE INMUEBLE-NOMBRE ZONA</option>
+                                    <option value="2">(NOMBRE INMUEBLE)(NOMBRE ZONA)-AÑO-MES</option>
+                                    <option value="3">(NOMBRE ZONA)(NOMBRE INMUEBLE)-AÑO-MES</option>
                                 </select>
                             </div>
 
@@ -133,19 +149,100 @@
                             </div>
 
                             <div class="form-check form-switch col-12 col-sm-4 col-md-3">
-                                <input class="form-check-input" type="checkbox" name="presupuesto_mensual" id="presupuesto_mensual" style="height: 20px;">
-                                <label class="form-check-label" for="presupuesto_mensual">
-                                    Presupuesto mensual
+                                <input class="form-check-input" type="checkbox" name="recausar_meses" id="recausar_meses" style="height: 20px;">
+                                <label class="form-check-label" for="recausar_meses">
+                                    Recausar meses
                                 </label>
-                            </div>                            
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="validar_fecha_entrega_causacion" id="validar_fecha_entrega_causacion" style="height: 20px;">
+                                <label class="form-check-label" for="validar_fecha_entrega_causacion">
+                                    Validar fecha entrega causación mensual
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="detallar_facturas" id="detallar_facturas" style="height: 20px;">
+                                <label class="form-check-label" for="detallar_facturas">
+                                    Detallar facturas
+                                </label>
+                            </div>
 
                         </div>
 
                         <br/>
 
                     </div>
-                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
-                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                    <div class="tab-pane fade" id="pasarela" role="tabpanel" aria-labelledby="pasarela-tab">
+                        <br/>
+
+                        <div class="row" style="padding: 5px;">
+
+                            <div style="text-align: center;">
+                                <img style="width: 180px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/iconos_sistema/placetopay.png">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6" >
+                                <label for="example-text-input" class="form-control-label">Url base</label>
+                                <input type="text" class="form-control form-control-sm" name="placetopay_url" id="placetopay_url">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6" >
+                                <label for="example-text-input" class="form-control-label">Login key</label>
+                                <input type="text" class="form-control form-control-sm" name="placetopay_login" id="placetopay_login">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6" >
+                                <label for="example-text-input" class="form-control-label">Secret Key</label>
+                                <input type="text" class="form-control form-control-sm" name="placetopay_trankey" id="placetopay_trankey">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6 col-md-6">
+                                <label for="exampleFormControlSelect1">Forma de pago</label>
+                                <select name="placetopay_forma_pago" id="placetopay_forma_pago" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="terminos" role="tabpanel" aria-labelledby="terminos-tab">
+                        <br/>
+                        <div class="row" style="padding: 5px;">
+
+                            <div class="mb-3 col-12">
+                                <label for="exampleFormControlTextarea1" class="form-label">Terminos y condiciones</label>
+                                <textarea class="form-control" id="terminos_condiciones" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch col-12">
+                                <input class="form-check-input" type="checkbox" name="aceptar_terminos" id="aceptar_terminos" style="height: 20px;">
+                                <label class="form-check-label" for="aceptar_terminos">
+                                    Obligatorio aceptar terminos & condiciones
+                                </label>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pazysalvo" role="tabpanel" aria-labelledby="pazysalvo-tab">
+                        <br/>
+                        <div class="row" style="padding: 5px;">
+                            <div class="form-group col-6" >
+                                <label for="example-text-input" class="form-control-label">Nombre Administrador</label>
+                                <input type="text" class="form-control form-control-sm" name="nombre_administrador" id="nombre_administrador">
+                            </div>
+
+                            <div class="justify-content-center col-6">
+                                <label for="example-text-input" class="form-control-label">Firma digital</label>
+                                <div style="with: 190px;">
+                                    <img id="preview_firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
+                                    <img id="firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
+                                    <input type="file" name="firma_digital_paz_salvo_nueva" id="firma_digital_paz_salvo_nueva" onchange="readURLFirmaDigitalNueva(this);" style="display: none" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
                 <div style="background-color: white;">
                     <button type="button" class="btn btn-primary btn-sm" id="updateEntorno">Actualizar datos</button>
@@ -162,5 +259,5 @@
 </div>
 
 <script>
-    var variablesEntorno = JSON.parse('<?php echo $variables_entorno; ?>');
+    var variablesEntorno = @json($variables_entorno);
 </script>

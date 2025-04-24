@@ -1,5 +1,7 @@
 var $nitPorDefecto = null;
+var newFirmaDigital = null;
 var $comboConceptoFacturacion = null;
+var $comboFormasPagoPlacetoPay = null;
 
 function entornoInit() {
 
@@ -11,6 +13,30 @@ function entornoInit() {
         ajax: {
             url: 'api/concepto-facturacion-combo',
             headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboFormasPagoPlacetoPay = $('#placetopay_forma_pago').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una forma de pago",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'forma-pago/combo-forma-pago',
+            headers: headersERP,
             dataType: 'json',
             data: function (params) {
                 var query = {
@@ -61,44 +87,63 @@ function entornoInit() {
         }
     });
 
+    var numberEntorno = [
+        'area_total_m2',
+        'redondeo_intereses',
+        'numero_total_unidades',
+        'valor_total_presupuesto_year_actual',
+        'porcentaje_intereses_mora',
+        'dias_pronto_pago',
+    ];
+
+    var checkEntorno = [
+        'editar_coheficiente_admon_inmueble',
+        'editar_valor_admon_inmueble',
+        'validacion_estricta',
+        'causacion_mensual_rapida',
+        'descuento_pago_parcial',
+        'recausar_meses',
+        'validar_fecha_entrega_causacion',
+        'detallar_facturas',
+        'aceptar_terminos',
+    ];
+
+    var dateEntorno = [
+        'periodo_facturacion',
+    ];
+
+    var textEntorno = [
+        'factura_texto1',
+        'factura_texto2',
+        'placetopay_url',
+        'placetopay_login',
+        'placetopay_trankey',
+        'terminos_condiciones',
+        'nombre_administrador',
+    ]; 
+
+    var select = [
+        'documento_referencia_agrupado',
+    ];
+
+    var select2 = [
+        'id_concepto_pago_none',
+        'id_nit_por_defecto',
+        'placetopay_forma_pago',
+    ];
+
+    var img = [
+        'firma_digital'
+    ]
+
     for (let index = 0; index < variablesEntorno.length; index++) {
         const variable = variablesEntorno[index];
 
-        var numberEntorno = [
-            'area_total_m2',
-            'redondeo_intereses',
-            'numero_total_unidades',
-            'valor_total_presupuesto_year_actual',
-            'porcentaje_intereses_mora',
-            'dias_pronto_pago',
-        ];
-
-        var checkEntorno = [
-            'editar_coheficiente_admon_inmueble',
-            'editar_valor_admon_inmueble',
-            'validacion_estricta',
-            'causacion_mensual_rapida',
-            'presupuesto_mensual',
-            'descuento_pago_parcial',
-        ];
-
-        var dateEntorno = [
-            'periodo_facturacion',
-        ];
-
-        var textEntorno = [
-            'factura_texto1',
-            'factura_texto2',
-        ]; 
-
-        var select = [
-            'documento_referencia_agrupado',
-        ];
-
-        var select2 = [
-            'id_concepto_pago_none',
-            'id_nit_por_defecto',
-        ];
+        if (variable.nombre == 'firma_digital') {
+            $("#preview_firma_digital_paz_salvo").attr('src', variable.valor);
+            $("#preview_firma_digital_paz_salvo").show();
+            $("#firma_digital_paz_salvo").hide();
+        }
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
             $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
@@ -131,7 +176,7 @@ function entornoInit() {
                 $comboConceptoFacturacion.append(newOption).trigger('change');
                 $comboConceptoFacturacion.val(dataConceptoFacturacion.id).trigger('change');
             }
-            if (variable.nombre == 'id_nit_por_defecto') {
+            if (variable.nombre == 'id_nit_por_defecto' && variable.nit) {
                 var dataNit = {
                     id: variable.nit.id,
                     text: variable.nit.razon_social ? variable.nit.razon_social : variable.nit.nombre_completo
@@ -139,6 +184,15 @@ function entornoInit() {
                 var newOption = new Option(dataNit.text, dataNit.id, false, false);
                 $nitPorDefecto.append(newOption).trigger('change');
                 $nitPorDefecto.val(dataNit.id).trigger('change');
+            }
+            if (variable.nombre == 'placetopay_forma_pago') {
+                var dataPlacetoPay = {
+                    id: variable.formas_pago.id,
+                    text: variable.formas_pago.nombre
+                };
+                var newOption = new Option(dataPlacetoPay.text, dataPlacetoPay.id, false, false);
+                $comboFormasPagoPlacetoPay.append(newOption).trigger('change');
+                $comboFormasPagoPlacetoPay.val(dataPlacetoPay.id).trigger('change');
             }
         }
     }
@@ -159,15 +213,27 @@ $(document).on('click', '#updateEntorno', function () {
         'editar_coheficiente_admon_inmueble': $("input[type='checkbox']#editar_coheficiente_admon_inmueble").is(':checked') ? '1' : '0',
         'validacion_estricta': $("input[type='checkbox']#validacion_estricta").is(':checked') ? '1' : '0',
         'causacion_mensual_rapida': $("input[type='checkbox']#causacion_mensual_rapida").is(':checked') ? '1' : '0',
-        'presupuesto_mensual': $("input[type='checkbox']#presupuesto_mensual").is(':checked') ? '1' : '0',
         'descuento_pago_parcial': $("input[type='checkbox']#descuento_pago_parcial").is(':checked') ? '1' : '0',
+        'recausar_meses': $("input[type='checkbox']#recausar_meses").is(':checked') ? '1' : '0',
+        'validar_fecha_entrega_causacion': $("input[type='checkbox']#validar_fecha_entrega_causacion").is(':checked') ? '1' : '0',
+        'detallar_facturas': $("input[type='checkbox']#detallar_facturas").is(':checked') ? '1' : '0',
+        'aceptar_terminos': $("input[type='checkbox']#aceptar_terminos").is(':checked') ? '1' : '0',
         'factura_texto1': $('#factura_texto1').val(),
         'factura_texto2': $('#factura_texto2').val(),
+        'terminos_condiciones': $('#terminos_condiciones').val(),
         'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
         'documento_referencia_agrupado': $('#documento_referencia_agrupado').val(),
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         'id_concepto_pago_none': $('#id_concepto_pago_none').val(),
         'id_nit_por_defecto': $('#id_nit_por_defecto').val(),
+
+        'firma_digital': newFirmaDigital,
+        'nombre_administrador': $('#nombre_administrador').val(),
+
+        'placetopay_url': $('#placetopay_url').val(),
+        'placetopay_login': $('#placetopay_login').val(),
+        'placetopay_trankey': $('#placetopay_trankey').val(),
+        'placetopay_forma_pago': $('#placetopay_forma_pago').val(),
     };
 
     if (stringToNumberFloat($('#dias_pronto_pago').val() > 30)) {
@@ -218,3 +284,20 @@ $("input[data-type='currency']").on({
         formatCurrency($(this), "blur");
     }
 });
+
+function readURLFirmaDigitalNueva(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            newFirmaDigital = e.target.result;
+            $('#preview_firma_digital_paz_salvo').attr('src', e.target.result);
+            $('#firma_digital_paz_salvo').attr('src', e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+
+        $('#preview_firma_digital_paz_salvo').hide();
+        $('#firma_digital_paz_salvo').show();
+    }
+}

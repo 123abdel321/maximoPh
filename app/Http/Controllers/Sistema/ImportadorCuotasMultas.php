@@ -6,11 +6,17 @@ use DB;
 use Carbon\Carbon;
 use App\Helpers\Extracto;
 use App\Helpers\Documento;
+use App\Jobs\ProcessNotify;
 use Illuminate\Http\Request;
+use App\Jobs\ImportCuotasJob;
 use App\Imports\CutasExtrasImport;
+use Illuminate\Support\Facades\Bus;
+use App\Events\PrivateMessageEvent;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessImportadorCuotas;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\CuotasMultas;
 use App\Models\Sistema\CuotasMultasImport;
@@ -54,11 +60,42 @@ class ImportadorCuotasMultas extends Controller
 
         try {
             $file = $request->file('file_import_cuotas_multas');
+            $has_empresa = $request->user()['has_empresa'];
+            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
+            $user_id = $request->user()->id;
+            $filePath = $file->store('cuotas');
 
             CuotasMultasImport::truncate();
 
-            $import = new CutasExtrasImport();
-            $import->import($file);
+            Bus::chain([
+                new ImportCuotasJob($empresa, $filePath),
+                new ProcessNotify('importador-cuotas-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	true,
+                    'accion' => 1,
+                    'tipo' => 'exito',
+                    'mensaje' => 'Archivo importado con exito!',
+                    'titulo' => 'Cuotas extras & multas importados',
+                    'autoclose' => true
+                ])
+            ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
+                event(new PrivateMessageEvent('importador-cuotas-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	false,
+                    'accion' => 0,
+                    'tipo' => 'error',
+                    'mensaje' => 'Error al importar el archivo: ' . $e->getMessage(),
+                    'titulo' => 'Fallo en la importación',
+                    'autoclose' => false
+                ]));
+            })->dispatch();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Importando inmuebles...'
+            ]);            
+
+            // $import = new CutasExtrasImport();
+            // $import->import($file);
 
             return response()->json([
                 'success'=>	true,
@@ -123,32 +160,38 @@ class ImportadorCuotasMultas extends Controller
 
     public function cargar (Request $request)
     {
-        $cuotasMultas = CuotasMultasImport::where('estado', 0)
-            ->get();
 
         try {
-            //RECORREMOS CUOTAS EXTRAS & MULTAS
-            foreach ($cuotasMultas as $cuota) {
-                CuotasMultas::create([
-                    'id_nit' => $cuota->id_nit,
-                    'id_inmueble' => $cuota->id_inmueble,
-                    'tipo_concepto' => 1,
-                    'id_concepto_facturacion' => $cuota->id_concepto_facturacion,
-                    'fecha_inicio' => $cuota->fecha_inicio,
-                    'fecha_fin' => $cuota->fecha_fin,
-                    'valor_total' => $cuota->valor_total,
-                    'observacion' => '',
-                    'created_by' => request()->user()->id,
-                    'updated_by' => request()->user()->id,
-                ]);
-            }
 
-            CuotasMultasImport::truncate();
+            $user_id = $request->user()->id;
+            $has_empresa = $request->user()['has_empresa'];
+            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
+
+            Bus::chain([
+                new ProcessImportadorCuotas($empresa, $user_id),
+                new ProcessNotify('importador-cuotas-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	true,
+                    'accion' => 2,
+                    'tipo' => 'exito',
+                    'mensaje' => 'Cuotas extras & multas importados con exito!',
+                    'titulo' => 'Cuotas extras & multas importados',
+                    'autoclose' => false
+                ])
+            ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
+                event(new PrivateMessageEvent('importador-cuotas-'.$has_empresa.'_'.$user_id, [
+                    'success'=>	false,
+                    'accion' => 0,
+                    'tipo' => 'error',
+                    'mensaje' => 'Error al importar cuotas extras & multas: ' . $e->getMessage(),
+                    'titulo' => 'Fallo en la importación',
+                    'autoclose' => false
+                ]));
+            })->dispatch();
 
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Recibos creados con exito!'
+                'message'=> 'Cuotas extras & multas cargadas con exito!'
             ]);
 
         } catch (Exception $e) {

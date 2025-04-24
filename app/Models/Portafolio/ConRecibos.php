@@ -16,6 +16,7 @@ class ConRecibos extends Model
     protected $fillable = [
         'id_nit',
         'id_comprobante',
+        'request_id',
         'fecha_manual',
         'consecutivo',
         'total_abono',

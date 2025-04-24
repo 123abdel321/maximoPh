@@ -28,10 +28,11 @@
                     <div id="view-contenido-eventos" style="padding: 10px 25px 10px 25px; border-radius: 5px; border: solid 1px #d3d3d3;">
 
                         <div id="" class="row" style="padding: 5px; background-color: #defaff; border-radius: 10px;">
-                            <div id="imagen-usuario-evento" class="col-2">
-                                <img src="/img/team-1.jpg" alt="profile_image" style="width: 50px; border-radius: 50%;">
+                            <div class="">
+                                <p>Nombre aca</p>
                             </div>
-                            <div id="text-usuario-evento" class="col-10" style="place-self: center;">
+                            
+                            <div id="text-usuario-evento" class="col-12" style="place-self: center;">
                                 NOMBRE
                             </div>
                         </div>

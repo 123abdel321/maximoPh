@@ -9,14 +9,12 @@
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-12 col-sm-12">
-                @if ($usuario_empresa && ($usuario_empresa->id_rol == 1 || $usuario_empresa->id_rol == 2 || $usuario_empresa->id_rol == 3 ))
-                    <!-- <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuenta" style="display: none;">
-                        <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
-                    </button>
-                    <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuentaDisabled" style="box-shadow: none; color: white;" disabled>
-                        <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
-                    </button> -->
-                @endif
+                <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuenta" style="display: none;">
+                    <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="generatePagoEstadoCuentaDisabled" style="box-shadow: none; color: white;" disabled>
+                    <i class="far fa-money-bill-alt" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Pasarela de pago
+                </button>
                 &nbsp;
                 <button type="button" class="btn btn-dark btn-sm" id="generateComprobanteEstadoCuenta" style="display: none;">
                     <i class="fas fa-file-invoice-dollar" style="font-size: 15px; vertical-align: middle;"></i>&nbsp;&nbsp;Adjuntar comprobante
@@ -58,10 +56,11 @@
 
         <script>
             
-            var $idNitEstadoCuenta = JSON.parse('<?php echo $id_nit; ?>');
-            var $idComprobante = JSON.parse('<?php echo $id_comprobante; ?>');
-            var $idCuentaIngreso = JSON.parse('<?php echo $id_cuenta_ingreso; ?>');
-            var $numeroDocumentoEstadoCuenta = JSON.parse('<?php echo $numero_documento; ?>');
+            var $idNitEstadoCuenta = @json($id_nit);
+            var $idComprobante = @json($id_comprobante);
+            var $pasarela_pagos = @json($pasarela_pagos);
+            var $idCuentaIngreso = @json($id_cuenta_ingreso);
+            var $numeroDocumentoEstadoCuenta = @json($numero_documento);
             
         </script>
 

@@ -26,6 +26,7 @@ class ConceptoFacturacion extends Model
         'id_cuenta_anticipo',
         'dias_pronto_pago',
         'porcentaje_pronto_pago',
+        'orden',
         'tipo_concepto',
         'valor',
         'created_by',

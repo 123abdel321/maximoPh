@@ -14,6 +14,7 @@ class Porteria extends Model
     protected $table = "porterias";
 
     protected $fillable = [
+        'id_inmueble',
         'id_usuario',
         'id_nit',
         'tipo_porteria',
@@ -28,10 +29,16 @@ class Porteria extends Model
         'dias',
         'placa',
         'hoy',
+        'estado',
         'observacion',
         'created_by',
         'updated_by',
     ];
+
+    public function chats()
+    {
+        return $this->morphMany(Chat::class, 'relation');
+	}
 
     public function archivos()
     {
@@ -52,5 +59,15 @@ class Porteria extends Model
     {
 		return $this->belongsTo("App\Models\User", 'id_usuario');
 	}
+
+    public function inmueble()
+    {
+        return $this->belongsTo(Inmueble::class, 'id_inmueble');
+    }
+
+    public function nit()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
+    }
 
 }

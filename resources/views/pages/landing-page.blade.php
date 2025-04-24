@@ -198,26 +198,26 @@
 ">
 
     <meta property="fb:app_id" content="1401488693436528">
-    <meta name="apple-itunes-app" content="app-id=64568685, app-argument=https://maximoph.com/">
-    <meta name="twitter:image:src" content="https://maximoph.com/img/logo_contabilidad.png">
+    <meta name="apple-itunes-app" content="app-id=64568685, app-argument=https://maximoph.co/">
+    <meta name="twitter:image:src" content="https://maximoph.co/img/logo_contabilidad.png">
     <meta name="twitter:site" content="@MaximoPH">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="MAXIMOPH">
     <meta name="twitter:description"
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.">
-    <meta property="og:image" content="https://maximoph.com/img/logo_contabilidad.png">
+    <meta property="og:image" content="https://maximoph.co/img/logo_contabilidad.png">
     <meta property="og:image:alt"
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
 ">
     <meta property="og:site_name" content="GitHub">
     <meta property="og:type" content="object">
     <meta property="og:title" content="MAXIMOPH">
-    <meta property="og:url" content="https://maximoph.com/">
+    <meta property="og:url" content="https://maximoph.co/">
     <meta property="og:description"
         content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
 ">
-    <meta name="hostname" content="maximoph.com">
-    <meta name="expected-hostname" content="maximoph.com">
+    <meta name="hostname" content="maximoph.co">
+    <meta name="expected-hostname" content="maximoph.co">
     <meta http-equiv="x-pjax-version" content="9bbb597114c5e7a8a8b12d73130da06df1cfffd53089a6934b1f558e7f0df95d"
         data-turbo-track="reload">
     <meta http-equiv="x-pjax-csp-version" content="2581604bd4ef65f9321643110cf85bc689eb80d8a5d4e039100e9ec9beea48df"
@@ -238,11 +238,11 @@
 
     <meta name="is_logged_out_page" content="true">
 
-    <link rel="canonical" href="https://maximoph.com" data-turbo-transient="">
+    <link rel="canonical" href="https://maximoph.co" data-turbo-transient="">
 
     <meta name="turbo-body-classes" content="logged-out env-production page-responsive header-overlay home-campaign">
 
-    <link rel="mask-icon" href="https://maximoph.com/img/logo_contabilidad.png" color="#000000">
+    <link rel="mask-icon" href="https://maximoph.co/img/logo_contabilidad.png" color="#000000">
     <link rel="alternate icon" class="js-site-favicon" type="image/png" href="/img/logo_base.png">
     <link rel="icon" class="js-site-favicon" type="image/png" href="/img/logo_base.png">
 
@@ -1163,7 +1163,7 @@
                                 <div class="position-relative mr-lg-3 d-lg-inline-block">
                                     <a href="/login"
                                         class="HeaderMenu-link HeaderMenu-link--sign-in flex-shrink-0 no-underline d-block d-lg-inline-block border border-lg-0 rounded rounded-lg-0 p-2 p-lg-0"
-                                        data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://maximoph.com/&quot;,&quot;user_id&quot;:null}}"
+                                        data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://maximoph.co/&quot;,&quot;user_id&quot;:null}}"
                                         data-hydro-click-hmac="1ac0bd316eb4ecff0fd1f338bc397cea8b5025ce78fffb7ade6ffdd600360286"
                                         data-ga-click="(Logged out) Header, clicked Sign in, text:sign-in">
                                         Iniciar Sesion
@@ -1181,7 +1181,7 @@
         <div id="start-of-content" class="show-on-focus"></div>
 
         <include-fragment class="js-notification-shelf-include-fragment"
-            data-base-src="https://maximoph.com/notifications/beta/shelf"></include-fragment>
+            data-base-src="https://maximoph.co/notifications/beta/shelf"></include-fragment>
 
 
         <div class="application-main " data-commit-hovercards-enabled="" data-discussion-hovercards-enabled=""
@@ -1672,10 +1672,10 @@
                                             <img class="XNo5Ab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAUVBMVEVHcEzz9PP3+Pfq7er19vb//v/8/PyltKrx+PKz5b1z04cwxlYMwUMAvCkAvjMAvzoDwUBGTUiH2JiY3aXX8Nxcznbo6ulJymfQ1NHJzcq9wr8gaKU6AAAAG3RSTlMAOlmJ2f//Lvj+/v///////xX+/v7+rP56aF7BK/qjAAABgklEQVR4AX2Sh5qEMAiEbYyJqXa993/QAza5z2v7b8UMMKDNN9qu77u2+Yd+oMLQ/3UMeoCfktHIVTs5791kRWvGb73BV6YQU2ZSDJPo28c5hzYk/0UKlghfipnzl+C/ERZWVMHA59H7nL8pVp6mUTqp7310Ln1TbESdCtgQJ0fO2J+KnNl4cbhGnx0b3aJ/EO1rkoPIZZ9WAuCeNhLnHGrRBJUDtH53YdQmyEaWL1Lh+yCSxEsoeQn4btJr27kZQYtclym279uSqqMI1lTntqpI6VlhVg9M9gArsg92Cal6mHlPdfx8Emg75S6YV9dNN3WAaskTsi0Zh6bEMUH2cLHLqvDsA4LsTjzeerNhqvscJpYwa5Q9gS0w/XODKbjF2jPK3PXJrIMWcooxiyGSAkKvHX+QHICPRhnYQ0mr5LADpYFuShunWIeJ2VI5Z25gM8TA7jFEfu9Whr2awoEKi8ymYmAYm4oBh8fHfA8vESRme5URxz0XN9cxMMelcYWDt3wCfLshX3540l4AAAAASUVORK5CYII=" style="height:40px;width:40px" alt="" data-csiid="8" data-atf="1">
                                         </div>&nbsp;
                                         <span class="text-accent-primary d-block">
-                                            350 8973 619
+                                            305 3256 773
                                         </span>
                                     </h2>
-                                    <h2 class="h3-mktg mb-4 text-medium js-build-in-item build-in-slideX-left"
+                                    <!-- <h2 class="h3-mktg mb-4 text-medium js-build-in-item build-in-slideX-left"
                                         style="transition-delay: 300ms; display: flex;">
                                         <div class="eqA2re UnOTSe Vwoesf" aria-hidden="true">
                                             <img class="XNo5Ab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAUVBMVEVHcEzz9PP3+Pfq7er19vb//v/8/PyltKrx+PKz5b1z04cwxlYMwUMAvCkAvjMAvzoDwUBGTUiH2JiY3aXX8Nxcznbo6ulJymfQ1NHJzcq9wr8gaKU6AAAAG3RSTlMAOlmJ2f//Lvj+/v///////xX+/v7+rP56aF7BK/qjAAABgklEQVR4AX2Sh5qEMAiEbYyJqXa993/QAza5z2v7b8UMMKDNN9qu77u2+Yd+oMLQ/3UMeoCfktHIVTs5791kRWvGb73BV6YQU2ZSDJPo28c5hzYk/0UKlghfipnzl+C/ERZWVMHA59H7nL8pVp6mUTqp7310Ln1TbESdCtgQJ0fO2J+KnNl4cbhGnx0b3aJ/EO1rkoPIZZ9WAuCeNhLnHGrRBJUDtH53YdQmyEaWL1Lh+yCSxEsoeQn4btJr27kZQYtclym279uSqqMI1lTntqpI6VlhVg9M9gArsg92Cal6mHlPdfx8Emg75S6YV9dNN3WAaskTsi0Zh6bEMUH2cLHLqvDsA4LsTjzeerNhqvscJpYwa5Q9gS0w/XODKbjF2jPK3PXJrIMWcooxiyGSAkKvHX+QHICPRhnYQ0mr5LADpYFuShunWIeJ2VI5Z25gM8TA7jFEfu9Whr2awoEKi8ymYmAYm4oBh8fHfA8vESRme5URxz0XN9cxMMelcYWDt3wCfLshX3540l4AAAAASUVORK5CYII=" style="height:40px;width:40px" alt="" data-csiid="8" data-atf="1">
@@ -1683,7 +1683,7 @@
                                         <span class="text-accent-primary d-block">
                                             300 6833 862
                                         </span>
-                                    </h2>
+                                    </h2> -->
                                 </div>
 
                             </div>
@@ -1716,7 +1716,7 @@
 							<div class="eqA2re UnOTSe Vwoesf" aria-hidden="true">
 								<img class="XNo5Ab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAUVBMVEVHcEzz9PP3+Pfq7er19vb//v/8/PyltKrx+PKz5b1z04cwxlYMwUMAvCkAvjMAvzoDwUBGTUiH2JiY3aXX8Nxcznbo6ulJymfQ1NHJzcq9wr8gaKU6AAAAG3RSTlMAOlmJ2f//Lvj+/v///////xX+/v7+rP56aF7BK/qjAAABgklEQVR4AX2Sh5qEMAiEbYyJqXa993/QAza5z2v7b8UMMKDNN9qu77u2+Yd+oMLQ/3UMeoCfktHIVTs5791kRWvGb73BV6YQU2ZSDJPo28c5hzYk/0UKlghfipnzl+C/ERZWVMHA59H7nL8pVp6mUTqp7310Ln1TbESdCtgQJ0fO2J+KnNl4cbhGnx0b3aJ/EO1rkoPIZZ9WAuCeNhLnHGrRBJUDtH53YdQmyEaWL1Lh+yCSxEsoeQn4btJr27kZQYtclym279uSqqMI1lTntqpI6VlhVg9M9gArsg92Cal6mHlPdfx8Emg75S6YV9dNN3WAaskTsi0Zh6bEMUH2cLHLqvDsA4LsTjzeerNhqvscJpYwa5Q9gS0w/XODKbjF2jPK3PXJrIMWcooxiyGSAkKvHX+QHICPRhnYQ0mr5LADpYFuShunWIeJ2VI5Z25gM8TA7jFEfu9Whr2awoEKi8ymYmAYm4oBh8fHfA8vESRme5URxz0XN9cxMMelcYWDt3wCfLshX3540l4AAAAASUVORK5CYII=" style="height:26px;width:26px" alt="" data-csiid="8" data-atf="1">
 							</div>
-							<span class="mb-3 mb-md-0">350 8973 619</span>
+							<span class="mb-3 mb-md-0">305 3256 773</span>
                             <!-- <li class="ml-3">
                                 <a href="https://www.facebook.com/GitHub"
                                     class="footer-social-icon d-block Link--outlineOffset"
@@ -1790,7 +1790,7 @@
                                 </a>
                             </li>
                             <li class="ml-3">
-                                <a href="https://maximoph.com/github"
+                                <a href="https://maximoph.co/github"
                                     class="footer-social-icon d-block Link--outlineOffset"
                                     data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to github's org&quot;,&quot;label&quot;:&quot;text:text:github&quot;}">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 16 16" width="20"
@@ -1923,7 +1923,7 @@
 	<script>
 
 		function openWhatSapp() {
-            window.open("https://wa.me/3508973619?text=Hola,%20necesito%20más%20información%20sobre%20maximoph%2020listing`", "_blank");
+            window.open("https://wa.me/3053256773?text=Hola,%20necesito%20más%20información%20sobre%20maximoph%2020listing`", "_blank");
         }
 
         function reloadLogin() {

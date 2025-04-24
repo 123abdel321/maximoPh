@@ -10,6 +10,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;
+use App\Http\Controllers\Sistema\PasarelaController;
 //PORTAFOLIO
 use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\ReciboController;
@@ -24,7 +25,9 @@ use App\Http\Controllers\Sistema\FacturacionController;
 use App\Http\Controllers\Sistema\CuotasMultasController;
 //ADMINISTRATIVO
 use App\Http\Controllers\Sistema\PqrsfController;
+use App\Http\Controllers\Sistema\FamiliaController;
 use App\Http\Controllers\Sistema\PorteriaController;
+use App\Http\Controllers\Sistema\NovedadesController;
 use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Sistema\EstadoCuentaController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
@@ -43,6 +46,11 @@ use App\Http\Controllers\Informes\EstadisticasController;
 //TAREAS
 use App\Http\Controllers\Sistema\TurnosController;
 use App\Http\Controllers\Sistema\ProyectosController;
+//ARCHIVOS GENERALES
+use App\Http\Controllers\Sistema\ArchivosCacheController;
+//PAZ Y SALVO
+use App\Http\Controllers\Sistema\PazSalvoController;
+
 
 //MODELOS
 use App\Models\Portafolio\Nits;
@@ -58,13 +66,17 @@ Route::get('/', function (Request $request) {
 	return view('pages.landing-page');
 });
 
+Route::get('/phpinfo_acartaca', function (Request $request) {
+	return phpinfo();
+});
+
 Auth::routes();
 
 Route::get('/login', [LoginController::class, 'show'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
 Route::get('/welcome', [LoginController::class, 'welcome'])->middleware('guest');
-
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/paz-y-salvo-publico', [PazSalvoController::class, 'showPdfPublico']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
@@ -92,7 +104,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 			}
 			return 'actualizado con exito!';
 		});
-
+		//PAZ Y SALVO
+		Route::get('/paz-y-salvo', [PazSalvoController::class, 'showPdfPersonal']);
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
@@ -107,10 +120,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		Route::get('/facturacion-pdf', [FacturacionController::class, 'index']);
 		Route::get('/facturacion-show-pdf', [FacturacionController::class, 'showPdf']);
-		Route::get('/facturacion-multiple-show-pdf', [FacturacionController::class, 'showMultiplePdf']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
-		Route::get('/porteria', [PorteriaController::class, 'index']);
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);
 		Route::get('/instalacionempresa', [InstaladorController::class, 'index']);
 		Route::post('/instalacionempresa', [InstaladorController::class, 'instalacionEmpresa']);
@@ -121,8 +132,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::post('/perfil-fondo', [PerfilController::class, 'fondo']);
 		Route::post('/perfil-avatar', [PerfilController::class, 'avatar']);
 		//PORTERIA
+		Route::get('/porteria', [PorteriaController::class, 'index']);
 		Route::post('/porteria', [PorteriaController::class, 'create']);
 		Route::post('/porteriaevento', [PorteriaEventoController::class, 'create']);
+		//FAMILIA
+		Route::get('/familia', [FamiliaController::class, 'index']);
+		Route::post('/familia', [FamiliaController::class, 'create']);
+		//NOVEDADES
+		Route::get('/novedades', [NovedadesController::class, 'index']);
 		//PQRSF
 		Route::get('/pqrsf', [PqrsfController::class, 'index']);
 		Route::post('/pqrsf', [PqrsfController::class, 'create']);
@@ -150,11 +167,17 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/estadisticas', [EstadisticasController::class, 'index']);
 		//TAREAS
 		Route::get('/proyectos', [ProyectosController::class, 'index']);
-
+		// TURNO
 		Route::get('/turnos', [TurnosController::class, 'index']);
 		Route::post('/turnos', [TurnosController::class, 'create']);
 		Route::get('/turnos-event', [TurnosController::class, 'read']);
+		Route::post('/turnos-mensaje/{id}', [TurnosController::class, 'createMensaje']);
 		Route::post('/turnos-evento', [TurnosController::class, 'createEvento']);
+		// PASARELA
+		Route::get('/close-payment/{code}', [PasarelaController::class, 'close']);
+		// ARCHIVOS CACHE
+		Route::post('/archivos-cache', [ArchivosCacheController::class, 'store']);
+		Route::delete('/archivos-cache', [ArchivosCacheController::class, 'delete']);
 	});
 	
 });

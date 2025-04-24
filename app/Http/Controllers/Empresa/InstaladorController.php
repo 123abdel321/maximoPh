@@ -186,8 +186,8 @@ class InstaladorController extends Controller
         }
 
         try {
-            DB::connection('clientes')->beginTransaction();
-            DB::connection('max')->beginTransaction();
+            // DB::connection('clientes')->beginTransaction();
+            // DB::connection('max')->beginTransaction();
 
             $existEmpresa = Empresa::where('nit',$request->get('nit_empresa_nueva'))->first();
 
@@ -203,6 +203,13 @@ class InstaladorController extends Controller
                         "errors"=>["La empresa ".$existEmpresa->nombre." con nit ".$existEmpresa->nit." ya está registrada."]
                     ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
+            }
+            $existeUsuer = User::where('email', $request->email_empresa_nueva)->first();
+            if ($existeUsuer) {
+                return response()->json([
+                    "success"=>false,
+                    "errors"=>["La correo ".$existEmpresa->email_empresa_nueva." ya existe!"]
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             info('Creando empresa: '. $request->razon_social_empresa_nueva. '...');
@@ -253,19 +260,19 @@ class InstaladorController extends Controller
             $empresa->hash = Hash::make($empresa->id);
 
             $file = $request->file('imagen_empresa_edit');
+            $avatar = $request->file('new_avatar_empresa');
             if ($file) {
                 $empresa->logo = Storage::disk('do_spaces')->put('logos_empresas', $file, 'public');
+            } else if ($avatar) {
+                $empresa->logo = Storage::disk('do_spaces')->put('logos_empresas', $avatar, 'public');
             }
-
+            
 			$empresa->save();
 
             $this->associateUserToCompany($usuarioOwner, $empresa);
 
-            $estado = ProcessProvisionedDatabase::dispatch($empresa);
+            ProcessProvisionedDatabase::dispatch($empresa);
             info('Empresa'. $request->razon_social.' creada con exito!');
-
-            DB::connection('clientes')->commit();
-            DB::connection('max')->commit();
 
             return response()->json([
                 "success" => true,
@@ -274,8 +281,7 @@ class InstaladorController extends Controller
             ], 200);
             
         } catch (Exception $e) {
-            DB::connection('clientes')->rollback();
-            DB::connection('max')->rollback();
+            
             return response()->json([
                 "success"=>false,
                 'data' => [],

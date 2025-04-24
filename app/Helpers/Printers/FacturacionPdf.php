@@ -16,6 +16,7 @@ class FacturacionPdf extends AbstractPrinterPdf
     public $id_nit;
 	public $empresa;
 	public $periodo;
+    public $redondeo;
     public $meses = [
         'Enero',
         'Febrero',
@@ -67,8 +68,12 @@ class FacturacionPdf extends AbstractPrinterPdf
     public function data()
     {
 		
-		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
 		$nit = null;
+		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
+        $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
+        $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
+        $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
+        $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
 		
 		if($getNit){ 
 			$nit = (object)[
@@ -79,6 +84,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 				'tipo_documento' => $getNit->tipo_documento->nombre,
 				'numero_documento' => $getNit->numero_documento,
 				"ciudad" => $getNit->ciudad ? $getNit->ciudad->nombre_completo : '',
+                'apartamentos' => $getNit->apartamentos
 			];
 		}
 
@@ -99,6 +105,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'fecha_manual',
                 'consecutivo'
             )
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
         ->groupByRaw('id_nit')->first();
 
         $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
@@ -150,7 +157,8 @@ class FacturacionPdf extends AbstractPrinterPdf
 				DB::raw('SUM(total_columnas) AS total_columnas')
 			)
 			->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-            ->groupByRaw('id_nit, id_cuenta, documento_referencia')
+            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
+            ->groupByRaw($detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
         ->get();
 
         $dataCuentas = [];
@@ -201,6 +209,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'total_facturas' => $facturacion->total_facturas,
                 'total_abono' => $facturacion->total_abono,
                 'descuento' => $descuento,
+                'documento_referencia' => $facturacion->documento_referencia,
                 'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
                 'saldo_final' => $facturacion->saldo_final,
             ];
@@ -213,9 +222,10 @@ class FacturacionPdf extends AbstractPrinterPdf
         }
         $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
         $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
+        $fechaPlazo = Carbon::parse($totales->fecha_manual)->endOfMonth()->format('Y-m-d');
 
         $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
-
+        $totalDescuento = $this->roundNumber($totalDescuento);
         
         $totalAnticipos = $cxp ? $cxp->saldo : 0;
         $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
@@ -231,6 +241,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'descuento' => $totalDescuento,
             'consecutivo' => $totales->consecutivo,
             'fecha_manual' => $totales->fecha_manual,
+            'fecha_plazo' => $fechaPlazo,
             'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
             'saldo_final' => $totales->saldo_final
         ];
@@ -300,7 +311,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
-				$query->where('DG.fecha_manual', '>=', $this->periodo);
+				$query->where('DG.fecha_manual', '=', $this->periodo);
 			})
             ->when($this->id_nit, function ($query) {
 				$query->where('DG.id_nit', '=', $this->id_nit);
@@ -364,5 +375,13 @@ class FacturacionPdf extends AbstractPrinterPdf
 			});
 
         return $anterioresQuery;
+    }
+
+    private function roundNumber($number)
+    {
+        if ($this->redondeo) {
+            return round($number / $this->redondeo) * $this->redondeo;
+        }
+        return $number;
     }
 }

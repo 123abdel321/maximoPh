@@ -14,7 +14,6 @@ class PorteriaEvento extends Model
     protected $table = "porteria_eventos";
 
     protected $fillable = [
-        'id_inmueble',
         'id_porteria',
         'tipo',
         'fecha_ingreso',
@@ -24,6 +23,11 @@ class PorteriaEvento extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function chats()
+    {
+        return $this->morphMany(Chat::class, 'relation');
+	}
 
     public function archivos()
     {

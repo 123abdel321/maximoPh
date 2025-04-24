@@ -29,6 +29,21 @@ class ZonasController extends Controller
     public function index ()
     {
         return view('pages.tablas.zonas.zonas-view');
+        $basesDeDatos = [
+            'token_database' => 'max_085a78b3570da91487765a79c958',
+            'token_database' => 'portafolio_urbanizacion_bosques_de_san_felipe_8002274888',
+            'token_database' => 'portafolio_distribuidora_agua_viva_43104295',
+            'token_database' => 'portafolio_hello_pollo_1045021395',
+            'token_database' => 'portafolio_alimentos_vandesa_sas_900072128',
+            'token_database' => 'portafolio_conjunto_residencial_atlantica_ph_901855610',
+            'token_database' => 'portafolio_acartaca_3432354',
+            'token_database' => 'portafolio_detodito_jm_8160933',
+            'token_database' => 'portafolio_cacique_niquia_manzana_2_890931926',
+            'token_database' => 'portafolio_motorepuestos_la_51_71216431',
+            'token_database' => 'portafolio_modern_muebles_24642491',
+            'token_database' => 'portafolio_sati_cloud_sas_901751601',
+            'token_database' => 'portafolio_unidad_residencial_san_jose_800023174',
+        ];
     }
 
     public function read (Request $request)

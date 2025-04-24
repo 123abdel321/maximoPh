@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Sistema;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Events\PrivateMessageEvent;
 use App\Http\Controllers\Controller;
 use App\Helpers\NotificacionGeneral;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Chat;
+use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Message;
+use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\Porteria;
 use App\Models\Sistema\PorteriaEvento;
 use App\Models\Sistema\ArchivosGenerales;
@@ -42,7 +47,7 @@ class PorteriaEventoController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
             
-            $porteriaEvento = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona')
+            $porteriaEvento = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona.archivos')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -53,11 +58,17 @@ class PorteriaEventoController extends Controller
 
             if ($request->get("id_inmueble")) $porteriaEvento->where('id_inmueble', $request->get("id_inmueble"));
             if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));
-            if ($request->get("fecha")) {
-                $fechaFilter = Carbon::parse($request->get("fecha"))->format('Y-m-d');
-                $porteriaEvento->where('fecha_ingreso', 'LIKE', '%'.$fechaFilter.'%')
-                    ->orWhere('fecha_salida', 'LIKE', '%'.$fechaFilter.'%')
-                    ->orWhere('created_at', 'LIKE', '%'.$fechaFilter.'%');
+            if ($request->get("fecha_desde") && $request->get("fecha_hasta")) {
+                $fechaDesde = Carbon::parse($request->get("fecha_desde"))->startOfDay();
+                $fechaHasta = Carbon::parse($request->get("fecha_hasta"))->endOfDay();
+                $porteriaEvento->where('created_at', '>=', $fechaDesde)
+                    ->where('created_at', '<=', $fechaHasta);
+            } else if ($request->get("fecha_desde")) {
+                $fechaDesde = Carbon::parse($request->get("fecha_desde"))->startOfDay();
+                $porteriaEvento->where('created_at', '>=', $fechaDesde);
+            } else if ($request->get("fecha_hasta")) {
+                $fechaHasta = Carbon::parse($request->get("fecha_hasta"))->endOfDay();
+                $porteriaEvento->where('created_at', '>=', $fechaHasta);
             }
             if ($request->get("search")) {
                 $porteriaEvento->where('observacion', 'like', '%' .$request->get("search"). '%')
@@ -108,7 +119,7 @@ class PorteriaEventoController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
-
+        
 		if ($validator->fails()){
             return response()->json([
                 "success"=>false,
@@ -120,10 +131,11 @@ class PorteriaEventoController extends Controller
         try {
             DB::connection('max')->beginTransaction();
 
+            $itemPorteria = Porteria::find($request->get('id_porteria_evento'));
+
             $evento = PorteriaEvento::Create([
-                'tipo' => $request->get('tipo_evento'),
-                'id_inmueble' => $request->get('inmueble_porteria_evento'),
-                'id_porteria' => $request->get('persona_porteria_evento'),
+                'id_porteria' => $itemPorteria->id,
+                'tipo' => $itemPorteria->tipo_porteria,
                 'fecha_ingreso' => $request->get('fecha_ingreso_porteria_evento'),
                 'fecha_salida' => $request->get('fecha_salida_porteria_evento'),
                 'observacion' => $request->get('observacion_porteria_evento'),
@@ -131,58 +143,109 @@ class PorteriaEventoController extends Controller
                 'updated_by' => request()->user()->id
             ]);
 
-            $itemPorteria = Porteria::find($request->get('persona_porteria_evento'));
+            $itemPorteria->estado = false;
+            $itemPorteria->save();
 
-            if ($request->get('persona_porteria_evento')) {
-                
-                if ($itemPorteria->tipo == 5 || $itemPorteria->tipo == 6) {
-                    $itemPorteria->estado = false;
-                }
-            }
-
-            if ($request->file('photos')) {
-                foreach ($request->file('photos') as $photos) {
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria';
-                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
+            //NOTIFICAR MEDIANTE EL CHAT
+            if (! $itemPorteria->id_usuario) {
+                $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
     
-                    $archivo = new ArchivosGenerales([
-                        'tipo_archivo' => 'imagen',
-                        'url_archivo' => $url,
-                        'estado' => 1,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-        
-                    $archivo->relation()->associate($evento);
-                    $evento->archivos()->save($archivo);
+                DB::connection('max')->commit();
+    
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $evento,
+                    'message'=> 'Evento creado con exito!'
+                ]);
+            }
+            //CREAR CHAT NOVEDADES SI EXISTE
+            $chat = Chat::where('relation_type', '10')
+                ->whereHas('personas', function ($query) use($itemPorteria) {
+                    $query->where('user_id', $itemPorteria->id_usuario);
+                })
+                ->first();
+
+            if (!$chat) {
+                $chat = new Chat([
+                    'name' => 'PORTERIA #'.$evento->id,
+                    'is_group' => true,
+                    'created_by' => request()->user()->id,
+                    'updated_by' => request()->user()->id
+                ]);
+
+                $chat->relation()->associate($itemPorteria);
+                $itemPorteria->chats()->save($chat);
+
+                ChatUser::create([
+                    'chat_id' => $chat->id,
+                    'user_id' => $itemPorteria->id_usuario,
+                ]);
+            }
+
+            $tipoPorteria = 'Propietario';
+            if ($itemPorteria->tipo_porteria == 1) $tipoPorteria = 'Residente';
+            if ($itemPorteria->tipo_porteria == 2) $tipoPorteria = 'Mascota';
+            if ($itemPorteria->tipo_porteria == 3) {
+                $tipoPorteria = "Carro";
+                if ($itemPorteria->tipo_vehiculo == 1) $tipoPorteria = 'Moto';
+                if ($itemPorteria->tipo_vehiculo == 2) $tipoPorteria = 'Moto electrica';
+                if ($itemPorteria->tipo_vehiculo == 2) $tipoPorteria = 'Bicicleta electrica';
+                if ($itemPorteria->tipo_vehiculo == 4) $tipoPorteria = 'Otros';
+            }
+            if ($itemPorteria->tipo_porteria == 4) $tipoPorteria = 'Visitante';
+            if ($itemPorteria->tipo_porteria == 5) $tipoPorteria = 'Paquete';
+            if ($itemPorteria->tipo_porteria == 6) $tipoPorteria = 'Domicilio';
+
+            $nombrePorteria = $itemPorteria->nombre ? $itemPorteria->nombre : $itemPorteria->placa;
+
+            $fechaIngreso = $evento->fecha_ingreso ? Carbon::parse($evento->fecha_ingreso)->format('Y-m-d H:m') : 'Sin registrar';
+            $fechaSalida = $evento->fecha_salida ? Carbon::parse($evento->fecha_salida)->format('Y-m-d H:m') : 'Sin registrar';
+            
+            $contentMensaje = "
+                <b style='color: aqua;'>Tipo: </b>{$tipoPorteria}<br/>
+                <b style='color: aqua;'>Nombre: </b>{$nombrePorteria}<br/>
+                <b style='color: aqua;'>Fecha ingreso: </b>{$fechaIngreso}<br/>
+                <b style='color: aqua;'>Fecha salida: </b>{$fechaSalida}<br/>
+                <b style='color: aqua;'>Observación: </b>{$evento->observacion}<br/>
+            ";
+
+            $mensaje = Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+                'content' => $contentMensaje,
+                'status' => 1
+            ]);
+
+            $archivos = $request->get('archivos');
+
+            if (count($archivos)) {
+                foreach ($archivos as $archivo) {
+                    $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                    $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'.$archivoCache->name_file;
+                    if (Storage::exists($archivoCache->relative_path)) {
+                        Storage::move($archivoCache->relative_path, $finalPath);
+                        
+                        $archivo = new ArchivosGenerales([
+                            'tipo_archivo' => $archivoCache->tipo_archivo,
+                            'url_archivo' => $finalPath,
+                            'estado' => 1,
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+                        $archivo->relation()->associate($mensaje);
+                        $mensaje->archivos()->save($archivo);
+                    }
+                    $archivoCache->delete();
                 }
             }
 
-            $evento->load('archivos');
+            $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
 
-            $notificacion =(new NotificacionGeneral(
-                request()->user()->id,
-                $itemPorteria->id_usuario,
-                $evento
-            ));
-
-            $dataMensaje = 'Se ha grabado evento en ';
-            $dataMensaje.= $itemPorteria->nombre ? $itemPorteria->nombre : $itemPorteria->placa;
-
-            $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' => $itemPorteria->id_usuario,
-                'mensaje' => $dataMensaje,
-                'function' => 'cerrarNotificacion',
-                'data' => $evento->id,
-                'estado' => 0,
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id
-            ], true);
-            
-            $notificacion->notificar(
-                'porteria-mensaje-'.$request->user()['has_empresa'].'_'.$itemPorteria->id_usuario,
-                ['data' => [$dataMensaje], 'id_notificacion' => $id_notificacion]
-            );
+            event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo.'_'.$itemPorteria->id_usuario, [
+                'chat_id' => $chat->id,
+                'permisos' => 'mensajes porteria',
+                'action' => 'creacion_porteria'
+            ]));
 
             DB::connection('max')->commit();
 

@@ -14,29 +14,30 @@
              -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
-    <link href="{{ secure_asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="{{ secure_asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ asset('assets/js/sistema/42d5adcbca.js') }}" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="{{ secure_asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
+    <link id="pagestyle" href="{{ asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
     <!-- DATATABLE -->
-    <link href="{{ secure_asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/responsive.bootstrap5.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/app.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
     <!-- SELECT 2 -->
-    <link href="{{ secure_asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ secure_asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet" />
     <!-- UPLOAD IMG -->
-    <link href="{{ secure_asset('assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/sistema/image-uploader.min.css') }}" rel="stylesheet" />
     <!-- SWIPER -->
-    <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/sistema/swiper-bundle.min.css') }}" rel="stylesheet" />
     <!-- ANIMATE CSS -->
-    <link rel="stylesheet" href="{{ secure_asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
-    <!-- FULL CALENDAR -->
-    <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.0.0/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="{{ asset('assets/css/sistema/animate.min.css') }}" rel="stylesheet" />
+    <!-- FILEPOND -->
+    <link rel="stylesheet" href="{{ asset('assets/css/plugins/filepond.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/plugins/filepond-plugin-image-preview.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/plugins/filepond-plugin-file-poster.min.css') }}" rel="stylesheet" />
     
-
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -44,6 +45,8 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-NPDX42D8');</script>
     <!-- End Google Tag Manager -->
+
+    @livewireStyles
 
 </head>
 
@@ -168,6 +171,26 @@
             </div>
         </div>
     </div>
+    <!-- MODAL ACEPTAR TERMINOS & CONDICIÓN -->
+    <div class="modal fade loader" id="modal-terminos-condiciones" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="modal-title-usuario-accion">Terminos & condiciones</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="row">  
+                        <div class="justify-content-center col-12">
+                            <h6 style="font-size: 14px; font-weight: 500;" id="terminos_condiciones_contenido"></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="aceptar_terminos_condiciones" type="button" class="btn btn-sm btn-success ml-auto" data-bs-dismiss="modal">Aceptar y continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- NOTIFICAIONES TOAST -->
     <div class="contenedor-toast" id="contenedor-toast"></div>
     <!-- LOADING GLOBAL WATER + TE -->
@@ -180,22 +203,39 @@
             <path id="steamR" d="M21 6C21 6 21 8.22727 19 9.5C17 10.7727 17 13 17 13" stroke="var(--secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
     </div>
-    <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
-    <button id="button-open-notificaciones" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificacionesMaximo" aria-controls="notificacionesMaximo" style="display: none;"></button>
 
-    @include('components.pqrsf-canv', ['rol_usuario', $rol_usuario])
+    <button id="button-open-datelle-pqrsf" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" style="display: none;"></button>
+    <button id="button-open-datelle-turnos" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTurnos" aria-controls="offcanvasTurnos" style="display: none;"></button>
+    <button id="button-open-notificaciones" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificacionesMaximo" aria-controls="notificacionesMaximo" style="display: none;"></button>
+    <button id="button-open-chat" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#chatMaximo" aria-controls="chatMaximo" style="display: none;"></button>
+
+    @include('components.pqrsf-canv')
+    @include('components.turnos-canv')
     @include('components.notificaciones')
     <!-- FOOTER -->
     @include('layouts.footers.footer')
+    <!-- CHAT GENERA -->
+
+    @livewire('chat-general')
+
+    @livewireScripts
 
     <script>
-        var idRolUsuario = JSON.parse('<?php echo $rol_usuario; ?>');
-        var is_owner = JSON.parse('<?php echo $is_owner; ?>');
-        var id_usuario_logeado = '<?php echo auth()->user()->id; ?>';
-        var version_app = '<?php echo config('app.version'); ?>';
-        var pqrsf_responder = '<?php echo $pqrsf_responder; ?>';
-    </script>
+        const idRolUsuario = @json($rol_usuario);
+        const is_owner = @json($is_owner);
+        const id_usuario_logeado = @json(auth()->user()->id);
+        const version_app = @json(config('app.version'));
+        const pqrsf_responder = @json($pqrsf_responder);
+        const turno_responder = @json($turno_responder);
+        const terminos_condiciones = @json($terminos_condiciones);
+        const obligar_aceptar_terminos = @json($obligar_aceptar_terminos);
+        const mostrar_modal_terminos_condicion = @json($mostrar_modal_terminos_condicion);
 
+        const mensajePqrsf = @json(auth()->user()->can('mensajes pqrsf'));
+        const mensajeTurno = @json(auth()->user()->can('mensajes turnos'));
+        const mensajeNovedad = @json(auth()->user()->can('mensajes novedades'));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
@@ -207,45 +247,63 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="{{ secure_asset('assets/js/argon-dashboard.js') }}"></script>
+    <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
     <!-- JQUERY -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery-3.5.1.js') }}"></script>
     <!-- DATATABLE -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
-    <script src="{{ secure_asset('assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
     
     <!-- SELECT 2  -->
-    <script src="{{ secure_asset('assets/js/sistema/select2.full.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/select2.full.min.js') }}"></script>
     <!-- VALIDATE -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.validate.min.js') }}"></script>
     <!-- sweetalert2 -->
-    <script src="{{ secure_asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/sweetalert2.all.min.js') }}"></script>
     <!-- countUp -->
     <script src="https://cdn.jsdelivr.net/npm/countup@1.8.2/dist/countUp.min.js"></script>
     <!-- PUSHER -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- <script src="https://cdn.datatables.net/colreorder/1.7.0/js/dataTables.colReorder.min.js" rel="stylesheet"></script> -->
     <!-- WIZARD -->
-    <script src="{{ secure_asset('assets/js/sistema/jquery.bootstrap-wizard.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/jquery.bootstrap-wizard.js') }}"></script>
     <!-- UPLOADER IMG -->
-    <script src="{{ secure_asset('assets/js/sistema/image-uploader.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/image-uploader.js') }}"></script>
     <!-- SWIPER -->
-    <script src="{{ secure_asset('assets/js/sistema/swiper-bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sistema/swiper-bundle.min.js') }}"></script>
     <!-- MDB -->
-    <script src="{{ secure_asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <!-- TURNOS -->
+    <script src="{{ asset('assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <!-- FILEPOND -->
+    <!-- <script src="{{ asset('assets/js/plugins/pintura.js') }}"></script> -->
+    <script src="{{ asset('assets/js/plugins/filepond.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/filepond-plugin-image-transform.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/filepond-plugin-image-resize.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/filepond-plugin-image-preview.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/filepond-plugin-image-editor.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/filepond-plugin-file-validate-type.js') }}"></script>
+    
     <!-- SISTEMA -->
-    <script src="{{ secure_asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
-    <script src="{{ secure_asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <!-- NOTIFICACIONES -->
+    <script src="{{ asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ asset('assets/js/sistema/mensajes.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->
-    <script src="{{ secure_asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
     <!-- Include the Quill library -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    
+    <script>
+        //VALIDAR TOTAL DE NOTIFICACIONES PENDIENTES
+        setTimeout(function(){
+            actualizarNumeroNotificaciones();
+        },500);
+    </script>
     @stack('js')
 </body>
 

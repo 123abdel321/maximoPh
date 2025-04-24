@@ -24,6 +24,7 @@ class ConGastos extends Model
         'total_iva',
         'total_descuento',
         'total_rete_fuente',
+        'total_rete_ica',
         'id_cuenta_rete_fuente',
         'porcentaje_rete_fuente',
         'total_gasto',

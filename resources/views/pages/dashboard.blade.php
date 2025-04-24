@@ -91,12 +91,14 @@
 <div class="container-fluid py-2 p-5">
     <div id="menu-propietarios"  class="row" style="display: none; place-content: center !important;">
 
-        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('estadocuenta', 'Estado de cuenta', 'fas fa-poll-h')">
-            <i class="fas fa-file-invoice-dollar icon-menu-carta"></i>
-            <p class="text-menu">
-                FACTURA
-            </p>
-        </div>
+        @if (Auth::user()->has_empresa != 'maximo_pruebas_123456')
+            <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('estadocuenta', 'Estado de cuenta', 'fas fa-poll-h')">
+                <i class="fas fa-file-invoice-dollar icon-menu-carta"></i>
+                <p class="text-menu">
+                    FACTURA
+                </p>
+            </div>
+        @endif
 
         <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('pqrsf', 'PQRSF', 'fas fa-comments')">
             <i class="fas fa-table icon-menu-carta"></i>
@@ -105,10 +107,24 @@
             </p>
         </div>
 
-        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('porteria', 'Familia', 'fas fa-user-shield')">
-            <i class="fas fa-user-shield icon-menu-carta"></i>
+        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('familia', 'Familia', 'fas fa-user-shield')">
+            <i class="fas fa-table icon-menu-carta"></i>
             <p class="text-menu">
                 FAMILIA
+            </p>
+        </div>
+
+        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="openNewItem('porteria', 'Porteria', 'fas fa-user-shield')">
+            <i class="fas fa-user-shield icon-menu-carta"></i>
+            <p class="text-menu">
+                PORTERIA
+            </p>
+        </div>
+
+        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary" onclick="window.open('/paz-y-salvo', '_blank');">
+            <i class="fas fa-scroll icon-menu-carta" aria-hidden="true"></i>
+            <p class="text-menu">
+                PAZ Y SALVO
             </p>
         </div>
 
@@ -123,13 +139,6 @@
             <i class="fa fa-lock icon-menu-carta-disabled" aria-hidden="true"></i>
             <p class="text-menu-disabled">
                 ZONAS COMUNES
-            </p>
-        </div>
-
-        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary-disabled">
-            <i class="fa fa-lock icon-menu-carta-disabled" aria-hidden="true"></i>
-            <p class="text-menu-disabled">
-                PAZ Y SALVO
             </p>
         </div>
 

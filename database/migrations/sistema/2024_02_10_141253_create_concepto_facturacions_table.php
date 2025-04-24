@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('id_cuenta_anticipo')->nullable();
             $table->integer('dias_pronto_pago')->nullable()->default(0);
             $table->integer('porcentaje_pronto_pago')->nullable()->default(0);
+            $table->integer('orden')->nullable()->default(0);
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();

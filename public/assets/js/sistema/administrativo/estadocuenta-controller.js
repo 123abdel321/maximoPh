@@ -4,10 +4,11 @@ var estado_cuenta_table = null;
 var estado_cuenta_pagos_table = null;
 var estado_cuenta_facturas_table = null;
 var adjuntar_pagar_estado_cuenta = false
+var channelEstadoCuenta = pusher.subscribe('estado-cuenta-'+localStorage.getItem("notificacion_code"));
 
 function estadocuentaInit() {
 
-    cuotas_multas_table = $('#estadoCuentaTable').DataTable({
+    estado_cuenta_table = $('#estadoCuentaTable').DataTable({
         pageLength: 100,
         dom: 'Brt',
         paging: false,
@@ -272,8 +273,18 @@ function estadocuentaInit() {
     showViewEstadoCuenta(1);
     getTotalesEstadoCuenta();
 
-    cuotas_multas_table.ajax.reload();
+    estado_cuenta_table.ajax.reload();
 }
+
+channelEstadoCuenta.bind('notificaciones', function(data) {
+    if (data.success) {
+        if (data.accion == 2) {
+            showViewEstadoCuenta(2);
+            getTotalesEstadoCuenta();
+            estado_cuenta_table.ajax.reload();
+        }
+    }
+});
 
 $(document).on('click', '.imprimir-recibo', function () {
     var id = this.id.split('_')[1];
@@ -309,6 +320,10 @@ $(document).on('click', '#generatePagoEstadoCuenta', function () {
     $('#valor_comprobante_estado_cuenta').prop('required',false);
     $('#imagen_comprobante_estado_cuenta').prop('required',false);
 
+    $('#imagenes_pasarela').show();
+    $("#saveEstadoCuentaPago").hide();
+    $("#saveEstadoCuentaPasarela").show();
+
     $("#estadoCuentaPagoFormModal").modal('show');
 });
 
@@ -337,7 +352,88 @@ $(document).on('click', '#generateComprobanteEstadoCuenta', function () {
     $('#valor_comprobante_estado_cuenta').prop('required',false);
     $('#imagen_comprobante_estado_cuenta').prop('required',false);
 
+    $('#imagenes_pasarela').show();
+    $("#saveEstadoCuentaPago").show();
+    $("#saveEstadoCuentaPasarela").hide();
+
     $("#estadoCuentaPagoFormModal").modal('show');
+});
+
+$(document).on('click', '#saveEstadoCuentaPasarela', function () {
+    var form = document.querySelector('#estadoCuentaPagoForm');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    var data = {
+        'id_nit': $idNitEstadoCuenta,
+        'id_comprobante': $idComprobante,
+        'id_cuenta_ingreso': $idCuentaIngreso,
+        'numero_documento': $numeroDocumentoEstadoCuenta,
+        'fecha_pago': '',
+        'valor_comprobante': 0,
+        'valor_pago': 0,
+        'comprobante': null
+    };
+
+    if (!stringToNumberFloat($('#valor_pago_estado_cuenta').val())) {
+        setTimeout(function(){
+            $('#valor_pago_estado_cuenta').focus();
+            $('#valor_pago_estado_cuenta').select();
+        },10);
+        return;
+    }
+    
+    data.fecha_pago = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
+    data.valor_pago = stringToNumberFloat($('#valor_pago_estado_cuenta').val());
+
+    $('#saveEstadoCuentaPasarela').hide();
+    $('#updateEstadoCuentaPago').hide();
+    $('#saveEstadoCuentaPagoLoading').show();
+
+    $.ajax({
+        url: base_url + 'estadocuenta-pasarela',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        
+        $('#imagenes_pasarela').hide();
+        $('#saveEstadoCuentaPagoLoading').hide();
+        $('#input_valor_pago_estado_cuenta').hide();
+        if(res.success){
+            $('#paymentIframe').show();
+
+            window.open(res.link, '_blank');
+
+            $('#imagenes_pasarela').show();
+            $('#saveEstadoCuentaPasarela').show();
+            $('#saveEstadoCuentaPagoLoading').hide();
+            $('#input_valor_pago_estado_cuenta').hide();
+
+            $("#estadoCuentaPagoFormModal").modal('hide');
+        }
+    }).fail((err) => {
+        $('#saveEstadoCuentaPasarela').show();
+        $('#saveEstadoCuentaPagoLoading').hide();
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = "";
+        if (typeof mensaje === 'object') {
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += field+": "+errores[campo]+" <br>";
+                }
+                agregarToast('error', 'Creación errada', errorsMsg);
+            };
+        } else {
+            agregarToast('error', 'Creación errada', mensaje);
+        }
+    });
+    
 });
 
 $(document).on('click', '#saveEstadoCuentaPago', function () {
@@ -356,7 +452,7 @@ $(document).on('click', '#saveEstadoCuentaPago', function () {
         'fecha_pago': '',
         'valor_comprobante': 0,
         'valor_pago': 0,
-        'comprobante': null,
+        'comprobante': null
     };
 
     if (adjuntar_pagar_estado_cuenta) {
@@ -525,8 +621,10 @@ function showViewEstadoCuenta(tipo) {
     $('#reloadEstadoCuenta').hide();
     $('#table_estado_cuenta').hide();
     $('#table_estado_cuenta').hide();
-    $('#generatePagoEstadoCuenta').hide();
-    $('#generatePagoEstadoCuentaDisabled').hide();
+    if ($pasarela_pagos) {
+        $('#generatePagoEstadoCuenta').hide();
+        $('#generatePagoEstadoCuentaDisabled').hide();
+    }
     $('#generateComprobanteEstadoCuenta').hide();
     $('#generateComprobanteEstadoCuentaDisabled').hide();
     
@@ -537,17 +635,17 @@ function showViewEstadoCuenta(tipo) {
             $('#table_pagos_estado_cuenta').hide();
             $('#table_facturas_estado_cuenta').hide();
             if (totalCuentasPagar) {
-                $('#generatePagoEstadoCuenta').show();
+                if ($pasarela_pagos) $('#generatePagoEstadoCuenta').show();
                 $('#generateComprobanteEstadoCuenta').show();
             } else {
-                $('#generatePagoEstadoCuentaDisabled').show();
+                if ($pasarela_pagos) $('#generatePagoEstadoCuentaDisabled').show();
                 $('#generateComprobanteEstadoCuentaDisabled').show();
             }
             $('#button_estado_cuenta').removeClass("button-totals").addClass("button-totals-selected");
             break;
         case 2:
             $('#table_estado_cuenta').hide();
-            $('#generatePagoEstadoCuenta').hide();
+            if ($pasarela_pagos) $('#generatePagoEstadoCuenta').hide();
             $('#table_pagos_estado_cuenta').show();
             $('#table_facturas_estado_cuenta').hide();
             estado_cuenta_pagos_table.ajax.reload();
@@ -566,8 +664,10 @@ function showViewEstadoCuenta(tipo) {
 }
 
 function getTotalesEstadoCuenta(showButtonPay = true)  {
-    $('#generatePagoEstadoCuenta').hide();
-    $('#generatePagoEstadoCuentaDisabled').show();
+    if ($pasarela_pagos) {
+        $('#generatePagoEstadoCuenta').hide();
+        $('#generatePagoEstadoCuentaDisabled').show();
+    }
     $('#generateComprobanteEstadoCuenta').hide();
     $('#generateComprobanteEstadoCuentaDisabled').show();
 
@@ -581,8 +681,10 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
             totalCuentasPagar = res.data.total_cuentas_pagar;
             
             if (showButtonPay) {
-                $('#generatePagoEstadoCuenta').show();
-                $('#generatePagoEstadoCuentaDisabled').hide();
+                if ($pasarela_pagos) {
+                    $('#generatePagoEstadoCuenta').show();
+                    $('#generatePagoEstadoCuentaDisabled').hide();
+                }
                 $('#generateComprobanteEstadoCuenta').show();
                 $('#generateComprobanteEstadoCuentaDisabled').hide();
             }
@@ -610,6 +712,19 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
                 
         }
     }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = "";
+        if (typeof mensaje === 'object') {
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += field+": "+errores[campo]+" <br>";
+                }
+                agregarToast('error', 'Creación errada', errorsMsg);
+            };
+        } else {
+            agregarToast('error', 'Creación errada', mensaje);
+        }
     });
 }
 
@@ -646,5 +761,5 @@ $("input[data-type='currency']").on({
 $(document).on('click', '#reloadEstadoCuenta', function () {
     showViewEstadoCuenta(1);
     getTotalesEstadoCuenta();
-    cuotas_multas_table.ajax.reload();
+    estado_cuenta_table.ajax.reload();
 });

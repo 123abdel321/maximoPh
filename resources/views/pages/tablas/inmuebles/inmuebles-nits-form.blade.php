@@ -25,6 +25,7 @@
                             <option value="0">PROPIETARIO</option>
                             <option value="1">INQUILINO</option>
                             <option value="2">INMOBILIARIA</option>
+                            <option value="3">PROPIETARIO RESIDENTE</option>
                         </select>
                     </div>
 

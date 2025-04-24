@@ -99,8 +99,8 @@ function nitInit() {
             {
                 "data": function (row, type, set){
                     var html = '';
-                    if (editarUsuario) html+= '<span id="editnits_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-nits" style="margin-bottom: 0rem !important">Editar</span>&nbsp;';
-                    if (eliminarUsuario) html+= '<span id="deletenits_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-nits" style="margin-bottom: 0rem !important">Eliminar</span>';
+                    if (editarUsuario) html+= '<span id="editnits_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-nits" style="margin-bottom: 0rem !important;">Editar</span>&nbsp;';
+                    if (eliminarUsuario) html+= '<span id="deletenits_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-nits" style="margin-bottom: 0rem !important;">Eliminar</span>';
                     return html;
                 }
             }

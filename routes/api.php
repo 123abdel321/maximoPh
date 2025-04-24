@@ -17,8 +17,11 @@ use App\Http\Controllers\Sistema\PqrsfController;
 use App\Http\Controllers\Sistema\ZonasController;
 use App\Http\Controllers\Sistema\RolesController;
 use App\Http\Controllers\Sistema\EntornoController;
+use App\Http\Controllers\Sistema\FamiliaController;
+use App\Http\Controllers\Sistema\PasarelaController;
 use App\Http\Controllers\Sistema\InmuebleController;
 use App\Http\Controllers\Sistema\PorteriaController;
+use App\Http\Controllers\Sistema\NovedadesController;
 use App\Http\Controllers\Sistema\VisitantesController;
 use App\Http\Controllers\Sistema\InmuebleNitController;
 use App\Http\Controllers\Sistema\FacturacionController;
@@ -29,6 +32,8 @@ use App\Http\Controllers\Informes\EstadisticasController;
 use App\Http\Controllers\Sistema\PorteriaEventoController;
 use App\Http\Controllers\Sistema\NotificacionesController;
 use App\Http\Controllers\Sistema\ConceptoFacturacionController;
+//ARCHIVOS GENERALES
+use App\Http\Controllers\Sistema\ArchivosCacheController;
 //IMPORTADOR
 use App\Http\Controllers\Sistema\ImportadorInmuebles;
 use App\Http\Controllers\Sistema\ImportadorCuotasMultas;
@@ -36,6 +41,8 @@ use App\Http\Controllers\Sistema\ImportadorRecibosController;
 //TAREAS
 use App\Http\Controllers\Sistema\TurnosController;
 use App\Http\Controllers\Sistema\ProyectosController;
+//PLACE TO PAY
+use App\Http\Controllers\PlacetoPayNotificationController;
 
 
 /*
@@ -48,6 +55,8 @@ use App\Http\Controllers\Sistema\ProyectosController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post('/placetopay/notification', [PlacetoPayNotificationController::class, 'handle']);
 
 
 Route::controller(VisitantesController::class)->group(function () {
@@ -76,7 +85,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['auth:sanctum']], function() {
 
     Route::group(['middleware' => ['clientconnection']], function() {
+        //ACEPTAR TERMINOS & CONDICIONES
         
+        Route::controller(ApiController::class)->group(function () {
+            Route::post('terminos-condiciones', 'terminosCondiciones');
+        });
         Route::controller(LoginController::class)->group(function () {
             Route::post('select-empresa', 'selectEmpresa');
             Route::post('login-portafolioerp', 'loginPortafolioERP');
@@ -104,6 +117,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('inmueble', 'update');
             Route::delete('inmueble', 'delete');
             Route::get('inmueble-combo', 'combo');
+            Route::get('inmueble-combo-normal', 'comboInmueble');
             Route::get('inmueble-total', 'totales');
         });
         //INMUEBLES NITS
@@ -126,6 +140,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('facturacion-general-delete', 'generarGeneralDelete');
             Route::post('facturacion-general-causar', 'generarGeneralCausar');
             Route::post('facturacion-individual', 'generarIndividual');
+            Route::post('facturacion-multiple', 'showMultiplePdf');
+            Route::post('facturacion-asyncrona', 'generarAsyncrona');
             Route::get('periodo-facturacion-combo', 'comboPeriodos');
             Route::get('facturacion-email', 'email');
         });
@@ -185,13 +201,30 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //PORTERIA
         Route::controller(PorteriaController::class)->group(function () {
             Route::get('porteria', 'read');
+            Route::post('porteria', 'create');
+            Route::put('porteria', 'update');
             Route::delete('porteria', 'delete');
             Route::get('porteria-find', 'find');
             Route::get('porteria-combo', 'combo');
         });
+        //NOVEDADES
+        Route::controller(NovedadesController::class)->group(function () {
+            Route::get('novedades', 'read');
+            Route::post('novedades', 'create');
+            Route::put('novedades', 'update');
+            Route::delete('novedades', 'delete');
+        });
+        //FAMILIA
+        Route::controller(FamiliaController::class)->group(function () {
+            Route::get('familia', 'read');
+            Route::delete('familia', 'delete');
+            Route::get('familia-find', 'find');
+            Route::get('familia-combo', 'combo');
+        });
         //PORTERIA EVENTOS
         Route::controller(PorteriaEventoController::class)->group(function () {
             Route::get('porteriaevento', 'read');
+            Route::post('porteriaevento', 'create');
             Route::put('porteriaevento', 'update');
             Route::get('porteriaevento-find', 'find');
         });
@@ -201,6 +234,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('estadocuenta-total', 'totales');
             Route::get('estadocuenta-pagos', 'pagos');
             Route::get('estadocuenta-facturas', 'facturas');
+            Route::post('estadocuenta-pasarela', 'pasarela');
         });
         //USUARIOS
         Route::controller(UsuariosController::class)->group(function () {
@@ -252,8 +286,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         });
         Route::controller(TurnosController::class)->group(function () {
             Route::get('turnos', 'find');
+            Route::post('turnos', 'create');
             Route::put('turnos', 'update');
             Route::delete('turnos', 'delete');
+            Route::get('turnos-table', 'table');
+            Route::post('turnos-estado', 'updateEstado');
         });
         // ROLES
         Route::controller(RolesController::class)->group(function () {
@@ -262,6 +299,15 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('roles', 'create');
             Route::delete('roles', 'delete');
         });        
+        //PASARELA
+        Route::controller(PasarelaController::class)->group(function () {
+            Route::post('status', 'status');
+            Route::post('pasarela', 'create');            
+        });
+        //ARCHIVOS GENERALES
+        Route::controller(ArchivosCacheController::class)->group(function () {
+            Route::delete('archivo-general', 'deleteFile');           
+        });
         
     });
 });

@@ -22,8 +22,12 @@ function facturacionInit() {
 function getFacturacionData() {
     let url = 'facturacion-preview';
     if (causacion_mensual_rapida) url = 'facturacion-preview';
+
+    document.getElementById('generateFacturacion').classList.add('disabled');
+
     $("#reloadFacturacionIconNormal").hide();
     $("#reloadFacturacionIconLoading").show();
+
     $.ajax({
         url: base_url + url,
         method: 'GET',
@@ -39,7 +43,15 @@ function getFacturacionData() {
             countIntereses = 0;
             nitsFacturando = res.data.nits;
             generarTablaPreview(res.data);
+            document.getElementById('generateFacturacion').classList.remove('disabled');
             $('#confirmarFacturacion').hide();
+        } else {
+            $("#confirmarFacturacion").show();
+            $("#reloadFacturacionIconNormal").show();
+            $("#reloadFacturacionIconLoading").hide();
+            var dateText = generateTextYear(res.data.periodo_facturacion);
+            $('#generateFacturacion').text('FACTURACIÓN CON INFORMACIÓN '+ dateText);
+            agregarToast('warning', 'Facturación con datos', 'Confirmar facturacion del mes '+ dateText, true, 5000);
         }
     }).fail((err) => {
     });
@@ -51,7 +63,7 @@ function generarTablaPreview(data) {
     if (data.existe_facturacion) {
         $('#generateFacturacion').text('VALIDAR FACTURACIÓN '+ dateText);
     } else {
-        if (causacion_mensual_rapida) $('#generateFacturacion').text('FACTURACIÓN RAPIDA '+ dateText);
+        if (parseInt(causacion_mensual_rapida)) $('#generateFacturacion').text('FACTURACIÓN RAPIDA '+ dateText);
         else $('#generateFacturacion').text('GENERAR FACTURACIÓN '+ dateText);
     }
     //INMUEBLES
@@ -265,7 +277,7 @@ function facturarRapidamente() {
     getFacturacionData();
     
     facturandoPersona = $.ajax({
-        url: base_url + 'facturacion-general-delete',
+        url: base_url + 'facturacion-asyncrona',
         method: 'POST',
         headers: headers,
         dataType: 'json',
@@ -276,6 +288,11 @@ function facturarRapidamente() {
     }).fail((err) => {
         var mensaje = err.responseJSON.message;
         var errorsMsg = arreglarMensajeError(mensaje);
+
+        $("#progress_bar").hide();
+        $("#generateFacturacion").show();
+        $("#generateFacturacionLoading").hide();
+        
         agregarToast('error', 'Creación errada', errorsMsg);
     });
 }
@@ -285,17 +302,7 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
     if (data.action == 2) {
         $("#text_progress_bar").html(`ORGANIZANDO DATOS ...`);
         document.querySelector("#width_progress_bar").style.setProperty("background-color", "#02c2ab", "important");
-        facturandoPersona = $.ajax({
-            url: base_url + 'facturacion-general',
-            method: 'POST',
-            headers: headers,
-            dataType: 'json',
-        }).done((res) => {
-        }).fail((err) => {
-            var mensaje = err.responseJSON.message;
-            var errorsMsg = arreglarMensajeError(mensaje);
-            agregarToast('error', 'Creación errada', errorsMsg);
-        });
+        return;
     }
 
     if (data.action == 3) {
@@ -313,18 +320,7 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
                 'valor': dataGeneral.valor,
             });
         }
-
-        facturandoPersona = $.ajax({
-            url: base_url + 'facturacion-general-causar',
-            method: 'POST',
-            headers: headers,
-            dataType: 'json',
-        }).done((res) => {
-        }).fail((err) => {
-            var mensaje = err.responseJSON.message;
-            var errorsMsg = arreglarMensajeError(mensaje);
-            agregarToast('error', 'Creación errada', errorsMsg);
-        });
+        return;
     }
 
     if (data.action == 4) {
@@ -335,6 +331,24 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
         $("#confirmarFacturacion").show();
         $("#generateFacturacionLoading").hide();
         agregarToast('exito', 'Facturación exitosa', 'Facturación rapida finalizada con exito!', true);
+        return;
+    }
+
+    if (data.action == 5) {
+        var errorsMsg = "";
+        var mensaje = data.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Facturación errada', errorsMsg);
+        return;
     }
     
 });
@@ -593,7 +607,7 @@ $(document).on('click', '#reloadFacturacion', function () {
 
 $(document).on('click', '#generateFacturacion', function () {
     detenerFacturacion = false;
-    if (causacion_mensual_rapida) facturarRapidamente();
+    if (parseInt(causacion_mensual_rapida)) facturarRapidamente();
     else facturarNitIndividual();
 });
 

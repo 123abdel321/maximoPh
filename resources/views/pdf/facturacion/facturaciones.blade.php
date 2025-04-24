@@ -11,7 +11,7 @@
 				margin: 0;
 				font-family: "Lato", sans-serif;
 				line-height: 16px;
-				font-size: 12px;
+				font-size: 15px;
 				width: 100%;
 				text-transform: uppercase;
 			}
@@ -26,7 +26,6 @@
 				border-bottom: 1px solid #ddd;
 				height: 100%;
 			}
-
 
 			.spacer {
 				height: 30px;
@@ -46,7 +45,7 @@
 			}
 
 			.table-detail {
-				font-size: 12px;
+				font-size: 15px;
 				width: 100%;
 				border-collapse: collapse;
 				height: 100%;
@@ -114,12 +113,17 @@
 
 			.numero-consecutivo {
 				color: #8d00ff;
-				font-size: 1.8em;
+				font-size: 2.8em;
 			}
 
 			.fecha-factura {
 				color: black;
 				font-size: 1.3em;
+			}
+
+			.ubicacion-factura {
+				color: black;
+				font-size: 1.5em;
 			}
 			
 			.generado {
@@ -174,7 +178,10 @@
 									<p>
 										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span><br/>
 										<span span class="fecha-factura">{{ $totales->fecha_texto }}</span>
-
+										@if ($nit)
+										<br/>
+										<span span class="ubicacion-factura">{{ $nit->apartamentos }}</span>
+										@endif
 									</p>
 								</td>
 								
@@ -188,9 +195,9 @@
 								
 								<td class="logo padding5">
 									@if ($empresa->logo)
-										<img stype="height:70px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
+										<img stype="height:90px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
 									@else
-										<img style="height:70px;" src="img/logo_contabilidad.png">
+										<img style="height:90px;" src="img/logo_contabilidad.png">
 									@endif
 								</td>
 							</tr>
@@ -252,6 +259,10 @@
 												<th class="valor padding5">{{ $totales->fecha_manual }}</th>
 											</tr>
 											<tr >
+												<th class="padding5">FECHA VENCIMIENTO</th>
+												<th class="valor padding5">{{ $totales->fecha_plazo }}</th>
+											</tr>
+											<tr >
 												<th class="padding5">TOTAL DOCUMENTO</th>
 												<th class="valor padding5">{{ number_format($totales->saldo_final) }}</th>
 											</tr>
@@ -274,6 +285,7 @@
 				</tr>
 				<tr class="header-factura padding5">
 					<th class="padding5">NOMBRE</th>
+					<th class="padding5">DOCUMENTO</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
 					<th class="padding5">ANTICIPOS</th>
@@ -287,6 +299,7 @@
 				@foreach ($cuentas as $cuenta)
 					<tr>
 						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
+						<td class="padding5 detalle-factura-descripcion">{{ $cuenta->documento_referencia }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
@@ -307,6 +320,7 @@
 							@endif
 							</b>
 						</td>
+						<td class="padding5 valor">{{ COUNT($cuentas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
 						<td class="padding5 valor">{{ number_format($totales->total_abono) }}</td>
@@ -317,36 +331,37 @@
 					</tr>
 
 			</tbody>
-
-			<thead class="">
-				<tr>
-					<td class="spacer-lite"></td>
-				</tr>
-				<tr class="header-factura padding5">
-					<th class="padding5">ANTICIPO</th>
-					<th class="padding5">VALOR FACTURA</th>
-					<th class="padding5">DESCUENTO</th>
-					<th class="padding5">TOTAL FACTURA</th>
-					@if ($totales->anticipos_disponibles)
-						<th class="padding5">SALDO A FAVOR</th>
-					@else
-						<th class="padding5">TOTAL DEUDA</th>
-					@endif
-				</tr>
-			</thead>
-			<tbody class="detalle-factura">
-				<tr>
-					<td class="padding5 valor">{{ number_format($totales->total_anticipos) }}</td>
-					<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
-					<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
-					<td class="padding5 valor">{{ number_format($totales->total_facturas - $totales->descuento) }}</td>
-					@if ($totales->anticipos_disponibles)
-						<td class="padding5 valor">{{ number_format($totales->anticipos_disponibles) }}</td>
-					@else
-						<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
-					@endif
-				</tr>
-			</tbody>
+			@if ($totales->total_anticipos || $totales->descuento)
+				<thead class="">
+					<tr>
+						<td class="spacer-lite"></td>
+					</tr>
+					<tr class="header-factura padding5">
+						<th class="padding5">ANTICIPO</th>
+						<th class="padding5">VALOR FACTURA</th>
+						<th class="padding5">DESCUENTO</th>
+						<th class="padding5">TOTAL FACTURA</th>
+						@if ($totales->anticipos_disponibles)
+							<th class="padding5">SALDO A FAVOR</th>
+						@else
+							<th class="padding5">TOTAL DEUDA</th>
+						@endif
+					</tr>
+				</thead>
+				<tbody class="detalle-factura">
+					<tr>
+						<td class="padding5 valor">{{ number_format($totales->total_anticipos) }}</td>
+						<td class="padding5 valor">{{ number_format($totales->total_facturas) }}</td>
+						<td class="padding5 valor">{{ number_format($totales->descuento) }}</td>
+						<td class="padding5 valor">{{ number_format($totales->total_facturas - $totales->descuento) }}</td>
+						@if ($totales->anticipos_disponibles)
+							<td class="padding5 valor">{{ number_format($totales->anticipos_disponibles) }}</td>
+						@else
+							<td class="padding5 valor">{{ number_format($totales->saldo_final) }}</td>
+						@endif
+					</tr>
+				</tbody>
+			@endif
 		</table>
 
 		@if ($pronto_pago && $totales->saldo_final > 0)
@@ -439,7 +454,7 @@
 						<tr>
 							<td class="empresa-footer-left padding5">
 								ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
-								www.maximoph.com
+								www.maximoph.co
 							</td>
 						</tr>
 					</table>

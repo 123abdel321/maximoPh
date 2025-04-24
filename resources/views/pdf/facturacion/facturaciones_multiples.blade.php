@@ -11,7 +11,7 @@
 				margin: 0;
 				font-family: "Lato", sans-serif;
 				line-height: 16px;
-				font-size: 10px;
+				font-size: 15px;
 				width: 100%;
 				text-transform: uppercase;
 			}
@@ -42,7 +42,7 @@
 			}
 
 			.table-detail {
-				font-size: 12px;
+				font-size: 15px;
 				width: 100%;
 				border-collapse: collapse;
 				height: 100%;
@@ -107,6 +107,16 @@
 				font-size: 2.8em;
 			}
 			
+			.fecha-factura {
+				color: black;
+				font-size: 1.3em;
+			}
+
+			.ubicacion-factura {
+				color: black;
+				font-size: 1.5em;
+			}
+			
 			.generado {
 				width: 40%;
 			}
@@ -156,13 +166,13 @@
 										<tr>
 											<td class="consecutivo padding5">
 												<p>
-													<span span class="numero-consecutivo">N°
-														@if ($factura->totales)
-															{{ $factura->totales->consecutivo }}
-														@else
-															N/A
-														@endif
-													</span>
+													@if ($factura->totales)
+														<span span class="numero-consecutivo">N° {{ $factura->totales->consecutivo }}</span><br/>
+														<span span class="fecha-factura">{{ $factura->totales->fecha_manual }}</span><br/>
+														<span span class="ubicacion-factura">{{ $factura->cuentas[0]->apartamentos }}</span>
+													@else
+														N/A
+													@endif
 												</p>
 											</td>
 											
@@ -175,9 +185,9 @@
 											
 											<td class="logo padding5">
 												@if ($empresa->logo)
-													<img stype="height:70px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
+													<img stype="height:90px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
 												@else
-													<img style="height:70px;" src="img/logo_contabilidad.png">
+													<img style="height:90px;" src="img/logo_contabilidad.png">
 												@endif
 											</td>
 										</tr>
@@ -279,6 +289,35 @@
 							</tr>
 						</tbody>
 					</table>
+
+					@if ($texto_1 || $texto_2)
+						<table>
+							<tr>
+								@if ($texto_1)
+								<td class="aling-top padding5">
+									<table>
+										<thead>
+											<tr>
+												<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
+											</tr>
+										</thead>
+									</table>
+								</td>
+								@endif
+								@if ($texto_2)
+								<td class="table-total-factura padding5">
+									<table>
+										<thead>
+											<tr>
+												<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
+											</tr>
+										</thead>
+									</table>
+								</td>
+								@endif
+							</tr>
+						</table>
+					@endif
 							
 					<script type="text/php">
 						if ( isset($pdf) ) {
@@ -307,7 +346,7 @@
 									<tr>
 										<td class="empresa-footer-left padding5">
 											ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
-											www.maximoph.com
+											www.maximoph.co
 										</td>
 									</tr>
 								</table>

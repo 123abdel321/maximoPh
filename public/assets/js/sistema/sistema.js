@@ -1,23 +1,24 @@
+const host = window.location.host;
 
-//LOCAL
-// const base_url = 'http://127.0.0.1:8090/api/';
-// const base_web = 'http://127.0.0.1:8090/';
-// const base_web_erp = 'http://localhost:8000/';
-// const base_url_erp = 'http://localhost:8000/api/';
-//LOCAL PUBLIC
-// const base_url = 'http://192.168.1.6:80/api/';
-// const base_web = 'http://192.168.1.6:80/';
-// const base_web_erp = 'http://localhost:8000/';
-// const base_url_erp = 'http://localhost:8000/api/';
-//DEV
-const base_url = 'https://maximoph.com/api/';
-const base_web = 'https://maximoph.com/';
-const base_web_erp = 'https://test.portafolioerp.com/';
-const base_url_erp = 'https://test.portafolioerp.com/api/';
+let base_url, base_web, base_web_erp, base_url_erp;
 
-//PRO
-// const base_url = 'https://app.portafolioerp.com/api/';
-// const base_web = 'https://app.portafolioerp.com/';
+if (host.includes("maximoph.co")) {
+    base_url = "https://maximoph.co/api/";
+    base_web = "https://maximoph.co/";
+    base_web_erp = "https://app.portafolioerp.com/";
+    base_url_erp = "https://app.portafolioerp.com/api/";
+} else if (host.includes("maximoph.co")) {
+    base_url = "https://maximoph.co/api/";
+    base_web = "https://maximoph.co/";
+    base_web_erp = "https://app.portafolioerp.com/";
+    base_url_erp = "https://app.portafolioerp.com/api/";
+} else if (host.includes("127.0.0.1:8090")) {
+    // Desarrollo en red local
+    base_url = "http://127.0.0.1:8090/api/";
+    base_web = "http://127.0.0.1:8090/";
+    base_web_erp = "http://localhost:8000/";
+    base_url_erp = "http://localhost:8000/api/";
+}
 
 const pusher = new Pusher('9ea234cc370d308638af', {cluster: 'us2'});
 // Pusher.logToConsole = true;
@@ -30,6 +31,7 @@ let openStatusPqrsf = false;
 let dropDownPerfilOpen = false; 
 let dropDownNotificacionOpen = false;
 let channelPqrsf = false;
+let channelTurno = false;
 let channelAdminPqrsf = false;
 let channelPorteria = pusher.subscribe('porteria-mensaje-'+localStorage.getItem("notificacion_code"));
 let updatingStatusPqrsf = false;
@@ -37,6 +39,9 @@ let mostrarAgregarImagenes = false;
 let mostrarAgregarTiempos = false;
 let permisoAgregarTiempos = false;
 let channelPqrsfGeneral = null;
+let channelTurnoGeneral = null;
+let channelMensajeria = null;
+let channelMensajeriaPrivada = null;
 
 const auth_token = localStorage.getItem("auth_token");
 const auth_token_erp = localStorage.getItem("auth_token_erp");
@@ -119,6 +124,8 @@ var moduloCreado = {
     'proyectos': false,
     'turnos': false,
     'roles': false,
+    'familia': false,
+    'novedades': false,
 };
 
 var moduloRoute = {
@@ -147,6 +154,8 @@ var moduloRoute = {
     'proyectos': 'tareas',
     'turnos': 'tareas',
     'roles': 'configuracion',
+    'familia': 'administrativo',
+    'novedades': 'administrativo',
 }
 
 $('.water').show();
@@ -219,10 +228,32 @@ if (idRolUsuario == 4) {
 
 $("#id_pqrsf_up").val(0);
 
+iniciarFilePond();
 iniciarScrollBar();
 buscarNotificaciones();
 actualizarAccionesPqrsf();
 iniciarCanalesDeNotificacion();
+
+function iniciarFilePond() {
+    FilePond.registerPlugin(FilePondPluginImagePreview);
+    FilePond.registerPlugin(FilePondPluginFileValidateType);
+    
+    FilePond.setOptions({
+        labelIdle: 'Arrastra y suelta tus archivos o <span class="filepond--label-action">Explorar</span>',
+        labelFileProcessing: 'Subiendo',
+        labelFileProcessingComplete: 'Subida completa',
+        labelFileProcessingAborted: 'Subida cancelada',
+        labelFileProcessingError: 'Error al subir el archivo',
+        labelTapToCancel: 'Toca para cancelar',
+        labelTapToRetry: 'Toca para reintentar',
+        labelTapToUndo: 'Toca para deshacer',
+        labelButtonRemoveItem: 'Eliminar',
+        labelButtonAbortItemLoad: 'Abortar',
+        labelButtonRetryItemLoad: 'Reintentar',
+        labelButtonRetryItemProcessing: 'Reintentar',
+        labelButtonProcessItem: 'Subir',
+    });
+}
 
 function actualizarAccionesPqrsf() {
     if (idRolUsuario == 1 || idRolUsuario == 2) {
@@ -233,13 +264,13 @@ function actualizarAccionesPqrsf() {
 }
 
 function iniciarScrollBar() {
-    var offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
-    var dropDownNotificacion = document.querySelector('#dropdown-notificaciones');
-    var offcanvasBodyPqrsf = document.querySelector('#offcanvas-body-pqrsf');
+    const chatBody = document.querySelector('#chat-body');
+    const mensajeBody = document.querySelector('#mensaje-body');
+    const offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
 
+    new PerfectScrollbar(chatBody);
+    new PerfectScrollbar(mensajeBody);
     new PerfectScrollbar(offcanvasBodyPorteria);
-    new PerfectScrollbar(dropDownNotificacion);
-    new PerfectScrollbar(offcanvasBodyPqrsf);
 }
 
 function setNotificaciones(total = null) {
@@ -260,10 +291,17 @@ function setNotificaciones(total = null) {
 
 function iniciarCanalesDeNotificacion () {
     channelPqrsf = pusher.subscribe('pqrsf-mensaje-'+localStorage.getItem("notificacion_code"));
+    channelTurno = pusher.subscribe('turno-mensaje-'+localStorage.getItem("notificacion_code"));
     channelAbdelCartagena = pusher.subscribe('canal-general-abdel-cartagena');
+    channelMensajeria = pusher.subscribe('mensajeria-'+localStorage.getItem("notificacion_code_general"));
+    channelMensajeriaPrivada = pusher.subscribe('mensajeria-'+localStorage.getItem("notificacion_code"));
 
     if (pqrsf_responder) {
         channelPqrsfGeneral = pusher.subscribe('pqrsf-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
+    }
+
+    if (turno_responder) {
+        channelTurnoGeneral = pusher.subscribe('turno-mensaje-responder-'+localStorage.getItem("notificacion_code_general"));
     }
 }
 
@@ -286,8 +324,45 @@ if (channelPqrsfGeneral) {
     });
 }
 
+if (channelTurnoGeneral) {
+    channelTurnoGeneral.bind('notificaciones', function(data) {
+        var idTurnoOpen = $("#id_turnos_up").val();
+
+        if (data.id_turno == idTurnoOpen) {//SI EN LA DATA VIENE id_pqrsf y el menu esta abierto: Muestra el mensaje
+            mostrarMensajesTurno(data.data);
+            if (data.length && data.data) actualizarEstadosTurno(data.data[0].estado);
+            initSwipers();
+            document.getElementById("offcanvas-body-turnos").scrollTop = 10000000;
+            if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+        } else if (parseInt(id_usuario_logeado) == data.id_usuario) {
+            openDropDownNotificaciones(true);
+        } else if (data.id_notificacion) {
+            openDropDownNotificaciones(true);
+        }
+    });
+}
+
+channelTurno.bind('notificaciones', function(data) {
+    var idTurnoOpen = $("#id_turnos_up").val();
+
+    if (data.id_turno == idTurnoOpen) {
+        mostrarMensajesTurno(data.data);
+        if (data.length && data.data) actualizarEstadosTurno(data.data[0].estado);
+        initSwipers();
+        document.getElementById("offcanvas-body-turnos").scrollTop = 10000000;
+        if (data.data[0].created_by != parseInt(id_usuario_logeado)) leerNotificaciones(data.id_notificacion);
+    } else {
+        var notificacionesAbiertas = $("#notificacionesMaximo").attr('class');
+        notificacionesAbiertas = notificacionesAbiertas == 'offcanvas offcanvas-end show' ? true : false;
+        if (notificacionesAbiertas) {
+            openDropDownNotificacion(data.id_notificacion)
+        } else {
+            openDropDownNotificaciones();
+        }
+    }
+});
+
 channelPqrsf.bind('notificaciones', function(data) {
-    console.log('channelPqrsf');
     var idPqrsfOpen = $("#id_pqrsf_up").val();
 
     if (data.id_pqrsf == idPqrsfOpen) {
@@ -335,7 +410,6 @@ channelAbdelCartagena.bind('notificaciones', function(data) {
 
 if (channelAdminPqrsf) {
     channelAdminPqrsf.bind('notificaciones', function(data) {
-        console.log('channelAdminPqrsf');
         var idPqrsfOpen = $("#id_pqrsf_up").val();
 
         if (data.id_pqrsf == idPqrsfOpen) {
@@ -372,6 +446,17 @@ $("#butonActionProceso").click( function(){
 
 $("#butonActionCerrado").click( function(){
     ajaxActualizarEstadoPqrsf(2);
+});
+
+$("#aceptar_terminos_condiciones").click( function(){
+    $.ajax({
+        url: base_url + 'terminos-condiciones',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+    }).fail((res) => {
+    });
 });
 
 function ajaxActualizarEstadoPqrsf(estado) {
@@ -431,23 +516,6 @@ channelPorteria.bind('notificaciones', function(data) {
 });
 
 function buscarNotificaciones() {
-    $.ajax({
-        url: base_url + 'notificaciones',
-        method: 'GET',
-        headers: headers,
-        dataType: 'json',
-    }).done((res) => {
-        if(res.success){
-            localStorage.setItem("numero_notificaciones", res.total);
-            setNotificaciones(res.total);
-        }
-    }).fail((res) => {
-        // let timerInterval;
-        // setTimeout(() => {
-        //     window.location.href = '/login';
-        // }, 2200)
-        // caduqueSession();
-    });
 }
 
 function caduqueSession() {
@@ -771,7 +839,6 @@ function showUser (id_usuario, fecha, creado) {
     $('#fecha_accion').val('');
     $("#modal-title-usuario-accion").html("Buscando usuario ...");
 
-    $('#modal-usuario-accion').modal('show');
     $('.water').show();
     $.ajax({
         url: base_url + 'usuario-accion',
@@ -886,7 +953,7 @@ function cerrarToast(id){
 }
 
 // Función para agregar la clase de cerrando al toast.
-function agregarToast (tipo, titulo, descripcion, autoCierre = false) {
+function agregarToast (tipo, titulo, descripcion, autoCierre = false, tiempoCierre = 3000) {
     // Crear el nuevo toast
     const nuevoToast = document.createElement('div');
 
@@ -962,7 +1029,7 @@ function agregarToast (tipo, titulo, descripcion, autoCierre = false) {
     };
 
     if (autoCierre) {
-        setTimeout(() => cerrarToast(toastId), 3000);
+        setTimeout(() => cerrarToast(toastId), tiempoCierre);
     }
 
     // Agregamos event listener para detectar cuando termine la animación
@@ -980,7 +1047,9 @@ function removejscssfile(filename, filetype){
 }
 
 function loadExcel(data) {
-    window.open('https://'+data.url_file, "_blank");
+    setTimeout(function(){
+        window.open('https://'+data.url_file, "_blank");
+    },100);
     agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
 }
 
@@ -1602,7 +1671,8 @@ function definirTiempo(date) {
 }
 
 function findDataPqrsf(id) {
-
+    
+    $("#row-actios-pqrsf").hide();
     $("#offcanvas-body-pqrsf").empty();
     document.getElementById('button-open-datelle-pqrsf').click();
 
@@ -1617,6 +1687,7 @@ function findDataPqrsf(id) {
     }).done((res) => {
         var data = res.data;
         $(".add-time-pqrsf").hide();
+        $("#row-actios-pqrsf").show();
         document.getElementById("hms").innerHTML="00:00:00";
         horas = 0;
         minutos = 0;
@@ -1749,6 +1820,7 @@ function resetImageMensajeUploader() {
 }
 
 resetImageMensajeUploader();
+resetImageTurnosUploader();
 
 var segundos = 0;
 var minutos = 0;
@@ -1813,4 +1885,19 @@ function arreglarMensajeError(mensaje) {
         errorsMsg = mensaje;
     }
     return errorsMsg;
+}
+
+function soloLetras(e) {
+    this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
+}
+
+if (terminos_condiciones && mostrar_modal_terminos_condicion) {
+    setTimeout(function(){
+        mostrarTerminosCondiciones();
+    },200);
+}
+
+function mostrarTerminosCondiciones() {
+    $("#terminos_condiciones_contenido").html(terminos_condiciones);
+    $('#modal-terminos-condiciones').modal('show');
 }

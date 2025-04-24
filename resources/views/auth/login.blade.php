@@ -101,7 +101,7 @@
                             <input type="text" class="form-control form-control-sm" id="recaptcha-token" name="recaptcha-token" style="display:none;">
 
                             <div id="input_email_login" class="mb-3" style="margin-bottom: 0.5rem !important;">
-                                <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Correo electronico</label>
+                                <label for="exampleFormControlInput1" class="form-label" style="float: left; color: white; font-size: 13px;">Usuario / Correo electronico</label>
                                 <input type="email" class="form-control form-control-sm" id="email_login" name="email_login">
                             </div>
 

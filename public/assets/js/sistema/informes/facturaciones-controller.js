@@ -1,5 +1,7 @@
 var facturaiones_table = null;
 var $comboPeriodoFacturaciones = null;
+let channelEmailNofiticacion = pusher.subscribe('facturacion-email-'+localStorage.getItem("notificacion_code"));
+let channelFacturaNofiticacion = pusher.subscribe('facturacion-factura-'+localStorage.getItem("notificacion_code"));
 
 function facturacionesInit() {
 
@@ -26,19 +28,27 @@ function facturacionesInit() {
             data: function ( d ) {
                 d.periodo = formatoFechaFacturacion();
                 d.id_nit = $("#id_nit_facturaciones").val();
+                d.id_zona = $("#id_zona_facturaciones").val();
                 d.factura_fisica = $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : ''
             }
         },
         columns: [
-            {"data":'numero_documento'},
-            {"data": 'nombre_nit'},
+            { data:'numero_documento'},
+            { data: 'nombre_nit'},
+            { data: 'apartamentos'},
             { data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'saldo_final', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
+            { data: 'email'},
+            { data: 'email_1'},
+            { data: 'email_2'},
             {
                 "data": function (row, type, set){
-                    return `<span id="imprimirfacturaciones_${row.id_nit}" href="javascript:void(0)" class="btn badge bg-gradient-success imprimir-facturaciones" style="margin-bottom: 0rem !important; min-width: 50px;">Imprimir</span>&nbsp;`;
+                    var html = ``;
+                    html+= `<span id="enviarfacturaciones_${row.id}" href="javascript:void(0)" class="btn badge bg-gradient-dark enviar-facturaciones" style="margin-bottom: 0rem !important; min-width: 50px;"><i class="fas fa-envelope"></i>&nbsp;&nbsp;Enviar</span>&nbsp;`;
+                    html+= `<span id="imprimirfacturaciones_${row.id_nit}" href="javascript:void(0)" class="btn badge bg-gradient-success imprimir-facturaciones" style="margin-bottom: 0rem !important; min-width: 50px;"><i class="fas fa-file-pdf"></i>&nbsp;&nbsp;Imprimir</span>&nbsp;`;
+                    return html;
                 }
             },
         ]
@@ -49,12 +59,61 @@ function facturacionesInit() {
             var id_nit = this.id.split('_')[1];
             window.open("/facturacion-show-pdf?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
         });
+
+        facturaiones_table.on('click', '.enviar-facturaciones', function() {
+
+            var id = this.id.split('_')[1];
+
+            var data = getDataById(id, facturaiones_table);
+
+            let emailData = {
+                factura_fisica: '',
+                periodo: formatoFechaFacturacion(),
+                id_nit: data.id_nit
+            }
+        
+            Swal.fire({
+                title: 'Enviar factura?',
+                text: "Desea enviar la factura a "+data.nombre_nit+"?",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Enviar facturas!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $("#enviarEmailFacturas").hide();
+                    $("#enviarEmailFacturasLoading").show();
+                    $.ajax({
+                        url: base_url + 'facturacion-email',
+                        method: 'GET',
+                        data: emailData,
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        $("#enviarEmailFacturas").show();
+                        $("#enviarEmailFacturasLoading").hide();
+                        
+                        agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
+                    }).fail((err) => {
+                        var mensaje = err.responseJSON.message;
+                        var errorsMsg = arreglarMensajeError(mensaje);
+                        agregarToast('error', 'Creación errada', errorsMsg);
+                    });
+                }
+            })
+        });
+
+        
     }
     
     $('#id_nit_facturaciones').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione un nit",
+        allowClear: true,
         language: {
             noResults: function() {
                 return "No hay resultado";        
@@ -68,6 +127,40 @@ function facturacionesInit() {
         },
         ajax: {
             url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        }
+    });
+
+    $('#id_zona_facturaciones').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una zona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/zona-combo',
             headers: headers,
             dataType: 'json',
             data: function (params) {
@@ -119,6 +212,10 @@ function facturacionesInit() {
     $("#id_nit_facturaciones").on('change', function(event) {
         facturaiones_table.ajax.reload();
     });
+
+    $("#id_zona_facturaciones").on('change', function(event) {
+        facturaiones_table.ajax.reload();
+    });
     
     $("#nit_fisica_facturaciones").on('change', function(event) {
         facturaiones_table.ajax.reload();
@@ -126,8 +223,25 @@ function facturacionesInit() {
 }
 
 $("#imprimirMultipleFacturacion").on('click', function(event) {
-    var facturaFisica = $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : ''
-    window.open("/facturacion-multiple-show-pdf?factura_fisica="+facturaFisica+"&periodo="+formatoFechaFacturacion(), "_blank");
+    $("#imprimirMultipleFacturacion").hide();
+    $("#imprimirMultipleFacturacionLoading").show();
+    $.ajax({
+        url: base_url + 'facturacion-multiple',
+        method: 'POST',
+        data: JSON.stringify({
+            factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
+            periodo: formatoFechaFacturacion(),
+            id_nit: $("#id_nit_facturaciones").val(),
+            id_zona: $("#id_zona_facturaciones").val(),
+        }),
+        headers: headers
+    }).done((res) => {
+        agregarToast('info', 'Generando facturas pdf', 'Se notificará cuando se hayan generado las facturas pdf!', true);
+    }).fail((err) => {
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Creación errada', errorsMsg);
+    });
 });
 
 $("#enviarEmailFacturas").on('click', function(event) {
@@ -135,11 +249,9 @@ $("#enviarEmailFacturas").on('click', function(event) {
     let data = {
         factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
         periodo: formatoFechaFacturacion(),
-        id_nit: $("#id_nit_facturaciones").val()
+        id_nit: $("#id_nit_facturaciones").val(),
+        id_zona: $("#id_zona_facturaciones").val(),
     }
-
-    $("#enviarEmailFacturas").hide();
-    $("#enviarEmailFacturasLoading").show();
 
     Swal.fire({
         title: 'Enviar facturas?',
@@ -153,6 +265,8 @@ $("#enviarEmailFacturas").on('click', function(event) {
         reverseButtons: true,
     }).then((result) => {
         if (result.value){
+            $("#enviarEmailFacturas").hide();
+            $("#enviarEmailFacturasLoading").show();
             $.ajax({
                 url: base_url + 'facturacion-email',
                 method: 'GET',
@@ -162,7 +276,8 @@ $("#enviarEmailFacturas").on('click', function(event) {
             }).done((res) => {
                 $("#enviarEmailFacturas").show();
                 $("#enviarEmailFacturasLoading").hide();
-                agregarToast('exito', 'Email enviados', 'Emails enviados con exito!');
+
+                agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
             }).fail((err) => {
                 var mensaje = err.responseJSON.message;
                 var errorsMsg = arreglarMensajeError(mensaje);
@@ -203,3 +318,16 @@ function formatInmuebleReciboSelection (inmueble) {
 
     return inmueble.text + persona;
 }
+
+channelEmailNofiticacion.bind('notificaciones', function(data) {
+    let mensaje = `Total de facturas enviadas: ${data.total_envios}`;
+    agregarToast('exito', 'Email enviados', mensaje, true);
+});
+
+channelFacturaNofiticacion.bind('notificaciones', function(data) {
+    console.log('data: ',data);
+    $("#imprimirMultipleFacturacion").show();
+    $("#imprimirMultipleFacturacionLoading").hide();
+    agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
+    window.open(data.urf_factura, "_blank");
+});

@@ -72,7 +72,7 @@ function rolesInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, roles_table);
-            var permisos = data.ids_permission.split(',');
+            var permisos = data.ids_permission ? data.ids_permission.split(',') : [];
             
             for (let index = 0; index < permisosRoles.length; index++) {
                 const permiso = permisosRoles[index];

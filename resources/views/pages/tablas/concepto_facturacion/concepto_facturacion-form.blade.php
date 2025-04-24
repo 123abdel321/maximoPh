@@ -14,41 +14,41 @@
                         <input type="text" class="form-control" name="id_concepto_facturacion_up" id="id_concepto_facturacion_up" style="display: none;">
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="example-text-input" class="form-control-label">Codigo <span style="color: red">*</span></label>
+                            <label for="codigo_concepto_facturacion" class="form-control-label">Codigo <span style="color: red">*</span></label>
                             <input type="text" class="form-control form-control-sm" name="codigo_concepto_facturacion" id="codigo_concepto_facturacion" required>
                         </div>
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="example-text-input" class="form-control-label">Nombre <span style="color: red">*</span></label>
+                            <label for="nombre_concepto_facturacion" class="form-control-label">Nombre <span style="color: red">*</span></label>
                             <input type="text" class="form-control form-control-sm" name="nombre_concepto_facturacion" id="nombre_concepto_facturacion" required>
                         </div>
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="exampleFormControlSelect1">Cuenta ingreso</label>
+                            <label for="id_cuenta_ingreso_concepto_facturacion">Cuenta ingreso</label>
                             <select name="id_cuenta_ingreso_concepto_facturacion" id="id_cuenta_ingreso_concepto_facturacion" class="form-control form-control-sm">
                             </select>
                         </div>
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="exampleFormControlSelect1">Cuenta cobrar</label>
+                            <label for="id_cuenta_cobrar_concepto_facturacion">Cuenta cobrar</label>
                             <select name="id_cuenta_cobrar_concepto_facturacion" id="id_cuenta_cobrar_concepto_facturacion" class="form-control form-control-sm">
                             </select>
                         </div>
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="exampleFormControlSelect1">Cuenta intereses</label>
+                            <label for="id_cuenta_interes_concepto_facturacion">Cuenta intereses</label>
                             <select name="id_cuenta_interes_concepto_facturacion" id="id_cuenta_interes_concepto_facturacion" class="form-control form-control-sm">
                             </select>
                         </div>
                         
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="exampleFormControlSelect1">Cuenta iva</label>
+                            <label for="id_cuenta_iva_concepto_facturacion">Cuenta iva</label>
                             <select name="id_cuenta_iva_concepto_facturacion" id="id_cuenta_iva_concepto_facturacion" class="form-control form-control-sm">
                             </select>
                         </div>
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
-                            <label for="example-text-input" class="form-control-label">Valor</label>
+                            <label for="valor_concepto_facturacion" class="form-control-label">Valor</label>
                             <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_concepto_facturacion" id="valor_concepto_facturacion" value="0">
                         </div>
 
@@ -58,6 +58,11 @@
                                 <option value="0">Facturación inmuebles</option>
                                 <option value="1">Cuotas extras & multas</option>
                             </select>
+                        </div>
+
+                        <div class="form-group col-12 col-sm-6 col-md-6">
+                            <label for="orden_concepto_facturacion" class="form-control-label">Orden</label>
+                            <input type="input" class="form-control form-control-sm text-align-right" name="orden_concepto_facturacion" id="orden_concepto_facturacion" value="0">
                         </div>
 
                         <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
@@ -71,24 +76,24 @@
                         </div>
 
                         <div class="form-group col-6 col-sm-6 col-md-6" id="input-id_cuenta_pronto_pago_gasto" style="display: none;">
-                            <label for="exampleFormControlSelect1">Cuenta pronto pago gasto</label>
+                            <label for="id_cuenta_pronto_pago_gasto">Cuenta pronto pago gasto</label>
                             <select name="id_cuenta_pronto_pago_gasto" id="id_cuenta_pronto_pago_gasto" class="form-control form-control-sm">
                             </select>
                         </div>
 
                         <div class="form-group col-6 col-sm-6 col-md-6" id="input-id_cuenta_pronto_pago_anticipo" style="display: none;">
-                            <label for="exampleFormControlSelect1">Cuenta pronto pago anticipo</label>
+                            <label for="id_cuenta_pronto_pago_anticipo">Cuenta pronto pago anticipo</label>
                             <select name="id_cuenta_pronto_pago_anticipo" id="id_cuenta_pronto_pago_anticipo" class="form-control form-control-sm">
                             </select>
                         </div>
-                        
-                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-dias_concepto_facturacion" style="display: none;">
-                            <label for="example-text-input" class="form-control-label">Días pronto pago</label>
+
+                        <div class="form-group col-3 col-sm-6 col-md-6" id="input-dias_concepto_facturacion" style="display: none;">
+                            <label for="dias_concepto_facturacion" class="form-control-label">Días pronto pago</label>
                             <input type="number" class="form-control form-control-sm" name="dias_concepto_facturacion" id="dias_concepto_facturacion">
                         </div>
                         
                         <div class="form-group col-6 col-sm-6 col-md-6" id="input-porcentaje_descuento_concepto_facturacion" style="display: none;">
-                            <label for="example-text-input" class="form-control-label">Porcentaje descuento</label>
+                            <label for="porcentaje_descuento_concepto_facturacion" class="form-control-label">Porcentaje descuento</label>
                             <input type="number" class="form-control form-control-sm" name="porcentaje_descuento_concepto_facturacion" id="porcentaje_descuento_concepto_facturacion">
                         </div>
 

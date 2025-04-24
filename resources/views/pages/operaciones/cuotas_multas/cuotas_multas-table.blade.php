@@ -1,6 +1,6 @@
 <div class="row" style="padding: 4px;">
     <div class="form-group col-12 col-sm-6 col-md-3" >
-        <label for="example-text-input" class="form-control-label">Periodo</label>
+        <label for="periodo_cuotas_multas" class="form-control-label">Periodo</label>
         <input type="month" class="form-control form-control-sm" name="periodo_cuotas_multas" id="periodo_cuotas_multas">
     </div>
 

@@ -210,11 +210,16 @@ class CuotasMultasController extends Controller
                 "message"=>$validator->errors()
             ], 422);
         }
-
+        // return response()->json([
+        //     "success"=>false,
+        //     'data' => [],
+        //     "message"=> 'asds'
+        // ], 200);
         try {
             DB::connection('max')->beginTransaction();
 
             $nitsCuotasMultas = InmuebleNit::select('id_nit', 'id_inmueble')
+                ->whereIn('tipo', [0, 3])
                 ->when($request->get('id_concepto_tipo_facturacion'), function ($query) use($request) {
                     $query->whereHas('inmueble',  function ($q) use($request) {
                         $q->where('id_concepto_facturacion', $request->get('id_concepto_tipo_facturacion'));
@@ -231,9 +236,11 @@ class CuotasMultasController extends Controller
                 ->when($request->get('id_inmueble'), function ($query) use($request) {
                     $query->where('id_inmueble', $request->get('id_inmueble'));
                 })
-                ->groupBy('id_nit')
+                ->when($request->get('masivo') != '1' ? true : false, function ($query) {
+                    $query->groupBy('id_nit');
+                })
                 ->get();
-
+            
             //RECORREMOS NITS CON INMUEBLES
             foreach ($nitsCuotasMultas as $nit) {
                 if ($request->get('tipo_concepto')) {//POR VALOR INDIVIDUAL

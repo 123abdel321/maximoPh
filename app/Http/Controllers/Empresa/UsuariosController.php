@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\envioEmail;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
@@ -35,6 +36,7 @@ class UsuariosController extends Controller
             'numeric' => 'El campo :attribute debe ser un valor numérico.',
             'string' => 'El campo :attribute debe ser texto',
             'array' => 'El campo :attribute debe ser un arreglo.',
+            'unique' => 'El :attribute ya existe.',
             'date' => 'El campo :attribute debe ser una fecha válida.',
         ];
 	}
@@ -68,10 +70,12 @@ class UsuariosController extends Controller
         $searchValue = $request->get('search');
 
         if ($searchValue) {
-            $filterSearch = 'AND US.firstname LIKE "%'.$searchValue.'%" ';
-            $filterSearch.= 'OR US.lastname LIKE "%'.$searchValue.'%" ';
-            $filterSearch.= 'OR US.email LIKE "%'.$searchValue.'%" ';
-            $filterSearch.= 'OR US.username LIKE "%'.$searchValue.'%" ';
+            $filterSearch = "AND (
+                US.firstname LIKE '%$searchValue%' 
+                OR US.lastname LIKE '%$searchValue%' 
+                OR US.email LIKE '%$searchValue%' 
+                OR US.username LIKE '%$searchValue%'
+            )";
         }
 
         if ($request->get('id_rol')) {
@@ -127,7 +131,8 @@ class UsuariosController extends Controller
                 {$filterSearch}
                 {$filterMaximo}
                 {$filterGeneral}
-
+                
+            GROUP BY US.id
             LIMIT {$rowperpage} OFFSET {$start}
         ");
 
@@ -633,13 +638,21 @@ class UsuariosController extends Controller
             $nombreUsuario = $usuario->firstname;
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
-            Mail::to($usuario->email)
-                ->cc('noreply@maximoph.com')
-                ->bcc('bcc@maximoph.com')
-                ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
-                    'nombre' => $nombreUsuario,
-                    'url' => $url_welcome,
-                ]));
+            if (filter_var($usuario->email, FILTER_VALIDATE_EMAIL)) {
+                Mail::to($usuario->email)
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
+                    ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+                        'nombre' => $nombreUsuario,
+                        'url' => $url_welcome,
+                    ]));
+    
+                envioEmail::create([
+                    'id_nit' => $usuario->id,
+                    'email' => $usuario->email,
+                    'contexto' => 'emails.welcome'
+                ]);
+            }
 
             return response()->json([
                 'success'=>	true,
@@ -664,8 +677,7 @@ class UsuariosController extends Controller
         if (count($usuarios)) {
             foreach ($usuarios as $idUsuario) {
                 $usuario = User::where('id', $idUsuario)->first();
-                
-                if ($usuario) {
+                if ($usuario && $usuario->firstname != 'NORTEAMERICA S.A.S.' && !$usuario->email_verified_at) {
                     $usuario->code_general = $this->generateRandomString(5);
                     $usuario->limit_general = Carbon::now()->format('Y-m-d H:i:s');
                     $usuario->save();
@@ -676,13 +688,19 @@ class UsuariosController extends Controller
                     $nombreUsuario = $usuario->firstname;
                     $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
                     
-                    Mail::to("abdel_123@hotmail.es")
-                        ->cc('noreply@maximoph.com')
+                    Mail::to($usuario->email)
+                        ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.com')
                         ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                             'nombre' => $nombreUsuario,
                             'url' => $url_welcome,
                         ]));
+
+                    envioEmail::create([
+                        'id_nit' => $nit->id,
+                        'email' => $nit->email_2,
+                        'contexto' => 'envio_factura'
+                    ]);
                 }
             }
         }

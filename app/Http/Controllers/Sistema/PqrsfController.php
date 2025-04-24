@@ -13,12 +13,17 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
+use App\Models\Sistema\Chat;
 use App\Models\Sistema\Pqrsf;
 use App\Models\Empresa\Empresa;
+use App\Models\Sistema\Message;
 use App\Models\Portafolio\Nits;
+use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\InmuebleNit;
+use App\Models\Sistema\MessageUser;
 use App\Models\Sistema\PqrsfTiempos;
 use App\Models\Sistema\PqrsfMensajes;
+use App\Models\Sistema\ArchivosCache;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\ArchivosGenerales;
@@ -61,7 +66,7 @@ class PqrsfController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos')
+            $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos', 'chats')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -77,10 +82,6 @@ class PqrsfController extends Controller
             if ($request->get('tipo') || $request->get('tipo') == '0') $pqrsf->where('tipo', $request->get('tipo'));
             if ($request->get('area')) $pqrsf->where('area', $request->get('area'));
             if ($request->get('estado') || $request->get('estado') == '0') $pqrsf->where('estado', $request->get('estado'));
-
-            $usuario_empresa = UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
-                ->where('id_usuario', $request->user()['id'])
-                ->first();
 
             if (!$request->user()->can('pqrsf responder')) {
                 $pqrsf->where('created_by', $request->user()['id']);
@@ -117,6 +118,22 @@ class PqrsfController extends Controller
             $pqrsf = Pqrsf::with('usuario', 'creador', 'nit', 'archivos', 'tiempos', 'mensajes.archivos')
                 ->where('id', $request->get('id'))
                 ->first();
+
+            if (!$pqrsf) {
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $pqrsf,
+                    'message'=> 'Datos Pqrsf cargados con exito!'
+                ]);
+            }
+
+            if (!$pqrsf || !$pqrsf->id_usuario) {
+                return response()->json([
+                    'success'=>	true,
+                    'data' => $pqrsf,
+                    'message'=> 'Datos Pqrsf cargados con exito!'
+                ]);
+            }
 
             if (!$pqrsf->id_usuario && $pqrsf->created_by != request()->user()->id) {
                 Pqrsf::where('id', $request->get('id'))
@@ -175,70 +192,74 @@ class PqrsfController extends Controller
                 ->where('id_empresa', request()->user()->id_empresa)
                 ->first();
 
-            if (!$usuarioEmpresa->id_nit) {
-                return response()->json([
-                    "success"=>false,
-                    'data' => [],
-                    "message"=>'El usuario '.$nombreUsuario.' no tiene nit asociado en la empresa'
-                ], 422);
-            }
-
+            $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
+            
             $pqrsf = Pqrsf::create([
                 'id_usuario' => null,
                 'id_nit' => $usuarioEmpresa->id_nit,
                 'tipo' => $request->get("tipo_pqrsf"),
                 'area' => $request->get("area_pqrsf"),
-                'dias' => $this->getDiasString($request),
-                'hoy' => $request->get('diaPorteria0') ? Carbon::now()->format('Y-m-d') : null,
                 'asunto' => $request->get("asunto_pqrsf"),
                 'descripcion' => $request->get("mensaje_pqrsf"),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
 
-            if ($request->file('photos')) {
-                foreach ($request->file('photos') as $photos) {
-                    $nameFile = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/pqrsf';
-                    $url = Storage::disk('do_spaces')->put($nameFile, $photos, 'public');
-    
-                    $archivo = new ArchivosGenerales([
-                        'tipo_archivo' => 'imagen',
-                        'url_archivo' => $url,
-                        'estado' => 1,
-                        'created_by' => request()->user()->id,
-                        'updated_by' => request()->user()->id
-                    ]);
-        
-                    $archivo->relation()->associate($pqrsf);
-                    $pqrsf->archivos()->save($archivo);
-                }
-            }
-            
-            $mensaje = '<b style="color: gold;">PQRSF</b>: Ha recibido '.$this->tipoPqrsf($pqrsf->tipo).' para el area: '.$this->areaPqrsf($pqrsf->area);
-            
-            $notificacion = (new NotificacionGeneral(
-                request()->user()->id,
-                $request->get('id_usuario_pqrsf'),
-                $pqrsf
-            ));
-            $idUsuarioNotificacion = $pqrsf->id_usuario;
-            
-            $id_notificacion = $notificacion->crear((object)[
-                'id_usuario' =>  $idUsuarioNotificacion,
-                'mensaje' => $mensaje,
-                'function' => 'abrirPqrsfNotificacion',
-                'data' => $pqrsf->id,
-                'estado' => 0,
-                'id_rol' => 1,
+            $chat = new Chat([
+                'name' => 'PQRSF #'.$pqrsf->id,
+                'is_group' => true,
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
-            ], true);
-            $notificacion->notificar(
-                [
-                    'pqrsf-mensaje-responder-'.$request->user()['has_empresa']
-                ],
-                ['id_pqrsf' => $pqrsf->id, 'data' => [], 'id_notificacion' => $id_notificacion]
-            );
+            ]);
+
+            $chat->relation()->associate($pqrsf);
+            $pqrsf->chats()->save($chat);
+
+            ChatUser::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+            ]);
+
+            $mensaje = Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => request()->user()->id,
+                'content' => $request->get("mensaje_pqrsf"),
+                'status' => 1
+            ]);
+
+            MessageUser::firstOrCreate([
+                'message_id' => $mensaje->id,
+                'user_id' => request()->user()->id,
+            ]);
+            
+            $archivos = $request->get('archivos');
+            
+            if (count($archivos)) {
+                foreach ($archivos as $archivo) {
+                    $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                    $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/pqrsf/'.$archivoCache->name_file;
+                    if (Storage::exists($archivoCache->relative_path)) {
+                        Storage::move($archivoCache->relative_path, $finalPath);
+                        
+                        $archivo = new ArchivosGenerales([
+                            'tipo_archivo' => $archivoCache->tipo_archivo,
+                            'url_archivo' => $finalPath,
+                            'estado' => 1,
+                            'created_by' => request()->user()->id,
+                            'updated_by' => request()->user()->id
+                        ]);
+                        $archivo->relation()->associate($mensaje);
+                        $mensaje->archivos()->save($archivo);
+                    }
+                    $archivoCache->delete();
+                }
+            }
+
+            event(new PrivateMessageEvent('mensajeria-'.$empresa->token_db_maximo, [
+                'chat_id' => $chat->id,
+                'permisos' => 'mensajes pqrsf',
+                'action' => 'creacion_pqrsf'
+            ]));
 
             DB::connection('max')->commit();
 
@@ -689,8 +710,8 @@ class PqrsfController extends Controller
 
                 if ($nit->email_1) {
                     Mail::to($nit->email_1)
-                    ->cc('noreply@maximoph.com')
-                    ->bcc('bcc@maximoph.com')
+                    ->cc('noreply@maximoph.co')
+                    ->bcc('bcc@maximoph.co')
                     ->queue(new GeneralEmail($empresa->razon_social, 'emails.mensaje', [
                         'nombre' => $nit->nombre_completo,
                         'mensaje' => $request->get('texto'),

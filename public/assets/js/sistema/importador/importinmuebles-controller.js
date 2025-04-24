@@ -1,5 +1,5 @@
 var import_inmuebles_table = null;
-var btnImportRecibo = document.getElementById('actualizarPlantillaInmuebles');
+var channelImportadorInmuebles = pusher.subscribe('importador-inmuebles-'+localStorage.getItem("notificacion_code"));
 
 function importinmueblesInit() {
     import_inmuebles_table = $('#importInmuebles').DataTable({
@@ -42,7 +42,12 @@ function importinmueblesInit() {
             {"data":'valor_aumento', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'numero_documento'},
             {"data":'nombre_nit'},
-            {"data":'tipo_nit'},
+            {"data": function (row, type, set){
+                if (row.tipo == 0) return 'INQUILINO';
+                if (row.tipo == 1) return 'PROPIETARIO';
+                if (row.tipo == 2) return 'PROPIETARIO e INQUILINO';
+                return '';
+            }},
             {"data":'porcentaje_administracion'},
             {"data":'valor_administracion', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'observacion'}
@@ -53,6 +58,121 @@ function importinmueblesInit() {
         if (res.success && res.data.length) {
             totalesInmueblesImport();
         }
+    });
+
+    var btnImportInmuebles = document.getElementById('actualizarPlantillaInmuebles');
+    btnImportInmuebles.removeEventListener('click', handleInmuebleClick);
+    btnImportInmuebles.addEventListener('click', handleInmuebleClick);
+
+    $("#form-importador-inmuebles").submit(function(event) {
+        event.preventDefault();
+    
+        $('#cargarPlantillaInmuebles').hide();
+        $('#actualizarPlantillaInmuebles').hide();
+        $('#cargarPlantillaInmueblesLoagind').show();
+    
+        import_inmuebles_table.rows().remove().draw();
+    
+        var ajxForm = document.getElementById("form-importador-inmuebles");
+        var data = new FormData(ajxForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "importinmuebles-importar");
+        xhr.send(data);
+        xhr.onload = function(res) {
+    
+            var data = res.currentTarget;
+            if (data.responseURL == 'https://maximoph.co/login') {
+                caduqueSession();
+            }
+            if (data.status > 299) {
+                return;
+            }
+    
+            var responseData = JSON.parse(res.currentTarget.response);
+    
+            if (responseData.success) {
+                agregarToast('info', 'Cargando inmuebles', 'Se le notificará cuando la importación haya terminado!', true);
+            } else {
+                $('#cargarPlantillaInmuebles').show();
+                $('#cargarPlantillaInmueblesLoagind').hide();
+                agregarToast('error', 'Carga errada', 'errorsMsg');
+            }
+        };
+        xhr.onerror = function (res) {
+            $('#cargarPlantillaInmuebles').hide();
+            $('#cargarPlantillaInmueblesLoagind').show();
+        };
+        return false;
+    });
+}
+
+channelImportadorInmuebles.bind('notificaciones', function(data) {
+
+    if (data.success) {
+        $('#cargarPlantillaInmueblesLoagind').hide();
+
+        if (data.accion == 1) {
+            agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+            $('#cargarPlantillaInmuebles').show();
+            $('#actualizarPlantillaInmuebles').show();
+            import_inmuebles_table.ajax.reload(function(res) {
+                if (res.success) {
+                    totalesInmueblesImport();
+                }
+            });
+        }
+
+        if (data.accion == 2) {
+            agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+            $('#cargarPlantillaInmuebles').show();
+            import_inmuebles_table.ajax.reload(function(res) {
+                if (res.success) {
+                    totalesInmueblesImport();
+                }
+            });
+        }
+        
+    } else {
+        $('#cargarPlantillaInmuebles').show();
+        $('#actualizarPlantillaInmuebles').hide();
+        $('#cargarPlantillaInmueblesLoagind').hide();
+        agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+    }
+});
+
+function handleInmuebleClick() {
+
+    $('#cargarPlantillaInmuebles').hide();
+    $('#actualizarPlantillaInmuebles').hide();
+    $('#cargarPlantillaInmueblesLoagind').show();
+
+    $.ajax({
+        method: 'POST',
+        url: base_url + 'inmuebles-cargar-import',
+        headers: headers,
+        data: JSON.stringify({actualizar_valores: $("input[type='checkbox']#actualizar_valores").is(':checked') ? '1' : '0'}),
+        dataType: 'json',
+    }).done((res) => {
+
+        agregarToast('info', 'Importando inmuebles', 'Se le notificará cuando la importación haya terminado!', true);
+    }).fail((err) => {
+
+        $('#cargarPlantillaInmuebles').show();
+        $('#cargarPlantillaInmueblesLoagind').hide();
+        
+        var errorsMsg = "";
+        var mensaje = err.responseJSON.message;
+        if(typeof mensaje  === 'object' || Array.isArray(mensaje)){
+            for (field in mensaje) {
+                var errores = mensaje[field];
+                for (campo in errores) {
+                    errorsMsg += "- "+errores[campo]+" <br>";
+                }
+            };
+        } else {
+            errorsMsg = mensaje
+        }
+        agregarToast('error', 'Importación errada', errorsMsg);
     });
 }
 
@@ -69,7 +189,7 @@ function totalesInmueblesImport() {
         } else {
             $('#totales_import_inmuebles').hide();
         }
-        if (res.data.errores <= 0 &&  res.data.buenos > 0) {
+        if (res.data.buenos > 0) {
             $('#actualizarPlantillaInmuebles').show();
         }
 
@@ -95,101 +215,5 @@ $(document).on('click', '#descargarPlantillaInmuebles', function () {
     }).done((res) => {
         window.open(res.url, "_blank");
     }).fail((err) => {
-    });
-});
-
-$("#form-importador-inmuebles").submit(function(event) {
-    event.preventDefault();
-
-    $('#cargarPlantillaInmuebles').hide();
-    $('#actualizarPlantillaInmuebles').hide();
-    $('#cargarPlantillaInmueblesLoagind').show();
-
-    import_inmuebles_table.rows().remove().draw();
-
-    var ajxForm = document.getElementById("form-importador-inmuebles");
-    var data = new FormData(ajxForm);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "importinmuebles-importar");
-    xhr.send(data);
-    xhr.onload = function(res) {
-        console.log('res: ',res);
-        var data = res.currentTarget;
-        if (data.responseURL == 'https://maximoph.com/login') {
-            caduqueSession();
-        }
-        if (data.status > 299) {
-            agregarToast('error', 'Ha ocurrido un error', 'Error '+data.status);
-        }
-        var responseData = JSON.parse(res.currentTarget.response);
-        var errorsMsg = '';
-        $('#cargarPlantillaInmuebles').show();
-        $('#cargarPlantillaInmueblesLoagind').hide();
-
-        if (responseData.success) {
-            import_inmuebles_table.ajax.reload(function(res) {
-                if (res.success && res.data.length) {
-                    totalesInmueblesImport();
-                }
-            });
-            agregarToast('exito', 'Datos cargados', 'Inmuebles cargados con exito!', true);
-        } else {
-            agregarToast('error', 'Carga errada', 'errorsMsg');
-        }
-    };
-    xhr.onerror = function (res) {
-        $('#cargarPlantillaInmuebles').hide();
-        $('#cargarPlantillaInmueblesLoagind').show();
-    };
-    return false;
-});
-
-btnImportRecibo.addEventListener('click', event => {
-    event.preventDefault();
-
-    $('#cargarPlantillaInmuebles').hide();
-    $('#actualizarPlantillaInmuebles').hide();
-    $('#cargarPlantillaInmueblesLoagind').show();
-
-    $.ajax({
-        method: 'POST',
-        url: base_url + 'inmuebles-cargar-import',
-        headers: headers,
-        data: JSON.stringify({actualizar_valores: $("input[type='checkbox']#actualizar_valores").is(':checked') ? '1' : '0'}),
-        dataType: 'json',
-    }).done((res) => {
-        $('#cargarPlantillaInmuebles').show();
-        $('#actualizarPlantillaInmuebles').hide();
-        $('#cargarPlantillaInmueblesLoagind').hide();
-        import_inmuebles_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                totalesInmueblesImport();
-            }
-        });
-        agregarToast('exito', 'Inmuebles importadas', 'Inmuebles importadas con exito!', true);
-    }).fail((err) => {
-
-        $('#cargarPlantillaInmuebles').show();
-        $('#cargarPlantillaInmueblesLoagind').hide();
-        import_inmuebles_table.ajax.reload(function(res) {
-            if (res.success && res.data.length) {
-                totalesInmueblesImport();
-            }
-        });
-        
-        var mensaje = err.responseJSON.message;
-        var errorsMsg = "";
-        if (typeof mensaje === 'object') {
-            for (field in mensaje) {
-
-                var errores = mensaje[field];
-                for (campo in errores) {
-                    errorsMsg += field+": "+errores[campo]+" <br>";
-                }
-            };
-            agregarToast('error', 'Actuailización errada', errorsMsg);
-        } else {
-            agregarToast('error', 'Actuailización errada', mensaje);
-        }
     });
 });
