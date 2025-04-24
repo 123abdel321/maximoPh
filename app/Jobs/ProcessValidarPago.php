@@ -108,6 +108,7 @@ class ProcessValidarPago implements ShouldQueue
 
     private function aprobarRecibo($recibo, $message)
     {
+        
         $consecutivo = $this->getNextConsecutive($recibo->id_comprobante, $recibo->fecha_manual);
         $placetopay_forma_pago = Entorno::where('nombre', 'placetopay_forma_pago')->first();
         $placetopay_forma_pago = $placetopay_forma_pago ? $placetopay_forma_pago->valor : 2;

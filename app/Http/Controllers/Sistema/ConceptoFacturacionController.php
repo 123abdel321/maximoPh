@@ -277,7 +277,6 @@ class ConceptoFacturacionController extends Controller
     {
         $conceptoFacturacion = ConceptoFacturacion::select(
             \DB::raw('*'),
-
             \DB::raw("CONCAT(codigo, ' - ', nombre_concepto) as text")
         );
 

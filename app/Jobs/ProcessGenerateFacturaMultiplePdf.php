@@ -2,22 +2,23 @@
 
 namespace App\Jobs;
 
+
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
+use App\Events\PrivateMessageEvent;
+use App\Models\Sistema\ArchivosCache;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Sistema\ArchivosCache;
-use App\Events\PrivateMessageEvent;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use App\Helpers\Printers\FacturacionPdfMultiple;
 
 class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
-    public $timeout = 240000;
+    public $timeout = 8999;
 
     protected $empresa;
     protected $nits;
@@ -50,6 +51,7 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
         
         try {
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
+            $facturasPdf = null;
 
             $facturasPdf = (new FacturacionPdfMultiple($this->empresa, $this->nits, $this->periodo, $this->idZona))
                 ->buildPdf()
@@ -79,8 +81,6 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
                 'user' => $this->idUser,
                 'empresa' => $this->empresa->id,
             ]);
-
-            throw $exception;
 		}
     }
 
@@ -93,7 +93,5 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
             'user' => $this->idUser,
             'empresa' => $this->empresa->id,
         ]);
-
-        throw $exception;
     }
 }

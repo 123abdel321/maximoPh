@@ -16,7 +16,6 @@ use App\Helpers\PlacetoPay\PaymentRequest;
 use App\Http\Controllers\Traits\BegConsecutiveTrait;
 //MODELS
 use App\Models\Sistema\Entorno;
-
 use App\Models\Portafolio\Nits;
 use App\Models\Portafolio\ConRecibos;
 use App\Models\Portafolio\PlanCuentas;

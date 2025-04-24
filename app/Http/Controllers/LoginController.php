@@ -132,20 +132,20 @@ class LoginController extends Controller
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
 
-        if($captcha_token){
-			$captcha_response = $this->validateReCaptcha($captcha_token);
-			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
-				return response()->json([
-					'success' => false,
-					'message' => 'Falló la validación de reCAPTCHA'
-				], 401);
-			}
-		}else{
-			return response()->json([
-                'success' => false,
-				'message' => 'Falló la validación de reCAPTCHA'
-			], 401);
-		}
+        // if($captcha_token){
+		// 	$captcha_response = $this->validateReCaptcha($captcha_token);
+		// 	if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
+		// 		return response()->json([
+		// 			'success' => false,
+		// 			'message' => 'Falló la validación de reCAPTCHA'
+		// 		], 401);
+		// 	}
+		// }else{
+		// 	return response()->json([
+        //         'success' => false,
+		// 		'message' => 'Falló la validación de reCAPTCHA'
+		// 	], 401);
+		// }
 
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         $browser        = "Desconocido";
@@ -211,6 +211,7 @@ class LoginController extends Controller
         if (Auth::attempt($credenciales1) || Auth::attempt($credenciales2)) {
             $request->session()->regenerate();
             $user =  User::find(Auth::user()->id);
+            
             $data = null;
             if($user->tokens()->where('tokenable_id', $user->id)
                 ->where('name', 'web_token')
@@ -277,7 +278,7 @@ class LoginController extends Controller
                 ->where('id_empresa', $empresaSelect->id)
                 ->with('rol')
                 ->first();
-
+                
             $permisosNombre = Permission::whereIn('id', explode(',', $usuarioPermisosEmpresa->rol->ids_permission))->get();
             $nombrePermisos = [];
             foreach ($permisosNombre as $permisoNombre) {
@@ -482,12 +483,12 @@ class LoginController extends Controller
     public function loginPortafolioERP (Request $request)
     {
         try {
+            copyDBConnection('cliporta', 'cliporta');
+            setDBInConnection('cliporta', env("CLIPORTA_DB_DATABASE", "adminclientes_test"));
+            
             $userMaximo =  User::find($request->user()['id']);
             $empresaMaximo = Empresa::find($request->user()['id_empresa']);
             $userPortafolio =  UserERP::where('email', $userMaximo->email)->first();
-
-            copyDBConnection('cliporta', 'cliporta');
-            setDBInConnection('cliporta', env("CLIPORTA_DB_DATABASE", "adminclientes_test"));
 
             if ($userMaximo && $userPortafolio) {
                 if (($userMaximo->rol_maximo == 1 && $userPortafolio->rol_portafolio != 1) || ($userMaximo->rol_maximo != 1 && $userPortafolio->rol_portafolio == 1)) {
