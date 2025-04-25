@@ -287,6 +287,8 @@ class LoginController extends Controller
 
             $user->syncPermissions($nombrePermisos);
 
+            $data = [];
+
             if ($responseGeo) {
                 $data = [
                     'id_usuario' => $request->user() ? $request->user()->id : null,
