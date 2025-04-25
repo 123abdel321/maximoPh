@@ -1,7 +1,7 @@
 const host = window.location.host;
 
 let base_url, base_web, base_web_erp, base_url_erp;
-
+console.log('aca en sistemas');
 if (host.includes("maximoph.co")) {
     base_url = "https://maximoph.co/api/";
     base_web = "https://maximoph.co/";
