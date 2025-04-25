@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('app:validar-pagos-pasarela')->everySixMinutes();
+        $schedule->command('app:validar-pagos-pasarela')->cron('*/6 * * * *');
     }
 
     /**
