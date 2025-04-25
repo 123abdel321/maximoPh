@@ -59,7 +59,7 @@ class ProcessValidarPago implements ShouldQueue
 
         $response = (new PaymentStatus(
             $recibo->request_id
-        ))->send($this->empresa->id);
+        ))->send();
 
         if ($response->status < 300) {
             $status = (object)$response->response->status;
@@ -71,7 +71,6 @@ class ProcessValidarPago implements ShouldQueue
                     $this->aprobarRecibo($recibo, $status->message);
                     break;
                 case 'PENDING':
-                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute());
                     $recibo->observacion = $status->message;
                     $recibo->save();
                     break;
@@ -82,12 +81,10 @@ class ProcessValidarPago implements ShouldQueue
                     $recibo->save();
                     break;
                 case 'PARTIAL_EXPIRED':
-                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute(3));
                     $recibo->observacion = $status->message;
                     $recibo->save();
                     break;
                 case 'APPROVED_PARTIAL':
-                    ProcessValidarPago::dispatch($this->id, $this->empresa, $this->id_usuario)->delay(now()->addMinute(2));
                     $recibo->observacion = $status->message;
                     $recibo->save();
                     break;
