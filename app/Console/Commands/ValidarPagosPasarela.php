@@ -69,8 +69,10 @@ class ValidarPagosPasarela extends Command
                 gc_collect_cycles();
             }
 
-            $executionTime = round((microtime(true) - $startTime) / 60, 2);
-            info("\nProceso completado. Total pagos validados: {$this->totalValidaciones}. Tiempo total: {$executionTime} minutos");
+            if ($this->totalValidaciones) {
+                $executionTime = round((microtime(true) - $startTime) / 60, 2);
+                info("\nProceso completado. Total pagos validados: {$this->totalValidaciones}. Tiempo total: {$executionTime} minutos");
+            }
             
             return Command::SUCCESS;
 
