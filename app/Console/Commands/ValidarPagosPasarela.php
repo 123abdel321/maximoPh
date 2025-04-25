@@ -35,7 +35,7 @@ class ValidarPagosPasarela extends Command
     public function handle()
     {
         $startTime = microtime(true);
-        $this->info('Iniciando validación de pagos...');
+        info('Iniciando validación de pagos...');
 
         try {
             
@@ -45,7 +45,7 @@ class ValidarPagosPasarela extends Command
                 ->cursor(); // Usar cursor para mejor manejo de memoria
 
             foreach ($empresas as $empresa) {
-                $this->info("\nValidando pagos de: {$empresa->razon_social}");
+                info("\nValidando pagos de: {$empresa->razon_social}");
 
                 // Configurar conexiones
                 $this->setUpDatabaseConnections($empresa);
@@ -62,7 +62,7 @@ class ValidarPagosPasarela extends Command
             }
 
             $executionTime = round((microtime(true) - $startTime) / 60, 2);
-            $this->info("\nProceso completado. Tiempo total: {$executionTime} minutos");
+            info("\nProceso completado. Tiempo total: {$executionTime} minutos");
             
             return Command::SUCCESS;
 
@@ -78,7 +78,7 @@ class ValidarPagosPasarela extends Command
 
         foreach ($empresas as $empresa) {
 
-            $this->info("Validando pagos de: {$empresa->razon_social}");
+            info("Validando pagos de: {$empresa->razon_social}");
 
             copyDBConnection('max', 'max');
             setDBInConnection('max', $empresa->token_db_maximo);
@@ -108,7 +108,7 @@ class ValidarPagosPasarela extends Command
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $empresa->token_db_portafolio);
             
-            $this->info("Conexiones configuradas correctamente");
+            info("Conexiones configuradas correctamente");
         } catch (\Exception $e) {
             $this->error("Error configurando conexiones para {$empresa->razon_social}: " . $e->getMessage());
             throw $e;
@@ -119,7 +119,7 @@ class ValidarPagosPasarela extends Command
     {
         try {
             // Aquí iría la lógica de validación
-            $this->info("Validando recibo ID: {$recibo->id}");
+            info("Validando recibo ID: {$recibo->id}");
             
         } catch (\Exception $e) {
             $this->error("Error validando recibo {$recibo->id}: " . $e->getMessage());
