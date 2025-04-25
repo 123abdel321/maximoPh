@@ -287,7 +287,7 @@
     <script src="assets/js/plugins/filepond-plugin-file-validate-type.js"></script>
     
     <!-- SISTEMA -->
-    <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}"></script>
     <!-- NOTIFICACIONES -->
     <script src="assets/js/sistema/notificaciones.js?v={{ config('app.version') }}" rel="stylesheet"></script>
     <script src="assets/js/sistema/mensajes.js?v={{ config('app.version') }}" rel="stylesheet"></script>
