@@ -268,9 +268,9 @@ function iniciarScrollBar() {
     const mensajeBody = document.querySelector('#mensaje-body');
     const offcanvasBodyPorteria = document.querySelector('#offcanvas-body-notificaciones');
 
-    new PerfectScrollbar(chatBody);
-    new PerfectScrollbar(mensajeBody);
-    new PerfectScrollbar(offcanvasBodyPorteria);
+    if(chatBody) new PerfectScrollbar(chatBody);
+    if(mensajeBody) new PerfectScrollbar(mensajeBody);
+    if(offcanvasBodyPorteria) new PerfectScrollbar(offcanvasBodyPorteria);
 }
 
 function setNotificaciones(total = null) {
