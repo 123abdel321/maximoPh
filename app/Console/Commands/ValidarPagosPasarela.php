@@ -37,8 +37,6 @@ class ValidarPagosPasarela extends Command
     public function handle()
     {
         $startTime = microtime(true);
-        
-        info('Iniciando validación de pagos...');
 
         try {
             
@@ -48,16 +46,22 @@ class ValidarPagosPasarela extends Command
                 ->cursor(); // Usar cursor para mejor manejo de memoria
 
             foreach ($empresas as $empresa) {
+
                 $this->empresa = $empresa;
                 // Configurar conexiones
                 $this->setUpDatabaseConnections($empresa);
 
-                ConRecibos::where('estado', 2)
-                    ->chunk($this->chunkSize, function ($recibos) {
-                        foreach ($recibos as $recibo) {
-                            $this->validarPlaceToPay($recibo);
-                        }
-                    });
+                $recibos = ConRecibos::where('estado', 2)->get();
+
+                if (!count($recibos)) {
+                    continue;
+                }
+
+                info("Validando pagos de {$empresa->razon_social}");
+
+                foreach ($recibos as $recibo) {
+                    $this->validarPlaceToPay($recibo);
+                }
 
                 // Liberar memoria
                 gc_collect_cycles();
@@ -93,6 +97,8 @@ class ValidarPagosPasarela extends Command
     {
         try {
             $this->totalValidaciones++;
+
+            info("Validando pago: {$recibo->id}");
             
             $response = (new PaymentStatus(
                 $recibo->request_id
