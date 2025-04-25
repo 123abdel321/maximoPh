@@ -234,9 +234,6 @@
         const mensajeNovedad = @json(auth()->user()->can('mensajes novedades'));
     </script>
 
-    <!-- SISTEMA -->
-    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
@@ -280,7 +277,7 @@
     <!-- MDB -->
     <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <!-- TURNOS -->
-    <script src="{{ asset('assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="assets/js/sistema/turnos-generales.js?v={{ config('app.version') }}"></script>
     <!-- FILEPOND -->
     <!-- <script src="{{ asset('assets/js/plugins/pintura.js') }}"></script> -->
     <script src="{{ asset('assets/js/plugins/filepond.js') }}"></script>
@@ -290,9 +287,13 @@
     <script src="{{ asset('assets/js/plugins/filepond-plugin-image-editor.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/filepond-plugin-file-validate-type.js') }}"></script>
 
+    <!-- SISTEMA -->
+    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <!-- <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}"></script> -->
     <!-- NOTIFICACIONES -->
-    <script src="{{ asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
-    <script src="{{ asset('assets/js/sistema/mensajes.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
+    <script src="assets/js/sistema/notificaciones.js?v={{ config('app.version') }}"></script>
+    <script src="assets/js/sistema/mensajes.js?v={{ config('app.version') }}"></script>
+
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->
     <script src="{{ asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
