@@ -1406,7 +1406,7 @@
 
     <!-- Descripción y keywords para SEO -->
     <meta name="description" content="MAXIMOPH: Software líder para administración de propiedades horizontales. Soluciones integrales para conjuntos residenciales con módulos administrativos, financieros y contables en tiempo real.">
-    <meta name="keywords" content="software propiedad horizontal, administración conjuntos residenciales, contabilidad condominios, control visitas, gestión paquetes, comunicación portería, maximoph">
+    <meta name="keywords" content="software propiedad horizontal, administración conjuntos residenciales, contabilidad condominios, control visitas, gestión paquetes, comunicación portería, maximoph, gestion ph, software condominios, ph propiedad horizontal">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -1468,6 +1468,24 @@
     <!-- Pre-conexión -->
     <link rel="preconnect" href="https://maximoph.co">
     <link rel="dns-prefetch" href="https://maximoph.co">
+
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MAXIMOPH",
+    "alternateName": ["Maximo PH", "Software PH", "Propiedad Horizontal"],
+    "description": "Software especializado en la gestión de Propiedades Horizontales y condominios",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web Application",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+    }
+    }
+    </script>
 
 </head>
 
