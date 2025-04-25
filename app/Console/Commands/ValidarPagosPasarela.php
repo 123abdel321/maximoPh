@@ -51,7 +51,9 @@ class ValidarPagosPasarela extends Command
                 // Configurar conexiones
                 $this->setUpDatabaseConnections($empresa);
 
-                $recibos = ConRecibos::where('estado', 2)->get();
+                $recibos = ConRecibos::where('estado', 2)
+                    ->whereNotNull('request_id')
+                    ->get();
 
                 if (!count($recibos)) {
                     continue;
