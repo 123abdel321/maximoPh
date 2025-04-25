@@ -517,10 +517,10 @@ class EstadoCuentaController extends Controller
                 request()->user()->id_empresa
             ))->send();
 
+            $recibo->request_id = $response->response->requestId;
+            $recibo->save();
+
             if ($response->status < 300) {
-                
-                $recibo->request_id = $response->response->requestId;
-                $recibo->save();
 
                 $empresa = Empresa::where('id', $request->user()['id_empresa'])->first();
                 DB::connection('sam')->commit();
