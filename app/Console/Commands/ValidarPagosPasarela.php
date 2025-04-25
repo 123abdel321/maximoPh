@@ -45,7 +45,6 @@ class ValidarPagosPasarela extends Command
                 ->cursor(); // Usar cursor para mejor manejo de memoria
 
             foreach ($empresas as $empresa) {
-                info("\nValidando pagos de: {$empresa->razon_social}");
 
                 // Configurar conexiones
                 $this->setUpDatabaseConnections($empresa);
@@ -70,33 +69,6 @@ class ValidarPagosPasarela extends Command
             $this->error("Error: " . $e->getMessage());
             return Command::FAILURE;
         }
-
-        $empresas = DB::connection('clientes')
-            ->table('empresas')
-            ->select('razon_social', 'token_db_maximo', 'token_db_portafolio')
-            ->get();
-
-        foreach ($empresas as $empresa) {
-
-            info("Validando pagos de: {$empresa->razon_social}");
-
-            copyDBConnection('max', 'max');
-            setDBInConnection('max', $empresa->token_db_maximo);
-
-            copyDBConnection('sam', 'sam');
-            setDBInConnection('sam', $empresa->token_db_portafolio);
-
-            $recibos = ConRecibos::where('estado', 2)->get();
-
-            if (!count($recibos)) {
-                continue;
-            }
-
-            foreach ($recibos as $recibo) {
-                $this->validarPlaceToPay($recibo);
-            }
-
-        }
     }
 
     protected function setUpDatabaseConnections($empresa): void
@@ -108,7 +80,6 @@ class ValidarPagosPasarela extends Command
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $empresa->token_db_portafolio);
             
-            info("Conexiones configuradas correctamente");
         } catch (\Exception $e) {
             $this->error("Error configurando conexiones para {$empresa->razon_social}: " . $e->getMessage());
             throw $e;
