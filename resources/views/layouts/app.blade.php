@@ -277,7 +277,8 @@
     <!-- MDB -->
     <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <!-- TURNOS -->
-    <script src="assets/js/sistema/turnos-generales.js?v={{ config('app.version') }}"></script>
+    <script src="{{ asset('assets/js/sistema/turnos-generales.js') }}?v={{ config('app.version') }}"></script>
+
     <!-- FILEPOND -->
     <!-- <script src="{{ asset('assets/js/plugins/pintura.js') }}"></script> -->
     <script src="{{ asset('assets/js/plugins/filepond.js') }}"></script>
@@ -288,11 +289,11 @@
     <script src="{{ asset('assets/js/plugins/filepond-plugin-file-validate-type.js') }}"></script>
 
     <!-- SISTEMA -->
-    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}" rel="stylesheet"></script>
-    <!-- <script src="assets/js/sistema/sistema.js?v={{ config('app.version') }}"></script> -->
+    <script src="{{ asset('assets/js/sistema/sistema.js') }}?v={{ config('app.version') }}"></script>
     <!-- NOTIFICACIONES -->
-    <script src="assets/js/sistema/notificaciones.js?v={{ config('app.version') }}"></script>
-    <script src="assets/js/sistema/mensajes.js?v={{ config('app.version') }}"></script>
+    <script src="{{ asset('assets/js/sistema/notificaciones.js') }}?v={{ config('app.version') }}"></script>
+    <script src="{{ asset('assets/js/sistema/mensajes.js') }}?v={{ config('app.version') }}"></script>
+
 
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->
