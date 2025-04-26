@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Máximo - Software de Propiedad Horizontal</title>
+    <title>MAXIMOPH - Software de Propiedad Horizontal | Acceso al Sistema</title>
     <style>
 
         .navbar {
@@ -1405,13 +1405,13 @@
     <meta name="robots" content="index, follow">
 
     <!-- Descripción y keywords para SEO -->
-    <meta name="description" content="MAXIMOPH: Software líder para administración de propiedades horizontales. Soluciones integrales para conjuntos residenciales con módulos administrativos, financieros y contables en tiempo real.">
+    <meta name="description" content="MAXIMOPH: Software líder para administración de propiedades horizontales. Accede ahora a módulos administrativos, financieros y contables en tiempo real. Gestión integral para condominios y conjuntos residenciales.">
     <meta name="keywords" content="software propiedad horizontal, administración conjuntos residenciales, contabilidad condominios, control visitas, gestión paquetes, comunicación portería, maximoph, gestion ph, software condominios, ph propiedad horizontal">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://maximoph.co/">
-    <meta property="og:title" content="MAXIMOPH | Software para Propiedad Horizontal">
+    <meta property="og:title" content="MAXIMOPH - Software de Propiedad Horizontal | Acceso al Sistema">
     <meta property="og:description" content="Solución integral para la administración de conjuntos residenciales. Control financiero, contable y operativo en tiempo real con MAXIMOPH.">
     <meta property="og:image" content="https://maximoph.co/img/og-image-maximoph.jpg">
     <meta property="og:image:width" content="1200">
@@ -1422,7 +1422,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@MaximoPH">
     <meta name="twitter:creator" content="@MaximoPH">
-    <meta name="twitter:title" content="MAXIMOPH | Software para Propiedad Horizontal">
+    <meta name="twitter:title" content="MAXIMOPH - Software de Propiedad Horizontal | Acceso al Sistema">
     <meta name="twitter:description" content="Transforma la gestión de tu propiedad horizontal con nuestro ecosistema administrativo completo en la nube.">
     <meta name="twitter:image" content="https://maximoph.co/img/twitter-card-maximoph.jpg">
 
@@ -1447,7 +1447,7 @@
     <link rel="canonical" href="https://maximoph.co/">
 
     <!-- Rutas importantes -->
-    <link rel="alternate" href="https://maximoph.co/login" title="Acceso a MAXIMOPH">
+    <link rel="alternate" href="https://maximoph.co/login" title="Acceso al Sistema MAXIMOPH - Iniciar Sesión">
 
     <!-- Font Size -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -1473,17 +1473,18 @@
     <script type="application/ld+json">
     {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "MAXIMOPH",
-    "alternateName": ["Maximo PH", "Software PH", "Propiedad Horizontal"],
-    "description": "Software especializado en la gestión de Propiedades Horizontales y condominios",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web Application",
-    "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-    }
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Inicio",
+        "item": "https://maximoph.co/"
+    },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Acceso al Sistema",
+        "item": "https://maximoph.co/login"
+    }]
     }
     </script>
 
