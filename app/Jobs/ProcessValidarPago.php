@@ -55,7 +55,7 @@ class ProcessValidarPago implements ShouldQueue
 
         $recibo = ConRecibos::where('id', $this->id)->first();
 
-        if ($recibo->estado == 1) return;
+        if ($recibo && $recibo->estado == 1) return;
 
         $response = (new PaymentStatus(
             $recibo->request_id
