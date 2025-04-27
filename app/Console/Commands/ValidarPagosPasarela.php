@@ -29,6 +29,7 @@ class ValidarPagosPasarela extends Command
     protected $signature = 'app:validar-pagos-pasarela';
     protected $description = 'Validar pagos de place to pay';
 
+    protected $id_usuario;
     protected $timeout = 10;
     protected $chunkSize = 34;
     protected $empresa = null;
