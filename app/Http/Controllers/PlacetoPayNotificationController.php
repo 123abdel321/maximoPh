@@ -50,8 +50,11 @@ class PlacetoPayNotificationController extends Controller
         // Buscar Empresa
         $empresa = Empresa::find($empresa_id);
 
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $empresa->token_db_maximo);
+
         copyDBConnection('sam', 'sam');
-        setDBInConnection('sam', $empresa->token_db);
+        setDBInConnection('sam', $empresa->token_db_portafolio);
 
         // Buscar el recibo
         $recibo = ConRecibos::where('id', $recibo_id)->first();
