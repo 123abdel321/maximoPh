@@ -64,21 +64,6 @@ class PlacetoPayNotificationController extends Controller
             return response('Not Found', 404);
         }
 
-        // Validar firma (similar a tu otra implementación)
-        if ($signature) {
-            $secretKey = Entorno::where('nombre', 'placetopay_trankey')->first()->valor;
-            $generatedSignature = sha1($requestId . $status . $reference . $secretKey);
-
-            if ($generatedSignature !== $signature) {
-                Log::error('Firma inválida en notificación', [
-                    'requestId' => $requestId,
-                    'status' => $status,
-                    'reference' => $reference
-                ]);
-                return response('Unauthorized', 401);
-            }
-        }
-
         // Mapear estados y actualizar recibo
         $estado = $this->mapStatus($status);
         
