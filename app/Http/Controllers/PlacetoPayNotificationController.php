@@ -159,8 +159,8 @@ class PlacetoPayNotificationController extends Controller
                     'total_saldo' => $extracto->saldo,
                     'nuevo_saldo' => $extracto->saldo - $totalAbonado,
                     'total_anticipo' => 0,
-                    'created_by' => $this->id_usuario,
-                    'updated_by' => $this->id_usuario
+                    'created_by' => $recibo->created_by,
+                    'updated_by' => $recibo->created_by
                 ]);
                 //AGREGAR MOVIMIENTO CONTABLE
                 $doc = new DocumentosGeneral([
@@ -171,8 +171,8 @@ class PlacetoPayNotificationController extends Controller
                     "documento_referencia" => $cuentaRecord->exige_documento_referencia ? $extracto->documento_referencia : null,
                     "debito" => $totalAbonado,
                     "credito" => $totalAbonado,
-                    "created_by" => $this->id_usuario,
-                    "updated_by" => $this->id_usuario
+                    "created_by" => $recibo->created_by,
+                    "updated_by" => $recibo->created_by
                 ]);
                 
                 $documentoGeneral->addRow($doc, $cuentaRecord->naturaleza_ingresos);
@@ -187,8 +187,8 @@ class PlacetoPayNotificationController extends Controller
                 'documento_referencia' => null,
                 'debito' => $recibo->total_abono,
                 'credito' => $recibo->total_abono,
-                'created_by' => $this->id_usuario,
-                'updated_by' => $this->id_usuario
+                'created_by' => $recibo->created_by,
+                'updated_by' => $recibo->created_by
             ]);
     
             $documentoGeneral->addRow($doc, $formaPago->cuenta->naturaleza_ventas);
