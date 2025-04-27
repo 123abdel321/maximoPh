@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Helpers\Extracto;
 use App\Helpers\Documento;
 use Illuminate\Http\Request;
