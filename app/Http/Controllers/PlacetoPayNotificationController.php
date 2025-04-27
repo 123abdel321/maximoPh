@@ -37,18 +37,15 @@ class PlacetoPayNotificationController extends Controller
         $requestId = $data['requestId'];
         $reference = $data['reference'];
         $status = $data['status']['status'];
+        $message = $data['status']['message'];
         $signature = $data['signature'] ?? null;
         
         list($recibo_id, $empresa_id) = explode("-", $reference);
-
-        Log::info("$recibo_id-$empresa_id", $data);
 
         if (!$empresa_id) {
             Log::error('Empresa no encontrada', ['empresa_id' => $empresa_id]);
             return response('Not Found', 404);
         }
-
-        return response('Not Found', 404);
 
         // Buscar Empresa
         $empresa = Empresa::find($empresa_id);
@@ -84,7 +81,7 @@ class PlacetoPayNotificationController extends Controller
         
         $recibo->update([
             'estado' => $estado,
-            'request_id' => $requestId
+            'observacion' => $message
         ]);
 
         // Registrar movimiento contable si está aprobado
