@@ -127,8 +127,7 @@ class PlacetoPayNotificationController extends Controller
             $extractos = (new Extracto(
                 $recibo->id_nit,
                 3,
-                null,
-                $recibo->fecha_manual
+                null
             ))->actual()->get();
 
             $valorPagado = $recibo->total_abono;
