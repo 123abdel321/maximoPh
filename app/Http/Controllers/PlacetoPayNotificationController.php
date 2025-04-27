@@ -38,24 +38,29 @@ class PlacetoPayNotificationController extends Controller
         $reference = $data['reference'];
         $status = $data['status']['status'];
         $signature = $data['signature'] ?? null;
-        $id_empresa = $data['metadata']['id_empresa'] ?? null;
+        
+        list($recibo_id, $empresa_id) = explode("-", $reference);
 
-        if (!$id_empresa) {
-            Log::error('Empresa no encontrada', ['id_empresa' => $id_empresa]);
+        Log::info("$recibo_id-$empresa_id", $data);
+
+        if (!$empresa_id) {
+            Log::error('Empresa no encontrada', ['empresa_id' => $empresa_id]);
             return response('Not Found', 404);
         }
 
+        return response('Not Found', 404);
+
         // Buscar Empresa
-        $empresa = Empresa::find($id_empresa);
+        $empresa = Empresa::find($empresa_id);
 
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $empresa->token_db);
 
         // Buscar el recibo
-        $recibo = ConRecibos::where('id', $reference)->first();
+        $recibo = ConRecibos::where('id', $recibo_id)->first();
 
         if (!$recibo) {
-            Log::error('Recibo no encontrado', ['reference' => $reference]);
+            Log::error('Recibo no encontrado', ['recibo_id' => $recibo_id]);
             return response('Not Found', 404);
         }
 

@@ -10,12 +10,16 @@ class PaymentRequest extends AbstractPlacetoPaySender
 	private $method = 'POST';
 	private $endpoint = '/api/session';
 
+	private $ip;
 	private $id_pago;
+	private $userAgent;
 	private $id_empresa;
 
-	public function __construct($id_pago, $id_empresa)
+	public function __construct($id_pago, $id_empresa, $ip, $userAgent)
 	{
+		$this->ip = $ip;
 		$this->id_pago = $id_pago;
+		$this->userAgent = $userAgent;
 		$this->id_empresa = $id_empresa;
 	}
 
@@ -40,21 +44,18 @@ class PaymentRequest extends AbstractPlacetoPaySender
 
         return [
             'payment' => [
-                'reference' => $recibo->id,
+                'reference' => $recibo->id.'-'.$this->id_empresa,
                 'description' => "Pago por Placetopay",
                 'amount' => [
                     'currency' => 'COP',
                     'total' => $recibo->total_abono
                 ],
             ],
-			'metadata' => [
-				'id_empresa' => $this->id_empresa
-			],
 			"expiration" => $expire,
 			"returnUrl" => $return,
 			"cancelUrl" => $cancel,
-			"ipAddress" => "127.0.0.1",
-			"userAgent" => "PlacetoPay Sandbox",
+			"ipAddress" => $this->ip,
+			"userAgent" => $this->userAgent,
         ];
 	}
 }

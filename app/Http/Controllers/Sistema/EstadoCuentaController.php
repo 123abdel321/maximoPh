@@ -438,9 +438,7 @@ class EstadoCuentaController extends Controller
     public function pasarela(Request $request)
     {
         $comprobanteRecibo = Comprobantes::where('id', $request->get('id_comprobante'))->first();
-
         $this->fechaManual = request()->user()->can('recibo fecha') ? $request->get('fecha_pago', null) : Carbon::now();
-
         if(!$comprobanteRecibo) {
             return response()->json([
                 "success"=>false,
@@ -514,18 +512,17 @@ class EstadoCuentaController extends Controller
 
             $response = (new PaymentRequest(
                 $recibo->id,
-                request()->user()->id_empresa
+                request()->user()->id_empresa,
+                $request->ip(),
+                $request->userAgent()
             ))->send();
 
             $recibo->request_id = $response->response->requestId;
             $recibo->save();
 
             if ($response->status < 300) {
-
-                $empresa = Empresa::where('id', $request->user()['id_empresa'])->first();
+                
                 DB::connection('sam')->commit();
-
-                ProcessValidarPago::dispatch($recibo->id, $empresa, $request->user()->id)->delay(now()->addMinute(3));
 
                 return response()->json([
                     "success"=>true,
