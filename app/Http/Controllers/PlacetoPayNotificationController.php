@@ -133,6 +133,14 @@ class PlacetoPayNotificationController extends Controller
             $valorPagado = $recibo->total_abono;
             $centro_costos = CentroCostos::first();
 
+            //GUARDAR DETALLE & MOVIMIENTO CONTABLE RECIBOS
+            $documentoGeneral = new Documento(
+                $recibo->id_comprobante,
+                $recibo,
+                $recibo->fecha_manual,
+                $recibo->consecutivo
+            );
+
             foreach ($extractos as $extracto) {
                 if (!$valorPagado) continue;
     
