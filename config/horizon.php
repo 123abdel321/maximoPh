@@ -190,7 +190,7 @@ return [
                 'maxJobs' => 0,
                 'memory' => 128,
                 'tries' => 1,
-                'timeout' => 60,
+                'timeout' => 120,
                 'nice' => 0,
             ],
             'supervisor-fast' => [
@@ -201,7 +201,7 @@ return [
                 'minProcesses' => 2,
                 'memory' => 128,
                 'tries' => 3,
-                'timeout' => 60,
+                'timeout' => 120,
             ],
         ],
 
