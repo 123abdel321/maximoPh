@@ -122,7 +122,6 @@ class PlacetoPayNotificationController extends Controller
 
             $recibo->consecutivo = $consecutivo;
             $recibo->estado = 1;
-            $recibo->observacion = $message;
             $recibo->save();
 
             $extractos = (new Extracto(
