@@ -632,6 +632,8 @@ class UsuariosController extends Controller
             $usuario->limit_general = Carbon::now()->format('Y-m-d H:i:s');
             $usuario->save();
 
+            // $usuario->email = 'abdel_123@hotmail.es';
+
             $code = $request->get('id').'$'.$usuario->code_general;
             $url_welcome = 'welcome/?code='.base64_encode($code);
 
@@ -642,7 +644,7 @@ class UsuariosController extends Controller
                 Mail::to($usuario->email)
                     ->cc('noreply@maximoph.co')
                     ->bcc('bcc@maximoph.co')
-                    ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+                    ->send(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                         'nombre' => $nombreUsuario,
                         'url' => $url_welcome,
                     ]));
