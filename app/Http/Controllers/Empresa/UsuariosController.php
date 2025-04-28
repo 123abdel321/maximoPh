@@ -644,7 +644,7 @@ class UsuariosController extends Controller
                 Mail::to($usuario->email)
                     ->cc('noreply@maximoph.co')
                     ->bcc('bcc@maximoph.co')
-                    ->send(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+                    ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                         'nombre' => $nombreUsuario,
                         'url' => $url_welcome,
                     ]));
