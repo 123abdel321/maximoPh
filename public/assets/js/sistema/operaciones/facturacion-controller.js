@@ -347,7 +347,18 @@ channelFacturacionRapida.bind('notificaciones', function(data) {
         } else {
             errorsMsg = mensaje
         }
+
+        getFacturacionData();
+
+        $("#progress_bar").hide();
+        $("#text_progress_bar").html(``);
+        $("#reloadFacturacion").show();
+        $("#generateFacturacion").show();
+        $("#confirmarFacturacion").hide();
+        $("#generateFacturacionLoading").hide();
+
         agregarToast('error', 'Facturación errada', errorsMsg);
+
         return;
     }
     

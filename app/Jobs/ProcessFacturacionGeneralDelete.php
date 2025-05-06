@@ -31,6 +31,7 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
 	public $id_usuario = null;
     public $id_empresa = null;
     public $periodo_facturacion = null;
+    
 
     /**
      * Create a new job instance.
@@ -92,18 +93,26 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
                     });
                 });
 
-            $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
-            event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
                 'success' =>  true,
                 'action' => 2
             ]));
 
 		} catch (Exception $exception) {
+
 			Log::error('ProcessFacturacionGeneralDelete al enviar facturación a PortafolioERP', [
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);
+
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                'tipo' => 'error',
+                'success' => false,
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine(),
+                'action' => 5
+            ]));
 
             throw $exception;
 		}

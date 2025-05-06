@@ -31,7 +31,6 @@ class ReloadPageVersion extends Command
         $nombreVersionActual = config('app.version');
         $versionGuardada = Versiones::where('estado', 1)->first();
         if ($versionGuardada && $versionGuardada->nombre == $nombreVersionActual) {
-            sleep(30);
             event(new PrivateMessageEvent('canal-general-abdel-cartagena', [
                 'tipo' => 'reloadPage',
             ]));
@@ -45,7 +44,6 @@ class ReloadPageVersion extends Command
                 'nombre' => $nombreVersionActual,
                 'estado' => 1
             ]);
-            sleep(30);
             event(new PrivateMessageEvent('canal-general-abdel-cartagena', [
                 'tipo' => 'reloadPage',
             ]));

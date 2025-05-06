@@ -68,6 +68,8 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 ->where('fecha_manual', $this->inicioMes.'-01')
                 ->get();
 
+            
+
             foreach ($facturas as $key => $factura) {
 
                 //ARMAMOS LOS DATOS PARA LUEGO USARLOS
@@ -100,12 +102,12 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                     'id_cuenta_por_cobrar',
                     'id_cuenta_ingreso'
                 ];
-
+                
                 //ARMAMOS EL MOVIMIENTO CONTABLE
                 foreach($documentosGroup as $docGroup) {
 
                     $consecutivo = $this->getNextConsecutive($docGroup[0]->id_comprobante, $docGroup[0]->fecha_manual);
-
+                    
                     $facDocumento = FacDocumentos::create([
                         'id_nit' => $docGroup[0]->id_nit,
                         'id_comprobante' => $docGroup[0]->id_comprobante,
@@ -125,7 +127,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                         $docGroup[0]->fecha_manual,
                         $consecutivo
                     );
-    
+                    
                     foreach ($docGroup as $doc) {
                         
                         foreach ($cuentasContables as $cuentaContableI) {
@@ -179,8 +181,16 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                     }
 
                     if (!$documentoGeneral->save()) {
-        
                         DB::connection('sam')->rollback();
+
+                        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                            'tipo' => 'error',
+                            'success' => false,
+                            'message' => $documentoGeneral->getErrors(),
+                            'line' => '191',
+                            'action' => 5
+                        ]));
+
                         return response()->json([
                             'success'=>	false,
                             'data' => [],
@@ -189,21 +199,30 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                     }
                     
                     $this->updateConsecutivo($docGroup[0]->id_comprobante, $consecutivo);
+                    
                 }
             }
 
-            $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
-            event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
                 'success' =>  true,
                 'action' => 4
             ]));
 
 		} catch (Exception $exception) {
+
 			Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);
+
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                'tipo' => 'error',
+                'success' => false,
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine(),
+                'action' => 5
+            ]));
 
             throw $exception;
 		}
@@ -261,5 +280,13 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
+
+        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+            'tipo' => 'error',
+            'success' => false,
+            'message' => $exception->getMessage(),
+            'line' => $exception->getLine(),
+            'action' => 5
+        ]));
 	}
 }

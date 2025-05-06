@@ -428,14 +428,7 @@ class FacturacionController extends Controller
                 new ProcessFacturacionGeneral($id_usuario, $id_empresa),
                 new ProcessFacturacionGeneralCausar($id_usuario, $id_empresa)
 
-            ])->catch(function (\Exception $e) use ($id_usuario, $has_empresa) {
-                event(new PrivateMessageEvent('facturacion-rapida-'.$has_empresa.'_'.$id_usuario, [
-                    'tipo' => 'error',
-                    'success' => true,
-                    'message' => $e->getMessage(),
-                    'action' => 5
-                ]));
-            })->dispatch();
+            ])->dispatch();
 
             return response()->json([
                 "success"=>true,

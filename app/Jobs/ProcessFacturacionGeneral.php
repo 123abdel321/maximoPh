@@ -115,7 +115,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
-        
+
         try {
 
             $query = $this->getInmueblesNitsQuery();
@@ -292,9 +292,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         $this->saldoBase = 0;
                     });
             });
-            
-            $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
-            event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
+
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
                 'dataGeneral' => $this->dataGeneral,
                 'success' =>  true,
@@ -302,10 +301,19 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ]));
 
 		} catch (Exception $exception) {
+
 			Log::error('ProcessFacturacionGeneral al enviar facturación a PortafolioERP', [
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);
+
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                'tipo' => 'error',
+                'success' => false,
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine(),
+                'action' => 5
+            ]));
 
             throw $exception;
 		}
@@ -352,6 +360,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'created_by' => $this->id_usuario,
                 'updated_by' => $this->id_usuario,
             ];
+
             $facturaDetalle = FacturacionDetalle::create($data);
             array_push($detalleIntereses, $data);
 
@@ -592,9 +601,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
     private function notificarTotalFacturado()
     {
-        $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
         $this->notificacionesGeneradas++;
-        event(new PrivateMessageEvent('facturacion-rapida-'.$urlEventoNotificacion, [
+        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
             'tipo' => 'exito',
             'dataGeneral' => $this->dataGeneral,
             'porcentaje' => ($this->notificacionesGeneradas / $this->totalNotificaciones) * 100,
@@ -818,5 +826,13 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
+
+        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+            'tipo' => 'error',
+            'success' => false,
+            'message' => $exception->getMessage(),
+            'line' => $exception->getLine(),
+            'action' => 5
+        ]));
 	}
 }
