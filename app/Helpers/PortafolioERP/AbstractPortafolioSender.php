@@ -58,14 +58,14 @@ abstract class AbstractPortafolioSender
 
     private function getUrl()
 	{
-        $url = null;
-        if (env("APP_ENV") == 'prod') {//PRODUCCION
-            $url = 'https://app.portafolioerp.com/api';
-        } else if (env("APP_ENV") == 'production') {//TESTING
-            $url = 'https://test.portafolioerp.com/api';
-        } else {//LOCAL
-            $url = 'http://127.0.0.1:8000/api';
-        }
+        $url = 'https://app.portafolioerp.com/api';
+        // if (env("APP_ENV") == 'prod') {//PRODUCCION
+        //     $url = 'https://app.portafolioerp.com/api';
+        // } else if (env("APP_ENV") == 'production') {//TESTING
+        //     $url = 'https://test.portafolioerp.com/api';
+        // } else {//LOCAL
+        //     $url = 'http://127.0.0.1:8000/api';
+        // }
         return $url . $this->getEndpoint();
 	}
 }
