@@ -28,6 +28,7 @@ use App\Models\Portafolio\FacDocumentos;
 use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Portafolio\DocumentosGeneral;
 
+// class ProcessEnvioFacturaEmail
 class ProcessEnvioFacturaEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -80,8 +81,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
                     ->saveStorage();
-
-                if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL)) {
+                    
+                if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
                     Mail::to($nit->email)
                         ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.co')
@@ -98,7 +99,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     ]);
                 }
 
-                if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL)) {
+                if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
                     Mail::to($nit->email_1)
                         ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.co')
@@ -115,7 +116,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     ]);
                 }
 
-                if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL)) {
+                if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
                     Mail::to($nit->email_2)
                         ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.co')
@@ -132,8 +133,10 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     ]);
                 }
 
-                $countFacturasEnviadas++;
-                Storage::disk('do_spaces')->delete($facturaPdf);
+                if ($facturaPdf) {
+                    $countFacturasEnviadas++;
+                    Storage::disk('do_spaces')->delete($facturaPdf);
+                }
             }
 
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
