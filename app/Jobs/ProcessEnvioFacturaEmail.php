@@ -76,20 +76,21 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 ->get();
 
             foreach ($nits as $nit) {
-
+                
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
                     ->saveStorage();
 
                 if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($nit->email)
-                    ->cc('noreply@maximoph.co')
-                    ->bcc('bcc@maximoph.co')
-                    ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                        'nombre' => $nit->nombre_nit,
-                        'factura' => $nit->consecutivo,
-                        'valor' => $nit->saldo_final,
-                    ], $facturaPdf));
+                        ->cc('noreply@maximoph.co')
+                        ->bcc('bcc@maximoph.co')
+                        ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
+                            'nombre' => $nit->nombre_nit,
+                            'factura' => $nit->consecutivo,
+                            'valor' => $nit->saldo_final,
+                        ], $facturaPdf));
+
                     envioEmail::create([
                         'id_nit' => $nit->id_nit,
                         'email' => $nit->email,
@@ -99,13 +100,14 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($nit->email_1)
-                    ->cc('noreply@maximoph.co')
-                    ->bcc('bcc@maximoph.co')
-                    ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                        'nombre' => $nit->nombre_nit,
-                        'factura' => $nit->consecutivo,
-                        'valor' => $nit->saldo_final,
-                    ], $facturaPdf));
+                        ->cc('noreply@maximoph.co')
+                        ->bcc('bcc@maximoph.co')
+                        ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
+                            'nombre' => $nit->nombre_nit,
+                            'factura' => $nit->consecutivo,
+                            'valor' => $nit->saldo_final,
+                        ], $facturaPdf));
+
                     envioEmail::create([
                         'id_nit' => $nit->id_nit,
                         'email' => $nit->email_1,
@@ -115,19 +117,21 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($nit->email_2)
-                    ->cc('noreply@maximoph.co')
-                    ->bcc('bcc@maximoph.co')
-                    ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                        'nombre' => $nit->nombre_nit,
-                        'factura' => $nit->consecutivo,
-                        'valor' => $nit->saldo_final,
-                    ], $facturaPdf));
+                        ->cc('noreply@maximoph.co')
+                        ->bcc('bcc@maximoph.co')
+                        ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
+                            'nombre' => $nit->nombre_nit,
+                            'factura' => $nit->consecutivo,
+                            'valor' => $nit->saldo_final,
+                        ], $facturaPdf));
+
                     envioEmail::create([
                         'id_nit' => $nit->id_nit,
                         'email' => $nit->email_2,
                         'contexto' => 'emails.factura'
                     ]);
                 }
+
                 $countFacturasEnviadas++;
                 Storage::disk('do_spaces')->delete($facturaPdf);
             }
@@ -141,7 +145,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ]));
 
 		} catch (Exception $exception) {
-			Log::error('ProcessFacturacionGeneralDelete al enviar facturación a PortafolioERP', [
+			Log::error('ProcessEnvioFacturaEmail al enviar facturación a PortafolioERP', [
                 'message' => $exception->getMessage(),
                 'line' => $exception->getLine()
             ]);

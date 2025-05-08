@@ -107,7 +107,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             )
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
         ->groupByRaw('id_nit')->first();
-
+        
         $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
 
         $cxp = (new Extracto(
@@ -220,10 +220,11 @@ class FacturacionPdf extends AbstractPrinterPdf
                 $dataDescuento[$key]['descuento'] = 0;
             }
         }
+
         $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
         $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
         $fechaPlazo = Carbon::parse($totales->fecha_manual)->endOfMonth()->format('Y-m-d');
-
+        
         $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
         $totalDescuento = $this->roundNumber($totalDescuento);
         
@@ -311,7 +312,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
-				$query->where('DG.fecha_manual', '=', $this->periodo);
+				$query->where('DG.fecha_manual', '>=', $this->periodo);
 			})
             ->when($this->id_nit, function ($query) {
 				$query->where('DG.id_nit', '=', $this->id_nit);

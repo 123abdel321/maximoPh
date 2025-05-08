@@ -1099,6 +1099,8 @@ class FacturacionController extends Controller
     {
         $id_usuario = $request->user()->id;
         $id_empresa = request()->user()->id_empresa;
+
+        // ProcessEnvioFacturaEmail::dispatch($request->all(), $id_empresa, $id_usuario);
         
         Bus::chain([
             new ProcessEnvioFacturaEmail($request->all(), $id_empresa, $id_usuario)
