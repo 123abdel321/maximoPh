@@ -107,6 +107,20 @@ class FacturacionPdf extends AbstractPrinterPdf
             )
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
         ->groupByRaw('id_nit')->first();
+
+        if (!$totales) {
+            $totales = (object)[
+                'saldo_final' => 0,
+                'saldo_anterior' => 0,
+                'debito' => 0,
+                'credito' => 0,
+                'saldo_final' => 0,
+                'total_abono' => 0,
+                'total_facturas' => 0,
+                'consecutivo' => 0,
+                'fecha_manual' => $this->periodo
+            ];
+        }
         
         $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
 
