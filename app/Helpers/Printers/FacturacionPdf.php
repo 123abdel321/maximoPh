@@ -90,7 +90,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
 		$query = $this->carteraDocumentosQuery();
 		$query->unionAll($this->carteraAnteriorQuery());
-
+        
 		$totales = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
 			->mergeBindings($query)
@@ -107,7 +107,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             )
             ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
         ->groupByRaw('id_nit')->first();
-
+        
         if (!$totales) {
             $totales = (object)[
                 'saldo_final' => 0,
@@ -326,8 +326,11 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
-				$query->where('DG.fecha_manual', '>=', $this->periodo);
-			})
+                $startOfMonth = Carbon::parse($this->periodo)->startOfMonth();
+                $endOfMonth = Carbon::parse($this->periodo)->endOfMonth();
+
+                $query->whereBetween('DG.fecha_manual', [$startOfMonth, $endOfMonth]);
+            })
             ->when($this->id_nit, function ($query) {
 				$query->where('DG.id_nit', '=', $this->id_nit);
 			});

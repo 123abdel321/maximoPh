@@ -81,16 +81,26 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
                     ->saveStorage();
-                    
+
+                if ($facturaPdf) {
+                    $countFacturasEnviadas++;
+                    Storage::disk('do_spaces')->delete($facturaPdf);
+                }
+
+                $delayInSeconds = $countFacturasEnviadas * 2;
+
                 if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
                     Mail::to($nit->email)
                         ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.co')
-                        ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                            'nombre' => $nit->nombre_nit,
-                            'factura' => $nit->consecutivo,
-                            'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
+                        ->later(
+                            now()->addSeconds($delayInSeconds),
+                            new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
+                                'nombre' => $nit->nombre_nit,
+                                'factura' => $nit->consecutivo,
+                                'valor' => $nit->saldo_final,
+                            ], $facturaPdf)
+                        );
 
                     envioEmail::create([
                         'id_nit' => $nit->id_nit,
@@ -103,11 +113,14 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     Mail::to($nit->email_1)
                         ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.co')
-                        ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                            'nombre' => $nit->nombre_nit,
-                            'factura' => $nit->consecutivo,
-                            'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
+                        ->later(
+                            now()->addSeconds($delayInSeconds),
+                            new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
+                                'nombre' => $nit->nombre_nit,
+                                'factura' => $nit->consecutivo,
+                                'valor' => $nit->saldo_final,
+                            ], $facturaPdf)
+                        );
 
                     envioEmail::create([
                         'id_nit' => $nit->id_nit,
@@ -120,22 +133,20 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     Mail::to($nit->email_2)
                         ->cc('noreply@maximoph.co')
                         ->bcc('bcc@maximoph.co')
-                        ->queue(new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                            'nombre' => $nit->nombre_nit,
-                            'factura' => $nit->consecutivo,
-                            'valor' => $nit->saldo_final,
-                        ], $facturaPdf));
+                        ->later(
+                            now()->addSeconds($delayInSeconds),
+                            new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
+                                'nombre' => $nit->nombre_nit,
+                                'factura' => $nit->consecutivo,
+                                'valor' => $nit->saldo_final,
+                            ], $facturaPdf)
+                        );
 
                     envioEmail::create([
                         'id_nit' => $nit->id_nit,
                         'email' => $nit->email_2,
                         'contexto' => 'emails.factura'
                     ]);
-                }
-
-                if ($facturaPdf) {
-                    $countFacturasEnviadas++;
-                    Storage::disk('do_spaces')->delete($facturaPdf);
                 }
             }
 
