@@ -248,7 +248,7 @@ class FacturacionController extends Controller
             //COBRAR INTERESES
             $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
                 $factura->id_nit,
-                [3,7],
+                [3],
                 null,
                 $periodo_facturacion
             ))->actual()->get();
@@ -783,7 +783,7 @@ class FacturacionController extends Controller
         
         $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
             null,
-            [3,7],
+            [3],
             null,
             $fechaPeriodo
         ))->actual()->get();
@@ -805,7 +805,7 @@ class FacturacionController extends Controller
         //ANTICIPOS
         $anticipos = (new Extracto(
             null,
-            [4,8],
+            [8],
             null,
             $fechaPeriodo
         ))->actual()->get();
@@ -946,7 +946,7 @@ class FacturacionController extends Controller
             ],
             "message"=>'Preview facturación generado con exito'
         ], 200);
-    }    
+    }
 
     public function indexPdf(Request $request)
     {
@@ -1100,11 +1100,11 @@ class FacturacionController extends Controller
         $id_usuario = $request->user()->id;
         $id_empresa = request()->user()->id_empresa;
 
-        // ProcessEnvioFacturaEmail::dispatch($request->all(), $id_empresa, $id_usuario);
+        ProcessEnvioFacturaEmail::dispatch($request->all(), $id_empresa, $id_usuario);
         
-        Bus::chain([
-            new ProcessEnvioFacturaEmail($request->all(), $id_empresa, $id_usuario)
-        ])->dispatch();
+        // Bus::chain([
+        //     new ProcessEnvioFacturaEmail($request->all(), $id_empresa, $id_usuario)
+        // ])->dispatch();
 
         return response()->json([
             "success"=> true,
@@ -1878,10 +1878,19 @@ class FacturacionController extends Controller
     private function roundNumber($number)
     {
         $redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
-        if ($redondeo && $redondeo->valor) {
+        
+        // Caso 1: Si el valor de redondeo es 0, elimina todos los decimales (redondea a entero)
+        if ($redondeo && $redondeo->valor == 0) {
+            return (int) round($number); // Cast a int para eliminar decimales
+        }
+        // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
+        elseif ($redondeo && $redondeo->valor > 0) {
             return round($number / $redondeo->valor) * $redondeo->valor;
         }
-        return $number;
+        // Caso 3: Si no hay configuración, retorna el número sin cambios
+        else {
+            return $number;
+        }
     }
 
     private function nitFacturaFisica($fisica = false, $id_zona = false)

@@ -158,7 +158,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         //COBRAR INTERESES
                         $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
                             $factura->id_nit,
-                            [3,7],
+                            [3],
                             null,
                             $this->periodo_facturacion
                         ))->actual()->get();
