@@ -8,6 +8,7 @@ use App\Helpers\Documento;
 use Illuminate\Http\Request;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\PlacetoPay\PaymentStatus;
 use App\Http\Controllers\Traits\BegConsecutiveTrait;
 //MODELS
 use App\Models\Empresa\Empresa;
@@ -67,15 +68,45 @@ class PlacetoPayNotificationController extends Controller
 
         // Mapear estados y actualizar recibo
         $estado = $this->mapStatus($status);
-        
-        $recibo->update([
-            'estado' => $estado,
-            'observacion' => $message
-        ]);
 
         // Registrar movimiento contable si está aprobado
         if ($estado == 1) { // 1 = Aprobado/Pagado
-            $this->registrarMovimientoContable($recibo);
+            $response = (new PaymentStatus(
+                $recibo->request_id
+            ))->send();
+
+            if ($response->status < 300) {
+                switch ($status->status) {
+                    case 'APPROVED':
+                        $tipo_mesaje = 'exito';
+                        $recibo->update([
+                            'estado' => $estado,
+                            'observacion' => $message
+                        ]);
+                        $this->registrarMovimientoContable($recibo);
+                        break;
+                    case 'PENDING':
+                        $recibo->observacion = $status->message;
+                        $recibo->save();
+                        break;
+                    case 'REJECTED':
+                        $tipo_mesaje = 'warning';
+                        $recibo->estado = 0;
+                        $recibo->observacion = $status->message;
+                        $recibo->save();
+                        break;
+                    case 'PARTIAL_EXPIRED':
+                        $recibo->observacion = $status->message;
+                        $recibo->save();
+                        break;
+                    case 'APPROVED_PARTIAL':
+                        $recibo->observacion = $status->message;
+                        $recibo->save();
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         event(new PrivateMessageEvent('estado-cuenta-'.$empresa->token_db_maximo.'_'.$recibo->created_by, [
