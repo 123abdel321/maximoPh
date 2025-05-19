@@ -82,27 +82,27 @@ class PlacetoPayNotificationController extends Controller
                     case 'APPROVED':
                         $tipo_mesaje = 'exito';
                         $recibo->update([
-                            'estado' => $estado,
-                            'observacion' => $message
+                            'estado' => 1,
+                            'observacion' => $statusNew->message
                         ]);
                         $this->registrarMovimientoContable($recibo);
                         break;
                     case 'PENDING':
-                        $recibo->observacion = $status->message;
+                        $recibo->observacion = $statusNew->message;
                         $recibo->save();
                         break;
                     case 'REJECTED':
                         $tipo_mesaje = 'warning';
                         $recibo->estado = 0;
-                        $recibo->observacion = $status->message;
+                        $recibo->observacion = $statusNew->message;
                         $recibo->save();
                         break;
                     case 'PARTIAL_EXPIRED':
-                        $recibo->observacion = $status->message;
+                        $recibo->observacion = $statusNew->message;
                         $recibo->save();
                         break;
                     case 'APPROVED_PARTIAL':
-                        $recibo->observacion = $status->message;
+                        $recibo->observacion = $statusNew->message;
                         $recibo->save();
                         break;
                     default:
