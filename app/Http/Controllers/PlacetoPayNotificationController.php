@@ -75,8 +75,10 @@ class PlacetoPayNotificationController extends Controller
                 $recibo->request_id
             ))->send();
 
+            $statusNew = (object)$response->response->status;
+
             if ($response->status < 300) {
-                switch ($status) {
+                switch ($statusNew) {
                     case 'APPROVED':
                         $tipo_mesaje = 'exito';
                         $recibo->update([
