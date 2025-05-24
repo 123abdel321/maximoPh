@@ -16,19 +16,18 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Helpers\DocumentoGeneralController;
 use App\Helpers\PortafolioERP\FacturacionERP;
-use App\Http\Controllers\Traits\BegConsecutiveTrait;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Facturacion;
 use App\Models\Portafolio\PlanCuentas;
+use App\Models\Portafolio\Comprobantes;
 use App\Models\Portafolio\FacDocumentos;
 use App\Models\Portafolio\DocumentosGeneral;
 
 class ProcessFacturacionGeneralCausar implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use BegConsecutiveTrait;
 
     public $empresa = null;
     public $inicioMes = null;
@@ -68,7 +67,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 ->where('fecha_manual', $this->inicioMes.'-01')
                 ->get();
 
-            
+            $lastConsecutivo = 0;
 
             foreach ($facturas as $key => $factura) {
 
@@ -106,7 +105,30 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 //ARMAMOS EL MOVIMIENTO CONTABLE
                 foreach($documentosGroup as $docGroup) {
 
-                    $consecutivo = $this->getNextConsecutive($docGroup[0]->id_comprobante, $docGroup[0]->fecha_manual);
+                    $comprobante = Comprobantes::find($docGroup[0]->id_comprobante);
+                    $consecutivo = $comprobante->consecutivo_siguiente;
+
+                    if ($comprobante->tipo_consecutivo == Comprobantes::CONSECUTIVO_MENSUAL) {
+                        $consecutivo = $this->getLastConsecutive($comprobante->id, $fecha) + 1;
+                    }
+
+                    if ($lastConsecutivo == $consecutivo) {
+                        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                            'tipo' => 'error',
+                            'success' => false,
+                            'message' => "El consecutivo {$consecutivo} ya esta en uso!",
+                            'line' => '121',
+                            'action' => 5
+                        ]));
+
+                        return response()->json([
+                            'success'=>	false,
+                            'data' => [],
+                            'message'=> "El consecutivo {$consecutivo} ya esta en uso!"
+                        ], 401);
+                    }
+
+                    $lastConsecutivo = $consecutivo;
                     
                     $facDocumento = FacDocumentos::create([
                         'id_nit' => $docGroup[0]->id_nit,
@@ -197,9 +219,10 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             'message'=> $documentoGeneral->getErrors()
                         ], 401);
                     }
-                    
-                    $this->updateConsecutivo($docGroup[0]->id_comprobante, $consecutivo);
-                    
+
+                    //ACTUALIZAR CONSECUTIVO
+                    $comprobante->consecutivo_siguiente++;
+                    $comprobante->save();
                 }
             }
 
@@ -288,5 +311,16 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             'line' => $exception->getLine(),
             'action' => 5
         ]));
+	}
+
+    public function getLastConsecutive($id_comprobante, $fecha)
+	{
+		$castConsecutivo = 'MAX(CAST(consecutivo AS SIGNED)) AS consecutivo';
+		$lastConsecutivo = DocumentosGeneral::select(DB::raw($castConsecutivo))
+			->where('id_comprobante', $id_comprobante)
+			->where('fecha_manual', 'like', substr($fecha, 0, 7) . '%')
+			->first();
+
+		return $lastConsecutivo ? $lastConsecutivo->consecutivo : 0;
 	}
 }
