@@ -133,7 +133,7 @@
             margin-bottom: 0;
             font-weight: 500;
             float: inline-end;
-            margin-top: -7px;
+            margin-top: -6px;
         }
 
         .formato-fecha-propio {
@@ -147,7 +147,7 @@
         
         .texto-mensaje {
             font-size: 13px;
-            margin-bottom: 0;
+            margin-bottom: 5px;
             text-align-last: auto;
             font-weight: 600;
             padding-right: 40px;
@@ -250,8 +250,26 @@
         </div>
     </div>
     <div id="chat-body" class="offcanvas-body wrapper" style="{{ $mensajeActivoId ? 'display: none !important;' : '' }} contain: content; padding: 0px;">
+
+
+        <div wire:loading.class.remove="d-none" class="d-none" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1000;
+            ">
+            <div class="spinner-border"></div>
+        </div>
+
         @foreach($chats as $chat)
-            <div wire:click="cargarMensajes({{ $chat->id }})" id="component-chat" class="component-chat" style="padding: 10px; cursor: pointer; display: flex; justify-content: space-between; border-bottom: solid 1px #14222a;">
+            <div
+                wire:click="cargarMensajes({{ $chat->id }})"
+                wire:key="chat-{{ $chat->id }}"
+                id="component-chat"
+                class="component-chat"
+                style="padding: 10px; cursor: pointer; display: flex; justify-content: space-between; border-bottom: solid 1px #14222a;"
+            >
                 <div class="" style="padding-left: 0px;">
                     <svg viewBox="0 0 212 212" height="45" width="45" preserveAspectRatio="xMidYMid meet" class="xh8yej3 x5yr21d" version="1.1" x="0px" y="0px" enable-background="new 0 0 212 212">
                         <title>default-user</title>

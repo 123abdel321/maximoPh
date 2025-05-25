@@ -1901,3 +1901,17 @@ function mostrarTerminosCondiciones() {
     $("#terminos_condiciones_contenido").html(terminos_condiciones);
     $('#modal-terminos-condiciones').modal('show');
 }
+
+function updateScrollbar() {
+    const chatBody = document.getElementById('chat-body');
+    if (!chatBody) return;
+
+    if (chatBody._ps) chatBody._ps.destroy();
+    setTimeout(function(){
+        chatBody._ps = new PerfectScrollbar(chatBody);
+    },1);
+}
+
+Livewire.hook('commit', ({ component, succeed }) => {
+    succeed(updateScrollbar);
+});

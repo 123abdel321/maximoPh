@@ -64,10 +64,9 @@ class ChatGeneral extends Component
 
     public function cargarChats()
     {
-        $this->initializeDatabaseConnection();
-
         $this->chats = [];
         $this->numeroNotificaciones = 0;
+        $this->initializeDatabaseConnection();
 
         $chats = $this->getChatsQuery()->get();
 
