@@ -422,6 +422,10 @@ class FacturacionController extends Controller
             $id_empresa = request()->user()->id_empresa;
             $has_empresa = request()->user()->has_empresa;
 
+            // ProcessFacturacionGeneralDelete::dispatch(request()->user()->id, request()->user()->id_empresa);
+            // ProcessFacturacionGeneral::dispatch(request()->user()->id, request()->user()->id_empresa);
+            // ProcessFacturacionGeneralCausar::dispatch(request()->user()->id, request()->user()->id_empresa);
+
             Bus::chain([
 
                 new ProcessFacturacionGeneralDelete($id_usuario, $id_empresa),
@@ -1099,13 +1103,9 @@ class FacturacionController extends Controller
     {
         $id_usuario = $request->user()->id;
         $id_empresa = request()->user()->id_empresa;
-
+        
         ProcessEnvioFacturaEmail::dispatch($request->all(), $id_empresa, $id_usuario);
         
-        // Bus::chain([
-        //     new ProcessEnvioFacturaEmail($request->all(), $id_empresa, $id_usuario)
-        // ])->dispatch();
-
         return response()->json([
             "success"=> true,
             "message"=> 'Se notificará cuando los correos hayan sido enviados'

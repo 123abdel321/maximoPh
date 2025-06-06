@@ -9,6 +9,7 @@ use App\Mail\GeneralEmail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Events\PrivateMessageEvent;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
@@ -33,10 +34,15 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 3;
+    public $timeout = 120;
     public $empresa = null;
     public $request = null;
     public $id_empresa = null;
     public $id_usuario = null;
+    public $maxExceptions = 3;
+    public $backoff = [60, 120];
+    public $emailsPerMinute = 5;
 
     public function __construct($request, $id_empresa, $id_usuario)
     {
@@ -76,78 +82,51 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
                 ->get();
 
+            $jobs = [];
+            $index = 0;
+            $delayBetweenEmails = 60 / $this->emailsPerMinute;
+            
             foreach ($nits as $nit) {
                 
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
                     ->saveStorage();
 
+                if (!$facturaPdf) continue;
+
                 if ($facturaPdf) {
                     $countFacturasEnviadas++;
                     Storage::disk('do_spaces')->delete($facturaPdf);
                 }
 
+                $emailsToSend = array_filter([
+                    $nit->email,
+                    ($nit->email_1 && $nit->email_1 != $nit->email) ? $nit->email_1 : null,
+                    ($nit->email_2 && $nit->email_2 != $nit->email && $nit->email_2 != $nit->email_1) ? $nit->email_2 : null
+                ]);
+                
+
+                foreach ($emailsToSend as $email) {
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) continue;
+                    $email = 'abdel_123@hotmail.es';
+                    $index++;
+                    $jobs[] = (new SendSingleEmail(
+                        $this->empresa,
+                        $email,
+                        $nit->nombre_nit,
+                        $nit->consecutivo,
+                        $nit->saldo_final,
+                        $facturaPdf,
+                        $nit->id_nit
+                    ))->delay(now()->addSeconds($index * $delayBetweenEmails));
+                }
+                Storage::disk('do_spaces')->delete($facturaPdf);
+
                 $delayInSeconds = $countFacturasEnviadas * 2;
+            }
 
-                if ($nit->email && filter_var($nit->email, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
-                    Mail::to($nit->email)
-                        ->cc('noreply@maximoph.co')
-                        ->bcc('bcc@maximoph.co')
-                        ->later(
-                            now()->addSeconds($delayInSeconds),
-                            new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                                'nombre' => $nit->nombre_nit,
-                                'factura' => $nit->consecutivo,
-                                'valor' => $nit->saldo_final,
-                            ], $facturaPdf)
-                        );
-
-                    envioEmail::create([
-                        'id_nit' => $nit->id_nit,
-                        'email' => $nit->email,
-                        'contexto' => 'emails.factura'
-                    ]);
-                }
-
-                if ($nit->email_1 && $nit->email != $nit->email_1 && filter_var($nit->email_1, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
-                    Mail::to($nit->email_1)
-                        ->cc('noreply@maximoph.co')
-                        ->bcc('bcc@maximoph.co')
-                        ->later(
-                            now()->addSeconds($delayInSeconds),
-                            new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                                'nombre' => $nit->nombre_nit,
-                                'factura' => $nit->consecutivo,
-                                'valor' => $nit->saldo_final,
-                            ], $facturaPdf)
-                        );
-
-                    envioEmail::create([
-                        'id_nit' => $nit->id_nit,
-                        'email' => $nit->email_1,
-                        'contexto' => 'emails.factura'
-                    ]);
-                }
-
-                if ($nit->email_2 && $nit->email != $nit->email_2 && $nit->email_1 != $nit->email_2 && filter_var($nit->email_2, FILTER_VALIDATE_EMAIL) && $facturaPdf) {
-                    Mail::to($nit->email_2)
-                        ->cc('noreply@maximoph.co')
-                        ->bcc('bcc@maximoph.co')
-                        ->later(
-                            now()->addSeconds($delayInSeconds),
-                            new GeneralEmail($this->empresa->razon_social, 'emails.factura', [
-                                'nombre' => $nit->nombre_nit,
-                                'factura' => $nit->consecutivo,
-                                'valor' => $nit->saldo_final,
-                            ], $facturaPdf)
-                        );
-
-                    envioEmail::create([
-                        'id_nit' => $nit->id_nit,
-                        'email' => $nit->email_2,
-                        'contexto' => 'emails.factura'
-                    ]);
-                }
+            foreach ($jobs as $key => $job) {
+                dispatch($job);
             }
 
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
