@@ -7,6 +7,7 @@ use Exception;
 use App\Helpers\helpers;
 use App\Mail\GeneralEmail;
 use Illuminate\Bus\Queueable;
+use App\Jobs\SendSingleEmail;
 use Illuminate\Support\Facades\Log;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Support\Facades\Bus;
