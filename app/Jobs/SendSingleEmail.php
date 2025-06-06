@@ -34,6 +34,9 @@ class SendSingleEmail implements ShouldQueue
 
     public function handle()
     {
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->empresa->token_db_maximo);
+
         Mail::to($this->email)
             ->cc('noreply@maximoph.co')
             ->bcc('bcc@maximoph.co')
