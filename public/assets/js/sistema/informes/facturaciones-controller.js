@@ -57,7 +57,7 @@ function facturacionesInit() {
     if (facturaiones_table) {
         facturaiones_table.on('click', '.imprimir-facturaciones', function() {
             var id_nit = this.id.split('_')[1];
-            window.open("https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/facturacion-show-pdf?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
+            window.open("/facturacion-show-pdf?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
         });
 
         facturaiones_table.on('click', '.enviar-facturaciones', function() {
