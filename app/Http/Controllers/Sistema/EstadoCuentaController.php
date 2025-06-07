@@ -517,6 +517,8 @@ class EstadoCuentaController extends Controller
                 $request->userAgent()
             ))->send();
 
+            Log::info("Ejecutanto url pasarela", $response);
+
             $recibo->request_id = $response->response->requestId;
             $recibo->save();
 
