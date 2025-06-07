@@ -8,6 +8,7 @@ use App\Helpers\Extracto;
 use App\Helpers\Documento;
 use Illuminate\Http\Request;
 use App\Jobs\ProcessValidarPago;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\PlacetoPay\PaymentRequest;
