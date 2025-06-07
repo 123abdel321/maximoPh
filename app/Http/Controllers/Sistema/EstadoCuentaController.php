@@ -518,7 +518,7 @@ class EstadoCuentaController extends Controller
                 $request->userAgent()
             ))->send();
 
-            Log::info($response);
+            Log::info(json_encode($response));
 
             $recibo->request_id = $response->response->requestId;
             $recibo->save();
