@@ -518,12 +518,10 @@ class EstadoCuentaController extends Controller
                 $request->userAgent()
             ))->send();
 
-            Log::info(json_encode($response));
-
-            $recibo->request_id = $response->response->requestId;
-            $recibo->save();
-
             if ($response->status < 300) {
+
+                $recibo->request_id = $response->response->requestId;
+                $recibo->save();
                 
                 DB::connection('sam')->commit();
 
