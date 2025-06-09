@@ -517,6 +517,7 @@ class EstadoCuentaController extends Controller
                 $request->ip(),
                 $request->userAgent()
             ))->send();
+            
 
             if ($response->status < 300) {
 
@@ -532,6 +533,11 @@ class EstadoCuentaController extends Controller
                     "message"=>'Link portal de pago'
                 ], 200);
             }
+            
+            Log::error('EstadoCuentaController', [
+                'message' => $response,
+            ]);
+
             DB::connection('sam')->rollback();
             return response()->json([
                 "success"=> false,
