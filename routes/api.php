@@ -43,6 +43,8 @@ use App\Http\Controllers\Sistema\TurnosController;
 use App\Http\Controllers\Sistema\ProyectosController;
 //PLACE TO PAY
 use App\Http\Controllers\PlacetoPayNotificationController;
+//SEND GRID
+use App\Http\Controllers\SendGridWebhookController;
 
 
 /*
