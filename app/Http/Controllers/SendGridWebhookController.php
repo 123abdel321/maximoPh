@@ -9,16 +9,28 @@ class SendGridWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        $events = $request->all(); // esto puede ser un array de eventos
+        $events = json_decode($request->getContent(), true);
 
         foreach ($events as $event) {
 
-            $customId = $event['headers']['X-Custom-Message-ID'] ?? null;
-            Log::warning("Custom ID: {$customId}");
-            // Puedes manejar eventos como:
-            // $event['event'] === 'delivered', 'bounce', 'open', etc.
-            Log::info('SendGrid Event:', $event);
+            Log::info($event);
+
+            $messageId = $event['sg_message_id'] ?? null;
+            $eventType = $event['event'] ?? null;
+
+            Log::warning("eventType: {$eventType}");
+            Log::warning("messageId: {$messageId}");
+
         }
+
+        // foreach ($events as $event) {
+
+        //     $customId = $event['headers'];
+        //     Log::warning("Custom ID: {$customId}");
+        //     // Puedes manejar eventos como:
+        //     // $event['event'] === 'delivered', 'bounce', 'open', etc.
+        //     Log::info('SendGrid Event:', $event);
+        // }
 
         return response()->json(['status' => 'ok']);
     }
