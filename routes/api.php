@@ -57,6 +57,7 @@ use App\Http\Controllers\PlacetoPayNotificationController;
 */
 
 Route::post('/placetopay/notification', [PlacetoPayNotificationController::class, 'handle']);
+Route::post('/sendgrid/notification', [SendGridWebhookController::class, 'handle']);
 
 
 Route::controller(VisitantesController::class)->group(function () {
