@@ -15,22 +15,14 @@ class SendGridWebhookController extends Controller
 
             Log::info($event);
 
-            $messageId = $event['sg_message_id'] ?? null;
+            $trackingId = $event['headers']['X-Maximoph-Tracking-ID'] ?? null;
+            $sgMessageId = $event['sg_message_id'] ?? null;
             $eventType = $event['event'] ?? null;
 
+            Log::warning("trackingId: {$trackingId}");
+            Log::warning("sgMessageId: {$sgMessageId}");
             Log::warning("eventType: {$eventType}");
-            Log::warning("messageId: {$messageId}");
-
         }
-
-        // foreach ($events as $event) {
-
-        //     $customId = $event['headers'];
-        //     Log::warning("Custom ID: {$customId}");
-        //     // Puedes manejar eventos como:
-        //     // $event['event'] === 'delivered', 'bounce', 'open', etc.
-        //     Log::info('SendGrid Event:', $event);
-        // }
 
         return response()->json(['status' => 'ok']);
     }
