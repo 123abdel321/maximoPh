@@ -19,13 +19,6 @@ class SendGridWebhookController extends Controller
             $smtpId = $event['smtp-id'] ?? null;
             $eventType = $event['event'] ?? null;
 
-            Log::info('SendGrid Event', [
-                'event'        => $event,
-                'sgMessageId'  => $sgMessageId,
-                'smtpId'  => $smtpId,
-                'eventType'    => $eventType,
-            ]);
-
             $trackingId = null;
 
             // Opción 1: extraer de sg_message_id
@@ -39,11 +32,18 @@ class SendGridWebhookController extends Controller
                 $trackingId = $smtpId;
             }
 
+            Log::info('SendGrid Event', [
+                'event'        => $event,
+                'sgMessageId'  => $sgMessageId,
+                'smtpId'  => $smtpId,
+                'eventType'    => $eventType,
+                'trackingId'    => $trackingId,
+            ]);
+
             // Buscar por message_id en la base de datos
             $envio = EnvioEmail::where('sg_message_id', $trackingId)->first();
 
             Log::info($envio);
-
         }
 
         return response()->json(['status' => 'ok']);
