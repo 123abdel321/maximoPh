@@ -17,7 +17,6 @@ class SendGridWebhookController extends Controller
             $eventType = $event['event'] ?? null;
 
             Log::info('SendGrid Event', [
-                'trackingId'   => $trackingId,
                 'sgMessageId'  => $sgMessageId,
                 'eventType'    => $eventType,
             ]);
