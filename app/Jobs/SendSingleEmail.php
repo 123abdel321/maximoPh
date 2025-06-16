@@ -57,6 +57,7 @@ class SendSingleEmail implements ShouldQueue
 
         $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
         $envioEmail->sg_message_id = $sgMessageId;
+        $envioEmail->message_id = 'si :c';
         $envioEmail->save();
     }
 
