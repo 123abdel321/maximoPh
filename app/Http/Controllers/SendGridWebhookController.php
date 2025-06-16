@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class SendGridWebhookController extends Controller
 {
-    
+
     public function handle(Request $request)
     {
         $events = $request->all();
@@ -18,7 +18,9 @@ class SendGridWebhookController extends Controller
         }
 
         foreach ($events as $event) {
-            $trackingId   = $this->extractTrackingId($event);
+            $trackingId = $event['custom_args']['maximoph_tracking_id'] ?? 
+                $this->extractFromSmtpApi($event) ?? 
+                null;
             $sgMessageId  = $event['sg_message_id'] ?? null;
             $eventType    = $event['event'] ?? null;
 
@@ -33,19 +35,12 @@ class SendGridWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    protected function extractTrackingId(array $event): ?string
+    private function extractFromSmtpApi($event): ?string
     {
-        // SendGrid a veces coloca los headers en diferentes lugares
-        if (isset($event['headers'])) {
-            if (is_string($event['headers'])) {
-                // Parsear headers como string
-                preg_match('/X-Maximoph-Tracking-ID: (.+)/', $event['headers'], $matches);
-                return $matches[1] ?? null;
-            } elseif (is_array($event['headers'])) {
-                return $event['headers']['X-Maximoph-Tracking-ID'] ?? null;
-            }
+        if (isset($event['smtp-api'])) {
+            $smtpApi = json_decode($event['smtp-api'], true);
+            return $smtpApi['custom_args']['maximoph_tracking_id'] ?? null;
         }
-        
         return null;
     }
 }
