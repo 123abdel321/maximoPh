@@ -80,8 +80,6 @@ class SendGridWebhookController extends Controller
                     'timestamp' => $timestamp
                 ]);
             }
-
-            Log::info($envio);
         }
 
         return response()->json(['status' => 'ok']);
