@@ -59,10 +59,6 @@ class SendGridWebhookController extends Controller
                     $envio->status = "enviado";
                 }
 
-                if ($eventType == "processed") {
-                    $envio->status = "enviado";
-                }
-
                 if ($eventType == "open") {
                     $envio->status = "abierto";
                 }
