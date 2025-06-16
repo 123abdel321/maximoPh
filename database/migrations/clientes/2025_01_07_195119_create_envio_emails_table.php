@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('envio_emails', function (Blueprint $table) {
             $table->id();
+            $table->integer('id_empresa')->nullable();
             $table->integer('id_nit')->nullable();
             $table->string('message_id')->nullable();
             $table->string('sg_message_id')->nullable();

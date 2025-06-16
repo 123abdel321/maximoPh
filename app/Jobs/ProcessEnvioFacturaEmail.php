@@ -113,6 +113,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     $index++;
 
                     $envioEmail = EnvioEmail::create([
+                        'id_empresa' => $this->empresa->id,
                         'id_nit' => $nit->id_nit,
                         'email' => $email,
                         'contexto' => 'emails.factura',

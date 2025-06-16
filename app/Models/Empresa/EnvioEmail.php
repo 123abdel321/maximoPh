@@ -14,6 +14,7 @@ class EnvioEmail extends Model
     protected $table = "envio_emails";
 
     protected $fillable = [
+        'id_empresa',
         'id_nit',
         'message_id',
         'sg_message_id',
