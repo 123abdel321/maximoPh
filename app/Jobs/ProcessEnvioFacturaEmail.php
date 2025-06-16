@@ -117,7 +117,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                         'id_nit' => $nit->id_nit,
                         'email' => $email,
                         'contexto' => 'emails.factura',
-                        'status' => 'queued'
+                        'status' => 'en_cola'
                     ]);
                     
                     $jobs[] = (new SendSingleEmail(
@@ -128,10 +128,10 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                         $nit->saldo_final,
                         $facturaPdf,
                         'emails.factura',
-                        $envioEmail
+                        $envioEmail->id
                     ))->delay(now()->addSeconds($index * $delayBetweenEmails));
                 }
-                Storage::disk('do_spaces')->delete($facturaPdf);
+                // Storage::disk('do_spaces')->delete($facturaPdf);
 
                 $delayInSeconds = $countFacturasEnviadas * 2;
             }

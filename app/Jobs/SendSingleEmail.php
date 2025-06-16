@@ -12,8 +12,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Mail\GeneralEmail;
 //MODEL
-use App\Models\Empresa\EnvioEmail;
 use App\Models\Empresa\Empresa;
+use App\Models\Empresa\EnvioEmail;
 
 class SendSingleEmail implements ShouldQueue
 {
@@ -31,7 +31,7 @@ class SendSingleEmail implements ShouldQueue
         public float $saldo_final,
         public string $pdfPath,
         public string $view,
-        public EnvioEmail $envioEmail
+        public string $envioEmailId
     ) {}
 
     public function handle()
@@ -40,8 +40,6 @@ class SendSingleEmail implements ShouldQueue
         setDBInConnection('max', $this->empresa->token_db_maximo);
 
         $response = Mail::to($this->email)
-            ->cc('abdel.portafolioerp@gmail.com')
-            ->bcc('bcc@maximoph.co')
             ->send(
                 new GeneralEmail(
                     $this->empresa->razon_social,
@@ -57,8 +55,9 @@ class SendSingleEmail implements ShouldQueue
 
         $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
 
-        $this->envioEmail->sg_message_id = $sgMessageId;
-        $this->envioEmail->save();
+        $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
+        $envioEmail->sg_message_id = $sgMessageId;
+        $envioEmail->save();
     }
 
     public function failed(\Throwable $exception)
