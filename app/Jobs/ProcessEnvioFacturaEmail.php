@@ -129,7 +129,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     ))->delay(now()->addSeconds($index * $delayBetweenEmails));
                 }
                 
-                Storage::disk('do_spaces')->delete($facturaPdf);
+                // Storage::disk('do_spaces')->delete($facturaPdf);
 
                 $delayInSeconds = $countFacturasEnviadas * 2;
             }
