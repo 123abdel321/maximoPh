@@ -35,11 +35,28 @@ class SendGridWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    private function extractFromSmtpApi($event): ?string
+    private function extractTrackingData($event)
     {
+        // Método 1: SMTPAPI directo
         if (isset($event['smtp-api'])) {
             $smtpApi = json_decode($event['smtp-api'], true);
-            return $smtpApi['custom_args']['maximoph_tracking_id'] ?? null;
+            return $smtpApi['unique_args'] ?? null;
+        }
+        
+        // Método 2: Unique_args directo
+        return $event['unique_args'] ?? null;
+    }
+
+    private function extractFromCustomHeaders($event)
+    {
+        if (isset($event['headers'])) {
+            $headers = is_string($event['headers']) ? 
+                    $this->parseHeaders($event['headers']) : 
+                    $event['headers'];
+                    
+            if (isset($headers['x-maximoph-tracking'])) {
+                return json_decode(base64_decode($headers['x-maximoph-tracking']), true);
+            }
         }
         return null;
     }
