@@ -10,33 +10,27 @@ class SendGridWebhookController extends Controller
 
     public function handle(Request $request)
     {
-        $events = $request->all();
+        $event = $request->all();
+        $eventData = $event['event'] ?? $event;
 
-        if (!is_array($events)) {
-            Log::warning('SendGrid Webhook: payload no es un array válido');
-            return response()->json(['error' => 'Invalid payload'], 400);
+        // Nivel 1: Buscar en unique_args (SMTPAPI)
+        $trackingData = $this->extractTrackingData($eventData);
+
+        // Nivel 2: Buscar en headers personalizados
+        if (empty($trackingData)) {
+            $trackingData = $this->extractFromCustomHeaders($eventData);
         }
 
-        foreach ($events as $event) {
-            
-            // Nivel 1: Buscar en unique_args (SMTPAPI)
-            $trackingData = $this->extractTrackingData($eventData);
-
-            // Nivel 2: Buscar en headers personalizados
-            if (empty($trackingData)) {
-                $trackingData = $this->extractFromCustomHeaders($eventData);
-            }
-
-            // Nivel 3: Buscar en el cuerpo del mensaje (para eventos opens/clicks)
-            if (empty($trackingData)) {
-                // $trackingData = $this->extractFromBody($eventData);
-            }
-
-            Log::info('SendGrid Event', [
-                'event'          => $event,
-                'trackingData'   => $trackingData
-            ]);
+        // Nivel 3: Buscar en el cuerpo del mensaje (para eventos opens/clicks)
+        if (empty($trackingData)) {
+            // $trackingData = $this->extractFromBody($eventData);
         }
+
+        Log::info('SendGrid Event', [
+            'trackingData'   => $trackingData,
+            'eventData'      => $eventData,
+            'event'          => $event,
+        ]);
 
         return response()->json(['status' => 'ok']);
     }
