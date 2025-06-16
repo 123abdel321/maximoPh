@@ -39,7 +39,7 @@ class SendSingleEmail implements ShouldQueue
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->empresa->token_db_maximo);
 
-        $path = $stripslashes($this->pdfPath);
+        $path = stripslashes($this->pdfPath);
 
         $this->pdfPath = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com$path";
 
