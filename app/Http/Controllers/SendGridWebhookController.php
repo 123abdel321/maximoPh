@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 //MODELOS
 use App\Models\Empresa\EnvioEmail;
 
+
 class SendGridWebhookController extends Controller
 {
     public function handle(Request $request)
@@ -17,6 +18,7 @@ class SendGridWebhookController extends Controller
 
             $sgMessageId = $event['sg_message_id'] ?? null;
             $smtpId = $event['smtp-id'] ?? null;
+            $smtpId = $smtpId ? trim($smtpId, '<>') : null;
             $eventType = $event['event'] ?? null;
 
             $trackingId = null;
@@ -42,6 +44,14 @@ class SendGridWebhookController extends Controller
 
             // Buscar por message_id en la base de datos
             $envio = EnvioEmail::where('sg_message_id', $trackingId)->first();
+
+            if (!$envio) {
+                $envio = EnvioEmail::where('sg_message_id', $smtpId)->first();
+            }
+
+            if ($envio) {
+                
+            }
 
             Log::info($envio);
         }
