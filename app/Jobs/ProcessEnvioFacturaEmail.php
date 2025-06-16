@@ -23,7 +23,7 @@ use App\Helpers\DocumentoGeneralController;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
-use App\Models\Sistema\envioEmail;
+use App\Models\Empresa\EnvioEmail;
 use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Portafolio\FacDocumentos;
