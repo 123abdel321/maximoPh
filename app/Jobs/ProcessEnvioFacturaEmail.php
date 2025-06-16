@@ -95,10 +95,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 if (!$facturaPdf) continue;
 
-                if ($facturaPdf) {
-                    $countFacturasEnviadas++;
-                    Storage::disk('do_spaces')->delete($facturaPdf);
-                }
+                $countFacturasEnviadas++;
 
                 $emailsToSend = array_filter([
                     $nit->email,
@@ -131,7 +128,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                         $envioEmail->id
                     ))->delay(now()->addSeconds($index * $delayBetweenEmails));
                 }
-                // Storage::disk('do_spaces')->delete($facturaPdf);
+                
+                Storage::disk('do_spaces')->delete($facturaPdf);
 
                 $delayInSeconds = $countFacturasEnviadas * 2;
             }
