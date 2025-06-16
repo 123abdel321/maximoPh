@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('envio_emails', function (Blueprint $table) {
             $table->id();
             $table->integer('id_nit')->nullable();
+            $table->string('message_id')->nullable();
+            $table->string('sg_message_id')->nullable();
             $table->string('email')->nullable();
             $table->string('contexto')->nullable();
+            $table->enum('status', ['en_cola', 'enviado', 'abierto'])->nullable()->comment('Estado del correo: en_cola, enviado, abierto');
             $table->timestamps();
         });
     }

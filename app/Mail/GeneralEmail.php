@@ -6,7 +6,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Attachment;
@@ -19,7 +18,6 @@ class GeneralEmail extends Mailable
     public $data;
     public $files;
     public $subject;
-    public $customMessageId;
 
     /**
      * Create a new message instance.
@@ -30,7 +28,6 @@ class GeneralEmail extends Mailable
         $this->view = $view;
         $this->files = $files;
         $this->data = $data;
-        $this->customMessageId = uniqid('mail_', true);
     }
 
     /**
@@ -65,14 +62,5 @@ class GeneralEmail extends Mailable
             return [$this->files];
         }
         return [];
-    }
-
-    public function headers(): Headers
-    {
-        return new Headers(
-            text: [
-                'X-Custom-Message-ID' => $this->customMessageId,
-            ],
-        );
     }
 }
