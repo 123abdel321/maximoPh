@@ -18,17 +18,23 @@ class SendGridWebhookController extends Controller
         }
 
         foreach ($events as $event) {
-            $trackingId = $event['custom_args']['maximoph_tracking_id'] ?? 
-                $this->extractFromSmtpApi($event) ?? 
-                null;
-            $sgMessageId  = $event['sg_message_id'] ?? null;
-            $eventType    = $event['event'] ?? null;
+            
+            // Nivel 1: Buscar en unique_args (SMTPAPI)
+            $trackingData = $this->extractTrackingData($eventData);
+
+            // Nivel 2: Buscar en headers personalizados
+            if (empty($trackingData)) {
+                $trackingData = $this->extractFromCustomHeaders($eventData);
+            }
+
+            // Nivel 3: Buscar en el cuerpo del mensaje (para eventos opens/clicks)
+            if (empty($trackingData)) {
+                // $trackingData = $this->extractFromBody($eventData);
+            }
 
             Log::info('SendGrid Event', [
-                'event'        => $event,
-                'trackingId'   => $trackingId,
-                'sgMessageId'  => $sgMessageId,
-                'eventType'    => $eventType,
+                'event'          => $event,
+                'trackingData'   => $trackingData
             ]);
         }
 
