@@ -50,8 +50,11 @@ class SendSingleEmail implements ShouldQueue
             );
 
         $response = Mail::to($this->email)->send($generalEmail);
-        Log::info($response);
+        Log::error('SendSingleEmail', [
+            'response' => $response,
+        ]);
         $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
+
 
         $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
         $envioEmail->sg_message_id = $sgMessageId;
