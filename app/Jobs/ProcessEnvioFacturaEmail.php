@@ -109,8 +109,16 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 foreach ($emailsToSend as $email) {
                     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) continue;
-                    $email = 'abdelvevo48@gmail.com';
+                    $email = 'abdel_123@hotmail.es';
                     $index++;
+
+                    $envioEmail = EnvioEmail::create([
+                        'id_nit' => $nit->id_nit,
+                        'email' => $email,
+                        'contexto' => 'emails.factura',
+                        'status' => 'queued'
+                    ]);
+                    
                     $jobs[] = (new SendSingleEmail(
                         $this->empresa,
                         $email,
@@ -118,7 +126,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                         $nit->consecutivo,
                         $nit->saldo_final,
                         $facturaPdf,
-                        $nit->id_nit
+                        'emails.factura',
+                        $envioEmail
                     ))->delay(now()->addSeconds($index * $delayBetweenEmails));
                 }
                 Storage::disk('do_spaces')->delete($facturaPdf);
