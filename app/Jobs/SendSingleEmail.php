@@ -46,8 +46,7 @@ class SendSingleEmail implements ShouldQueue
                     'nombre' => $this->nombre,
                     'factura' => $this->consecutivo,
                     'valor' => $this->saldo_final,
-                ],
-                $this->pdfPath
+                ]
             );
 
         $response = Mail::to($this->email)->send($generalEmail);
