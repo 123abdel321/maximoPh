@@ -32,7 +32,6 @@ use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Inmueble;
-use App\Models\Sistema\envioEmail;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\CuotasMultas;

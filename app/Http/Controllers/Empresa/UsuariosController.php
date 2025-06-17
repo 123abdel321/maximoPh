@@ -17,7 +17,8 @@ use App\Models\User;
 use App\Models\Empresa\Empresa;
 use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Porteria;
-use App\Models\Sistema\envioEmail;
+
+use App\Models\Empresa\EnvioEmail;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Empresa\RolesGenerales;
 use App\Models\Empresa\UsuarioEmpresa;
@@ -650,7 +651,7 @@ class UsuariosController extends Controller
 
                 $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
     
-                envioEmail::create([
+                EnvioEmail::create([
                     'id_nit' => '',
                     'id_empresa' => request()->user()->id_empresa,
                     'email' => $usuario->email,
@@ -699,7 +700,7 @@ class UsuariosController extends Controller
                             'url' => $url_welcome,
                         ]));
 
-                    envioEmail::create([
+                    EnvioEmail::create([
                         'id_nit' => $nit->id,
                         'email' => $nit->email_2,
                         'contexto' => 'envio_factura'
