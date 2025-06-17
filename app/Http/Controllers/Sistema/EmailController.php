@@ -31,7 +31,8 @@ class EmailController extends Controller
 
             $searchValue = $search_arr['value']; // Search value
 
-            $emails = EnvioEmail::orderBy('id', 'DESC')
+            $emails = EnvioEmail::with('nit')
+                ->orderBy('id', 'DESC')
                 ->where('id_empresa', request()->user()->id_empresa)
                 ->select(
                     '*',
