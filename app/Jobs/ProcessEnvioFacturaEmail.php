@@ -106,7 +106,6 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                 foreach ($emailsToSend as $email) {
                     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) continue;
-                    $email = 'abdel_123@hotmail.es';
                     $index++;
 
                     $envioEmail = EnvioEmail::create([
