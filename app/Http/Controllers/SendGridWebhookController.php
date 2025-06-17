@@ -38,14 +38,6 @@ class SendGridWebhookController extends Controller
                 $trackingId = $smtpId;
             }
 
-            Log::info('SendGrid Event', [
-                'event'        => $event,
-                'sgMessageId'  => $sgMessageId,
-                'smtpId'  => $smtpId,
-                'eventType'    => $eventType,
-                'trackingId'    => $trackingId,
-            ]);
-
             // Buscar por message_id en la base de datos
             $envio = EnvioEmail::where('sg_message_id', $trackingId)->first();
 
@@ -78,6 +70,10 @@ class SendGridWebhookController extends Controller
                     'sg_message_id' => $sgMessageId,
                     'smtp_id' => $smtpId,
                     'timestamp' => $timestamp
+                ]);
+            } else {
+                Log::error('No se encontro correo relacionado', [
+                    'event' => $event,
                 ]);
             }
         }

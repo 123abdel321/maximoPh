@@ -39,20 +39,21 @@ class SendSingleEmail implements ShouldQueue
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->empresa->token_db_maximo);
 
-        $path = stripslashes($this->pdfPath);
-
-        $this->pdfPath = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com$path";
+        if ($this->pdfPath) {
+            $path = stripslashes($this->pdfPath);
+            $this->pdfPath = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com$path";
+        }
 
         $generalEmail = new GeneralEmail(
-                $this->empresa->razon_social,
-                $this->view,
-                [
-                    'nombre' => $this->nombre,
-                    'factura' => $this->consecutivo,
-                    'valor' => $this->saldo_final,
-                ],
-                $this->pdfPath
-            );
+            $this->empresa->razon_social,
+            $this->view,
+            [
+                'nombre' => $this->nombre,
+                'factura' => $this->consecutivo,
+                'valor' => $this->saldo_final,
+            ],
+            $this->pdfPath
+        );
 
         $response = Mail::to($this->email)->send($generalEmail);
         $sgMessageId = $response->getSymfonySentMessage()->getMessageId();

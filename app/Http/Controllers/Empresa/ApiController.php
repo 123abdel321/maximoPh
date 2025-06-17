@@ -178,7 +178,7 @@ class ApiController extends Controller
                 }
             }
 
-            info('Creando empresa: '. $request->razon_social. '...');
+            info("Creando empresa: {$request->razon_social} ...");
 
             $usuarioOwner = User::create([
                 'firstname' => $request->razon_social,
@@ -328,13 +328,24 @@ class ApiController extends Controller
             $nombreUsuario = $usuario->firstname;
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
-            Mail::to($usuario->email)
-                ->cc('noreply@maximoph.co')
-                ->bcc('bcc@maximoph.co')
-                ->queue(new GeneralEmail('MAXIMOPH', 'emails.recover', [
+            $envioEmail = EnvioEmail::create([
+                'id_empresa' => $this->empresa->id,
+                'id_nit' => $nit->id_nit,
+                'email' => $email,
+                'contexto' => 'emails.recover',
+                'status' => 'en_cola'
+            ]);
+
+            $response = Mail::to($usuario->email)
+                ->send(new GeneralEmail('MAXIMOPH', 'emails.recover', [
                     'nombre' => $nombreUsuario,
                     'code_general' => $usuario->code_general
                 ]));
+
+            $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
+
+            $envioEmail->sg_message_id = $sgMessageId;
+            $envioEmail->save();
 
             return response()->json([
                 "success"=>true,

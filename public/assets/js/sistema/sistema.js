@@ -126,6 +126,7 @@ var moduloCreado = {
     'roles': false,
     'familia': false,
     'novedades': false,
+    'email': false,
 };
 
 var moduloRoute = {
@@ -156,6 +157,7 @@ var moduloRoute = {
     'roles': 'configuracion',
     'familia': 'administrativo',
     'novedades': 'administrativo',
+    'email': 'administrativo',
 }
 
 $('.water').show();

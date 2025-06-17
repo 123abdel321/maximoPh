@@ -641,17 +641,20 @@ class UsuariosController extends Controller
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
             if (filter_var($usuario->email, FILTER_VALIDATE_EMAIL)) {
-                Mail::to($usuario->email)
-                    ->cc('noreply@maximoph.co')
-                    ->bcc('bcc@maximoph.co')
-                    ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
+
+                $response = Mail::to($usuario->email)
+                    ->send(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                         'nombre' => $nombreUsuario,
                         'url' => $url_welcome,
                     ]));
+
+                $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
     
                 envioEmail::create([
-                    'id_nit' => $usuario->id,
+                    'id_nit' => '',
+                    'id_empresa' => request()->user()->id_empresa,
                     'email' => $usuario->email,
+                    'sg_message_id' => $sgMessageId,
                     'contexto' => 'emails.welcome'
                 ]);
             }
@@ -691,8 +694,6 @@ class UsuariosController extends Controller
                     $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
                     
                     Mail::to($usuario->email)
-                        ->cc('noreply@maximoph.co')
-                        ->bcc('bcc@maximoph.com')
                         ->queue(new GeneralEmail('BIENVENIDO A MAXIMOPH', 'emails.welcome', [
                             'nombre' => $nombreUsuario,
                             'url' => $url_welcome,

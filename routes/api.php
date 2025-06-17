@@ -45,6 +45,8 @@ use App\Http\Controllers\Sistema\ProyectosController;
 use App\Http\Controllers\PlacetoPayNotificationController;
 //SEND GRID
 use App\Http\Controllers\SendGridWebhookController;
+//EMAIL
+use App\Http\Controllers\Sistema\EmailController;
 
 
 /*
@@ -310,6 +312,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //ARCHIVOS GENERALES
         Route::controller(ArchivosCacheController::class)->group(function () {
             Route::delete('archivo-general', 'deleteFile');           
+        });
+        //EMAIL
+        Route::controller(EmailController::class)->group(function () {
+            Route::get('email', 'read');           
+            Route::get('email-detalle', 'readDetalle');           
         });
         
     });

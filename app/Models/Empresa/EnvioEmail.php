@@ -27,4 +27,9 @@ class EnvioEmail extends Model
     {
         return $this->belongsTo(EnvioEmailDetalle::class, 'id_email');
     }
+
+    public function nit()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit');
+    }
 }

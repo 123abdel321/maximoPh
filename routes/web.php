@@ -50,7 +50,11 @@ use App\Http\Controllers\Sistema\ProyectosController;
 use App\Http\Controllers\Sistema\ArchivosCacheController;
 //PAZ Y SALVO
 use App\Http\Controllers\Sistema\PazSalvoController;
+//EMAIL
+use App\Http\Controllers\Sistema\EmailController;
 
+use App\Mail\GeneralEmail;
+use Illuminate\Support\Facades\Mail;
 
 //MODELOS
 use App\Models\Portafolio\Nits;
@@ -178,6 +182,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		// ARCHIVOS CACHE
 		Route::post('/archivos-cache', [ArchivosCacheController::class, 'store']);
 		Route::delete('/archivos-cache', [ArchivosCacheController::class, 'delete']);
+		//EMAIL
+		Route::get('/email', [EmailController::class, 'index']);
 	});
 	
 });
