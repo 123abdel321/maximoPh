@@ -656,7 +656,8 @@ class UsuariosController extends Controller
                     'id_empresa' => request()->user()->id_empresa,
                     'email' => $usuario->email,
                     'sg_message_id' => $sgMessageId,
-                    'contexto' => 'emails.welcome'
+                    'contexto' => 'emails.welcome',
+                    'status' => 'en_cola'
                 ]);
             }
 
