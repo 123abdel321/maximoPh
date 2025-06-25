@@ -329,5 +329,5 @@ channelFacturaNofiticacion.bind('notificaciones', function(data) {
     $("#imprimirMultipleFacturacion").show();
     $("#imprimirMultipleFacturacionLoading").hide();
     agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
-    window.open(data.urf_factura, "_blank");
+    window.open(bucketUrl+data.urf_factura, "_blank");
 });
