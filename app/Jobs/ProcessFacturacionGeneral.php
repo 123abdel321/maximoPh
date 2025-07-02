@@ -803,7 +803,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $this->inicioMes.$countItems;
     }
 
-    private function generarDocumentoReferenciaCuotaMulta($id_inmueble, $totalCuotas)
+    private function generarDocumentoReferenciaCuotaMulta($id_inmueble, $totalInmuebles)
     {
         $inmuebleFactura = Inmueble::with('zona')->where('id', $id_inmueble)->first();
 
