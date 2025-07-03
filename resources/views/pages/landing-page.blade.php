@@ -1784,7 +1784,7 @@
 
             <div class="feature-card">
                 <h3>Proyectos</h3>
-                <p>Seguimientos de los proyectos atreves de tareas asignadas</p>
+                <p>Seguimiento de los proyectos a través de tareas asignadas</p>
             </div>
 
             <div class="feature-card">

@@ -55,13 +55,13 @@ class PazSalvoPdf extends AbstractPrinterPdf
 		
 		$nit = null;
         $obligaciones = '';
-		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
+		$getNit = Nits::first();
         $inmueblesNit = InmuebleNit::with('inmueble')
-            ->where('id_nit', $this->id_nit)
+            ->where('id_nit', $getNit->id)
             ->get();
 
         $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
-            $this->id_nit,
+            $getNit->id,
             [3,7]
         ))->actual()->get();
 
@@ -104,7 +104,7 @@ class PazSalvoPdf extends AbstractPrinterPdf
 
         $baseUrl = config('app.url');
         $idEmpresa = base64_encode($this->empresa->id);
-        $idNit = base64_encode($this->id_nit);
+        $idNit = base64_encode($getNit->id);
         $urlValidarArchivo = "{$baseUrl}/paz-y-salvo-publico?code1={$idEmpresa}&code2={$idNit}";
         
         $razonSocial = $this->empresa->razon_social;

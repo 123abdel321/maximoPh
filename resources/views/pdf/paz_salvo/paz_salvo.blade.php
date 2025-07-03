@@ -191,7 +191,7 @@
 								</td>
 								
 								<td class="empresa padding5">
-									<h1>{{ $empresa->razon_social }}</h1>
+									<h2>{{ $empresa->razon_social }}</h2>
 									<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
 									<span>TEL: {{ $empresa->telefono }}</span><br>
 									<span>{{ $empresa->direccion }}</span><br>
