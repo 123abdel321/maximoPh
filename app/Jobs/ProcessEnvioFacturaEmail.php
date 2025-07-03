@@ -21,6 +21,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Helpers\DocumentoGeneralController;
 //MODELS
+use App\Models\Sistema\Zonas;
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Empresa\EnvioEmail;
@@ -31,12 +32,12 @@ use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Portafolio\DocumentosGeneral;
 
 // class ProcessEnvioFacturaEmail
-class ProcessEnvioFacturaEmail implements ShouldQueue
+class ProcessEnvioFacturaEmail
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, SerializesModels;
 
     public $tries = 3;
-    public $timeout = 120;
+    public $timeout = 300;
     public $empresa = null;
     public $request = null;
     public $id_empresa = null;
@@ -82,6 +83,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 ->groupByRaw('id_nit')
                 ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
                 ->get();
+
+            dd($nits);
 
             $jobs = [];
             $index = 0;
@@ -212,6 +215,12 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->when($this->request['id_nit'] ? true : false, function ($query) {
 				$query->where('DG.id_nit', '=', $this->request['id_nit']);
 			})
+            ->when($this->request['id_zona'], function ($query) {
+                $zona = Zonas::where('id', $this->request['id_zona'])->first();
+                if ($zona) {
+                    $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
+                }
+			})
             ->when($this->request['factura_fisica'] ? true : false, function ($query) {
                 $nits = $this->nitFacturaFisica(true);
 				$query->whereIn('DG.id_nit', $nits);
@@ -276,6 +285,12 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 			})
             ->when($this->request['id_nit'] ? true : false, function ($query) {
 				$query->where('DG.id_nit', '=', $this->request['id_nit']);
+			})
+            ->when($this->request['id_zona'], function ($query) {
+                $zona = Zonas::where('id', $this->request['id_zona'])->first();
+                if ($zona) {
+                    $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
+                }
 			})
             ->when($this->request['factura_fisica'] ? true : false, function ($query) {
                 $nits = $this->nitFacturaFisica(true);
