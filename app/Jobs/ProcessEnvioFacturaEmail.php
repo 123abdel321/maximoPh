@@ -32,9 +32,9 @@ use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Portafolio\DocumentosGeneral;
 
 // class ProcessEnvioFacturaEmail
-class ProcessEnvioFacturaEmail
+class ProcessEnvioFacturaEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
     public $timeout = 300;
