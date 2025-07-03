@@ -55,7 +55,7 @@ class PazSalvoPdf extends AbstractPrinterPdf
 		
 		$nit = null;
         $obligaciones = '';
-		$getNit = Nits::first();
+		$getNit = Nits::whereId($this->id_nit)->with('ciudad')->first();
         $inmueblesNit = InmuebleNit::with('inmueble')
             ->where('id_nit', $getNit->id)
             ->get();
