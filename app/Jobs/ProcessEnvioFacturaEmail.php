@@ -84,8 +84,6 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
                 ->get();
 
-            dd($nits);
-
             $jobs = [];
             $index = 0;
             $delayBetweenEmails = 60 / $this->emailsPerMinute;
