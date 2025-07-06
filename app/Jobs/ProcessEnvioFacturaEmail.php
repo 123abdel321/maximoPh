@@ -89,11 +89,16 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             $delayBetweenEmails = 60 / $this->emailsPerMinute;
             
             foreach ($nits as $nit) {
-
-                $inmuebleNit = InmuebleNit::where('id_nit', $nit->id_nit)
+                $inmuebleNit = DB::connection('max')
+                    ->table('inmueble_nits AS IN')
+                    ->select(
+                        'id_nit',
+                        'enviar_notificaciones_mail'
+                    )
+                    ->where('IN.id_nit', $nit->id_nit)
                     ->first();
-                    
-                if (!$inmuebleNit->enviar_notificaciones_mail) continue;
+        
+                if ($inmuebleNit && !$inmuebleNit->enviar_notificaciones_mail) continue;
                 
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
@@ -217,7 +222,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->when($this->request['id_nit'] ? true : false, function ($query) {
 				$query->where('DG.id_nit', '=', $this->request['id_nit']);
 			})
-            ->when($this->request['id_zona'], function ($query) {
+            ->when(array_key_exists('id_zona', $this->request) ? $this->request['id_zona'] : null, function ($query) {
                 $zona = Zonas::where('id', $this->request['id_zona'])->first();
                 if ($zona) {
                     $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
@@ -288,7 +293,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->when($this->request['id_nit'] ? true : false, function ($query) {
 				$query->where('DG.id_nit', '=', $this->request['id_nit']);
 			})
-            ->when($this->request['id_zona'], function ($query) {
+            ->when(array_key_exists('id_zona', $this->request) ? $this->request['id_zona'] : null, function ($query) {
                 $zona = Zonas::where('id', $this->request['id_zona'])->first();
                 if ($zona) {
                     $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
