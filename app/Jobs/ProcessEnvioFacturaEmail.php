@@ -89,6 +89,11 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             $delayBetweenEmails = 60 / $this->emailsPerMinute;
             
             foreach ($nits as $nit) {
+
+                $inmuebleNit = InmuebleNit::where('id', $nit->id_nit)
+                    ->first();
+                    
+                if (!$inmuebleNit->enviar_notificaciones_mail) continue;
                 
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
@@ -104,7 +109,6 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     ($nit->email_2 && $nit->email_2 != $nit->email && $nit->email_2 != $nit->email_1) ? $nit->email_2 : null
                 ]);
                 
-
                 foreach ($emailsToSend as $email) {
                     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) continue;
                     $index++;
