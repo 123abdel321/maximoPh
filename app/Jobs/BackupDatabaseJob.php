@@ -13,7 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 //MODEL
-use App\Models\Empresas\BackupEmpresa;
+use App\Models\Empresa\BackupEmpresa;
 
 
 class BackupDatabaseJob implements ShouldQueue
