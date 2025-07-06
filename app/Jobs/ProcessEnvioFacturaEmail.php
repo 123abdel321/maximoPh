@@ -90,7 +90,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             
             foreach ($nits as $nit) {
 
-                $inmuebleNit = InmuebleNit::where('id', $nit->id_nit)
+                $inmuebleNit = InmuebleNit::where('id_nit', $nit->id_nit)
                     ->first();
                     
                 if (!$inmuebleNit->enviar_notificaciones_mail) continue;
