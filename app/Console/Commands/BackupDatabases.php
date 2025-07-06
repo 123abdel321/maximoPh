@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Jobs\BackupDatabaseJob;
 //MODELS
-use App\Models\Empresas\Empresa;
+use App\Models\Empresa\Empresa;
 
 class BackupDatabases extends Command
 {
