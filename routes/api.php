@@ -138,7 +138,6 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('facturaciones', 'readPdf');
             Route::post('facturacion', 'generar');
             Route::get('facturacion-preview', 'totales');
-            Route::get('facturacion-preview-lite', 'totalesLite');
             Route::get('facturacion-proceso', 'readDetalle');
             Route::post('facturacion-confirmar', 'confirmar');
             Route::post('facturacion-general', 'generarGeneral');

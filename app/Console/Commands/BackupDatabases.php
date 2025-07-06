@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Jobs\BackupDatabaseJob;
 //MODELS
-use App\Models\Empresa\Empresa;
+use App\Models\Empresas\Empresa;
 
 class BackupDatabases extends Command
 {
@@ -28,10 +28,14 @@ class BackupDatabases extends Command
      */
     public function handle()
     {
-        $empresas = Empresa::where('estado', 1)->get();
-
-        foreach ($empresas as $empresa) {
-            BackupDatabaseJob::dispatch($empresa->token_db_maximo);
+        $empresasActivas = Empresa::where('estado', 1)
+            ->orderBy('id', 'ASC')
+            ->get();
+    
+        foreach ($empresasActivas as $empresa) {
+            BackupDatabaseJob::dispatch($empresa);
         }
+        
+        \Log::info("Se han programado backups para {$empresasActivas->count()} empresas");
     }
 }

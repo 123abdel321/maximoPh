@@ -2,57 +2,119 @@
 
 namespace App\Jobs;
 
-use Illuminate\Http\File;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
+//MODEL
+use App\Models\Empresas\BackupEmpresa;
+
 
 class BackupDatabaseJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $tokenDatabase;
+    protected $empresa;
+    protected $maxBackups = 10;
 
-    public function __construct($tokenDatabase)
+    public function __construct($empresa)
     {
-        $this->tokenDatabase = $tokenDatabase;
+        $this->empresa = $empresa;
     }
 
-    public function handle(): void
+    public function handle()
     {
-        copyDBConnection('max', $this->tokenDatabase);
-        setDBInConnection('max', $this->tokenDatabase);
+        // 1. Configurar conexión a la BD
+        copyDBConnection('max', $this->empresa->token_db);
+        setDBInConnection('max', $this->empresa->token_db);
 
-        $tables = DB::connection('max')->select('SHOW TABLES');
-        $tables = array_map(fn($table) => reset($table), $tables);
+        // 2. Crear directorio temporal si no existe
+        $tempDir = storage_path('app/temp');
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
+        }
 
-        // Nombre del archivo con fecha y hora
-        $filename = "{$this->tokenDatabase}_" . date('Y_m_d_H') . ".sql.gz";
-        $filePath = storage_path("app/tmp/{$filename}");
-
-        info('backup: ' . $this->tokenDatabase);
-
-        // Configuración de la base de datos
+        // 3. Generar nombre de archivo
+        $filename = "{$this->empresa->token_db}_" . date('Y_m_d_H_i_s') . ".sql.gz";
+        $filePath = $tempDir . '/' . $filename;
+        
+        // 4. Ejecutar mysqldump
         $dbConfig = config("database.connections.max");
-
-        $command = "mysqldump --host={$dbConfig['host']} --user={$dbConfig['username']} --password={$dbConfig['password']} {$this->tokenDatabase} | gzip > {$filePath}";
-
+        $command = sprintf(
+            'mysqldump --host=%s --user=%s --password=%s %s | gzip > %s',
+            escapeshellarg($dbConfig['host']),
+            escapeshellarg($dbConfig['username']),
+            escapeshellarg($dbConfig['password']),
+            escapeshellarg($this->empresa->token_db),
+            escapeshellarg($filePath)
+        );
+        
         exec($command, $output, $resultCode);
 
         if ($resultCode !== 0) {
-            \Log::error("Error al generar el backup para {$this->tokenDatabase}");
-            return;
+            throw new \RuntimeException("Falló mysqldump: " . implode("\n", $output));
         }
+
+        // 5. Subir a Digital Ocean Spaces (CORRECCIÓN CLAVE)
+        $fileToUpload = new SymfonyFile($filePath); // Usar SymfonyFile aquí
         
-        Storage::disk('do_spaces')->putFileAs("backups-maximoph", new File($filePath), $filename, 'public');
+        Storage::disk('do_spaces')->putFileAs(
+            'backups-maximoph',
+            $fileToUpload, // Pasar la instancia de archivo, no la facade
+            $filename,
+            ['visibility' => 'public']
+        );
 
-        unlink($filePath);
+        // 6. Registrar en base de datos
+        $this->registerBackup(
+            $filename,
+            Storage::disk('do_spaces')->url("backups-maximoph/{$filename}")
+        );
 
-        info('backup: Finalizado con exito!');
+        // 7. Limpiar backups antiguos
+        $this->cleanOldBackups();
+
+        // 8. Eliminar archivo temporal
+        File::delete($filePath);
+    }
+
+    protected function registerBackup($filename, $url)
+    {
+        BackupEmpresa::create([
+            'id_empresa' => $this->empresa->id,
+            'url_file' => $url,
+            'file_name' => $filename
+        ]);
+    }
+
+    protected function cleanOldBackups()
+    {
+        $backups = BackupEmpresa::where('id_empresa', $this->empresa->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        if ($backups->count() > $this->maxBackups) {
+            $oldestBackups = $backups->slice($this->maxBackups);
+            
+            foreach ($oldestBackups as $backup) {
+                try {
+                    $path = str_replace(
+                        Storage::disk('do_spaces')->url(''),
+                        '',
+                        $backup->url_file
+                    );
+                    Storage::disk('do_spaces')->delete($path);
+                    $backup->delete();
+                } catch (\Exception $e) {
+                    \Log::error("Error eliminando backup antiguo: " . $e->getMessage());
+                }
+            }
+        }
     }
 }
