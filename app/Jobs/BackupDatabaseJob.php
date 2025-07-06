@@ -31,8 +31,8 @@ class BackupDatabaseJob implements ShouldQueue
     public function handle()
     {
         // 1. Configurar conexión a la BD
-        copyDBConnection('max', $this->empresa->token_db);
-        setDBInConnection('max', $this->empresa->token_db);
+        copyDBConnection('max', $this->empresa->token_db_maximo);
+        setDBInConnection('max', $this->empresa->token_db_maximo);
 
         // 2. Crear directorio temporal si no existe
         $tempDir = storage_path('app/temp');
@@ -41,7 +41,7 @@ class BackupDatabaseJob implements ShouldQueue
         }
 
         // 3. Generar nombre de archivo
-        $filename = "{$this->empresa->token_db}_" . date('Y_m_d_H_i_s') . ".sql.gz";
+        $filename = "{$this->empresa->token_db_maximo}_" . date('Y_m_d_H_i_s') . ".sql.gz";
         $filePath = $tempDir . '/' . $filename;
         
         // 4. Ejecutar mysqldump
