@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('app:validar-pagos-pasarela')->cron('0 0 * * *');
+        $schedule->command('php artisan app:backup:databases')->cron('0 0 * * *');
     }
 
     /**
