@@ -41,7 +41,11 @@ class SendSingleEmail implements ShouldQueue
 
         if ($this->pdfPath) {
             $path = stripslashes($this->pdfPath);
-            $this->pdfPath = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com$path";
+            $baseUrl = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com";
+            
+            if (!str_contains($path, $baseUrl)) {
+                $this->pdfPath = $baseUrl . $path;
+            }
         }
 
         $generalEmail = new GeneralEmail(
