@@ -359,6 +359,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     private function roundNumber($number)
     {
         if ($this->redondeo) {
+            // Primero redondeamos a 2 decimales para evitar problemas con números flotantes
+            $number = round($number, 2);
+            // Luego aplicamos el redondeo al múltiplo más cercano
             return round($number / $this->redondeo) * $this->redondeo;
         }
         return $number;
