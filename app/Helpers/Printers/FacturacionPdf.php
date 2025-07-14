@@ -41,10 +41,9 @@ class FacturacionPdf extends AbstractPrinterPdf
 
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $empresa->token_db_portafolio);
-
 		$this->id_nit = $id_nit;
 		$this->empresa = $empresa;
-		$this->periodo = $periodo;
+		$this->periodo = "$periodo 23:59:59";
 	}
 
     public function view()
@@ -122,7 +121,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ];
         }
         
-        $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d');
+        $inicioMesMenosDia = Carbon::parse($this->periodo)->subDay()->format('Y-m-d H:i:m');
 
         $cxp = (new Extracto(
             $this->id_nit,
