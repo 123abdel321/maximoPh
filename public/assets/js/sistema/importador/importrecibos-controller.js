@@ -42,6 +42,7 @@ function importrecibosInit() {
             {"data":'saldo', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'pago', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'descuento', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'faltante_descuento', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){
                 var totalNuevoSaldo = row.saldo_nuevo - row.descuento
                 return totalNuevoSaldo < 0 ? 0 : totalNuevoSaldo;

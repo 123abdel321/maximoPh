@@ -27,6 +27,7 @@ class ConRecibosImport extends Model
         'email',
         'pago',
         'descuento',
+        'faltante_descuento',
         'saldo',
         'saldo_nuevo',
         'anticipos',

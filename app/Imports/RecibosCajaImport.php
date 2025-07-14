@@ -163,7 +163,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes, $fechaManual);
 
                     $pagoTotal = floatval($row['valor']);
-
+                    
                     if ($this->existeRegistro($nit->id, $fechaManual->format('Y-m-d'), $pagoTotal, $fechaCargaArchivos)){
                         $estado = 1;
                         $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fechaManual->format('Y-m-d').'!<br>';
@@ -193,10 +193,12 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
 
                         $valorPendiente = $extracto ? $extracto->saldo : 0;
+
                         if ($extracto && $extracto->saldo && !$extractoCXC) {
                             $prontoPago = 0;
 
-                            $descuentoProntoPago = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
+                            [$descuentoProntoPago, $faltanteDescuento] = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
+                            
                             $pagoTotal+= $descuentoProntoPago;
                             $pagoTotal+= $extractoCXC;
                             if (($valorPendiente - $pagoTotal) < 0) {
@@ -240,6 +242,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 'email' => $row['email'],
                 'pago' => $row['valor'],
                 'descuento' => $descuentoProntoPago,
+                'faltante_descuento' => $faltanteDescuento,
                 'saldo' => $extractoSaldo,
                 'saldo_nuevo' => $saldoNuevo,
                 'anticipos' => $anticipo,
@@ -278,10 +281,10 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {   
         if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
             if ($totalPago + $facturaDescuento->descuento + $extractoCXC >= $extracto->saldo) {
-                return $facturaDescuento->descuento;
+                return [$facturaDescuento->descuento, 0];
             }
         }
-        return 0;
+        return [0, $extracto->saldo - ($totalPago + $facturaDescuento->descuento + $extractoCXC)];
     }
 
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
@@ -413,7 +416,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
             ->where('anulado', 0)
-            ->whereIn('PCT.id_tipo_cuenta', [2])
+            // ->whereIn('PCT.id_tipo_cuenta', [2])
             ->when($id_nit ? $id_nit : false, function ($query) use($id_nit) {
 				$query->where('N.id', $id_nit);
 			})

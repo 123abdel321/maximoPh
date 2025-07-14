@@ -26,6 +26,7 @@ return new class extends Migration
             $table->date('fecha_manual')->nullable();
             $table->decimal('pago', 15)->default(0);
             $table->decimal('descuento', 15)->default(0);
+            $table->decimal('faltante_descuento', 15)->default(0);
             $table->decimal('saldo', 15)->default(0);
             $table->decimal('saldo_nuevo', 15)->default(0);
             $table->decimal('anticipos', 15)->default(0);

@@ -12,6 +12,7 @@
             <th>Saldo Actual</th>
             <th>Valor Pago</th>
             <th>Valor Descuento</th>
+            <th>Faltante Descuento</th>
             <th>Nuevo Saldo</th>
             <th>Nuevo Anticipo</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Estado</th>

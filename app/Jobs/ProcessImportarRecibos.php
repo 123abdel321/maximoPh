@@ -117,7 +117,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $this->fechaManual,
                         $this->consecutivo
                     );
-                    
+
                     //AGREGAR PAGOS EN CONCEPTOS
                     if ($reciboImport->id_concepto_facturacion) {
                         $conceptoFacturacion = ConceptoFacturacion::find($reciboImport->id_concepto_facturacion);
@@ -188,13 +188,14 @@ class ProcessImportarRecibos implements ShouldQueue
                         
                         $deudaTotal = $this->sumarDeudaTotal($extractos);
                         $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
+                        $valorDisponible+= $totalDescuento;
                         $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
                         $anticiposDisponibles = $anticiposNit;
-                        
+
                         if ($facturaDescuento && !$sandoPendiente && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                             $realizarDescuento = true;
                         }
-                        
+
                         //AGREGAR DEUDA
                         foreach ($extractos as $extracto) {
                             if ($valorDisponible <= 0) continue;
@@ -210,8 +211,6 @@ class ProcessImportarRecibos implements ShouldQueue
     
                                     $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
                                     $valorDescuento = $facturaDescuento->descuento;
-                                    $valorPendiente = $valorPendiente;
-    
                                     $doc = new DocumentosGeneral([
                                         "id_cuenta" => $cuentaGasto->id,
                                         "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
@@ -234,10 +233,11 @@ class ProcessImportarRecibos implements ShouldQueue
                             if ($anticiposDisponibles > 0) {
                                 [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
                             }
+
                             $validarPago = $valorDisponible - $valorPendiente - $valorDescuento;
                             $valorPago = $valorDisponible - $valorPendiente - $valorDescuento > 0 ? $valorPendiente : $valorDisponible;
                             $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
-                            
+
                             if ($valorPago) {
                                 ConReciboDetalles::create([
                                     'id_recibo' => $recibo->id,
@@ -255,7 +255,7 @@ class ProcessImportarRecibos implements ShouldQueue
                                     'created_by' => $this->user_id,
                                     'updated_by' => $this->user_id
                                 ]);
-        
+                                
                                 //AGREGAR MOVIMIENTO CONTABLE
                                 $doc = new DocumentosGeneral([
                                     "id_cuenta" => $cuentaPago->id,
@@ -271,14 +271,13 @@ class ProcessImportarRecibos implements ShouldQueue
                                 $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
                             }
     
-                            $valorDisponible-= ($valorPago - ($valorDescuento + $totalAnticipar));
+                            $valorDisponible-= ($valorPago - ($totalAnticipar));
                         }
-                        
                         //AGREGAR ANTICIPO
                         if ($valorDisponible > 0) {
                             $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual));
                             $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
-    
+
                             ConReciboDetalles::create([
                                 'id_recibo' => $recibo->id,
                                 'id_cuenta' => $cuentaAnticipo->id,
