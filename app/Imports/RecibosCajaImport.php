@@ -278,13 +278,16 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     }
 
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $extractoCXC)
-    {   
+    {
+        $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
+
         if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
-            if ($totalPago + $facturaDescuento->descuento + $extractoCXC >= $extracto->saldo) {
-                return [$facturaDescuento->descuento, 0];
+            if ($totalPago + $descuento + $extractoCXC >= $extracto->saldo) {
+                return [$descuento, 0];
             }
         }
-        return [0, $extracto->saldo - ($totalPago + $facturaDescuento->descuento + $extractoCXC)];
+        
+        return [0, $extracto->saldo - ($totalPago + $descuento + $extractoCXC)];
     }
 
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
