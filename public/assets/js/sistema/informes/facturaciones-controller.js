@@ -325,9 +325,8 @@ channelEmailNofiticacion.bind('notificaciones', function(data) {
 });
 
 channelFacturaNofiticacion.bind('notificaciones', function(data) {
-    console.log('data: ',data);
     $("#imprimirMultipleFacturacion").show();
     $("#imprimirMultipleFacturacionLoading").hide();
     agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
-    window.open('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com'+data.urf_factura, "_blank");
+    window.open(data.urf_factura, "_blank");
 });
