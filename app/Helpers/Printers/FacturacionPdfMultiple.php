@@ -3,6 +3,7 @@
 namespace App\Helpers\Printers;
 
 use DB;
+use App\Helpers\Extracto;
 use Illuminate\Support\Carbon;
 //MODELS
 use App\Models\Sistema\Zonas;
@@ -17,7 +18,22 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
     public $id_zona;
 	public $empresa;
 	public $periodo;
+	public $redondeo;
 	public $detallar_facturas;
+    public $meses = [
+        'Enero',
+        'Febrero',
+        'Marzo',
+        'Abril',
+        'Mayo',
+        'Junio',
+        'Julio',
+        'Agosto',
+        'Septiembre',
+        'Octubre',
+        'Noviembre',
+        'Diciembre'
+    ];
 
     public function __construct(Empresa $empresa, $nits = [], $periodo, $id_zona)
 	{
@@ -29,6 +45,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 		$this->periodo = $periodo;
         $this->detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
         $this->detallar_facturas = $this->detallar_facturas ? $this->detallar_facturas->valor : 0;
+        $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
+        $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
 	}
 
     public function view()
@@ -71,8 +89,32 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     DB::raw("IF(naturaleza_cuenta = 0, SUM(debito), SUM(credito)) AS total_facturas"),
                     'fecha_manual',
                     'consecutivo'
-            )
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0');
+                )
+                ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
+            ->groupByRaw('id_nit')->first();
+
+            if (!$totales) {
+                $totales = (object)[
+                    'saldo_final' => 0,
+                    'saldo_anterior' => 0,
+                    'debito' => 0,
+                    'credito' => 0,
+                    'saldo_final' => 0,
+                    'total_abono' => 0,
+                    'total_facturas' => 0,
+                    'consecutivo' => 0,
+                    'fecha_manual' => $this->periodo
+                ];
+            }
+
+            $inicioMesMenosDia = Carbon::parse("$this->periodo 23:59:59")->subDay()->format('Y-m-d H:i:m');
+
+            $cxp = (new Extracto(
+                $id_nit,
+                [4,8],
+                null,
+                $inicioMesMenosDia
+            ))->completo()->first();
 
             $facturaciones = DB::connection('sam')
                 ->table(DB::raw("({$query->toSql()}) AS cartera"))
@@ -117,17 +159,111 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
                     DB::raw('SUM(total_columnas) AS total_columnas')
                 )
-            ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
-            ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
-            ->groupByRaw($this->detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
+                ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
+                ->havingRaw('saldo_anterior != 0 OR total_abono != 0 OR total_facturas != 0 OR saldo_final != 0')
+                ->groupByRaw($this->detallar_facturas ? 'id_nit, id_cuenta, documento_referencia' : 'id_nit, id_cuenta')
             ->get();
-            
-            if (count($facturaciones)) {
-                array_push($dataFacturas, (object)[
-                    'cuentas' => $facturaciones,
-                    'totales' => $totales->groupByRaw('id_nit')->first(),
-                ]);
+
+            $dataCuentas = [];
+            $dataDescuento = [];
+            $totalDescuento = 0;
+            $tieneSaldoAnterior = false;
+            $tieneDescuentoProntoPago = false;
+
+            foreach ($facturaciones as $facturacion) {
+
+                if (floatval($facturacion->saldo_anterior) > 0) {
+                    $tieneSaldoAnterior = true;
+                    $dataDescuento = [];
+                }
+
+                $descuento = 0;
+                $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
+
+                $conceptoFactura = DB::connection('max')
+                    ->table('concepto_facturacions')
+                    ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
+                    ->first();
+
+                if (!$tieneSaldoAnterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
+                    $diaHoy = intval(Carbon::now()->format('d'));
+                    //VALIDAMOS FECHA LIMITE DE PRONTO PAGO
+                    if ($conceptoFactura->dias_pronto_pago >= $diaHoy) {
+                        $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
+                        $tieneDescuentoProntoPago = true;
+                        $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
+                        $totalDescuento+= $descuento;
+                        if (array_key_exists($keyDescuento, $dataDescuento)) {
+                            $dataDescuento[$keyDescuento]['descuento']+= $descuento;
+                        } else {
+                            $dataDescuento[$keyDescuento] = [
+                                'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
+                                'descuento' => $totales->saldo_final - $descuento
+                            ];
+                        }
+                    }
+                }
+
+                $dataCuentas[] = (object)[
+                    'nombre_cuenta' => $facturacion->nombre_cuenta,
+                    'concepto' =>  $concepto,
+                    'saldo_anterior' => $facturacion->saldo_anterior,
+                    'total_facturas' => $facturacion->total_facturas,
+                    'total_abono' => $facturacion->total_abono,
+                    'descuento' => $descuento,
+                    'documento_referencia' => $facturacion->documento_referencia,
+                    'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
+                    'saldo_final' => $facturacion->saldo_final,
+                ];
             }
+
+            foreach ($dataDescuento as $key => $descuento) {
+                if ($descuento['descuento'] < 0) {
+                    $dataDescuento[$key]['descuento'] = 0;
+                }
+            }
+
+            $fechaMes = Carbon::parse($totales->fecha_manual)->format('m');
+            $fechaYear = Carbon::parse($totales->fecha_manual)->format('Y');
+            $fechaPlazo = Carbon::parse($totales->fecha_manual)->endOfMonth()->format('Y-m-d');
+
+            $totalDescuento = $totalDescuento < 0 ? 0 : $totalDescuento;
+            $totalDescuento = $this->roundNumber($totalDescuento);
+
+            $totalAnticipos = $cxp ? $cxp->saldo : 0;
+            $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
+            $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
+
+            $getNit = Nits::whereId($id_nit)->with('ciudad')->first();
+            $nit = (object)[
+				'nombre_nit' => $getNit->nombre_completo,
+				'telefono' =>  $getNit->telefono_1,
+				'email' => $getNit->email,
+				'direccion' => $getNit->direccion,
+				'tipo_documento' => $getNit->tipo_documento->nombre,
+				'numero_documento' => $getNit->numero_documento,
+				"ciudad" => $getNit->ciudad ? $getNit->ciudad->nombre_completo : '',
+                'apartamentos' => $getNit->apartamentos
+			];
+
+            array_push($dataFacturas, (object)[
+                'nit' => $nit,
+                'nombre_cuenta' => '',
+                'cuentas' => $dataCuentas,
+                'descuentos' => $dataDescuento,
+                'saldo_anterior' => $totales->saldo_anterior,
+                'total_facturas' => $totales->total_facturas,
+                'total_abono' => $totales->total_abono,
+                'total_anticipos' => $cxp ? $cxp->saldo : 0,
+                'anticipos_disponibles' => $totalAnticipos,
+                'descuento' => $totalDescuento,
+                'consecutivo' => $totales->consecutivo,
+                'fecha_manual' => Carbon::parse($totales->fecha_manual)->format('Y-m-d'),
+                'fecha_plazo' => $fechaPlazo,
+                'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
+                'saldo_final' => $totales->saldo_final,
+                'pronto_pago' => $tieneDescuentoProntoPago
+            ]);
         }
         
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
@@ -265,5 +401,13 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 			});
 
         return $anterioresQuery;
+    }
+
+    private function roundNumber($number)
+    {
+        if ($this->redondeo) {
+            return round($number / $this->redondeo) * $this->redondeo;
+        }
+        return $number;
     }
 }

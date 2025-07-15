@@ -124,6 +124,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::get('/facturacion', [FacturacionController::class, 'index']);
 		Route::get('/facturacion-pdf', [FacturacionController::class, 'index']);
 		Route::get('/facturacion-show-pdf', [FacturacionController::class, 'showPdf']);
+		Route::get('/facturacion-multiple', [FacturacionController::class, 'showMultiplePdf']);
 		Route::get('/cuotasmultas', [CuotasMultasController::class, 'index']);
 		//ADMINISTRATIVO
 		Route::post('/loadrut', [InstaladorController::class, 'rut']);

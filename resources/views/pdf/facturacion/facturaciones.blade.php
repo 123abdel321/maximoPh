@@ -113,7 +113,7 @@
 
 			.numero-consecutivo {
 				color: #8d00ff;
-				font-size: 2.8em;
+				font-size: 2.5em;
 			}
 
 			.fecha-factura {
