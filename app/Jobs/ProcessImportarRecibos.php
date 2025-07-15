@@ -188,29 +188,27 @@ class ProcessImportarRecibos implements ShouldQueue
                         
                         $deudaTotal = $this->sumarDeudaTotal($extractos);
                         $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
-                        $valorDisponible+= $totalDescuento;
                         $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
                         $anticiposDisponibles = $anticiposNit;
 
                         if ($facturaDescuento && !$sandoPendiente && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                             $realizarDescuento = true;
+                            Facturacion::where('id', $facturaDescuento->id_factura)
+                                ->update(['pronto_pago' => 1]);
                         }
 
-                        //AGREGAR DEUDA
-                        foreach ($extractos as $extracto) {
-                            if ($valorDisponible <= 0) continue;
+                        //AGREGAR DESCUENTOS
+                        if ($realizarDescuento) {
+                            $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
                             
-                            $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
-                            $valorPendiente = $extracto->saldo;
-                            $valorDescuento = 0;
-                            
-                            if ($realizarDescuento) {
+                            foreach ($extractos as $extracto) {
                                 if (array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
-                                    $realizarDescuento = false;
-                                    $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
-    
-                                    $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
+
                                     $valorDescuento = $facturaDescuento->descuento;
+                                    $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
+                                    $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
+
+                                    //AGREGAR MOVIMIENTO GASTO
                                     $doc = new DocumentosGeneral([
                                         "id_cuenta" => $cuentaGasto->id,
                                         "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
@@ -224,10 +222,64 @@ class ProcessImportarRecibos implements ShouldQueue
                                     ]);
                                     $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_ingresos);
 
-                                    Facturacion::where('id', $facturaDescuento->id_factura)
-                                        ->update(['pronto_pago' => 1]);
+                                    //AGREGAR MOVIMIENTO ANTICIPO
+                                    $doc = new DocumentosGeneral([
+                                        "id_cuenta" => $cuentaAnticipo->id,
+                                        "id_nit" => $cuentaAnticipo->exige_nit ? $recibo->id_nit : null,
+                                        "id_centro_costos" => $cuentaAnticipo->exige_centro_costos ? $cecos->id : null,
+                                        "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
+                                        "documento_referencia" => $cuentaAnticipo->exige_documento_referencia ? "{$extracto->documento_referencia}_D" : null,
+                                        "debito" => $valorDescuento,
+                                        "credito" => $valorDescuento,
+                                        "created_by" => $this->user_id,
+                                        "updated_by" => $this->user_id
+                                    ]);
+                                    $documentoGeneral->addRow($doc, $cuentaAnticipo->naturaleza_cuenta);
+
+                                    //AGREGAR DETALLE
+                                    ConReciboDetalles::create([
+                                        'id_recibo' => $recibo->id,
+                                        'id_cuenta' => $cuentaAnticipo->id,
+                                        'id_nit' => $recibo->id_nit,
+                                        'fecha_manual' => $recibo->fecha_manual,
+                                        'documento_referencia' => "{$extracto->documento_referencia}_D",
+                                        'consecutivo' => $recibo->consecutivo,
+                                        'concepto' => 'ANTICIPO IMPORTADO DESDE RECIBOS',
+                                        'total_factura' => 0,
+                                        'total_abono' => 0,
+                                        'total_saldo' => 0,
+                                        'nuevo_saldo' => 0,
+                                        'total_anticipo' => $valorDescuento,
+                                        'created_by' => $this->user_id,
+                                        'updated_by' => $this->user_id
+                                    ]);
+
+                                    $this->facturasAnticipos[] = (object)[
+                                        'documento_referencia' => "{$extracto->documento_referencia}_D",
+                                        'id_cuenta' => $cuentaAnticipo->id,
+                                        'naturaleza_ingresos' => $cuentaAnticipo->naturaleza_ingresos,
+                                        'naturaleza_egresos' => $cuentaAnticipo->naturaleza_egresos,
+                                        'naturaleza_compras' => $cuentaAnticipo->naturaleza_compras,
+                                        'naturaleza_ventas' => $cuentaAnticipo->naturaleza_ventas,
+                                        'naturaleza_cuenta' => $cuentaAnticipo->naturaleza_cuenta,
+                                        'exige_nit' => $cuentaAnticipo->exige_nit,
+                                        'exige_documento_referencia' => $cuentaAnticipo->exige_documento_referencia,
+                                        'exige_concepto' => $cuentaAnticipo->exige_concepto,
+                                        'exige_centro_costos' => $cuentaAnticipo->exige_centro_costos,
+                                        'saldo' => floatval($valorDescuento)
+                                    ];
+
+                                    $anticiposDisponibles+= floatval($valorDescuento);
                                 }
                             }
+                        }
+
+                        //AGREGAR DEUDA
+                        foreach ($extractos as $extracto) {
+                            if ($valorDisponible <= 0) continue;
+                            
+                            $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
+                            $valorPendiente = $extracto->saldo;
                             
                             $totalAnticipar = 0;
                             if ($anticiposDisponibles > 0) {
@@ -273,6 +325,7 @@ class ProcessImportarRecibos implements ShouldQueue
     
                             $valorDisponible-= ($valorPago - ($totalAnticipar));
                         }
+                        
                         //AGREGAR ANTICIPO
                         if ($valorDisponible > 0) {
                             $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual));
@@ -307,9 +360,10 @@ class ProcessImportarRecibos implements ShouldQueue
                                 "created_by" => $this->user_id,
                                 "updated_by" => $this->user_id
                             ]);
+
                             $documentoGeneral->addRow($doc, $cuentaAnticipo->naturaleza_ingresos);
                         }
-                        
+
                         //GREGAR PAGO
                         $formaPago = FacFormasPago::where('id_cuenta', $id_cuenta_ingreso)
                             ->with('cuenta.tipos_cuenta')
@@ -345,7 +399,6 @@ class ProcessImportarRecibos implements ShouldQueue
                     }
                 }
             }
-            
             ConRecibosImport::whereIn('estado', [0])->delete();
 
 		} catch (Exception $exception) {
@@ -478,7 +531,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 "id_nit" => $anticipo->exige_nit ? $extracto->id_nit : null,
                 "id_centro_costos" => $anticipo->exige_centro_costos ? $cecos->id : null,
                 "concepto" => 'CRUCE ANTICIPOS '.$extracto->concepto,
-                "documento_referencia" => $anticipo->exige_documento_referencia ? $extracto->documento_referencia : null,
+                "documento_referencia" => $anticipo->exige_documento_referencia ? $anticipo->documento_referencia : null,
                 "debito" => $totalAnticipar,
                 "credito" => $totalAnticipar,
                 "created_by" => $this->user_id,
@@ -514,6 +567,17 @@ class ProcessImportarRecibos implements ShouldQueue
             'updated_by' => $this->user_id
         ]);
         return $recibo;
+    }
+
+
+    private function isAnticiposDocumentoRefe($idNit)
+    {
+        $anticipoCuenta = (new Extracto(
+            $idNit,
+            [4,8]
+        ))->anticiposDiscriminados()->get();
+
+        return $anticipoCuenta;
     }
 
     private function roundNumber($number)

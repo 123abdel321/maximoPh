@@ -154,6 +154,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 }
             }
             
+            $faltanteDescuento = 0;
+            $descuentoProntoPago = 0;
+
             if ($row['valor'] && $fechaManual) {
                 if ($nit) {
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
@@ -191,7 +194,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                         ))->completo()->first();
                             
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
-
                         $valorPendiente = $extracto ? $extracto->saldo : 0;
 
                         if ($extracto && $extracto->saldo && !$extractoCXC) {
@@ -286,8 +288,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 return [$descuento, 0];
             }
         }
-        
-        return [0, $extracto->saldo - ($totalPago + $descuento + $extractoCXC)];
+        $faltante = $extracto->saldo - ($totalPago + $descuento + $extractoCXC);
+        return [0, $faltante < 0 ? 0 : $faltante];
     }
 
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
@@ -322,7 +324,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
             WHERE FD.id_nit = $id_nit
                 AND FA.id IS NOT NULL
-                AND FD.fecha_manual = '{$inicioMes}'
+                -- AND FD.fecha_manual = '{$inicioMes}'
                 AND FD.naturaleza_opuesta = 0
                 AND CF.porcentaje_pronto_pago > 0
                 AND FA.pronto_pago IS NULL
@@ -332,7 +334,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         ");
 
         $facturas = collect($facturas);
-
+        
         if (!count($facturas)) return false;
 
         $data = (object)[
