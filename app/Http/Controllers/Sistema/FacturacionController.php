@@ -1343,9 +1343,9 @@ class FacturacionController extends Controller
         // $data = (new FacturacionPdfMultiple($empresa, [125], $request->get('periodo'), null))->buildPdf()->getData();
         // return view('pdf.facturacion.facturaciones_multiples', $data);
         // dd($data);
-        $facturasPdf = (new FacturacionPdfMultiple($this->empresa, $this->nits, $this->periodo, $this->idZona))
-            ->buildPdf()
-            ->saveStorage();
+        // $facturasPdf = (new FacturacionPdfMultiple($this->empresa, $this->nits, $this->periodo, $this->idZona))
+        //     ->buildPdf()
+        //     ->saveStorage();
         
         ProcessGenerateFacturaMultiplePdf::dispatch($empresa, $nits, $request->get('periodo'), $request->get('id_zona'), $request->user()->id);
 
