@@ -164,295 +164,297 @@
 	</head>
 	
 	@foreach ($facturas as $factura)
-	<div class="page">
-		<body class="main">
+		@if ($factura)
+		<div class="page">
+			<body class="main">
 
-			<table >
-				<thead>
-					<tr>
-						<td class="spacer padding5"></td>
-					</tr>
-					<tr>
-						<td colspan="7 padding5">
+				<table >
+					<thead>
+						<tr>
+							<td class="spacer padding5"></td>
+						</tr>
+						<tr>
+							<td colspan="7 padding5">
 
-							<table>
-								<tr>
-
-									<td class="consecutivo padding5">
-										<p>
-											<span span class="numero-consecutivo">N° {{ $factura->consecutivo }}</span><br/>
-											<span span class="fecha-factura">{{ $factura->fecha_texto }}</span>
-											@if ($factura->nit)
-											<br/>
-											<span span class="ubicacion-factura">{{ $factura->nit->apartamentos }}</span>
-											@endif
-										</p>
-									</td>
-
-									<td class="empresa padding5">
-										<h1>{{ $empresa->razon_social }}</h1>
-										<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
-										<span>TEL: {{ $empresa->telefono }}</span><br>
-										<span>{{ $empresa->direccion }}</span><br>
-										<span>{{ $empresa->correo }}</span><br>
-									</td>
-
-									<td class="logo padding5">
-										@if ($empresa->logo)
-											<img stype="height:90px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
-										@else
-											<img style="height:90px;" src="img/logo_contabilidad.png">
-										@endif
-									</td>
-
-								</tr>
-							</table>
-
-							<table>
-								<thead class="">
+								<table>
 									<tr>
-										<td class="spacer-lite padding5"></td>
-									</tr>
-									<tr>
-										<td colspan="8 padding5">
-											<table>
-												<tr>
-													<td class="aling-top padding5">
-														<table>
-															<thead>
-																<tr>
-																	<th colspan="2" class="header-total padding5">PROPIETARIO</th>
-																</tr>
-															</thead>
-															<tbody>
-																<tr>
-																	<td class="padding3">{{ $factura->nit->nombre_nit }}</td>
-																</tr>
-																<tr>
-																	<td class="padding3">{{ $factura->nit->tipo_documento }} N° {{ $factura->nit->numero_documento }}</td>
-																</tr>
-																<tr>
-																	<td class="padding3">{{ $factura->nit->direccion }}
-																		@if($factura->nit->ciudad)
-																			{{ $factura->nit->ciudad }}
-																		@endif
-																		@if ($factura->nit->telefono)
-																			- TEL: {{ $factura->nit->telefono }}
-																		@endif
-																	</td>
-																</tr>
-																
-															</tbody>
-														</table>
-													</td>
-													
-													<td class="table-total-factura padding5">
-														<table>
-															<thead>
-																<tr>
-																	<th colspan="2" class="header-total padding5">TOTALES</th>
-																</tr>
-															</thead>
-															<tbody>
-																<tr >
-																	<th class="padding5">FECHA DOCUMENTO</th>
-																	<th class="valor padding5">{{ $factura->fecha_manual }}</th>
-																</tr>
-																<tr >
-																	<th class="padding5">FECHA VENCIMIENTO</th>
-																	<th class="valor padding5">{{ $factura->fecha_plazo }}</th>
-																</tr>
-																<tr >
-																	<th class="padding5">TOTAL DOCUMENTO</th>
-																	<th class="valor padding5">{{ number_format($factura->saldo_final) }}</th>
-																</tr>
-															</tbody>
-														</table>
-													</td>
-												</tr>
-											</table>
+
+										<td class="consecutivo padding5">
+											<p>
+												<span span class="numero-consecutivo">N° {{ $factura->consecutivo }}</span><br/>
+												<span span class="fecha-factura">{{ $factura->fecha_texto }}</span>
+												@if ($factura->nit)
+												<br/>
+												<span span class="ubicacion-factura">{{ $factura->nit->apartamentos }}</span>
+												@endif
+											</p>
 										</td>
-									</tr>
-								</thead>
-							</table>
 
-							<table class="tabla-detalle-factura">
-								<thead class="">
-									<tr>
-										<td class="spacer-lite"></td>
-									</tr>
-									<tr class="header-factura padding5">
-										<th class="padding5">NOMBRE</th>
-										<th class="padding5">DOCUMENTO</th>
-										<th class="padding5">SALDO ANTERIOR</th>
-										<th class="padding5">VALOR FACTURA</th>
-										<th class="padding5">ANTICIPOS</th>
-										<th class="padding5">SALDO FINAL</th>
-									</tr>
-								</thead>
-								<tbody class="detalle-factura">
-									@foreach ($factura->cuentas as $cuenta)
-									<tr>
-										<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
-										<td class="padding5 detalle-factura-descripcion">{{ $cuenta->documento_referencia }}</td>
-										<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
-										<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
-										<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
-										<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
-									</tr>
-									@endforeach
-									<tr style="background-color: #58978423;">
-										<td class="padding5">
-											<b>TOTAL
-											@if ($factura->pronto_pago)
-												SIN DESCUENTO
-											@endif
-											</b>
+										<td class="empresa padding5">
+											<h1>{{ $empresa->razon_social }}</h1>
+											<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
+											<span>TEL: {{ $empresa->telefono }}</span><br>
+											<span>{{ $empresa->direccion }}</span><br>
+											<span>{{ $empresa->correo }}</span><br>
 										</td>
-										<td class="padding5 valor">{{ COUNT($factura->cuentas) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->saldo_anterior) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->total_facturas) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->total_abono) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->saldo_final) }}</td>
-									</tr>
-								</tbody>
-								@if ($factura->total_anticipos || $factura->descuento)
-								<thead class="">
-									<tr>
-										<td class="spacer-lite"></td>
-									</tr>
-									<tr class="header-factura padding5">
-										<th class="padding5">ANTICIPO</th>
-										<th class="padding5">VALOR FACTURA</th>
-										<th class="padding5">DESCUENTO</th>
-										<th class="padding5">TOTAL FACTURA</th>
-										@if ($factura->anticipos_disponibles)
-											<th class="padding5">SALDO A FAVOR</th>
-										@else
-											<th class="padding5">TOTAL DEUDA</th>
-										@endif
-									</tr>
-								</thead>
-								<tbody class="detalle-factura">
-									<tr>
-										<td class="padding5 valor">{{ number_format($factura->total_anticipos) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->total_facturas) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->descuento) }}</td>
-										<td class="padding5 valor">{{ number_format($factura->total_facturas - $factura->descuento) }}</td>
-										@if ($factura->anticipos_disponibles)
-											<td class="padding5 valor">{{ number_format($factura->anticipos_disponibles) }}</td>
-										@else
-											<td class="padding5 valor">{{ number_format($factura->saldo_final) }}</td>
-										@endif
-									</tr>
-								</tbody>
-								@endif
-							</table>
 
-							@if ($factura->pronto_pago && $factura->saldo_final > 0)
+										<td class="logo padding5">
+											@if ($empresa->logo)
+												<img stype="height:90px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
+											@else
+												<img style="height:90px;" src="img/logo_contabilidad.png">
+											@endif
+										</td>
+
+									</tr>
+								</table>
+
 								<table>
 									<thead class="">
 										<tr>
+											<td class="spacer-lite padding5"></td>
+										</tr>
+										<tr>
 											<td colspan="8 padding5">
-												&nbsp;
-											</td>
-											<td class="table-total-factura padding5">
 												<table>
-													<thead class="">
-														<tr>
-															<td class="spacer-lite"></td>
-														</tr>
-														<tr class="header-factura-descuento padding5">
-															<th class="padding5">FECHA LIMITE PAGO</th>
-															<th class="padding5">VALOR FACTURA</th>
-														</tr>
-													</thead>
-													<tbody class="detalle-factura">
-														@foreach ($factura->descuentos as $descuento)
-															<tr>
-																<td class="padding5">{{ $descuento['fecha_limite'] }}</td>
-																<td class="padding5 valor">{{ number_format($descuento['descuento']) }}</td>
-															</tr>
-														@endforeach
-													</tbody>
+													<tr>
+														<td class="aling-top padding5">
+															<table>
+																<thead>
+																	<tr>
+																		<th colspan="2" class="header-total padding5">PROPIETARIO</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr>
+																		<td class="padding3">{{ $factura->nit->nombre_nit }}</td>
+																	</tr>
+																	<tr>
+																		<td class="padding3">{{ $factura->nit->tipo_documento }} N° {{ $factura->nit->numero_documento }}</td>
+																	</tr>
+																	<tr>
+																		<td class="padding3">{{ $factura->nit->direccion }}
+																			@if($factura->nit->ciudad)
+																				{{ $factura->nit->ciudad }}
+																			@endif
+																			@if ($factura->nit->telefono)
+																				- TEL: {{ $factura->nit->telefono }}
+																			@endif
+																		</td>
+																	</tr>
+																	
+																</tbody>
+															</table>
+														</td>
+														
+														<td class="table-total-factura padding5">
+															<table>
+																<thead>
+																	<tr>
+																		<th colspan="2" class="header-total padding5">TOTALES</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr >
+																		<th class="padding5">FECHA DOCUMENTO</th>
+																		<th class="valor padding5">{{ $factura->fecha_manual }}</th>
+																	</tr>
+																	<tr >
+																		<th class="padding5">FECHA VENCIMIENTO</th>
+																		<th class="valor padding5">{{ $factura->fecha_plazo }}</th>
+																	</tr>
+																	<tr >
+																		<th class="padding5">TOTAL DOCUMENTO</th>
+																		<th class="valor padding5">{{ number_format($factura->saldo_final) }}</th>
+																	</tr>
+																</tbody>
+															</table>
+														</td>
+													</tr>
 												</table>
 											</td>
 										</tr>
 									</thead>
-								</table>			
-							@endif
+								</table>
 
-						</td>
-					</tr>
-				</thead>
-			</table>
+								<table class="tabla-detalle-factura">
+									<thead class="">
+										<tr>
+											<td class="spacer-lite"></td>
+										</tr>
+										<tr class="header-factura padding5">
+											<th class="padding5">NOMBRE</th>
+											<th class="padding5">DOCUMENTO</th>
+											<th class="padding5">SALDO ANTERIOR</th>
+											<th class="padding5">VALOR FACTURA</th>
+											<th class="padding5">ANTICIPOS</th>
+											<th class="padding5">SALDO FINAL</th>
+										</tr>
+									</thead>
+									<tbody class="detalle-factura">
+										@foreach ($factura->cuentas as $cuenta)
+										<tr>
+											<td class="padding5 detalle-factura-descripcion">{{ $cuenta->concepto }}</td>
+											<td class="padding5 detalle-factura-descripcion">{{ $cuenta->documento_referencia }}</td>
+											<td class="padding5 valor">{{ number_format($cuenta->saldo_anterior) }}</td>
+											<td class="padding5 valor">{{ number_format($cuenta->total_facturas) }}</td>
+											<td class="padding5 valor">{{ number_format($cuenta->total_abono) }}</td>
+											<td class="padding5 valor">{{ number_format($cuenta->saldo_final) }}</td>
+										</tr>
+										@endforeach
+										<tr style="background-color: #58978423;">
+											<td class="padding5">
+												<b>TOTAL
+												@if ($factura->pronto_pago)
+													SIN DESCUENTO
+												@endif
+												</b>
+											</td>
+											<td class="padding5 valor">{{ COUNT($factura->cuentas) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->saldo_anterior) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->total_facturas) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->total_abono) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->saldo_final) }}</td>
+										</tr>
+									</tbody>
+									@if ($factura->total_anticipos || $factura->descuento)
+									<thead class="">
+										<tr>
+											<td class="spacer-lite"></td>
+										</tr>
+										<tr class="header-factura padding5">
+											<th class="padding5">ANTICIPO</th>
+											<th class="padding5">VALOR FACTURA</th>
+											<th class="padding5">DESCUENTO</th>
+											<th class="padding5">TOTAL FACTURA</th>
+											@if ($factura->anticipos_disponibles)
+												<th class="padding5">SALDO A FAVOR</th>
+											@else
+												<th class="padding5">TOTAL DEUDA</th>
+											@endif
+										</tr>
+									</thead>
+									<tbody class="detalle-factura">
+										<tr>
+											<td class="padding5 valor">{{ number_format($factura->total_anticipos) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->total_facturas) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->descuento) }}</td>
+											<td class="padding5 valor">{{ number_format($factura->total_facturas - $factura->descuento) }}</td>
+											@if ($factura->anticipos_disponibles)
+												<td class="padding5 valor">{{ number_format($factura->anticipos_disponibles) }}</td>
+											@else
+												<td class="padding5 valor">{{ number_format($factura->saldo_final) }}</td>
+											@endif
+										</tr>
+									</tbody>
+									@endif
+								</table>
 
-			@if ($texto_1 || $texto_2)
-				<table>
-					<tr>
-						@if ($texto_1)
-						<td class="aling-top padding5">
-							<table>
-								<thead>
-									<tr>
-										<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
-									</tr>
-								</thead>
-							</table>
-						</td>
-						@endif
-						@if ($texto_2)
-						<td class="table-total-factura padding5">
-							<table>
-								<thead>
-									<tr>
-										<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
-									</tr>
-								</thead>
-							</table>
-						</td>
-						@endif
-					</tr>
+								@if ($factura->pronto_pago && $factura->saldo_final > 0)
+									<table>
+										<thead class="">
+											<tr>
+												<td colspan="8 padding5">
+													&nbsp;
+												</td>
+												<td class="table-total-factura padding5">
+													<table>
+														<thead class="">
+															<tr>
+																<td class="spacer-lite"></td>
+															</tr>
+															<tr class="header-factura-descuento padding5">
+																<th class="padding5">FECHA LIMITE PAGO</th>
+																<th class="padding5">VALOR FACTURA</th>
+															</tr>
+														</thead>
+														<tbody class="detalle-factura">
+															@foreach ($factura->descuentos as $descuento)
+																<tr>
+																	<td class="padding5">{{ $descuento['fecha_limite'] }}</td>
+																	<td class="padding5 valor">{{ number_format($descuento['descuento']) }}</td>
+																</tr>
+															@endforeach
+														</tbody>
+													</table>
+												</td>
+											</tr>
+										</thead>
+									</table>			
+								@endif
+
+							</td>
+						</tr>
+					</thead>
 				</table>
-			@endif
-					
-			<script type="text/php">
-				if ( isset($pdf) ) {
-					$pdf->page_script('
-						$font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-						$pdf->text(300, 800, "$PAGE_NUM / $PAGE_COUNT", $font, 8);
-					');
-				}
-			</script>
-	
-			<table class="footer">
-				<tr>
-					<td class="padding5 ">
-						<table>
-							<tr >
-								<td class="empresa-footer padding5">
-									Maximo PH<br>
-									{{ $fecha_pdf }}
-								</td>
-							</tr>
-						</table>
-					</td>
-					<td class="padding5"></td>
-					<td class="padding5 generado">
-						<table>
-							<tr>
-								<td class="empresa-footer-left padding5">
-									ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
-									www.maximoph.co
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table> 
-			
-		</body>
-	</div>
+
+				@if ($texto_1 || $texto_2)
+					<table>
+						<tr>
+							@if ($texto_1)
+							<td class="aling-top padding5">
+								<table>
+									<thead>
+										<tr>
+											<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
+										</tr>
+									</thead>
+								</table>
+							</td>
+							@endif
+							@if ($texto_2)
+							<td class="table-total-factura padding5">
+								<table>
+									<thead>
+										<tr>
+											<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
+										</tr>
+									</thead>
+								</table>
+							</td>
+							@endif
+						</tr>
+					</table>
+				@endif
+						
+				<script type="text/php">
+					if ( isset($pdf) ) {
+						$pdf->page_script('
+							$font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+							$pdf->text(300, 800, "$PAGE_NUM / $PAGE_COUNT", $font, 8);
+						');
+					}
+				</script>
+		
+				<table class="footer">
+					<tr>
+						<td class="padding5 ">
+							<table>
+								<tr >
+									<td class="empresa-footer padding5">
+										Maximo PH<br>
+										{{ $fecha_pdf }}
+									</td>
+								</tr>
+							</table>
+						</td>
+						<td class="padding5"></td>
+						<td class="padding5 generado">
+							<table>
+								<tr>
+									<td class="empresa-footer-left padding5">
+										ESTE INFORME FU&Eacute; GENERADO POR MAXIMO PH <br>
+										www.maximoph.co
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table> 
+				
+			</body>
+		</div>
+		@endif
 	@endforeach
 
 </html>
