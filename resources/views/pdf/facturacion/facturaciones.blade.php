@@ -108,12 +108,12 @@
 				width: 25%;
 				text-align: center;
 				border: 1px solid #f2f2f2;
-				line-height: 3em;
+				line-height: 2em;
 			}
 
 			.numero-consecutivo {
 				color: #8d00ff;
-				font-size: 2.5em;
+				font-size: 2.0em;
 			}
 
 			.fecha-factura {
@@ -123,7 +123,7 @@
 
 			.ubicacion-factura {
 				color: black;
-				font-size: 1.5em;
+				font-size: 1.3em;
 			}
 			
 			.generado {
@@ -168,24 +168,19 @@
 		<table >
 			<thead>
 				<tr>
-					<td class="spacer-lite padding5"></td>
-				</tr>
-				<tr>
-					<td colspan="7 padding5">
+					<td colspan="7">
 						<table>
 							<tr>
-								<td class="consecutivo padding5">
-									<p>
-										<span span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span><br/>
-										<span span class="fecha-factura">{{ $totales->fecha_texto }}</span>
-										@if ($nit)
-										<br/>
-										<span span class="ubicacion-factura">{{ $nit->apartamentos }}</span>
-										@endif
-									</p>
+								<td class="consecutivo">
+									<span class="numero-consecutivo">N° {{ $totales->consecutivo }}</span><br/>
+									<span class="fecha-factura">{{ $totales->fecha_texto }}</span>
+									@if ($nit)
+									<br/>
+									<span class="ubicacion-factura">{{ $nit->apartamentos }}</span>
+									@endif
 								</td>
 								
-								<td class="empresa padding5">
+								<td class="empresa">
 									<h1>{{ $empresa->razon_social }}</h1>
 									<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
 									<span>TEL: {{ $empresa->telefono }}</span><br>
@@ -193,7 +188,7 @@
 									<span>{{ $empresa->correo }}</span><br>
 								</td>
 								
-								<td class="logo padding5">
+								<td class="logo">
 									@if ($empresa->logo)
 										<img stype="height:90px;" src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/{{ $empresa->logo }}">
 									@else
