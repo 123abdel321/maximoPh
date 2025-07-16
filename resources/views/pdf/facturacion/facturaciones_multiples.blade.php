@@ -164,7 +164,7 @@
 	</head>
 	
 	@foreach ($facturas as $factura)
-		@if ($factura)
+		@if ($factura && property_exists($factura, 'consecutivo'))
 		<div class="page">
 			<body class="main">
 
