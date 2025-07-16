@@ -339,7 +339,7 @@
 						@if ($totales->anticipos_disponibles)
 							<th class="padding5">SALDO A FAVOR</th>
 						@else
-							<th class="padding5">TOTAL DEUDA</th>
+							<th class="padding5">TOTAL ADMON</th>
 						@endif
 					</tr>
 				</thead>
@@ -374,8 +374,8 @@
 										<td class="spacer-lite"></td>
 									</tr>
 									<tr class="header-factura-descuento padding5">
-										<th class="padding5">FECHA LIMITE PAGO</th>
-										<th class="padding5">VALOR FACTURA</th>
+										<th class="padding5">FECHA CON DESCUENTO</th>
+										<th class="padding5">VALOR CON DESCUENTO</th>
 									</tr>
 								</thead>
 								<tbody class="detalle-factura">
@@ -401,7 +401,7 @@
 						<table>
 							<thead>
 								<tr>
-									<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_1 }}</td>
+									<td colspan="2" class="empresa-footer padding5">{{ $texto_1 }}</td>
 								</tr>
 							</thead>
 						</table>
@@ -412,7 +412,7 @@
 						<table>
 							<thead>
 								<tr>
-									<td colspan="2" class="empresa-footer padding5 minus">{{ $texto_2 }}</td>
+									<td colspan="2" class="empresa-footer padding5">{{ $texto_2 }}</td>
 								</tr>
 							</thead>
 						</table>
