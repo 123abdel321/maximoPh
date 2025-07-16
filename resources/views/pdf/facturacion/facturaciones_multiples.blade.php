@@ -16,6 +16,10 @@
 				text-transform: uppercase;
 			}
 
+			.empresa-title {
+				line-height: 1em;
+			}
+
 			.detalle-factura td {
 				border-left: 1px solid #ddd;
 				border-right: 1px solid #ddd;
@@ -188,7 +192,7 @@
 										</td>
 
 										<td class="empresa">
-											<h1>{{ $empresa->razon_social }}</h1>
+											<h1 class="empresa-title">{{ $empresa->razon_social }}</h1>
 											<span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
 											<span>TEL: {{ $empresa->telefono }}</span><br>
 											<span>{{ $empresa->direccion }}</span><br>
