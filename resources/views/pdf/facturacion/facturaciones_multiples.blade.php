@@ -13,7 +13,6 @@
 				line-height: 16px;
 				font-size: 15px;
 				width: 100%;
-				text-transform: uppercase;
 			}
 
 			.empresa-title {
