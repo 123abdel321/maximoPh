@@ -215,23 +215,28 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
-            ->when($this->request['periodo'] ? true : false, function ($query) {
-				$query->where('DG.fecha_manual', '>=', $this->request['periodo']);
+            ->when(array_key_exists('periodo', $this->request), function ($query) {
+                if (array_key_exists('periodo', $this->request)) {
+                    $query->where('DG.fecha_manual', '>=', $this->request['periodo']);
+                }
 			})
-            ->when($this->request['id_nit'] ? true : false, function ($query) {
-				$query->where('DG.id_nit', '=', $this->request['id_nit']);
+            ->when(array_key_exists('id_nit', $this->request), function ($query) {
+                if (array_key_exists('id_nit', $this->request)) {
+                    $query->where('DG.id_nit', '=', $this->request['id_nit']);
+                }
 			})
             ->when(array_key_exists('id_zona', $this->request), function ($query) {
-                if ($this->request['id_zona']) {
+                if (array_key_exists('id_zona', $this->request)) {
                     $zona = Zonas::where('id', $this->request['id_zona'])->first();
                     if ($zona) {
                         $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
                     }
                 }
 			})
-            ->when($this->request['factura_fisica'] ? true : false, function ($query) {
-                $nits = $this->nitFacturaFisica(true);
-				$query->whereIn('DG.id_nit', $nits);
+            ->when(array_key_exists('factura_fisica', $this->request), function ($query) {
+                if (array_key_exists('factura_fisica', $this->request)) {
+                    $query->whereIn('DG.id_nit', $nits);
+                }
 			});
 
         return $documentosQuery;
@@ -288,23 +293,28 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
-            ->when($this->request['periodo'] ? true : false, function ($query) {
-				$query->where('DG.fecha_manual', '<', $this->request['periodo']);
+            ->when(array_key_exists('periodo', $this->request), function ($query) {
+                if (array_key_exists('periodo', $this->request)) {
+                    $query->where('DG.fecha_manual', '>=', $this->request['periodo']);
+                }
 			})
-            ->when($this->request['id_nit'] ? true : false, function ($query) {
-				$query->where('DG.id_nit', '=', $this->request['id_nit']);
+            ->when(array_key_exists('id_nit', $this->request), function ($query) {
+                if (array_key_exists('id_nit', $this->request)) {
+                    $query->where('DG.id_nit', '=', $this->request['id_nit']);
+                }
 			})
             ->when(array_key_exists('id_zona', $this->request), function ($query) {
-                if ($this->request['id_zona']) {
+                if (array_key_exists('id_zona', $this->request)) {
                     $zona = Zonas::where('id', $this->request['id_zona'])->first();
                     if ($zona) {
                         $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
                     }
                 }
 			})
-            ->when($this->request['factura_fisica'] ? true : false, function ($query) {
-                $nits = $this->nitFacturaFisica(true);
-				$query->whereIn('DG.id_nit', $nits);
+            ->when(array_key_exists('factura_fisica', $this->request), function ($query) {
+                if (array_key_exists('factura_fisica', $this->request)) {
+                    $query->whereIn('DG.id_nit', $nits);
+                }
 			});
 
         return $anterioresQuery;
