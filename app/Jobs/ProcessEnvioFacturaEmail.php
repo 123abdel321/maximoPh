@@ -235,6 +235,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 			})
             ->when(array_key_exists('factura_fisica', $this->request), function ($query) {
                 if (array_key_exists('factura_fisica', $this->request)) {
+                    $nits = $this->nitFacturaFisica(true);
                     $query->whereIn('DG.id_nit', $nits);
                 }
 			});
@@ -313,6 +314,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 			})
             ->when(array_key_exists('factura_fisica', $this->request), function ($query) {
                 if (array_key_exists('factura_fisica', $this->request)) {
+                    $nits = $this->nitFacturaFisica(true);
                     $query->whereIn('DG.id_nit', $nits);
                 }
 			});
