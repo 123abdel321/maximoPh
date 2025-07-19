@@ -104,13 +104,24 @@ class BackupDatabaseJob implements ShouldQueue
             
             foreach ($oldestBackups as $backup) {
                 try {
-                    $path = str_replace(
-                        Storage::disk('do_spaces')->url(''),
-                        '',
-                        $backup->url_file
-                    );
-                    Storage::disk('do_spaces')->delete($path);
-                    $backup->delete();
+                    // Construir la ruta directamente usando el prefijo y el nombre de archivo
+                    $path = 'backups-maximoph/' . $backup->file_name;
+
+                    // Validación adicional
+                    if (empty(trim($path))) {
+                        \Log::error("Path vacío para backup ID: {$backup->id}");
+                        continue;
+                    }
+                    
+                    // Verificar si el archivo existe antes de intentar borrarlo
+                    if (Storage::disk('do_spaces')->exists($path)) {
+                        Storage::disk('do_spaces')->delete($path);
+                        $backup->delete();
+                    } else {
+                        \Log::warning("Archivo no encontrado en Spaces: {$path}");
+                        $backup->delete(); // Eliminar el registro de todos modos
+                    }
+                    
                 } catch (\Exception $e) {
                     \Log::error("Error eliminando backup antiguo: " . $e->getMessage());
                 }
