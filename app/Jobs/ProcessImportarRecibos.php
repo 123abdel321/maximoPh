@@ -280,7 +280,7 @@ class ProcessImportarRecibos implements ShouldQueue
                             
                             $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                             $valorPendiente = $extracto->saldo;
-                            
+                            $valorDescuento = 0;
                             $totalAnticipar = 0;
                             if ($anticiposDisponibles > 0) {
                                 [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
