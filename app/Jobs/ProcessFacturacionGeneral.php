@@ -734,7 +734,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $dataArray = [];
 
         foreach ($data as $extraCxP) {
-            $idNit = $extraCxP->concepto->id_nit_cuenta_ingreso ? $extraCxC->concepto->id_nit_cuenta_ingreso : $extraCxP['id_nit'];
+            $idNit = $extraCxP->concepto->id_nit_cuenta_ingreso ? $extraCxP->concepto->id_nit_cuenta_ingreso : $extraCxP['id_nit'];
             $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso'];
             if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];

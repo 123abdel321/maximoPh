@@ -47,7 +47,7 @@ class BackupDatabaseJob implements ShouldQueue
         // 4. Ejecutar mysqldump
         $dbConfig = config("database.connections.max");
         $command = sprintf(
-            'mysqldump --host=%s --user=%s --password=%s %s | gzip > %s',
+            'mysqldump --host=%s --port=25060 --user=%s --password=%s %s | gzip > %s',
             escapeshellarg($dbConfig['host']),
             escapeshellarg($dbConfig['username']),
             escapeshellarg($dbConfig['password']),
