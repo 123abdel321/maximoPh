@@ -647,6 +647,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'INM.id_concepto_facturacion',
                 'INM.coeficiente',
                 'CFA.nombre_concepto',
+                'CFA.id_nit_cuenta_ingreso',
                 'CFA.id_cuenta_cobrar',
                 'CFA.id_cuenta_ingreso',
                 'CFA.id_cuenta_interes',
@@ -688,6 +689,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         
         foreach ($data as $extraCxC) {
             
+            $idNit = $extraCxC->concepto->id_nit_cuenta_ingreso ? $extraCxC->concepto->id_nit_cuenta_ingreso : $extraCxC['id_nit'];
             $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
             if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
@@ -697,7 +699,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             
             if ($tipoCuenta != 4 && $tipoCuenta != 8) {
                 array_push($dataArray, (object)[
-                    'id_nit' => $extraCxC['id_nit'],
+                    'id_nit' => $idNit,
                     'id_inmueble' => $extraCxC['id_inmueble'],
                     'valor_total' => $extraCxC['valor_total'],
                     'observacion' => $extraCxC['observacion'],
@@ -732,12 +734,13 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $dataArray = [];
 
         foreach ($data as $extraCxP) {
+            $idNit = $extraCxP->concepto->id_nit_cuenta_ingreso ? $extraCxC->concepto->id_nit_cuenta_ingreso : $extraCxP['id_nit'];
             $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso'];
             if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
                 if ($tipoCuenta == 4 || $tipoCuenta == 8) {
                     array_push($dataArray, (object)[
-                        'id_nit' => $extraCxP['id_nit'],
+                        'id_nit' => $idNit,
                         'id_inmueble' => $extraCxP['id_inmueble'],
                         'valor_total' => $extraCxP['valor_total'],
                         'observacion' => $extraCxP['observacion'],

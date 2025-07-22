@@ -24,6 +24,12 @@
                         </div>
 
                         <div class="form-group col-12 col-sm-6 col-md-6">
+                            <label for="id_nit_ingreso_concepto_facturacion">Nit ingreso</label>
+                            <select name="id_nit_ingreso_concepto_facturacion" id="id_nit_ingreso_concepto_facturacion" class="form-control form-control-sm">
+                            </select>
+                        </div> 
+
+                        <div class="form-group col-12 col-sm-6 col-md-6">
                             <label for="id_cuenta_ingreso_concepto_facturacion">Cuenta ingreso</label>
                             <select name="id_cuenta_ingreso_concepto_facturacion" id="id_cuenta_ingreso_concepto_facturacion" class="form-control form-control-sm">
                             </select>

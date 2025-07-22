@@ -1,4 +1,5 @@
 var concepto_facturacion_table = null
+var $comboNitIngreso = null;
 var $comboCuentaIngreso = null;
 var $comboCuentaCobrar = null;
 var $comboCuentaIntereses = null;
@@ -32,6 +33,12 @@ function conceptofacturacionInit() {
         columns: [
             {"data":'codigo'},
             {"data":'nombre_concepto'},
+            {"data": function (row, type, set){  
+                if (row.nit_ingreso) {
+                    return row.nit_ingreso.numero_documento+' - '+row.nit_ingreso.nombre_completo
+                }
+                return '';
+            }},
             {"data": function (row, type, set){  
                 if (row.cuenta_ingreso) {
                     return row.cuenta_ingreso.cuenta+' - '+row.cuenta_ingreso.nombre
@@ -125,6 +132,16 @@ function conceptofacturacionInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, concepto_facturacion_table);
+
+            if(data.nit_ingreso) {
+                var dataNitIngreso = {
+                    id: data.nit_ingreso.id,
+                    text: `${data.nit_ingreso.numero_documento} - ${data.nit_ingreso.nombre_completo}`
+                };
+                var newOption = new Option(dataNitIngreso.text, dataNitIngreso.id, false, false);
+                $comboNitIngreso.append(newOption).trigger('change');
+                $comboNitIngreso.val(dataNitIngreso.id).trigger('change');
+            }
 
             if(data.cuenta_ingreso) {
                 var dataCuenta = {
@@ -262,6 +279,37 @@ function conceptofacturacionInit() {
         });
 
     }
+
+    $comboNitIngreso = $('#id_nit_ingreso_concepto_facturacion').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#conceptoFacturacionFormModal'),
+        delay: 250,
+        allowClear: true,
+        placeholder: "Seleccione un nit para los ingresos",
+        language: {
+            noResults: function() {
+                createNewNit = true;
+                return "No hay resultado";        
+            },
+            searching: function() {
+                createNewNit = false;
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: base_url_erp + 'nit/combo-nit',
+            headers: headersERP,
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 
     $comboCuentaIngreso = $('#id_cuenta_ingreso_concepto_facturacion').select2({
         theme: 'bootstrap-5',
@@ -449,6 +497,7 @@ function clearFormConceptoFacturacion(){
         $("#dias_concepto_facturacion").val('0');
     }
     
+    $comboNitIngreso.val('').trigger('change');
     $comboCuentaIngreso.val('').trigger('change');
     $comboCuentaCobrar.val('').trigger('change');
     $comboCuentaIntereses.val('').trigger('change');
@@ -471,6 +520,7 @@ $(document).on('click', '#saveConceptoFacturacion', function () {
     let data = {
         codigo_concepto: $("#codigo_concepto_facturacion").val(),
         nombre_concepto: $("#nombre_concepto_facturacion").val(),
+        id_nit_ingreso: $("#id_nit_ingreso_concepto_facturacion").val(),
         id_cuenta_ingreso: $("#id_cuenta_ingreso_concepto_facturacion").val(),
         id_cuenta_interes: $("#id_cuenta_interes_concepto_facturacion").val(),
         id_cuenta_cobrar: $("#id_cuenta_cobrar_concepto_facturacion").val(),
@@ -537,6 +587,7 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
         id: $("#id_concepto_facturacion_up").val(),
         codigo_concepto: $("#codigo_concepto_facturacion").val(),
         nombre_concepto: $("#nombre_concepto_facturacion").val(),
+        id_nit_ingreso: $("#id_nit_ingreso_concepto_facturacion").val(),
         id_cuenta_ingreso: $("#id_cuenta_ingreso_concepto_facturacion").val(),
         id_cuenta_interes: $("#id_cuenta_interes_concepto_facturacion").val(),
         id_cuenta_cobrar: $("#id_cuenta_cobrar_concepto_facturacion").val(),

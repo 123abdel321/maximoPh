@@ -53,7 +53,15 @@ class ConceptoFacturacionController extends Controller
 
             $searchValue = $search_arr['value']; // Search value
 
-            $conceptoFacturacion = ConceptoFacturacion::with('cuenta_ingreso', 'cuenta_interes', 'cuenta_cobrar', 'cuenta_iva', 'cuenta_anticipo', 'cuenta_gasto')
+            $conceptoFacturacion = ConceptoFacturacion::with(
+                    'nit_ingreso',
+                    'cuenta_ingreso',
+                    'cuenta_interes',
+                    'cuenta_cobrar',
+                    'cuenta_iva',
+                    'cuenta_anticipo',
+                    'cuenta_gasto'
+                )
                 ->where('nombre_concepto', 'like', '%' .$searchValue . '%')
                 ->select(
                     '*',
@@ -95,6 +103,7 @@ class ConceptoFacturacionController extends Controller
         $rules = [
             'codigo_concepto' => 'required|min:1|max:200|unique:max.concepto_facturacions,nombre_concepto',
             'nombre_concepto' => 'required|min:1|max:200|unique:max.concepto_facturacions,nombre_concepto',
+            'id_nit_ingreso' => 'nullable|exists:sam.nits,id',
             'id_cuenta_ingreso' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_interes' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_cobrar' => 'nullable|exists:sam.plan_cuentas,id',
@@ -122,6 +131,8 @@ class ConceptoFacturacionController extends Controller
             $conceptoFacturacion = ConceptoFacturacion::create([
                 'codigo' => $request->get('codigo_concepto'),
                 'nombre_concepto' => $request->get('nombre_concepto'),
+                'id_nit_cuenta_ingreso' => $request->get('id_nit_ingreso'),
+
                 'id_cuenta_ingreso' => $request->get('id_cuenta_ingreso'),
                 'id_cuenta_interes' => $request->get('id_cuenta_interes'),
                 'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),
@@ -172,7 +183,9 @@ class ConceptoFacturacionController extends Controller
                             $fail("La nombre de concepto ".$value." ya existe.");
                         }
                     }
-                }],
+                }
+            ],
+            'id_nit_ingreso' => 'nullable|exists:sam.nits,id',
             'id_cuenta_ingreso' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_interes' => 'nullable|exists:sam.plan_cuentas,id',
             'id_cuenta_cobrar' => 'nullable|exists:sam.plan_cuentas,id',
@@ -198,6 +211,8 @@ class ConceptoFacturacionController extends Controller
                 ->update([
                     'codigo' => $request->get('codigo_concepto'),
                     'nombre_concepto' => $request->get('nombre_concepto'),
+                    'id_nit_cuenta_ingreso' => $request->get('id_nit_ingreso'),
+
                     'id_cuenta_ingreso' => $request->get('id_cuenta_ingreso'),
                     'id_cuenta_interes' => $request->get('id_cuenta_interes'),
                     'id_cuenta_cobrar' => $request->get('id_cuenta_cobrar'),

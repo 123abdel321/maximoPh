@@ -20,6 +20,7 @@ class ConceptoFacturacion extends Model
         'id_cuenta_interes',
         'id_cuenta_cobrar',
         'id_cuenta_iva',
+        'id_nit_cuenta_ingreso',
         'intereses',
         'pronto_pago',
         'id_cuenta_gasto',
@@ -32,6 +33,11 @@ class ConceptoFacturacion extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function nit_ingreso()
+    {
+        return $this->belongsTo("App\Models\Portafolio\Nits", 'id_nit_cuenta_ingreso');
+    }
 
     public function cuenta_ingreso()
     {

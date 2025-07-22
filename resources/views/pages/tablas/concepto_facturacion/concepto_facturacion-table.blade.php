@@ -3,6 +3,7 @@
         <tr>
             <th style="border-radius: 15px 0px 0px 0px !important;">Codigo</th>
             <th>Nombre</th>
+            <th>Nit cuenta ingreso</th>
             <th>Cuenta ingreso</th>
             <th>Cuenta cobrar</th>
             <th>Cuenta intereses</th>
