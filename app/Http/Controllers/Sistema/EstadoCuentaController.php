@@ -254,9 +254,14 @@ class EstadoCuentaController extends Controller
                 [3,7]
             ))->actual()->get();
 
+            $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
+            $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
             $cuentasXP = (new Extracto(//TRAER CUENTAS POR PAGAR
                 $nit->id,
-                [4,8]
+                [4,8],
+                null,
+                null,
+                $id_cuenta_anticipos
             ))->actual()->get();
 
             foreach ($extractos as $extracto) {
