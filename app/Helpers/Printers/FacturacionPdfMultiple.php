@@ -108,12 +108,15 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             }
 
             $inicioMesMenosDia = Carbon::parse("$this->periodo 23:59:59")->subDay()->format('Y-m-d H:i:m');
+            $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
+            $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
 
             $cxp = (new Extracto(
                 $id_nit,
                 [4,8],
                 null,
-                $inicioMesMenosDia
+                $inicioMesMenosDia,
+                $id_cuenta_anticipos
             ))->completo()->first();
 
             $facturaciones = DB::connection('sam')

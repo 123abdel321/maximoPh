@@ -73,6 +73,8 @@ class FacturacionPdf extends AbstractPrinterPdf
         $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
         $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
         $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
+        $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
+        $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
 		
 		if($getNit){ 
 			$nit = (object)[
@@ -127,7 +129,8 @@ class FacturacionPdf extends AbstractPrinterPdf
             $this->id_nit,
             [4,8],
             null,
-            $inicioMesMenosDia
+            $inicioMesMenosDia,
+            $id_cuenta_anticipos
         ))->completo()->first();
 
 		$facturaciones = DB::connection('sam')
