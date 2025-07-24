@@ -226,8 +226,6 @@ $imagenes = [
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_40.jpg',
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_41.jpg',
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_42.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_43.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_44.jpg',
 ];
 
 var urlImgFondo = $imagenes[getRandomInt($imagenes.length)];
