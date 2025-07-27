@@ -39,10 +39,10 @@ class PorteriaEvento extends Model
         return $this->morphTo(Notificaciones::class, 'notificacion');
 	}
 
-    public function inmueble()
-    {
-        return $this->belongsTo(Inmueble::class, 'id_inmueble');
-    }
+    // public function inmueble()
+    // {
+    //     return $this->belongsTo(Inmueble::class, 'id_inmueble');
+    // }
 
     public function persona()
     {

@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use App\Events\PrivateMessageEvent;
 use App\Http\Controllers\Controller;
 use App\Helpers\NotificacionGeneral;
+use App\Helpers\WhatsApp\SendWhatApp;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 //MODELS
@@ -47,7 +48,7 @@ class PorteriaEventoController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
             
-            $porteriaEvento = PorteriaEvento::with('archivos', 'inmueble.zona', 'persona.archivos')
+            $porteriaEvento = PorteriaEvento::with('archivos', 'persona.inmueble.zona', 'persona.archivos')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -56,8 +57,17 @@ class PorteriaEventoController extends Controller
                     'updated_by'
                 );
 
-            if ($request->get("id_inmueble")) $porteriaEvento->where('id_inmueble', $request->get("id_inmueble"));
-            if ($request->get("tipo") || $request->get("tipo") == '0') $porteriaEvento->where('tipo', $request->get("tipo"));
+            // Filtro por inmueble (ahora a través de la relación persona.inmueble)
+            if ($request->get("id_inmueble")) {
+                $porteriaEvento->whereHas('persona.inmueble', function($query) use ($request) {
+                    $query->where('id', $request->get("id_inmueble"));
+                });
+            }
+
+            if ($request->get("tipo") || $request->get("tipo") == '0') {
+                $porteriaEvento->where('tipo', $request->get("tipo"));
+            }
+
             if ($request->get("fecha_desde") && $request->get("fecha_hasta")) {
                 $fechaDesde = Carbon::parse($request->get("fecha_desde"))->startOfDay();
                 $fechaHasta = Carbon::parse($request->get("fecha_hasta"))->endOfDay();
@@ -68,8 +78,9 @@ class PorteriaEventoController extends Controller
                 $porteriaEvento->where('created_at', '>=', $fechaDesde);
             } else if ($request->get("fecha_hasta")) {
                 $fechaHasta = Carbon::parse($request->get("fecha_hasta"))->endOfDay();
-                $porteriaEvento->where('created_at', '>=', $fechaHasta);
+                $porteriaEvento->where('created_at', '<=', $fechaHasta);
             }
+
             if ($request->get("search")) {
                 $porteriaEvento->where('observacion', 'like', '%' .$request->get("search"). '%')
                     ->orWhereHas('persona', function ($query) use ($request) {
@@ -77,7 +88,7 @@ class PorteriaEventoController extends Controller
                             ->orWhere('placa', 'like', '%' .$request->get("search"). '%')
                             ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
                     })
-                    ->orWhereHas('inmueble', function ($query) use ($request) {
+                    ->orWhereHas('persona.inmueble', function ($query) use ($request) {
                         $query->where('nombre', 'like', '%' .$request->get("search"). '%')
                             ->orWhere('observacion', 'like', '%' .$request->get("search"). '%');
                     });
@@ -238,6 +249,22 @@ class PorteriaEventoController extends Controller
                     $archivoCache->delete();
                 }
             }
+
+            // $telefono = "3145876923";
+
+            // if ($telefono) {
+            //     (new SendWhatApp(
+            //         "evento_porteria",
+            //         "57{$telefono}",
+            //         [
+            //             $tipoPorteria,
+            //             $nombrePorteria,
+            //             $fechaIngreso,
+            //             $fechaSalida,
+            //             $evento->observacion
+            //         ]
+            //     ))->send(request()->user()->id_empresa);
+            // }
 
             $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
 
