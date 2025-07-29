@@ -295,7 +295,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
-        
+
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
@@ -307,7 +307,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 SUM(FD.valor) AS subtotal,
                 CASE
                     WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
-                        THEN SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100)
+                        THEN ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
                         ELSE 0
                 END AS descuento,
                 CASE
