@@ -221,7 +221,7 @@ class ProcessImportarRecibos implements ShouldQueue
                                         "updated_by" => $this->user_id
                                     ]);
                                     
-                                    $documentoGeneral->addRow($doc, PlanCuentas::CREDITO);
+                                    $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_egresos);
                                 }
                             }
                         }
@@ -253,7 +253,7 @@ class ProcessImportarRecibos implements ShouldQueue
                                     "updated_by" => $this->user_id
                                 ]);
 
-                                $documentoGeneral->addRow($doc, PlanCuentas::DEBITO);
+                                $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
                             }
 
                             if ($anticiposDisponibles > 0) {
