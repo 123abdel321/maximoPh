@@ -84,7 +84,8 @@ class ImportadorRecibosController extends Controller
 
             $filePath = $file->store('recibos');
             ConRecibosImport::truncate();
-
+            
+            // (new RecibosCajaImport($empresa))->import($filePath);
             Bus::chain([
                 new ImportRecibosJob($empresa, $filePath),
                 new ProcessNotify('importador-recibos-'.$has_empresa.'_'.$user_id, [
@@ -174,6 +175,8 @@ class ImportadorRecibosController extends Controller
             $has_empresa = $request->user()['has_empresa'];
             $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
 
+            // new ProcessImportarRecibos($empresa, $user_id),
+            // ProcessImportarRecibos::dispatch($empresa,  $user_id);
             Bus::chain([
                 new ProcessImportarRecibos($empresa, $user_id),
                 new ProcessNotify('importador-recibos-'.$has_empresa.'_'.$user_id, [

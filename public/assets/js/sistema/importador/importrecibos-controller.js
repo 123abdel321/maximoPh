@@ -104,7 +104,7 @@ function importrecibosInit() {
 }
 
 channelImportadorRecibos.bind('notificaciones', function(data) {
-
+    console.log('data: ',data);
     if (data.success) {
         $('#cargarPlantillaRecibosLoagind').hide();
 
