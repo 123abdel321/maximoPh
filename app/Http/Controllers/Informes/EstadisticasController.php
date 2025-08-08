@@ -123,9 +123,7 @@ class EstadisticasController extends Controller
             $has_empresa = $request->user()['has_empresa'];
             $user_id = $request->user()->id;
             $id_informe = $request->get('id');
-
-            $empresa = Empresa::where('token_db', $request->user()['has_empresa'])->first();
-
+            
             $informeEstadisticas->exporta_excel = 1;
             $informeEstadisticas->archivo_excel = 'porfaolioerpbucket.nyc3.digitaloceanspaces.com/'.$url;
             $informeEstadisticas->save();
