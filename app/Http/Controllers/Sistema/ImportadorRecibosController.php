@@ -179,7 +179,7 @@ class ImportadorRecibosController extends Controller
             // ProcessImportarRecibos::dispatch($empresa,  $user_id);
             Bus::chain([
                 new ProcessImportarRecibos($empresa, $user_id),
-                new ProcessNotify('importador-recibos-'.$has_empresa.'_'.$user_id, [
+                new ProcessNotify("importador-recibos-{$has_empresa}_{$user_id}", [
                     'success'=>	true,
                     'accion' => 2,
                     'tipo' => 'exito',
