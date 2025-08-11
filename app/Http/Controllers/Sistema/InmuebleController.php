@@ -64,7 +64,8 @@ class InmuebleController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $inmueble = Inmueble::orderBy('id', 'DESC')
+            $inmueble = Inmueble::orderBy('zona.id', 'ASC')
+                ->orderBy('id', 'DESC') 
                 ->with('zona', 'concepto', 'personas.nit')
                 ->select(
                     '*',
