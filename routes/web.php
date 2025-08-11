@@ -63,6 +63,7 @@ use App\Models\Sistema\InmuebleNit;
 // use App\Models\Empresa\UsuarioEmpresa;
 
 //ANOTHERS
+use App\Helpers\WhatsApp\SendWhatApp;
 // use App\Mail\GeneralEmail;
 // use Illuminate\Support\Facades\Mail;
 
@@ -70,8 +71,30 @@ Route::get('/', function (Request $request) {
 	return view('pages.landing-page');
 });
 
+Route::get('/politica-privacidad', function (Request $request) {
+	return view('pages.politica-privacidad');
+	return view('politica-privacidad');
+});
+
 Route::get('/phpinfo_acartaca', function (Request $request) {
-	return phpinfo();
+	// $telefono = "3016588056";
+
+	// if ($telefono) {
+	// 	(new SendWhatApp(
+	// 		"porteria_evento",
+	// 		"57{$telefono}",
+	// 		[
+	// 			'C.R. PALMA DE MALLORCA ETAPAS 1 Y 2 P.H.'
+	// 		],
+	// 		[
+	// 			'4534',
+	// 			'Visita Megan Fox',
+	// 			'Lunes 28 de julio de 2025 a las 13:00',
+	// 			'Ingreso autorizado por porteria A1.'
+	// 		],
+	// 	))->send(1);
+	// }
+	return 'todo bien';
 });
 
 Auth::routes();
