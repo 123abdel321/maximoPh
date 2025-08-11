@@ -183,7 +183,7 @@ class ZonasController extends Controller
                 ]);
 
             //ACTUAIZAR DATOS EN NITS
-            $nitsInmuebles = InmuebleNit::with('inmueble.zona')
+            $nitsInmuebles = InmuebleNit::with('nit', 'inmueble.zona')
                 ->whereHas('inmueble', function ($query) use ($request) {
                     $query->whereHas('zona', function ($q) use ($request) {
                         $q->where('id_zona', $request->get('id'));
@@ -205,8 +205,12 @@ class ZonasController extends Controller
                         $apartamentos.= $inmuebleNit->inmueble->nombre.'-'.$inmuebleNit->inmueble->zona->nombre.', ';
                     }
                 }
-                $nit->nit->apartamentos = rtrim($apartamentos, ", ");
-                $nit->nit->save();
+
+                if ($nit->nit) {
+                    $nit->nit->apartamentos = rtrim($apartamentos, ", ");
+                    $nit->nit->save();
+                }
+
             }
 
             DB::connection('max')->commit();
