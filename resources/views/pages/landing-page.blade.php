@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAXIMOPH - Software de Gestión de Propiedad Horizontal</title>
+    <title>MAXIMO PH - Software de Gestión de Propiedad Horizontal</title>
     <meta name="description" content="Ecosistema integral para optimizar la gestión administrativa, facturación y contable de propiedades horizontales">
     <link id="pagestyle" href="{{ asset('assets/css/landing-page.css') }}" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
                             <path d="M6 16h4"/>
                         </svg>
                     </div>
-                    <span class="nav-title">MAXIMOPH</span>
+                    <span class="nav-title">MAXIMO PH</span>
                 </div>
 
                 <div class="nav-menu" id="navMenu">
@@ -444,7 +444,7 @@
             <div class="section-header">
                 <h2 class="section-title">
                     ¿Por qué elegir
-                    <span class="gradient-text"> MAXIMOPH?</span>
+                    <span class="gradient-text"> MAXIMO PH?</span>
                 </h2>
                 <p class="section-description">
                     Más de 500 propiedades confían en nuestra plataforma para optimizar su gestión administrativa y
@@ -562,7 +562,7 @@
                                     <path d="M6 16h4"/>
                                 </svg>
                             </div>
-                            <span class="footer-title">MAXIMOPH</span>
+                            <span class="footer-title">MAXIMO PH</span>
                         </div>
                         <p class="footer-description">
                             Software líder en gestión de propiedad horizontal con más de 10 años de experiencia.
@@ -602,7 +602,7 @@
                 </div>
                 
                 <div class="footer-bottom">
-                    <p>&copy; 2024 MAXIMOPH. Todos los derechos reservados.</p>
+                    <p>&copy; 2025 MAXIMOPH. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>
