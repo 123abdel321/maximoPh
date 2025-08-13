@@ -1,1403 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MAXIMOPH - Software de Propiedad Horizontal | Acceso al Sistema</title>
-    <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAXIMOPH - Software de Gestión de Propiedad Horizontal</title>
+    <meta name="description" content="Ecosistema integral para optimizar la gestión administrativa, facturación y contable de propiedades horizontales">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        .navbar {
-            background-color: transparent; /* Inicialmente transparente */
-            color: white;
-            padding: 1.5rem;
-            position: fixed; /* Cambiado a fixed para que siempre esté en la parte superior */
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            transition: background-color 0.3s ease; /* Transición suave para el cambio de color */
-        }
-        
-        /* Clase que se añadirá con JavaScript al hacer scroll */
-        .navbar.scrolled {
-            background-color: #1a1a1a; /* Color oscuro al hacer scroll */
-            padding: 1rem; /* Reducimos un poco el padding al hacer scroll */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .navbar-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .menu {
-            display: flex;
-            list-style: none;
-        }
-        
-        .menu li {
-            margin-left: 1.5rem;
-        }
-        
-        .menu a {
-            color: white;
-            text-decoration: none;
-            font-size: 1.3rem;
-            transition: color 0.3s;
-        }
-        
-        .menu a:hover {
-            color:rgb(0, 217, 255);
-        }
-        
-        .hamburger {
-            display: none;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-        }
-        
-        /* Contenido de ejemplo para mostrar el scroll */
-        .content {
-            padding: 100vh 2rem 2rem; /* Espacio para que se vea el efecto de scroll */
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        /* Estilos para dispositivos móviles */
-        @media (max-width: 768px) {
-            .menu {
-                position: fixed;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background-color: rgba(26, 26, 26, 0.95); /* Fondo semi-transparente para el menú móvil */
-                flex-direction: column;
-                align-items: center;
-                padding: 0;
-                height: 0; /* Inicialmente sin altura */
-                overflow: hidden;
-                transition: all 0.3s ease;
-                opacity: 0; /* Inicialmente invisible */
-                visibility: hidden; /* Inicialmente oculto */
-            }
-            
-            .menu.active {
-                height: auto; /* Altura automática cuando está activo */
-                padding: 1rem 0;
-                opacity: 1; /* Visible cuando está activo */
-                visibility: visible; /* Visible cuando está activo */
-            }
-            
-            .menu li {
-                margin: 1rem 0;
-                opacity: 0; /* Inicialmente invisible */
-                transform: translateY(-10px); /* Inicialmente desplazado hacia arriba */
-                transition: all 0.3s ease;
-                transition-delay: 0.05s; /* Pequeño retraso para efecto en cascada */
-            }
-            
-            .menu.active li {
-                opacity: 1; /* Visible cuando está activo */
-                transform: translateY(0); /* Sin desplazamiento cuando está activo */
-            }
-            
-            /* Retraso escalonado para cada elemento del menú */
-            .menu li:nth-child(2) { transition-delay: 0.1s; }
-            .menu li:nth-child(3) { transition-delay: 0.15s; }
-            .menu li:nth-child(4) { transition-delay: 0.2s; }
-            .menu li:nth-child(5) { transition-delay: 0.25s; }
-            
-            .hamburger {
-                display: block;
-            }
-        }
-
-        /* Variables y estilos base */
-        :root {
-            --dark-bg: #1a1a1a;
-            --darker-bg: #111;
-            --light-text: #ffffff;
-            --medium-text: #e0e0e0;
-            --accent-yellow:rgb(0, 217, 255);
-            --module-line: #444;
-            --module-number-bg: #333;
-            --copyright: #888888;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--dark-bg);
-            color: var(--light-text);
-            overflow-x: hidden;
-        }
-
-        /* Primera sección - Hero */
-        .hero-section {
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-        }
-
-        .left-side {
-            flex: 1;
-            min-height: 50vh;
-            background-image: url('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_1.jpg');
-            background-size: cover;
-            background-position: center;
-            filter: grayscale(100%);
-            position: relative;
-        }
-
-        .logo-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 2;
-            width: 90%;
-            max-width: 300px;
-        }
-
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background-color: white;
-            border-radius: 8px;
-            margin: 0 auto 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logo-icon::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 20%;
-            background-color: black;
-            bottom: 0;
-        }
-
-        .logo-icon::after {
-            content: "";
-            position: absolute;
-            width: 20%;
-            height: 30%;
-            background-color: var(--accent-yellow);
-            right: 10%;
-            top: 10%;
-        }
-
-        .logo-text {
-            color: white;
-            font-weight: bold;
-            font-size: 50px;
-            letter-spacing: 1px;
-        }
-
-        .right-side {
-            margin-top: 4rem;
-            flex: 1;
-            padding: clamp(20px, 5vw, 80px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background-color: var(--dark-bg);
-        }
-
-        .right-side h1 {
-            font-size: 45px;
-            margin-bottom: clamp(15px, 3vw, 30px);
-            color: var(--light-text);
-            /* font-weight: bold; */
-            line-height: 1.3;
-        }
-
-        .right-side p {
-            font-size: 20px;
-            line-height: 1.6;
-            margin-bottom: clamp(10px, 3vw, 20px);
-            color: var(--medium-text);
-        }
-
-        .copyright {
-            margin-top: clamp(20px, 5vw, 40px);
-            color: var(--copyright);
-            font-size: clamp(12px, 3vw, 14px);
-        }
-
-        /* Segunda sección - Módulo Premium */
-        .module-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header-image {
-            height: 40vh;
-            min-height: 250px;
-            background-image: url('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_2.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-image::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, var(--dark-bg) 100%);
-        }
-
-        .module-content {
-            flex: 1;
-            padding: clamp(30px, 5vw, 60px) clamp(20px, 5vw, 80px);
-            position: relative;
-        }
-
-        .module-content h1 {
-            font-size: 45px;
-            text-align: center;
-            margin-bottom: clamp(20px, 5vw, 50px);
-            color: var(--light-text);
-            font-weight: bold;
-            line-height: 1.3;
-        }
-
-        .modules-container {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(20px, 5vw, 40px);
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .module {
-            display: flex;
-            gap: clamp(15px, 4vw, 30px);
-            position: relative;
-        }
-
-        .module-number {
-            width: clamp(30px, 8vw, 40px);
-            height: clamp(30px, 8vw, 40px);
-            background-color: var(--module-number-bg);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: clamp(14px, 4vw, 18px);
-            flex-shrink: 0;
-            position: relative;
-            z-index: 2;
-            border: 2px solid var(--accent-yellow);
-            color: var(--accent-yellow);
-        }
-
-        .module-content-text {
-            flex: 1;
-            padding-top: 8px;
-        }
-
-        .module-title {
-            font-size: 30px;
-            font-weight: bold;
-            margin-bottom: clamp(5px, 2vw, 10px);
-            color: var(--light-text);
-            line-height: 1.3;
-        }
-
-        .module-description {
-            font-size: 20px;
-            line-height: 1.6;
-            color: var(--medium-text);
-        }
-
-        .vertical-line {
-            position: absolute;
-            left: calc(clamp(15px, 4vw, 20px) - 1px);
-            top: clamp(30px, 8vw, 40px);
-            bottom: 35px;
-            width: 2px;
-            background-color: var(--module-line);
-            z-index: -1;
-        }
-
-        /* Tercera sección - Gestión Tributaria */
-        .tax-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--darker-bg);
-            position: relative;
-        }
-
-        .tax-header-image {
-            height: 40vh;
-            min-height: 250px;
-            background-image: url('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_3.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .tax-header-image::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
-        }
-
-        .tax-logo-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            z-index: 2;
-        }
-
-        .tax-title {
-            font-size: clamp(24px, 6vw, 48px);
-            color: var(--light-text);
-            font-weight: bold;
-            position: relative;
-            z-index: 2;
-            margin-top: 20px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .tax-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, auto);
-            gap: 20px;
-            padding: 40px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-            flex: 1;
-        }
-
-
-        .tax-card {
-            background-color: #333;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .tax-card.visible {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .tax-card h3 {
-            font-size: 1.55rem;
-            margin-bottom: 15px;
-            color: var(--light-text);
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        .tax-card h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background-color: var(--accent-yellow);
-        }
-
-        .tax-card p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: var(--medium-text);
-        }
-
-        .tax-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Efectos de aparición con delay */
-        .tax-card:nth-child(1) {
-            transition-delay: 0.1s;
-        }
-
-        .tax-card:nth-child(2) {
-            transition-delay: 0.2s;
-        }
-
-        .tax-card:nth-child(3) {
-            transition-delay: 0.3s;
-        }
-
-        .tax-card:nth-child(4) {
-            transition-delay: 0.4s;
-        }
-
-        /* Cuarta sección - Contabilidad Completa */
-        .accounting-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--dark-bg);
-        }
-
-        .accounting-content {
-            flex: 1;
-            padding: clamp(30px, 5vw, 60px) clamp(20px, 5vw, 40px);
-            position: relative;
-            z-index: 2;
-        }
-
-        .accounting-content h1 {
-            font-size: clamp(24px, 5vw, 36px);
-            margin-bottom: clamp(20px, 5vw, 50px);
-            color: var(--light-text);
-            font-weight: bold;
-            line-height: 1.3;
-            max-width: 800px;
-        }
-
-        .accounting-features-container {
-            display: flex;
-            gap: 30px;
-            max-width: 800px;
-        }
-
-        .accounting-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 0px;
-            padding-top: 0px;
-        }
-
-        .hexagon-step {
-            width: 90px;
-            height: 150px;
-            background-color: var(--module-number-bg);
-            position: relative;
-            clip-path: polygon(0% 0%,
-                    0% 0%,
-                    50% 15%,
-                    100% 0%,
-                    100% 15%,
-                    100% 85%,
-                    50% 100%,
-                    0% 85%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--accent-yellow);
-            border: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .hexagon-step.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .accounting-features {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(20px, 5vw, 30px);
-            flex: 1;
-        }
-
-        .accounting-feature {
-            display: flex;
-            background-color: var(--dark-bg);
-            padding: 12px;
-            border-radius: 8px;
-            align-items: flex-start;
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .accounting-feature.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .feature-text h3 {
-            font-size: clamp(16px, 4vw, 20px);
-            font-weight: bold;
-            margin-bottom: clamp(5px, 2vw, 10px);
-            color: var(--light-text);
-            line-height: 1.3;
-        }
-
-        .feature-text p {
-            font-size: clamp(13px, 3vw, 16px);
-            line-height: 1.6;
-            color: var(--medium-text);
-        }
-
-        .accounting-logo {
-            margin-top: 40px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .accounting-image {
-            flex: 1;
-            min-height: 40vh;
-            background-image: url('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_4.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 40px 20px;
-        }
-
-        .accounting-image::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
-        }
-
-        .accounting-image-logo {
-            position: absolute;
-            top: 20px;
-            gap: 10px;
-            z-index: 2;
-            text-align: center;
-        }
-
-        .accounting-image-text {
-            position: relative;
-            z-index: 2;
-            color: white;
-            text-align: center;
-            width: 100%;
-            max-width: 600px;
-            padding: 25px;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            border-radius: 8px 8px 0 0;
-            margin-bottom: -1px;
-        }
-
-        .accounting-image-text p {
-            font-size: clamp(16px, 4vw, 24px);
-            line-height: 1.4;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .made-with {
-            font-size: 12px;
-            opacity: 0.7;
-            font-weight: normal;
-            letter-spacing: 1px;
-        }
-
-        /* Efectos de aparición con delay */
-        .hexagon-step:nth-child(1) {
-            transition-delay: 0.1s;
-        }
-
-        .hexagon-step:nth-child(2) {
-            transition-delay: 0.2s;
-        }
-
-        .hexagon-step:nth-child(3) {
-            transition-delay: 0.3s;
-        }
-
-        .accounting-feature:nth-child(1) {
-            transition-delay: 0.1s;
-        }
-
-        .accounting-feature:nth-child(2) {
-            transition-delay: 0.2s;
-        }
-
-        .accounting-feature:nth-child(3) {
-            transition-delay: 0.3s;
-        }
-
-        /* Quinta Sección */
-        .porter-control-section {
-            background-color: var(--darker-bg);
-            color: white;
-            padding: 4rem 1.5rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 3rem;
-            text-align: center;
-            position: relative;
-            padding-bottom: 1rem;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--accent-yellow);
-        }
-
-        .porter-grid {
-            display: grid;
-            gap: 2rem;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 1rem;
-        }
-
-        .porter-item {
-            background-color: #333;
-            padding: 1.5rem;
-            border-left: 4px solid var(--accent-yellow);
-            border-radius: 0.5rem;
-            font-size: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .porter-item.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Sexta Sección */
-        .task-user-section {
-            background-image: url('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_5.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
-            padding: 6rem 1.5rem;
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-
-        .task-user-overlay {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 3rem 2rem;
-            border-radius: 1.5rem;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            position: relative;
-            padding-bottom: 1rem;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: var(--accent-yellow);
-        }
-
-        .task-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2.5rem;
-            justify-content: center;
-        }
-
-        .task-card {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 1rem;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s ease-in-out;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .task-card:hover {
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateY(-5px);
-        }
-
-        .task-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            display: block;
-            color: var(--accent-yellow);
-        }
-
-        .task-card.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .task-card h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-        }
-
-        .task-card p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-
-        .task-logo {
-            margin-top: 4rem;
-            text-align: center;
-        }
-
-        .task-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            display: block;
-            color: var(--light-text);
-            /* Fallback color */
-            transition: all 0.3s ease;
-        }
-
-        .task-card:hover i {
-            transform: scale(1.1);
-            color: var(--accent-yellow);
-        }
-
-
-        /*Septima sección*/
-        .advanced-features {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--darker-bg);
-            position: relative;
-            padding-bottom: 40px;
-        }
-
-        .features-hero {
-            height: 40vh;
-            min-height: 300px;
-            background-image: url('https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_6.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            margin-bottom: 40px;
-        }
-
-        .features-hero::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%);
-            z-index: 1;
-        }
-
-        .brand-logo {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            z-index: 2;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background-color: var(--accent-yellow);
-            border-radius: 50%;
-        }
-
-        .logo-text {
-            font-size: 50px;
-            font-weight: 700;
-            color: white;
-            text-transform: lowercase;
-        }
-
-        .features-title {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            color: white;
-            font-weight: 700;
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-            margin-top: 20px;
-            letter-spacing: -0.5px;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(220px, 1fr));
-            gap: 30px;
-            padding: 0 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .feature-card {
-            background-color: #333;
-            border-radius: 12px;
-            padding: 35px 30px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(5px);
-            min-height: 280px;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .feature-card.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            background-color: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
-
-        .feature-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 25px;
-            color: white;
-            position: relative;
-            padding-bottom: 15px;
-            line-height: 1.3;
-            font-weight: 600;
-        }
-
-        .feature-card h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background-color: var(--accent-yellow);
-            transition: width 0.3s ease;
-        }
-
-        .feature-card:hover h3::after {
-            width: 70px;
-        }
-
-        .feature-card p {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: auto;
-            flex-grow: 1;
-        }
-
-        /* Transiciones escalonadas */
-        .feature-card:nth-child(1) {
-            transition-delay: 0.1s;
-        }
-
-        .feature-card:nth-child(2) {
-            transition-delay: 0.2s;
-        }
-
-        .feature-card:nth-child(3) {
-            transition-delay: 0.3s;
-        }
-
-        .feature-card:nth-child(4) {
-            transition-delay: 0.4s;
-        }
-
-        /* Octava sección */
-        .key-benefits {
-            background-color: #111;
-            color: white;
-            padding: 80px 40px;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .benefits-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            gap: 60px;
-            max-width: 1400px;
-            width: 100%;
-            flex-wrap: wrap;
-        }
-
-        .benefits-left {
-            flex: 1 1 45%;
-        }
-
-        .benefits-title {
-            font-size: clamp(2rem, 4vw, 3rem);
-            margin-bottom: 40px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .benefits-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            gap: 25px;
-        }
-
-        .benefits-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        .icon-square {
-            width: 16px;
-            height: 16px;
-            background-color: #ccc;
-            flex-shrink: 0;
-            margin-top: 6px;
-        }
-
-        .benefits-right {
-            flex: 1 1 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .benefits-image {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Footer */
-        .footer {
-            padding: clamp(15px, 3vw, 20px);
-            text-align: center;
-            background-color: var(--darker-bg);
-            color: var(--copyright);
-            font-size: clamp(12px, 3vw, 14px);
-        }
-
-        /* -------------------------------------------- */
-        /* PANTALLAS GRANDES (992px en adelante) */
-        /* -------------------------------------------- */
-
-        @media (min-width: 1200px) {
-            .right-side {
-                padding: 80px;
-            }
-
-            .module-content {
-                padding: 60px 80px;
-            }
-        }
-
-        @media (min-width: 992px) {
-
-            .hero-section {
-                flex-direction: row;
-                height: 100vh;
-            }
-
-            .left-side,
-            .right-side {
-                height: auto;
-            }
-
-            .left-side {
-                min-height: 100%;
-            }
-
-            .accounting-section {
-                flex-direction: row;
-                height: 100vh;
-            }
-
-            .accounting-content {
-                width: 50%;
-                padding: clamp(30px, 5vw, 80px);
-            }
-
-            .accounting-features-container {
-                gap: 30px;
-            }
-
-            .accounting-steps {
-                gap: 40px;
-                padding-top: 10px;
-                margin-right: 30px;
-            }
-
-            .hexagon-step {
-                width: 80px;
-                height: 100px;
-                font-size: 24px;
-            }
-
-            .accounting-features {
-                gap: 30px;
-            }
-
-            .accounting-feature {
-                padding: 10px;
-            }
-
-            .feature-text h3 {
-                font-size: 25px;
-            }
-
-            .feature-text p {
-                font-size: 16px;
-            }
-
-            .accounting-image {
-                width: 50%;
-                min-height: 100%;
-            }
-
-            .porter-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        /* -------------------------------------------- */
-        /* PANTALLAS MEDIANAS (769px a 991px) */
-        /* -------------------------------------------- */
-        @media (min-width: 769px) and (max-width: 991px) {
-            .accounting-section {
-                flex-direction: row;
-            }
-
-            .accounting-content {
-                width: 55%;
-                padding: 40px;
-            }
-
-            .accounting-features-container {
-                gap: 20px;
-            }
-
-            .accounting-steps {
-                gap: 30px;
-                padding-top: 5px;
-                margin-right: 20px;
-            }
-
-            .hexagon-step {
-                width: 80px;
-                height: 120px;
-                font-size: 20px;
-            }
-
-            .accounting-features {
-                gap: 20px;
-            }
-
-            .accounting-feature {
-                padding: 10px;
-            }
-
-            .feature-text h3 {
-                font-size: 18px;
-            }
-
-            .feature-text p {
-                font-size: 15px;
-            }
-
-            .accounting-image {
-                width: 45%;
-            }
-
-            .porter-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .features-grid {
-                grid-template-columns: repeat(2, minmax(280px, 1fr));
-                max-width: 600px;
-                gap: 25px;
-            }
-
-            .feature-card {
-                min-height: 140px;
-                padding: 30px 25px;
-            }
-
-            .features-hero {
-                min-height: 280px;
-            }
-        }
-
-        /* -------------------------------------------- */
-        /* PANTALLAS PEQUEÑAS (hasta 768px) */
-        /* -------------------------------------------- */
-        @media (max-width: 768px) {
-
-            .tax-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, auto);
-                max-width: 100%;
-                padding: 20px;
-            }
-
-            .accounting-section {
-                flex-direction: column;
-            }
-
-            .accounting-content {
-                width: 100%;
-                padding: 30px 20px;
-            }
-
-            .accounting-features-container {
-                flex-direction: row;
-                gap: 15px;
-            }
-
-            .accounting-steps {
-                gap: 20px;
-                margin-right: 15px;
-            }
-
-            .hexagon-step {
-                width: 70px;
-                height: 100px;
-                font-size: 18px;
-            }
-
-            .accounting-feature {
-                padding: 8px;
-            }
-
-            .feature-text h3 {
-                font-size: 16px;
-            }
-
-            .feature-text p {
-                font-size: 14px;
-            }
-
-            .accounting-image {
-                width: 100%;
-                min-height: 50vh;
-            }
-
-            .accounting-logo {
-                display: none;
-            }
-
-            .porter-control-section {
-                padding: 3rem 1rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-                margin-bottom: 2rem;
-            }
-
-            .porter-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .task-user-section {
-                padding: 4rem 1rem;
-            }
-
-            .task-user-overlay {
-                padding: 2rem 1.5rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-                margin-bottom: 2rem;
-            }
-
-            .task-cards {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .task-card {
-                padding: 1.5rem 1rem;
-            }
-
-            .task-logo {
-                margin-top: 3rem;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 0 25px;
-                max-width: 450px;
-            }
-
-            .feature-card {
-                min-height: auto;
-                padding: 30px;
-            }
-
-            .features-hero {
-                height: 35vh;
-                min-height: 250px;
-                margin-bottom: 30px;
-            }
-
-            .brand-logo {
-                top: 20px;
-                right: 20px;
-            }
-
-            .logo-icon {
-                width: 35px;
-                height: 35px;
-            }
-
-            .logo-text {
-                font-size: 45px;
-            }
-
-            .feature-card h3 {
-                font-size: 1.4rem;
-                margin-bottom: 20px;
-            }
-
-            .feature-card p {
-                font-size: 1.05rem;
-            }
-        }
-
-        /* Animaciones */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .module {
-            opacity: 0;
-            animation-fill-mode: both;
-        }
-
-        .module.animate {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-    </style>
 
     <!-- Configuración básica y viewport -->
     <meta charset="UTF-8">
@@ -1443,540 +52,1626 @@
     <meta name="theme-color" content="#1e2327">
     <meta name="color-scheme" content="light dark">
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://maximoph.co/">
+    <style>
+        /* Reset and Base Styles */
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        }
 
-    <!-- Rutas importantes -->
-    <link rel="alternate" href="https://maximoph.co/login" title="Acceso al Sistema MAXIMOPH - Iniciar Sesión">
+        html {
+        scroll-behavior: smooth;
+        }
 
-    <!-- Font Size -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        body {
+        font-family: "Inter", sans-serif;
+        background-color: #020617;
+        color: #ffffff;
+        line-height: 1.6;
+        overflow-x: hidden;
+        }
 
-    <!-- Favicons -->
-    <link rel="icon" href="/img/logo_base.png" type="image/png">
-    <link rel="alternate icon" href="/img/logo_base.png" type="image/png">
-    <link rel="shortcut icon" href="/img/logo_base.png">
+        .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        }
 
-    <!-- Metaetiquetas para redes sociales (usando solo las imágenes que ya tienes) -->
-    <meta property="og:logo" content="https://maximoph.co/img/logo_base.png">
-    <meta name="twitter:image" content="https://maximoph.co/img/logo_contabilidad.png">
-    <meta name="twitter:image:alt" content="Logo de MAXIMOPH">
+        /* Typography */
+        .gradient-text {
+        background: linear-gradient(135deg, #22d3ee, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        }
 
-    <!-- Configuración mínima para Apple (usa el mismo logo_base.png) -->
-    <link rel="apple-touch-icon" href="/img/logo_base.png">
+        /* Buttons */
+        .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        }
 
-    <!-- Pre-conexión -->
-    <link rel="preconnect" href="https://maximoph.co">
-    <link rel="dns-prefetch" href="https://maximoph.co">
+        .btn-primary {
+        background-color: #22d3ee;
+        color: #020617;
+        }
 
-    <!-- Schema.org markup -->
-    <script type="application/ld+json">
-    {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [{
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Inicio",
-        "item": "https://maximoph.co/"
-    },{
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Acceso al Sistema",
-        "item": "https://maximoph.co/login"
-    }]
-    }
-    </script>
+        .btn-primary:hover {
+        background-color: #06b6d4;
+        }
 
+        .btn-outline {
+        background-color: transparent;
+        color: #ffffff;
+        border: 1px solid #475569;
+        }
+
+        .btn-outline:hover {
+        background-color: #1e293b;
+        }
+
+        .btn-gradient {
+        background: linear-gradient(135deg, #22d3ee, #3b82f6);
+        color: #020617;
+        }
+
+        .btn-gradient:hover {
+        background: linear-gradient(135deg, #06b6d4, #2563eb);
+        }
+
+        .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        }
+
+        .btn-full {
+        width: 100%;
+        }
+
+        .btn-icon {
+        margin-left: 0.5rem;
+        }
+
+        /* Badge */
+        .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background-color: rgba(34, 211, 238, 0.1);
+        color: #22d3ee;
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        }
+
+        /* Navigation */
+        .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+        background-color: rgba(2, 6, 23, 0.95);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid #334155;
+        }
+
+        .nav-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        }
+
+        .nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 4rem;
+        }
+
+        .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        }
+
+        .nav-logo {
+        width: 2rem;
+        height: 2rem;
+        background-color: #22d3ee;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #020617;
+        }
+
+        .nav-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        }
+
+        .nav-menu {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        }
+
+        .nav-link {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+        color: #22d3ee;
+        }
+
+        .nav-toggle {
+        display: none;
+        flex-direction: column;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        }
+
+        .hamburger {
+        width: 1.5rem;
+        height: 2px;
+        background-color: #ffffff;
+        margin: 2px 0;
+        transition: 0.3s;
+        }
+
+        .mobile-menu {
+        display: none;
+        background-color: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid #334155;
+        }
+
+        .mobile-menu-content {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        }
+
+        .mobile-link {
+        color: #ffffff;
+        text-decoration: none;
+        padding: 0.5rem 0;
+        transition: color 0.3s ease;
+        }
+
+        .mobile-link:hover {
+        color: #22d3ee;
+        }
+
+        /* Hero Section */
+        .hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 5rem 0;
+        }
+
+        .hero-bg {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #020617, #0f172a, #020617);
+        }
+
+        .hero-image {
+        position: absolute;
+        inset: 0;
+        background-image: url("modern-building.png");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+        }
+
+        .hero-content {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        align-items: center;
+        }
+
+        .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        }
+
+        .hero-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+        }
+
+        .hero-description {
+        font-size: 1.25rem;
+        color: #cbd5e1;
+        line-height: 1.6;
+        }
+
+        .hero-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        }
+
+        .hero-stats {
+        display: flex;
+        gap: 2rem;
+        padding-top: 2rem;
+        }
+
+        .stat {
+        text-align: center;
+        }
+
+        .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #22d3ee;
+        }
+
+        .stat-label {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        }
+
+        /* Hero Dashboard */
+        .hero-dashboard {
+        position: relative;
+        }
+
+        .dashboard-glow {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(59, 130, 246, 0.2));
+        border-radius: 1.5rem;
+        filter: blur(3rem);
+        }
+
+        .dashboard-card {
+        position: relative;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(8px);
+        border: 1px solid #334155;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        overflow: hidden;
+        }
+
+        .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        }
+
+        .dashboard-header h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        }
+
+        .status-lights {
+        display: flex;
+        gap: 0.5rem;
+        }
+
+        .status-light {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        }
+
+        .status-light.red {
+        background-color: #ef4444;
+        }
+
+        .status-light.yellow {
+        background-color: #eab308;
+        animation-delay: 0.1s;
+        }
+
+        .status-light.green {
+        background-color: #22c55e;
+        animation-delay: 0.2s;
+        }
+
+        .property-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        }
+
+        .property-card {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        }
+
+        .property-card:hover {
+        background: rgba(30, 41, 59, 0.7);
+        transform: scale(1.05);
+        }
+
+        .property-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        }
+
+        .property-subtitle {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        }
+
+        .property-card.cyan .property-title {
+        color: #22d3ee;
+        }
+
+        .property-card.green .property-title {
+        color: #22c55e;
+        }
+
+        .property-card.purple .property-title {
+        color: #a855f7;
+        }
+
+        .property-card.orange .property-title {
+        color: #f97316;
+        }
+
+        .compatibility-section {
+        margin-top: 1.5rem;
+        }
+
+        .compatibility-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        }
+
+        .compatibility-indicator {
+        width: 0.5rem;
+        height: 0.5rem;
+        background-color: #22d3ee;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        }
+
+        .compatibility-status {
+        color: #22d3ee;
+        font-weight: 600;
+        }
+
+        .progress-bar {
+        width: 100%;
+        height: 0.5rem;
+        background-color: #1e293b;
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+        }
+
+        .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #22d3ee, #22c55e, #a855f7);
+        border-radius: 9999px;
+        animation: pulse 2s infinite;
+        }
+
+        .property-types {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        text-align: center;
+        }
+
+        .floating-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(1rem);
+        animation: float 6s ease-in-out infinite;
+        }
+
+        .orb-1 {
+        top: -1rem;
+        right: -1rem;
+        width: 5rem;
+        height: 5rem;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(59, 130, 246, 0.2));
+        }
+
+        .orb-2 {
+        bottom: -1rem;
+        left: -1rem;
+        width: 4rem;
+        height: 4rem;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+        animation-delay: -3s;
+        }
+
+        /* Sections */
+        .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        }
+
+        .section-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        }
+
+        .section-description {
+        font-size: 1.25rem;
+        color: #cbd5e1;
+        max-width: 48rem;
+        margin: 0 auto;
+        }
+
+        /* Features Section */
+        .features {
+        padding: 5rem 0;
+        background-color: rgba(15, 23, 42, 0.5);
+        }
+
+        .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        }
+
+        .feature-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid #475569;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+        border-color: rgba(34, 211, 238, 0.5);
+        }
+
+        .feature-icon {
+        width: 3rem;
+        height: 3rem;
+        background: rgba(34, 211, 238, 0.1);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: #22d3ee;
+        transition: background-color 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+        background: rgba(34, 211, 238, 0.2);
+        }
+
+        .feature-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        }
+
+        .feature-description {
+        color: #cbd5e1;
+        line-height: 1.6;
+        }
+
+        /* Tax Section */
+        .tax-section {
+        padding: 5rem 0;
+        }
+
+        .tax-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        }
+
+        .tax-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.5));
+        border: 1px solid #475569;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        }
+
+        .tax-card:hover {
+        border-color: rgba(34, 211, 238, 0.5);
+        }
+
+        .tax-content {
+        display: flex;
+        gap: 1rem;
+        }
+
+        .tax-icon {
+        width: 2rem;
+        height: 2rem;
+        background-color: #22d3ee;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #020617;
+        flex-shrink: 0;
+        }
+
+        .tax-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        }
+
+        .tax-description {
+        color: #cbd5e1;
+        line-height: 1.6;
+        }
+
+        /* Accounting Section */
+        .accounting {
+        padding: 5rem 0;
+        background-color: rgba(15, 23, 42, 0.5);
+        }
+
+        .accounting-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4rem;
+        align-items: center;
+        }
+
+        .accounting-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        }
+
+        .step {
+        display: flex;
+        gap: 1.5rem;
+        }
+
+        .step-number {
+        width: 3rem;
+        height: 3rem;
+        background: linear-gradient(135deg, #22d3ee, #3b82f6);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #020617;
+        font-weight: 700;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+        }
+
+        .step-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+        color: #cbd5e1;
+        line-height: 1.6;
+        }
+
+        .accounting-dashboard {
+        position: relative;
+        }
+
+        .dashboard-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        }
+
+        .financial-reports {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        }
+
+        .report-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 0.5rem;
+        }
+
+        .status-badge {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        }
+
+        .last-update {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #475569;
+        font-size: 0.875rem;
+        color: #94a3b8;
+        }
+
+        /* Benefits Section */
+        .benefits {
+        padding: 5rem 0;
+        }
+
+        .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+        }
+
+        .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        }
+
+        .benefit-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        background-color: #22d3ee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #020617;
+        flex-shrink: 0;
+        }
+
+        .cta-section {
+        text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+        background-color: #020617;
+        border-top: 1px solid #334155;
+        padding: 3rem 0;
+        }
+
+        .footer-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        }
+
+        .footer-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        }
+
+        .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        }
+
+        .footer-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        }
+
+        .footer-description {
+        color: #94a3b8;
+        }
+
+        .footer-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 2rem;
+        }
+
+        .footer-heading {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        }
+
+        .footer-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        }
+
+        .footer-link {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+        color: #22d3ee;
+        }
+
+        .footer-bottom {
+        border-top: 1px solid #334155;
+        padding-top: 2rem;
+        text-align: center;
+        color: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        }
+
+        @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+        }
+
+        /* Responsive Design */
+        @media (min-width: 640px) {
+        .hero-buttons {
+            flex-direction: row;
+        }
+
+        .benefits-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        }
+
+        @media (min-width: 768px) {
+        .nav-toggle {
+            display: none;
+        }
+
+        .hero-title {
+            font-size: 3.75rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+        }
+
+        .footer-content {
+            grid-template-columns: 2fr 3fr;
+        }
+        }
+
+        @media (min-width: 1024px) {
+        .hero-content {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .accounting-content {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+        }
+        }
+
+        @media (max-width: 767px) {
+        .nav-menu {
+            display: none;
+        }
+
+        .nav-toggle {
+            display: flex;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .property-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tax-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-stats {
+            justify-content: space-around;
+        }
+        }
+
+    </style>
+    
 </head>
-
 <body>
-
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
-        <div class="navbar-container">
-            <div class="logo">Maximo PH</div>
-            <button class="hamburger" onclick="toggleMenu()">☰</button>
-            <ul class="menu" id="menu">
-                <li><a href="/login" class="d-inline-block d-lg-none flex-order-1 f5 no-underline border color-border-default rounded-2 px-2 py-1 color-fg-inherit">Iniciar sesion</a></li>
-            </ul>
+        <div class="nav-container">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <div class="nav-logo">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                            <path d="M6 12h4h4"/>
+                            <path d="M6 20h4"/>
+                            <path d="M6 8h4"/>
+                            <path d="M6 16h4"/>
+                        </svg>
+                    </div>
+                    <span class="nav-title">MAXIMOPH</span>
+                </div>
+
+                <div class="nav-menu" id="navMenu">
+                    <a href="#inicio" class="nav-link">Inicio</a>
+                    <a href="#modulos" class="nav-link">Módulos</a>
+                    <a href="#contabilidad" class="nav-link">Contabilidad</a>
+                    <button onclick="window.location.href='https://maximoph.co/login'" class="btn btn-primary">
+                        Iniciar Sesión
+                    </button>
+                </div>
+
+                <button class="nav-toggle" id="navToggle">
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                    <span class="hamburger"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-content">
+                <a href="#inicio" class="mobile-link">Inicio</a>
+                <a href="#modulos" class="mobile-link">Módulos</a>
+                <a href="#contabilidad" class="mobile-link">Contabilidad</a>
+                <button class="btn btn-primary btn-full">Iniciar Sesión</button>
+            </div>
         </div>
     </nav>
 
-    <!-- Primera sección -->
-    <section class="hero-section" id="inicio">
-        <div class="left-side">
-            <div class="logo-container">
-                <img src="/img/logo_base.png" alt="Maximo Logo" />
-                <div class="logo-text">maximo</div>
-            </div>
-        </div>
-
-        <div class="right-side">
-            <h1>Software de Propiedad Horizontal</h1>
-            <p>
-                Bienvenido al revolucionario Software de Propiedad Horizontal, un
-                ecosistema integral diseñado para optimizar la gestión administrativa,
-                facturación y contable de su comunidad. Nuestro sistema ofrece una
-                solución completa que le permite mantenerse informado en tiempo real,
-                optimizar procesos y contar con un soporte personalizado. Además,
-                facilitamos la migración de su información existente para una
-                transición sin complicaciones.
-            </p>
-            <p>
-                Con Máximo puedes administrar Centros comerciales, Oficinas, Bodegas,
-                Condominios de casas y Apartamentos tanto residenciales, Comerciales o
-                mixtas.
-            </p>
-        </div>
-    </section>
-
-    <!-- Segunda sección -->
-    <section class="module-section" id="modulo-premium">
-        <div class="header-image"></div>
-
-        <div class="module-content">
-            <h1>Módulo Premium: Facturación por Coeficientes y/o valores</h1>
-
-            <div class="modules-container">
-                <div class="vertical-line"></div>
-
-                <div class="module">
-                    <div class="module-number">1</div>
-                    <div class="module-content-text">
-                        <div class="module-title">Causación de facturación</div>
-                        <div class="module-description">
-                            Cálculo de la administración por coeficientes separado por cada
-                            inmueble.
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-image"></div>
+        
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="badge">Software Líder en Propiedad Horizontal</div>
+                    
+                    <h1 class="hero-title">
+                        Revoluciona la
+                        <span class="gradient-text"> Gestión </span>
+                        de tu Propiedad
+                    </h1>
+                    
+                    <p class="hero-description">
+                        Ecosistema integral diseñado para optimizar la gestión administrativa, facturación y contable de su
+                        comunidad. Manténgase informado en tiempo real con nuestro soporte personalizado.
+                    </p>
+                    
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-lg">
+                            Comenzar Ahora
+                            <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14"/>
+                                <path d="m12 5 7 7-7 7"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn-outline btn-lg">Ver Demo</button>
+                    </div>
+                    
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Propiedades</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">50K+</div>
+                            <div class="stat-label">Usuarios</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">99.9%</div>
+                            <div class="stat-label">Uptime</div>
                         </div>
                     </div>
                 </div>
-
-                <div class="module">
-                    <div class="module-number">2</div>
-                    <div class="module-content-text">
-                        <div class="module-title">Cruce Automático de Anticipos</div>
-                        <div class="module-description">
-                            Gestión eficiente de pagos anticipados con reconciliación
-                            automática.
+                
+                <div class="hero-dashboard">
+                    <div class="dashboard-glow"></div>
+                    <div class="dashboard-card">
+                        <div class="dashboard-header">
+                            <h3>Tipos de Propiedades</h3>
+                            <div class="status-lights">
+                                <div class="status-light red"></div>
+                                <div class="status-light yellow"></div>
+                                <div class="status-light green"></div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="module">
-                    <div class="module-number">3</div>
-                    <div class="module-content-text">
-                        <div class="module-title">Causación de Intereses</div>
-                        <div class="module-description">
-                            Cálculo automático de intereses por saldos morosos, manteniendo
-                            un control efectivo de las cuentas por cobrar.
+                        
+                        <div class="property-grid">
+                            <div class="property-card cyan">
+                                <div class="property-title">Centros</div>
+                                <div class="property-subtitle">Comerciales</div>
+                            </div>
+                            <div class="property-card green">
+                                <div class="property-title">Oficinas</div>
+                                <div class="property-subtitle">Corporativas</div>
+                            </div>
+                            <div class="property-card purple">
+                                <div class="property-title">Bodegas</div>
+                                <div class="property-subtitle">Industriales</div>
+                            </div>
+                            <div class="property-card orange">
+                                <div class="property-title">Condominios</div>
+                                <div class="property-subtitle">Residenciales</div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="module">
-                    <div class="module-number">4</div>
-                    <div class="module-content-text">
-                        <div class="module-title">Cuotas Extras y Multas</div>
-                        <div class="module-description">
-                            Flexibilidad para aplicar cuotas extraordinarias por
-                            coeficientes o multas, ya sea de forma individual o masiva, por
-                            rangos de fechas específicos.
+                        
+                        <div class="compatibility-section">
+                            <div class="compatibility-info">
+                                <div class="compatibility-indicator"></div>
+                                <span>Propiedades Mixtas</span>
+                                <span class="compatibility-status">Compatibles</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <div class="property-types">Residenciales • Comerciales • Mixtas</div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="module">
-                    <div class="module-number">5</div>
-                    <div class="module-content-text">
-                        <div class="module-title">Conexión en Tiempo Real</div>
-                        <div class="module-description">
-                            Integración instantánea con la contabilidad para una gestión
-                            financiera precisa y actualizada.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="module">
-                    <div class="module-number">6</div>
-                    <div class="module-content-text">
-                        <div class="module-title">Facturación Electrónica</div>
-                        <div class="module-description">
-                            Gestión de facturas electrónicas para las administraciones
-                            comerciales o mixtas.
-                        </div>
+                        
+                        <div class="floating-orb orb-1"></div>
+                        <div class="floating-orb orb-2"></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Tercera sección -->
-    <section class="tax-section" id="gestion-tributaria">
-        <div class="tax-header-image">
-            <h1 class="tax-title">Gestión Tributaria Simplificada</h1>
-        </div>
-
-        <div class="tax-grid">
-            <div class="tax-card">
-                <h3>Medios Magnéticos</h3>
-                <p>Generación automática de informes para cumplimiento tributario.</p>
-            </div>
-
-            <div class="tax-card">
-                <h3>IVA</h3>
-                <p>
-                    IVA como un mayor valor del gasto en la misma cuenta, cálculo de IVA
-                    - AIU
+    <!-- Features Section -->
+    <section id="modulos" class="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge">Módulo Premium</div>
+                <h2 class="section-title">
+                    Facturación por Coeficientes
+                    <span class="gradient-text"> y Valores</span>
+                </h2>
+                <p class="section-description">
+                    Sistema avanzado de facturación que se adapta a las necesidades específicas de cada tipo de propiedad
+                    horizontal.
                 </p>
             </div>
-
-            <div class="tax-card">
-                <h3>ICA</h3>
-                <p>Manejo eficiente del Impuesto de Industria y Comercio.</p>
-            </div>
-
-            <div class="tax-card">
-                <h3>Certificados de Retención</h3>
-                <p>Emisión y gestión de certificados de retención fiscal.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Cuarta sección -->
-    <section class="accounting-section" id="contabilidad-completa">
-        <div class="accounting-content">
-            <h1>Módulo Premium: Contabilidad Completa</h1>
-
-            <div class="accounting-features-container">
-                <div class="accounting-steps">
-                    <div class="hexagon-step">1</div>
-                    <div class="hexagon-step">2</div>
-                    <div class="hexagon-step">3</div>
-                </div>
-
-                <div class="accounting-features">
-                    <div class="accounting-feature">
-                        <div class="feature-text">
-                            <h3>Informes Financieros</h3>
-                            <p>
-                                Generación de informes detallados de cartera, balances y
-                                estados de resultados.
-                            </p>
-                        </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="16" height="10" x="2" y="3" rx="2" ry="2"/>
+                            <path d="m7 11 2 2 4-4"/>
+                        </svg>
                     </div>
-
-                    <div class="accounting-feature">
-                        <div class="feature-text">
-                            <h3>Ejecución Presupuestaria</h3>
-                            <p>
-                                Seguimiento en tiempo real de la ejecución del presupuesto con
-                                alertas automáticas.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="accounting-feature">
-                        <div class="feature-text">
-                            <h3>Auxiliares e Historiales</h3>
-                            <p>
-                                Acceso a auxiliares contables e historiales detallados para un
-                                análisis profundo.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="accounting-image">
-            <div class="accounting-image-logo">
-                <img src="/img/logo_base.png" alt="Maximo Logo" />
-                <div class="logo-text">maximo</div>
-            </div>
-
-            <div class="accounting-image-text">
-                <p>
-                    ADMINISTRACIÓN | FACTURACIÓN<br />Y CONTABILIDAD EN UN SOLO<br />SISTEMA
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Quinta sección  -->
-    <section id="porteria" class="porter-control-section">
-        <h2 class="section-title">Control de Portería</h2>
-        <div class="porter-grid">
-            <div class="porter-item">Bitácora documentada</div>
-            <div class="porter-item">Restricción de morosos</div>
-            <div class="porter-item">Control de entradas y salidas</div>
-            <div class="porter-item">Gestión de domicilios y paquetes</div>
-            <div class="porter-item">Notificaciones de novedades</div>
-            <div class="porter-item">Monitoreo de vehículos y mascotas</div>
-            <div class="porter-item">
-                Conexión en línea con cámaras inteligentes
-            </div>
-            <div class="porter-item">Seguimiento de minuta digital</div>
-        </div>
-    </section>
-
-    <!-- Sexta sección-->
-    <section id="gestion-tareas" class="task-user-section">
-        <div class="task-user-overlay">
-            <h2 class="section-title">Gestión de Tareas y Perfiles de Usuario</h2>
-            <div class="task-cards">
-                <div class="task-card">
-                    <i class="fas fa-tasks fa-3x"></i>
-                    <h3>Seguimiento de Tareas</h3>
-                    <p>
-                        Control eficiente de tareas para rondas, personal de aseo,
-                        portería y proyectos específicos.
+                    <h3 class="feature-title">Facturación por Coeficientes</h3>
+                    <p class="feature-description">
+                        Cálculo automático de administración por coeficientes separado por cada inmueble con precisión matemática.
                     </p>
                 </div>
-                <div class="task-card">
-                    <i class="fas fa-user-cog fa-3x"></i>
-                    <h3>Perfiles Parametrizados</h3>
-                    <p>
-                        Configuración de perfiles para propietarios, inquilinos, personal
-                        de la unidad y proveedores.
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Cruce Automático de Anticipos</h3>
+                    <p class="feature-description">
+                        Gestión eficiente de pagos anticipados con reconciliación automática en tiempo real.
                     </p>
                 </div>
-                <div class="task-card">
-                    <i class="fas fa-lock fa-3x"></i>
-                    <h3>Acceso Seguro</h3>
-                    <p>
-                        Gestión de accesos y permisos para garantizar la seguridad y
-                        privacidad de la información.
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Causación de Intereses</h3>
+                    <p class="feature-description">
+                        Cálculo automático de intereses por saldos morosos, manteniendo control efectivo de cuentas por cobrar.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Cuotas Extras y Multas</h3>
+                    <p class="feature-description">
+                        Flexibilidad para aplicar cuotas extraordinarias por coeficientes o multas, individual o masivamente.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="m4.93 4.93 4.24 4.24"/>
+                            <path d="m14.83 9.17 4.24-4.24"/>
+                            <path d="m14.83 14.83 4.24 4.24"/>
+                            <path d="m9.17 14.83-4.24 4.24"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Conexión en Tiempo Real</h3>
+                    <p class="feature-description">
+                        Integración instantánea con la contabilidad para una gestión financiera precisa y actualizada.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Facturación Electrónica</h3>
+                    <p class="feature-description">
+                        Gestión completa de facturas electrónicas para administraciones comerciales o mixtas.
                     </p>
                 </div>
             </div>
-            <div class="task-logo">
-                <img src="/img/logo_base.png" alt="Maximo Logo" />
-                <div class="logo-text">máximo</div>
-            </div>
         </div>
     </section>
 
-    <!-- Septima sección -->
-    <section class="advanced-features" id="fun-advanced">
-        <div class="features-hero">
-            <!-- <div class="brand-logo">
-                <img src="/img/logo_base.png" alt="Maximo Logo" />
-                <div class="logo-text">máximo</div>
-            </div> -->
-            <h1 class="features-title">Funcionalidades Avanzadas</h1>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>Tesorería</h3>
-                <p>
-                    Importador, pasarela de pagos, Conciliación bancaria, Gestión de
-                    ingresos y egresos en tiempo real
+    <!-- Tax Management Section -->
+    <section class="tax-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Gestión Tributaria
+                    <span class="gradient-text"> Simplificada</span>
+                </h2>
+                <p class="section-description">
+                    Cumplimiento tributario automatizado con generación de reportes y certificados en tiempo real.
                 </p>
             </div>
-
-            <div class="feature-card">
-                <h3 style="font-size: clamp(18px, 19px)">
-                    Activos Fijos e Inventarios
-                </h3>
-                <p>Control de activos e inventarios</p>
+            
+            <div class="tax-grid">
+                <div class="tax-card">
+                    <div class="tax-content">
+                        <div class="tax-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <div class="tax-text">
+                            <h3 class="tax-title">Medios Magnéticos</h3>
+                            <p class="tax-description">
+                                Generación automática de informes para cumplimiento tributario completo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tax-card">
+                    <div class="tax-content">
+                        <div class="tax-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <div class="tax-text">
+                            <h3 class="tax-title">Gestión de IVA</h3>
+                            <p class="tax-description">
+                                IVA como mayor valor del gasto en la misma cuenta, cálculo de IVA - AIU automatizado.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tax-card">
+                    <div class="tax-content">
+                        <div class="tax-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <div class="tax-text">
+                            <h3 class="tax-title">Control de ICA</h3>
+                            <p class="tax-description">
+                                Manejo eficiente del Impuesto de Industria y Comercio con reportes detallados.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tax-card">
+                    <div class="tax-content">
+                        <div class="tax-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <div class="tax-text">
+                            <h3 class="tax-title">Certificados de Retención</h3>
+                            <p class="tax-description">
+                                Emisión y gestión automatizada de certificados de retención fiscal.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <div class="feature-card">
-                <h3>Proyectos</h3>
-                <p>Seguimiento de los proyectos a través de tareas asignadas</p>
+    <!-- Accounting Section -->
+    <section id="contabilidad" class="accounting">
+        <div class="container">
+            <div class="accounting-content">
+                <div class="accounting-text">
+                    <div class="badge">Módulo Premium</div>
+                    <h2 class="section-title">
+                        Contabilidad
+                        <span class="gradient-text"> Completa</span>
+                    </h2>
+                    
+                    <div class="accounting-steps">
+                        <div class="step">
+                            <div class="step-number">01</div>
+                            <div class="step-content">
+                                <h3 class="step-title">Causación Automática</h3>
+                                <p class="step-description">
+                                    Sistema inteligente de causación contable con clasificación automática de cuentas.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">02</div>
+                            <div class="step-content">
+                                <h3 class="step-title">Reportes en Tiempo Real</h3>
+                                <p class="step-description">
+                                    Estados financieros actualizados instantáneamente con cada transacción registrada.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">03</div>
+                            <div class="step-content">
+                                <h3 class="step-title">Integración Completa</h3>
+                                <p class="step-description">
+                                    Conexión directa entre módulos administrativos, financieros y contables.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accounting-dashboard">
+                    <div class="dashboard-glow"></div>
+                    <div class="dashboard-card">
+                        <h3 class="dashboard-title">Estados Financieros</h3>
+                        
+                        <div class="financial-reports">
+                            <div class="report-item">
+                                <span>Balance General</span>
+                                <div class="status-badge">Actualizado</div>
+                            </div>
+                            <div class="report-item">
+                                <span>Estado de Resultados</span>
+                                <div class="status-badge">Actualizado</div>
+                            </div>
+                            <div class="report-item">
+                                <span>Flujo de Caja</span>
+                                <div class="status-badge">Actualizado</div>
+                            </div>
+                        </div>
+                        
+                        <div class="last-update">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                            <span>Última actualización: hace 2 minutos</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <div class="feature-card">
-                <h3>Censo Familiar</h3>
-                <p>
-                    Documentación de: Propietario, residente, vehículos y mascotas con
-                    foto
+    <!-- Benefits Section -->
+    <section class="benefits">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    ¿Por qué elegir
+                    <span class="gradient-text"> MAXIMOPH?</span>
+                </h2>
+                <p class="section-description">
+                    Más de 500 propiedades confían en nuestra plataforma para optimizar su gestión administrativa y
+                    financiera.
                 </p>
             </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Reducción del 80% en tiempo de procesamiento administrativo</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Control financiero en tiempo real las 24 horas del día</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Cumplimiento tributario automatizado y sin errores</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Comunicación directa con residentes y propietarios</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Respaldo en la nube con seguridad bancaria</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Soporte técnico especializado incluido</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Migración de datos sin costo adicional</span>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                        </svg>
+                    </div>
+                    <span>Actualizaciones automáticas del sistema</span>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <button class="btn btn-gradient btn-lg">
+                    Solicitar Demo Gratuita
+                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </section>
 
-    <!-- Octava sección -->
-    <section class="key-benefits" id="key-benefits">
-        <div class="benefits-container">
-            <div class="benefits-left">
-                <h2 class="benefits-title">Beneficios clave</h2>
-                <ul class="benefits-list">
-                    <li>
-                        <span class="icon-square"></span>
-                        <strong>PQRSF</strong> – Gestión ágil y centralizada de
-                        peticiones, quejas, reclamos y sugerencias.
-                    </li>
-                    <li>
-                        <span class="icon-square"></span>
-                        <strong>Tareas</strong> – Asignación, seguimiento y notificaciones
-                        inteligentes.
-                    </li>
-                    <li>
-                        <span class="icon-square"></span>
-                        <strong>Turnos</strong> – Control de acceso y horarios
-                        automatizados.
-                    </li>
-                    <li>
-                        <span class="icon-square"></span>
-                        <strong>Reportes</strong> – Visualización clara y exportación de
-                        datos en tiempo real.
-                    </li>
-                </ul>
-            </div>
-            <div class="benefits-right">
-                <img src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_8.jpg"
-                    alt="Mockup software" class="benefits-image" />
-            </div>
-        </div>
-    </section>
+    <!-- Footer -->
+    <section id="contacto">
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <div class="nav-logo">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                                    <path d="M6 12h4h4"/>
+                                    <path d="M6 20h4"/>
+                                    <path d="M6 8h4"/>
+                                    <path d="M6 16h4"/>
+                                </svg>
+                            </div>
+                            <span class="footer-title">MAXIMOPH</span>
+                        </div>
+                        <p class="footer-description">
+                            Software líder en gestión de propiedad horizontal con más de 10 años de experiencia.
+                        </p>
+                    </div>
 
-    <footer class="footer">
-        © 2025 Máximo - Software de Propiedad Horizontal | Todos los derechos
-        reservados
-    </footer>
+                    
+                    
+                    <div class="footer-links">
+                        
+                        <div class="footer-column">
+                            <h3 class="footer-heading">Soporte</h3>
+                            <ul class="footer-list">
+                                <li><a href="#" class="footer-link">Documentación</a></li>
+                                <li><a href="#" class="footer-link">Centro de Ayuda</a></li>
+                                <li><a href="#" class="footer-link">Contacto</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-column">
+                            <h3 class="footer-heading">Empresa</h3>
+                            <ul class="footer-list">
+                                <li><a href="#" class="footer-link">Acerca de</a></li>
+                                <li><a href="#" class="footer-link">Blog</a></li>
+                                <li><a href="#" class="footer-link">Carreras</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="footer-column">
+                            <h3 class="footer-heading">Contacto</h3>
+                            <ul class="footer-list">
+                                <li class="footer-link">+57 3207141104</li>
+                                <li class="footer-link">portafolioerp@gmail.com</li>
+                                <li class="footer-link">Bogotá, Colombia</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>&copy; 2025 MAXIMOPH. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </footer>
+    </section>
 
     <script>
+        // Navigation functionality
+        document.addEventListener("DOMContentLoaded", () => {
+        const navbar = document.getElementById("navbar")
+        const navToggle = document.getElementById("navToggle")
+        const mobileMenu = document.getElementById("mobileMenu")
+        const navLinks = document.querySelectorAll(".nav-link, .mobile-link")
 
-        // Función para el menú hamburguesa
-        function toggleMenu() {
-            const menu = document.getElementById('menu');
-            menu.classList.toggle('active');
-        }
-        
-        // Función para cambiar el estilo de la barra al hacer scroll
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            
-            // Si el scroll es mayor a 50px, añadimos la clase 'scrolled'
+        // Handle scroll effect on navbar
+        window.addEventListener("scroll", () => {
             if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
+            navbar.classList.add("scrolled")
             } else {
-                navbar.classList.remove('scrolled');
+            navbar.classList.remove("scrolled")
             }
-        });
+        })
 
-        document.addEventListener("DOMContentLoaded", function() {
-            // Animación para los módulos
-            const modules = document.querySelectorAll(".module");
-            // Animación para las tarjetas tributarias
-            const taxCards = document.querySelectorAll(".tax-card");
-            // Animación para las características de contabilidad
-            const accountingFeatures = document.querySelectorAll(".accounting-feature");
-            // Animación para los hexágonos
-            const hexagonSteps = document.querySelectorAll(".hexagon-step");
-            // Animación para los ítems de control de portería
-            const porterItems = document.querySelectorAll(".porter-item");
-            // Animación para las tarjetas de tareas
-            const taskCards = document.querySelectorAll(".task-card");
-            // Animación para las tarjetas de tareas
-            const featureCard = document.querySelectorAll(".feature-card");
-            // Animación para beneficios
+        // Handle mobile menu toggle
+        navToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("active")
 
-            function checkElements() {
-                // Módulos
-                modules.forEach((module, index) => {
-                    const modulePosition = module.getBoundingClientRect().top;
-                    const screenPosition = window.innerHeight / 1.3;
-
-                    if (modulePosition < screenPosition) {
-                        setTimeout(() => {
-                            module.classList.add("animate");
-                        }, index * 200);
-                    }
-                });
-
-                // Tarjetas tributarias
-                taxCards.forEach((card, index) => {
-                    const cardPosition = card.getBoundingClientRect().top;
-                    const screenPosition = window.innerHeight / 1.1;
-
-                    if (cardPosition < screenPosition) {
-                        setTimeout(() => {
-                            card.classList.add("visible");
-                        }, index * 200);
-                    }
-                });
-
-                // Características de contabilidad
-                accountingFeatures.forEach((feature, index) => {
-                    setTimeout(() => {
-                        feature.classList.add("visible");
-                    }, index * 200);
-                });
-
-                // Hexágonos
-                hexagonSteps.forEach((step, index) => {
-                    const stepPosition = step.getBoundingClientRect().top;
-                    const screenPosition = window.innerHeight / 1.1;
-
-                    if (stepPosition < screenPosition) {
-                        setTimeout(() => {
-                            step.classList.add("visible");
-                        }, index * 200);
-                    }
-                });
-
-                // Porteria
-                porterItems.forEach((item, index) => {
-                    const itemPosition = item.getBoundingClientRect().top;
-                    const screenPosition = window.innerHeight / 1.1;
-
-                    if (itemPosition < screenPosition) {
-                        setTimeout(() => {
-                            item.classList.add("visible");
-                        }, index * 200);
-                    }
-                });
-
-                // Gestion de tareas
-                taskCards.forEach((card, index) => {
-                    const cardPosition = card.getBoundingClientRect().top;
-                    const screenPosition = window.innerHeight / 1.3;
-
-                    if (cardPosition < screenPosition) {
-                        setTimeout(() => {
-                            card.classList.add("visible");
-                        }, index * 200);
-                    }
-                });
-
-                // Funciones avanzadas
-                featureCard.forEach((card, index) => {
-                    const cardPosition = card.getBoundingClientRect().top;
-                    const screenPosition = window.innerHeight / 1.1;
-
-                    if (cardPosition < screenPosition) {
-                        setTimeout(() => {
-                            card.classList.add("visible");
-                        }, index * 200);
-                    }
-                });
-
-                // Beneficios
-
+            // Animate hamburger menu
+            const hamburgers = navToggle.querySelectorAll(".hamburger")
+            hamburgers.forEach((hamburger, index) => {
+            if (mobileMenu.classList.contains("active")) {
+                if (index === 0) {
+                hamburger.style.transform = "rotate(45deg) translate(5px, 5px)"
+                } else if (index === 1) {
+                hamburger.style.opacity = "0"
+                } else {
+                hamburger.style.transform = "rotate(-45deg) translate(7px, -6px)"
+                }
+            } else {
+                hamburger.style.transform = "none"
+                hamburger.style.opacity = "1"
             }
+            })
+        })
 
-            window.addEventListener("scroll", checkElements);
-            checkElements();
-        });
+        // Close mobile menu when clicking on links
+        navLinks.forEach((link) => {
+            link.addEventListener("click", () => {
+            mobileMenu.classList.remove("active")
+
+            // Reset hamburger menu
+            const hamburgers = navToggle.querySelectorAll(".hamburger")
+            hamburgers.forEach((hamburger) => {
+                hamburger.style.transform = "none"
+                hamburger.style.opacity = "1"
+            })
+            })
+        })
+
+        // Smooth scrolling for anchor links
+        navLinks.forEach((link) => {
+            link.addEventListener("click", function (e) {
+            const href = this.getAttribute("href")
+            if (href.startsWith("#")) {
+                e.preventDefault()
+                const target = document.querySelector(href)
+                if (target) {
+                target.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                })
+                }
+            }
+            })
+        })
+
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px",
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = "1"
+                entry.target.style.transform = "translateY(0)"
+            }
+            })
+        }, observerOptions)
+
+        // Observe elements for animation
+        const animatedElements = document.querySelectorAll(".feature-card, .tax-card, .step, .benefit-item")
+        animatedElements.forEach((el) => {
+            el.style.opacity = "0"
+            el.style.transform = "translateY(20px)"
+            el.style.transition = "opacity 0.6s ease, transform 0.6s ease"
+            observer.observe(el)
+        })
+
+        // Add hover effects to property cards
+        const propertyCards = document.querySelectorAll(".property-card")
+        propertyCards.forEach((card) => {
+            card.addEventListener("mouseenter", function () {
+            this.style.transform = "scale(1.05)"
+            })
+
+            card.addEventListener("mouseleave", function () {
+            this.style.transform = "scale(1)"
+            })
+        })
+
+        // Add click handlers for buttons
+        const buttons = document.querySelectorAll(".btn")
+        buttons.forEach((button) => {
+            button.addEventListener("click", function (e) {
+            // Add ripple effect
+            const ripple = document.createElement("span")
+            const rect = this.getBoundingClientRect()
+            const size = Math.max(rect.width, rect.height)
+            const x = e.clientX - rect.left - size / 2
+            const y = e.clientY - rect.top - size / 2
+
+            ripple.style.width = ripple.style.height = size + "px"
+            ripple.style.left = x + "px"
+            ripple.style.top = y + "px"
+            ripple.classList.add("ripple")
+
+            this.appendChild(ripple)
+
+            setTimeout(() => {
+                ripple.remove()
+            }, 600)
+            })
+        })
+        })
+
+        // Add CSS for ripple effect
+        const style = document.createElement("style")
+        style.textContent = `
+            .btn {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `
+        document.head.appendChild(style)
+
     </script>
-
-    <!--Start of Tawk.to Script-->
-    <!-- <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/680b8aa2429e411905b97092/1ipmhb2eb';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
-    </script> -->
-    <!--End of Tawk.to Script-->
-
 </body>
-
 </html>
