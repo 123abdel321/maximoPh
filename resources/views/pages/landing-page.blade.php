@@ -102,14 +102,13 @@
                     </p>
                     
                     <div class="hero-buttons">
-                        <button class="btn btn-primary btn-lg">
-                            Comenzar Ahora
+                        <button class="btn btn-primary btn-lg" onclick="window.location.href='https://maximoph.co/login'">
+                            Iniciar Sesión
                             <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14"/>
                                 <path d="m12 5 7 7-7 7"/>
                             </svg>
                         </button>
-                        <button class="btn btn-outline btn-lg">Ver Demo</button>
                     </div>
                     
                     <div class="hero-stats">
@@ -536,8 +535,8 @@
             </div>
             
             <div class="cta-section">
-                <button class="btn btn-gradient btn-lg">
-                    Solicitar Demo Gratuita
+                <button class="btn btn-primary btn-lg" onclick="window.location.href='https://maximoph.co/login'">
+                    Iniciar Sesión
                     <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M5 12h14"/>
                         <path d="m12 5 7 7-7 7"/>
