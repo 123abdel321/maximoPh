@@ -44,7 +44,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
     public $id_usuario = null;
     public $maxExceptions = 3;
     public $backoff = [60, 120];
-    public $emailsPerMinute = 5;
+    public $emailsPerMinute = 20;
 
     public function __construct($request, $id_empresa, $id_usuario)
     {
