@@ -217,7 +217,10 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when(array_key_exists('periodo', $this->request), function ($query) {
                 if (array_key_exists('periodo', $this->request)) {
-                    $query->where('DG.fecha_manual', '>=', $this->request['periodo']);
+                    $startOfMonth = Carbon::parse($this->request['periodo'])->startOfMonth();
+                    $endOfMonth = Carbon::parse($this->request['periodo'])->endOfMonth();
+
+                    $query->whereBetween('DG.fecha_manual', [$startOfMonth, $endOfMonth]);
                 }
 			})
             ->when(array_key_exists('id_nit', $this->request), function ($query) {
