@@ -7,6 +7,108 @@
     <meta name="description" content="Ecosistema integral para optimizar la gestión administrativa, facturación y contable de propiedades horizontales">
     <link id="pagestyle" href="{{ asset('assets/css/landing-page.css') }}" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <meta name="route-pattern" content="/" data-turbo-transient="">
+    <meta name="route-controller" content="dashboard" data-turbo-transient="">
+    <meta name="route-action" content="home" data-turbo-transient="">
+    <meta name="current-catalog-service-hash"
+        content="40dc28bd654b20f337468a532ff456ed5863889cfbb4e982b793597321d48d3f">
+    <meta name="request-id" content="D301:2C9BB4:2F29F0F:414A209:6662D83B" data-pjax-transient="true">
+    <meta name="html-safe-nonce" content="d4599bfbe892b8abeb1341834cd60a607ea8e2e1e1fcaff614d268348959a3bf"
+        data-pjax-transient="true">
+    <meta name="visitor-payload"
+        content="eyJyZWZlcnJlciI6IiIsInJlcXVlc3RfaWQiOiJEMzAxOjJDOUJCNDoyRjI5RjBGOjQxNEEyMDk6NjY2MkQ4M0IiLCJ2aXNpdG9yX2lkIjoiMTU2MTA4MDcxMzg0NDAyMTMwNyIsInJlZ2lvbl9lZGdlIjoiaWFkIiwicmVnaW9uX3JlbmRlciI6ImlhZCJ9"
+        data-pjax-transient="true">
+    <meta name="visitor-hmac" content="9781bfea4b35cc09ae6a60aadf5aad3fc1da92c1e32984af0a4178602d63e7da"
+        data-pjax-transient="true">
+    <meta name="page-subject" content="GitHub">
+    <meta name="github-keyboard-shortcuts" content="dashboards,copilot" data-turbo-transient="true">
+    <meta name="selected-link" value="/" data-turbo-transient="">
+
+    <meta name="user-login" content="">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description"
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+">
+
+    <meta property="fb:app_id" content="1401488693436528">
+    <meta name="apple-itunes-app" content="app-id=64568685, app-argument=https://maximoph.co/">
+    <meta name="twitter:image:src" content="https://maximoph.co/img/logo_contabilidad.png">
+    <meta name="twitter:site" content="@MaximoPH">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MAXIMOPH">
+    <meta name="twitter:description"
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.">
+    <meta property="og:image" content="https://maximoph.co/img/logo_contabilidad.png">
+    <meta property="og:image:alt"
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+">
+    <meta property="og:site_name" content="GitHub">
+    <meta property="og:type" content="object">
+    <meta property="og:title" content="MAXIMOPH">
+    <meta property="og:url" content="https://maximoph.co/">
+    <meta property="og:description"
+        content="Software de Propiedad Horizontal. Ecosistema Administrativo, Financiero y Contable en tiempo real. Minuta documentada, Control de visitas, domicilios, paquetes, conexión constante entre propietarios y portería con notificaciones de los procesos.
+">
+    <meta name="hostname" content="maximoph.co">
+    <meta name="expected-hostname" content="maximoph.co">
+    <meta http-equiv="x-pjax-version" content="9bbb597114c5e7a8a8b12d73130da06df1cfffd53089a6934b1f558e7f0df95d"
+        data-turbo-track="reload">
+    <meta http-equiv="x-pjax-csp-version" content="2581604bd4ef65f9321643110cf85bc689eb80d8a5d4e039100e9ec9beea48df"
+        data-turbo-track="reload">
+    <meta http-equiv="x-pjax-css-version" content="a231bdac81d3a969a38b5854f9189b5fd6b6771f9788e9c2a20fadd334ed3906"
+        data-turbo-track="reload">
+    <meta http-equiv="x-pjax-js-version" content="5809b530203b4dee2e50e2f34942070a16f62ce68fdb7e97d3e9822b0c671d4d"
+        data-turbo-track="reload">
+    <meta name="turbo-cache-control" content="no-preview" data-turbo-transient="">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <link crossorigin="anonymous" media="all" rel="stylesheet"
+        href="https://github.githubassets.com/assets/home-f57bcc4383d0.css">
+    <link rel="preload" href="https://github.githubassets.com/assets/mona-sans-d1bf285e9b9b.woff2" as="font"
+        type="font/woff2" crossorigin="">
+
+    <meta name="is_logged_out_page" content="true">
+
+    <link rel="canonical" href="https://maximoph.co" data-turbo-transient="">
+
+    <meta name="turbo-body-classes|" content="logged-out env-production page-responsive header-overlay home-campaign">
+
+    <link rel="mask-icon" href="https://maximoph.co/img/logo_contabilidad.png" color="#000000">
+    <link rel="alternate icon" class="js-site-favicon" type="image/png" href="/img/logo_base.png">
+    <link rel="icon" class="js-site-favicon" type="image/png" href="/img/logo_base.png">
+
+    <meta name="theme-color" content="#1e2327">
+    <meta name="color-scheme" content="light dark">
+
+    <!-- JQUERY --> 
+    <script src="assets/js/sistema/jquery-3.5.1.js"></script>
+
+    <script type="module">
+        async function onGet() {
+            let url = "https://api.ipify.org?format=json";
+            var headers = {}
+
+            let response = await fetch("https://api.ipify.org?format=json", {
+                method : "GET",
+                mode: 'cors',
+                headers: headers
+            })
+            let data = await response.json();
+            localStorage.setItem("ip_geo", data ? data.ip: null);
+            $.ajax({
+                url: 'api/visitante',
+                method: 'POST',
+                data: {ip: data.ip},
+                dataType: 'json',
+            }).done((res) => {
+            }).fail((res) => {
+            });
+        }
+        onGet()
+    </script>
 </head>
 <body>
     <!-- Navigation -->
