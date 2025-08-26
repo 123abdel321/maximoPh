@@ -113,9 +113,14 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
+    public function politicas()
+    {
+       return view('auth.login'); 
+    }
+
     public function validateSession (Request $request)
     {
-        return view('auth.login');
+        return view('politica-privacidad');
     }
 
     public function login(Request $request)

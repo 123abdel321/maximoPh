@@ -2,9 +2,183 @@ var $nitPorDefecto = null;
 var newFirmaDigital = null;
 var $comboConceptoFacturacion = null;
 var $comboFormasPagoPlacetoPay = null;
+var $comboCuentaIngreso = null;
+var $comboCuentaAnticipo = null;
+var $comboCuentaIntereses = null;
+var $comboCuentaIngresoPagos = null;
+var $comboCuentaIngresoPasarela = null;
 
 function entornoInit() {
 
+    cargarCombosEntorno();
+
+    var numberEntorno = [
+        'area_total_m2',
+        'redondeo_intereses',
+        'numero_total_unidades',
+        'valor_total_presupuesto_year_actual',
+        'porcentaje_intereses_mora',
+        'dias_pronto_pago',
+    ];
+
+    var checkEntorno = [
+        'editar_coheficiente_admon_inmueble',
+        'editar_valor_admon_inmueble',
+        'validacion_estricta',
+        'causacion_mensual_rapida',
+        'descuento_pago_parcial',
+        'recausar_meses',
+        'validar_fecha_entrega_causacion',
+        'detallar_facturas',
+        'aceptar_terminos',
+    ];
+
+    var dateEntorno = [
+        'periodo_facturacion',
+    ];
+
+    var textEntorno = [
+        'factura_texto1',
+        'factura_texto2',
+        'placetopay_url',
+        'placetopay_login',
+        'placetopay_trankey',
+        'terminos_condiciones',
+        'nombre_administrador',
+    ]; 
+
+    var select = [
+        'documento_referencia_agrupado',
+    ];
+
+    var select2 = [
+        'id_concepto_pago_none',
+        'id_nit_por_defecto',
+        'placetopay_forma_pago',
+        'id_cuenta_ingreso',
+        'id_cuenta_anticipos',
+        'id_cuenta_intereses',
+        'id_cuenta_egreso_pagos',
+        'id_cuenta_ingreso_pasarela',
+    ];
+
+    var img = [
+        'firma_digital'
+    ]
+
+    for (let index = 0; index < variablesEntorno.length; index++) {
+        const variable = variablesEntorno[index];
+
+        if (variable.nombre == 'firma_digital') {
+            $("#preview_firma_digital_paz_salvo").attr('src', variable.valor);
+            $("#preview_firma_digital_paz_salvo").show();
+            $("#firma_digital_paz_salvo").hide();
+        }
+
+        if (numberEntorno.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
+        }
+
+        if (checkEntorno.indexOf(variable.nombre) + 1) {
+            if (variable.valor == '1') $('#'+variable.nombre).prop('checked', true);
+            else $('#'+variable.nombre).prop('checked', false);
+        }
+
+        if (dateEntorno.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(variable.valor);
+        }
+
+        if (textEntorno.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(variable.valor);
+        }
+
+        if (select.indexOf(variable.nombre) + 1) {
+            $('#'+variable.nombre).val(variable.valor);
+        }
+
+        if (select2.indexOf(variable.nombre) + 1) {
+            if (variable.nombre == 'id_concepto_pago_none') {
+                var dataConceptoFacturacion = {
+                    id: variable.concepto_facturacion.id,
+                    text: variable.concepto_facturacion.codigo + ' - ' + variable.concepto_facturacion.nombre_concepto
+                };
+                var newOption = new Option(dataConceptoFacturacion.text, dataConceptoFacturacion.id, false, false);
+                $comboConceptoFacturacion.append(newOption).trigger('change');
+                $comboConceptoFacturacion.val(dataConceptoFacturacion.id).trigger('change');
+            }
+            if (variable.nombre == 'id_nit_por_defecto' && variable.nit) {
+                var dataNit = {
+                    id: variable.nit.id,
+                    text: variable.nit.razon_social ? variable.nit.razon_social : variable.nit.nombre_completo
+                };
+                var newOption = new Option(dataNit.text, dataNit.id, false, false);
+                $nitPorDefecto.append(newOption).trigger('change');
+                $nitPorDefecto.val(dataNit.id).trigger('change');
+            }
+            if (variable.nombre == 'placetopay_forma_pago') {
+                var dataPlacetoPay = {
+                    id: variable.formas_pago.id,
+                    text: variable.formas_pago.nombre
+                };
+                var newOption = new Option(dataPlacetoPay.text, dataPlacetoPay.id, false, false);
+                $comboFormasPagoPlacetoPay.append(newOption).trigger('change');
+                $comboFormasPagoPlacetoPay.val(dataPlacetoPay.id).trigger('change');
+            }
+
+            if (variable.nombre == 'id_cuenta_ingreso' && variable.cuenta) {
+                var dataCuenta = {
+                    id: variable.cuenta.id,
+                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaIngreso.append(newOption).trigger('change');
+                $comboCuentaIngreso.val(dataCuenta.id).trigger('change');
+            }
+            
+            if (variable.nombre == 'id_cuenta_anticipos' && variable.cuenta) {
+                var dataCuenta = {
+                    id: variable.cuenta.id,
+                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaAnticipo.append(newOption).trigger('change');
+                $comboCuentaAnticipo.val(dataCuenta.id).trigger('change');
+            }
+
+            if (variable.nombre == 'id_cuenta_intereses' && variable.cuenta) {
+                var dataCuenta = {
+                    id: variable.cuenta.id,
+                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaIntereses.append(newOption).trigger('change');
+                $comboCuentaIntereses.val(dataCuenta.id).trigger('change');
+            }
+
+            if (variable.nombre == 'id_cuenta_egreso_pagos' && variable.cuenta) {
+                var dataCuenta = {
+                    id: variable.cuenta.id,
+                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaIngresoPagos.append(newOption).trigger('change');
+                $comboCuentaIngresoPagos.val(dataCuenta.id).trigger('change');
+            }
+
+            if (variable.nombre == 'id_cuenta_ingreso_pasarela' && variable.cuenta) {
+                var dataCuenta = {
+                    id: variable.cuenta.id,
+                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaIngresoPasarela.append(newOption).trigger('change');
+                $comboCuentaIngresoPasarela.val(dataCuenta.id).trigger('change');
+            }
+        }
+    }
+}
+
+function cargarCombosEntorno() {
     $comboConceptoFacturacion = $('#id_concepto_pago_none').select2({
         theme: 'bootstrap-5',
         delay: 250,
@@ -87,115 +261,120 @@ function entornoInit() {
         }
     });
 
-    var numberEntorno = [
-        'area_total_m2',
-        'redondeo_intereses',
-        'numero_total_unidades',
-        'valor_total_presupuesto_year_actual',
-        'porcentaje_intereses_mora',
-        'dias_pronto_pago',
-    ];
-
-    var checkEntorno = [
-        'editar_coheficiente_admon_inmueble',
-        'editar_valor_admon_inmueble',
-        'validacion_estricta',
-        'causacion_mensual_rapida',
-        'descuento_pago_parcial',
-        'recausar_meses',
-        'validar_fecha_entrega_causacion',
-        'detallar_facturas',
-        'aceptar_terminos',
-    ];
-
-    var dateEntorno = [
-        'periodo_facturacion',
-    ];
-
-    var textEntorno = [
-        'factura_texto1',
-        'factura_texto2',
-        'placetopay_url',
-        'placetopay_login',
-        'placetopay_trankey',
-        'terminos_condiciones',
-        'nombre_administrador',
-    ]; 
-
-    var select = [
-        'documento_referencia_agrupado',
-    ];
-
-    var select2 = [
-        'id_concepto_pago_none',
-        'id_nit_por_defecto',
-        'placetopay_forma_pago',
-    ];
-
-    var img = [
-        'firma_digital'
-    ]
-
-    for (let index = 0; index < variablesEntorno.length; index++) {
-        const variable = variablesEntorno[index];
-
-        if (variable.nombre == 'firma_digital') {
-            $("#preview_firma_digital_paz_salvo").attr('src', variable.valor);
-            $("#preview_firma_digital_paz_salvo").show();
-            $("#firma_digital_paz_salvo").hide();
-        }
-
-        if (numberEntorno.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(new Intl.NumberFormat("ja-JP").format(variable.valor));
-        }
-
-        if (checkEntorno.indexOf(variable.nombre) + 1) {
-            if (variable.valor == '1') $('#'+variable.nombre).prop('checked', true);
-            else $('#'+variable.nombre).prop('checked', false);
-        }
-
-        if (dateEntorno.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(variable.valor);
-        }
-
-        if (textEntorno.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(variable.valor);
-        }
-
-        if (select.indexOf(variable.nombre) + 1) {
-            $('#'+variable.nombre).val(variable.valor);
-        }
-
-        if (select2.indexOf(variable.nombre) + 1) {
-            if (variable.nombre == 'id_concepto_pago_none') {
-                var dataConceptoFacturacion = {
-                    id: variable.concepto_facturacion.id,
-                    text: variable.concepto_facturacion.codigo + ' - ' + variable.concepto_facturacion.nombre_concepto
+    $comboCuentaIngreso = $('#id_cuenta_ingreso_entorno').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'plan-cuenta/combo-cuenta',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
                 };
-                var newOption = new Option(dataConceptoFacturacion.text, dataConceptoFacturacion.id, false, false);
-                $comboConceptoFacturacion.append(newOption).trigger('change');
-                $comboConceptoFacturacion.val(dataConceptoFacturacion.id).trigger('change');
-            }
-            if (variable.nombre == 'id_nit_por_defecto' && variable.nit) {
-                var dataNit = {
-                    id: variable.nit.id,
-                    text: variable.nit.razon_social ? variable.nit.razon_social : variable.nit.nombre_completo
-                };
-                var newOption = new Option(dataNit.text, dataNit.id, false, false);
-                $nitPorDefecto.append(newOption).trigger('change');
-                $nitPorDefecto.val(dataNit.id).trigger('change');
-            }
-            if (variable.nombre == 'placetopay_forma_pago') {
-                var dataPlacetoPay = {
-                    id: variable.formas_pago.id,
-                    text: variable.formas_pago.nombre
-                };
-                var newOption = new Option(dataPlacetoPay.text, dataPlacetoPay.id, false, false);
-                $comboFormasPagoPlacetoPay.append(newOption).trigger('change');
-                $comboFormasPagoPlacetoPay.val(dataPlacetoPay.id).trigger('change');
             }
         }
-    }
+    });
+
+    $comboCuentaAnticipo = $('#id_cuenta_anticipos_entorno').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'plan-cuenta/combo-cuenta',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboCuentaIntereses = $('#id_cuenta_intereses_entorno').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'plan-cuenta/combo-cuenta',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboCuentaIngresoPagos = $('#id_cuenta_ingreso_pagos_entorno').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'plan-cuenta/combo-cuenta',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboCuentaIngresoPasarela = $('#id_cuenta_ingreso_pasarela_entorno').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'plan-cuenta/combo-cuenta',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
 }
 
 $(document).on('click', '#updateEntorno', function () {
@@ -226,6 +405,13 @@ $(document).on('click', '#updateEntorno', function () {
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         'id_concepto_pago_none': $('#id_concepto_pago_none').val(),
         'id_nit_por_defecto': $('#id_nit_por_defecto').val(),
+
+        'id_cuenta_ingreso': $('#id_cuenta_ingreso_entorno').val(),
+        'id_cuenta_anticipos': $('#id_cuenta_anticipos_entorno').val(),
+        'id_cuenta_intereses': $('#id_cuenta_intereses_entorno').val(),
+        'id_cuenta_egreso_pagos': $('#id_cuenta_ingreso_pagos_entorno').val(),
+        'id_cuenta_ingreso_pasarela': $('#id_cuenta_ingreso_pasarela_entorno').val(),
+
 
         'firma_digital': newFirmaDigital,
         'nombre_administrador': $('#nombre_administrador').val(),

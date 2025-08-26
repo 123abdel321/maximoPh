@@ -182,11 +182,11 @@ thead tr:first-child th {
     cursor: context-menu;
 }
 
-.btn-bg-excel {
+.btn-bg-success {
     background-image: linear-gradient(310deg, #02974d 0%, #006d37 100%);
 }
 
-.btn-bg-pdf {
+.btn-bg-danger {
     background-image: linear-gradient(310deg, #bd3f3f 0%, #a50000 100%);
 }
 

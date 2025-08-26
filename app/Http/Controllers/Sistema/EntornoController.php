@@ -19,7 +19,7 @@ class EntornoController extends Controller
     {
         $data = [
             'variables_entorno' => Entorno::with(
-                'concepto_facturacion', 'nit', 'formas_pago'
+                'concepto_facturacion', 'nit', 'formas_pago', 'cuenta'
             )->get()
         ];
         
@@ -72,6 +72,11 @@ class EntornoController extends Controller
                 'aceptar_terminos',
                 'firma_digital',
                 'nombre_administrador',
+                'id_cuenta_ingreso',
+                'id_cuenta_anticipos',
+                'id_cuenta_intereses',
+                'id_cuenta_egreso_pagos',
+                'id_cuenta_ingreso_pasarela',
             ];
 
             foreach ($variablesEntorno as $variable) {

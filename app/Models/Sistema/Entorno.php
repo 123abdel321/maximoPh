@@ -25,6 +25,11 @@ class Entorno extends Model
         return $this->belongsTo(ConceptoFacturacion::class, 'valor');
     }
 
+    public function cuenta()
+    {
+        return $this->belongsTo("App\Models\Portafolio\PlanCuentas", 'valor');
+    }
+
     public function nit()
     {
         return $this->belongsTo("App\Models\Portafolio\Nits", 'valor');

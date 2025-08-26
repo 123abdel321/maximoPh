@@ -41,6 +41,8 @@
 
                         <div class="row" style="padding: 5px;">
 
+                            <h6 class="section-title bg-light p-2 mb-3">1. Configuración general</h6> <br/>
+
                             <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Área total M2</label>
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="area_total_m2" id="area_total_m2">
@@ -168,6 +170,40 @@
                                     Detallar facturas
                                 </label>
                             </div>
+
+                            <h6 class="section-title bg-light p-2 mb-3">2. Cuentas contables</h6> <br/>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_ingreso_entorno">Cuenta ingreso</label>
+                                <select name="id_cuenta_ingreso_entorno" id="id_cuenta_ingreso_entorno" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_anticipos_entorno">Cuenta anticipos</label>
+                                <select name="id_cuenta_anticipos_entorno" id="id_cuenta_anticipos_entorno" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_intereses_entorno">Cuenta intereses</label>
+                                <select name="id_cuenta_intereses_entorno" id="id_cuenta_intereses_entorno" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_ingreso_pagos_entorno">Cuenta ingreso pagos</label>
+                                <select name="id_cuenta_ingreso_pagos_entorno" id="id_cuenta_ingreso_pagos_entorno" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_ingreso_pasarela_entorno">Cuenta ingreso pasarela</label>
+                                <select name="id_cuenta_ingreso_pasarela_entorno" id="id_cuenta_ingreso_pasarela_entorno" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            
 
                         </div>
 
