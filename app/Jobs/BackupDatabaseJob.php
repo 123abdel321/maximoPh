@@ -30,66 +30,82 @@ class BackupDatabaseJob implements ShouldQueue
 
     public function handle()
     {
-        // 1. Configurar conexión a la BD
-        copyDBConnection('max', $this->empresa->token_db_maximo);
-        setDBInConnection('max', $this->empresa->token_db_maximo);
+        try {
 
-        // 2. Crear directorio temporal si no existe
-        $tempDir = storage_path('app/temp');
-        if (!File::exists($tempDir)) {
-            File::makeDirectory($tempDir, 0755, true);
+            // 1. Configurar conexión a la BD
+            copyDBConnection('max', $this->empresa->token_db_maximo);
+            setDBInConnection('max', $this->empresa->token_db_maximo);
+
+            // 2. Crear directorio temporal si no existe
+            $tempDir = storage_path('app/temp');
+            if (!File::exists($tempDir)) {
+                File::makeDirectory($tempDir, 0755, true);
+            }
+
+            // 3. Generar nombre de archivo
+            $filename = "{$this->empresa->token_db_maximo}_" . date('Y_m_d_H_i_s') . ".sql.gz";
+            $filePath = $tempDir . '/' . $filename;
+            
+            // 4. Ejecutar mysqldump
+            $dbConfig = config("database.connections.max");
+            $command = sprintf(
+                'mysqldump --host=%s --port=25060 --user=%s --password=%s %s | gzip > %s',
+                escapeshellarg($dbConfig['host']),
+                escapeshellarg($dbConfig['username']),
+                escapeshellarg($dbConfig['password']),
+                escapeshellarg($this->empresa->token_db),
+                escapeshellarg($filePath)
+            );
+            
+            exec($command, $output, $resultCode);
+
+            if ($resultCode !== 0) {
+                throw new \RuntimeException("Falló mysqldump: " . implode("\n", $output));
+            }
+
+            // 5. Subir a Digital Ocean Spaces (CORRECCIÓN CLAVE)
+            $fileToUpload = new SymfonyFile($filePath); // Usar SymfonyFile aquí
+            
+            Storage::disk('do_spaces')->putFileAs(
+                'backups-maximoph',
+                $fileToUpload, // Pasar la instancia de archivo, no la facade
+                $filename,
+                ['visibility' => 'public']
+            );
+
+            // 6. Registrar en base de datos
+            $this->registerBackup(
+                $filename,
+                Storage::disk('do_spaces')->url("backups-maximoph/{$filename}")
+            );
+
+            // 7. Limpiar backups antiguos
+            $this->cleanOldBackups();
+
+            // 8. Eliminar archivo temporal
+            File::delete($filePath);
+
+            \Log::info("Backup generado de {$this->empresa->razon_social}");
+
+        } catch (\Exception $e) {
+            \Log::error("Error generando backup: " . $e->getMessage());
         }
-
-        // 3. Generar nombre de archivo
-        $filename = "{$this->empresa->token_db_maximo}_" . date('Y_m_d_H_i_s') . ".sql.gz";
-        $filePath = $tempDir . '/' . $filename;
-        
-        // 4. Ejecutar mysqldump
-        $dbConfig = config("database.connections.max");
-        $command = sprintf(
-            'mysqldump --host=%s --port=25060 --user=%s --password=%s %s | gzip > %s',
-            escapeshellarg($dbConfig['host']),
-            escapeshellarg($dbConfig['username']),
-            escapeshellarg($dbConfig['password']),
-            escapeshellarg($this->empresa->token_db),
-            escapeshellarg($filePath)
-        );
-        
-        exec($command, $output, $resultCode);
-
-        if ($resultCode !== 0) {
-            throw new \RuntimeException("Falló mysqldump: " . implode("\n", $output));
-        }
-
-        // 5. Subir a Digital Ocean Spaces (CORRECCIÓN CLAVE)
-        $fileToUpload = new SymfonyFile($filePath); // Usar SymfonyFile aquí
-        
-        Storage::disk('do_spaces')->putFileAs(
-            'backups-maximoph',
-            $fileToUpload, // Pasar la instancia de archivo, no la facade
-            $filename,
-            ['visibility' => 'public']
-        );
-
-        // 6. Registrar en base de datos
-        $this->registerBackup(
-            $filename,
-            Storage::disk('do_spaces')->url("backups-maximoph/{$filename}")
-        );
-
-        // 7. Limpiar backups antiguos
-        $this->cleanOldBackups();
-
-        // 8. Eliminar archivo temporal
-        File::delete($filePath);
     }
 
     protected function registerBackup($filename, $url)
     {
-        BackupEmpresa::create([
-            'id_empresa' => $this->empresa->id,
-            'url_file' => $url,
-            'file_name' => $filename
+        $now = now();
+        
+        DB::connection('clientes')->statement("
+            INSERT INTO backup_empresas 
+            (id_empresa, url_file, file_name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+        ", [
+            $this->empresa->id,
+            $url,
+            $filename,
+            $now,
+            $now
         ]);
     }
 
