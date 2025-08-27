@@ -73,6 +73,12 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 
         foreach ($this->nits as $id_nit) {
 
+            $getNit = Nits::whereId($id_nit)->with('ciudad')->first();
+
+            if (!$getNit) {
+                continue;
+            }
+
             $query = $this->carteraDocumentosQuery($id_nit);
             $query->unionAll($this->carteraAnteriorQuery($id_nit));
 
@@ -237,7 +243,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
             $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
 
-            $getNit = Nits::whereId($id_nit)->with('ciudad')->first();
+            
+
             $nit = (object)[
 				'nombre_nit' => $getNit->nombre_completo,
 				'telefono' =>  $getNit->telefono_1,
