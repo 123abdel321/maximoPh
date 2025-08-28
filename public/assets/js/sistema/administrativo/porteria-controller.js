@@ -125,26 +125,43 @@ function initFilePondPorteria() {
                 url: '/archivos-cache',
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json',
                 },
                 onload: (response) => {
-                    const uploadedImagePath = JSON.parse(response);
-                    uploadedFilesPorteria.push({
-                        'id': uploadedImagePath.id,
-                        'url': uploadedImagePath.path
-                    });
-                    return uploadedImagePath.path;
+                    console.log('✅ Respuesta exitosa:', response);
+                    try {
+                        const uploadedImagePath = JSON.parse(response);
+                        uploadedFilesPorteria.push({
+                            'id': uploadedImagePath.id,
+                            'url': uploadedImagePath.path
+                        });
+                        return uploadedImagePath.path;
+                    } catch (error) {
+                        alert('❌ Error parseando JSON:', error, response);
+                        return null;
+                    }
                 },
                 onerror: (response) => {
-                    console.error('Error al subir la imagen: ', response);
+                    alert('❌ Error en subida:', response);
+                    // Log detallado
+                    if (response instanceof XMLHttpRequest) {
+                        console.log('Status:', response.status);
+                        console.log('Status Text:', response.statusText);
+                        console.log('Response:', response.responseText);
+                    }
                 }
             },
             revert: {
                 url: '/archivos-cache',
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Content-Type': 'application/json',
                 },
+                onerror: (response) => {
+                    alert('❌ Error en revert:', response);
+                }
             }
         }
     });
