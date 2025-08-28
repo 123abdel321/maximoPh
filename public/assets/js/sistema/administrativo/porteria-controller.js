@@ -129,7 +129,7 @@ function initFilePondPorteria() {
                     'Accept': 'application/json',
                 },
                 onload: (response) => {
-                    console.log('✅ Respuesta exitosa:', response);
+                    alert('✅ Respuesta exitosa:', response);
                     try {
                         const uploadedImagePath = JSON.parse(response);
                         uploadedFilesPorteria.push({
