@@ -129,7 +129,7 @@ function initFilePondPorteria() {
                     'Accept': 'application/json',
                 },
                 onload: (response) => {
-                    alert('✅ Respuesta exitosa:', response);
+                    
                     try {
                         const uploadedImagePath = JSON.parse(response);
                         uploadedFilesPorteria.push({
@@ -138,12 +138,12 @@ function initFilePondPorteria() {
                         });
                         return uploadedImagePath.path;
                     } catch (error) {
-                        alert('❌ Error parseando JSON:', error, response);
+                        
                         return null;
                     }
                 },
                 onerror: (response) => {
-                    alert('❌ Error en subida:', response);
+                    
                     // Log detallado
                     if (response instanceof XMLHttpRequest) {
                         console.log('Status:', response.status);
@@ -160,7 +160,7 @@ function initFilePondPorteria() {
                     'Content-Type': 'application/json',
                 },
                 onerror: (response) => {
-                    alert('❌ Error en revert:', response);
+                    
                 }
             }
         }

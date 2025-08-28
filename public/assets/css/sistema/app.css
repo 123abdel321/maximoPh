@@ -634,10 +634,67 @@ svg.tea #steamR {
 }
 
 .error-triangle {
-    color: red;
-    float: left;
-    margin-top: 4px;
-    margin-left: 5px;
+    color: #ff4757;
+    position: relative;
+    animation: fireAnimation 1.5s infinite alternate;
+    text-shadow: 0 0 5px #ff0000, 0 0 10px #ff8800;
+}
+
+@keyframes fireAnimation {
+    0% {
+        transform: scale(1) rotate(0deg);
+        color: #ff4757;
+        text-shadow: 0 0 5px #ff0000, 0 0 10px #ff8800;
+    }
+    25% {
+        transform: scale(1.1) rotate(-5deg);
+        color: #ff0000;
+        text-shadow: 0 0 8px #ff5500, 0 0 15px #ffaa00;
+    }
+    50% {
+        transform: scale(1.2) rotate(0deg);
+        color: #ff8800;
+        text-shadow: 0 0 10px #ffaa00, 0 0 20px #ffff00;
+    }
+    75% {
+        transform: scale(1.1) rotate(5deg);
+        color: #ff0000;
+        text-shadow: 0 0 8px #ff5500, 0 0 15px #ffaa00;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        color: #ff4757;
+        text-shadow: 0 0 5px #ff0000, 0 0 10px #ff8800;
+    }
+}
+
+.error-triangle::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,100,100,0.4) 0%, rgba(255,100,100,0) 70%);
+    opacity: 0;
+    animation: pulse 2s infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
 }
 
 .btn-check:checked + .btn-outline-primary {
