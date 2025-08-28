@@ -20,6 +20,9 @@ class ArchivosCacheController extends Controller
     public function store (Request $request)
     {
         try {
+
+            $idUsuario = request()->user()->id;
+
             if ($request->hasFile('images')) {
 
                 $file = $request->file('images')[0];
@@ -45,6 +48,8 @@ class ArchivosCacheController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
 
+                info("Usuario id: {$idUsuario}, cargo archivo con exito");
+
                 return response()->json([
                     'success'=>	true,
                     'path' => $url,
@@ -52,8 +57,7 @@ class ArchivosCacheController extends Controller
                     'message'=> 'Archivo cargado con exito'
                 ], 200);
             }
-
-            $idUsuario = request()->user()->id;
+            
             info("Usuario id: {$idUsuario}, cargo archivo muy pesado");
 
             return response()->json([
@@ -62,7 +66,7 @@ class ArchivosCacheController extends Controller
                 'message'=> 'Sin archivos para cargar'
             ], 400);
         } catch (Exception $e) {
-            
+
             info($e->getMessage());
             return response()->json([
                 "success"=>false,
