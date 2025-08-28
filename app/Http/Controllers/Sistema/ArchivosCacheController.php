@@ -81,6 +81,9 @@ class ArchivosCacheController extends Controller
         $content = $request->getContent();
         
         try {
+
+            info("Eliminando archivo cache");
+
             $file = ArchivosCache::where('url_archivo', $content)
                 ->first();
                 
