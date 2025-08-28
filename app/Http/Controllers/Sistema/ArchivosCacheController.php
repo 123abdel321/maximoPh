@@ -60,6 +60,7 @@ class ArchivosCacheController extends Controller
                 'message'=> 'Sin archivos para cargar'
             ], 400);
         } catch (Exception $e) {
+            Log::info($e->getMessage());
             return response()->json([
                 "success"=>false,
                 'data' => [],
