@@ -52,15 +52,18 @@ class ArchivosCacheController extends Controller
                     'message'=> 'Archivo cargado con exito'
                 ], 200);
             }
+
             $idUsuario = request()->user()->id;
-            Log::info("Usuario id: {$idUsuario}, cargo archivo muy pesado");
+            info("Usuario id: {$idUsuario}, cargo archivo muy pesado");
+
             return response()->json([
                 'success'=>	false,
                 'url' => '',
                 'message'=> 'Sin archivos para cargar'
             ], 400);
         } catch (Exception $e) {
-            Log::info($e->getMessage());
+            
+            info($e->getMessage());
             return response()->json([
                 "success"=>false,
                 'data' => [],
