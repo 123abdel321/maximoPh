@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('sg_message_id')->nullable();
             $table->string('email')->nullable();
             $table->string('contexto')->nullable();
-            $table->enum('status', ['en_cola', 'enviado', 'abierto', 'rechazado'])->nullable()->comment('Estado del correo: en_cola, enviado, abierto, rechazado');
+            $table->enum('status', ['en_cola', 'enviado', 'entregado', 'abierto', 'rechazado'])->nullable()->comment('Estado del correo: en_cola, enviado, abierto, rechazado');
             $table->timestamps();
         });
     }

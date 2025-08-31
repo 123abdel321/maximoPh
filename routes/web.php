@@ -83,7 +83,7 @@ Route::get('/politica-privacidad', function (Request $request) {
 Route::get('/phpinfo_acartaca', function (Request $request) {
 
 	$contentSid = "HX5f1e359d73b28281e05c4a796cda7c17"; // Reemplaza con el Content SID de tu plantilla
-	$to = "573127316202";
+	$to = "573145876923";
 	$parameters = [
 		"1" => "Abdel Cartagena",
 		"2" => "CACIQUE NIQUIA MANZANA 2",

@@ -42,8 +42,11 @@ class SendSingleWhatsapp implements ShouldQueue
 	    $result = $whatsapp->send();
 
         $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
-        $envioEmail->sg_message_id = $result->response->sid;
-        $envioEmail->save();
+        
+        if ($envioEmail) {
+            $envioEmail->sg_message_id = $result->response->sid;
+            $envioEmail->save();
+        }
     }
 
     public function failed(\Throwable $exception)
