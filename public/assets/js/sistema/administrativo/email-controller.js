@@ -129,6 +129,9 @@ function initTablesEmail() {
                 if (row.event == 'click') return `Click`;
                 if (row.event == 'dropped') return `Abandonó`;
                 if (row.event == 'spamreport') return `Informe de spam`;
+                if (row.event == 'enviado') return `Enviado`;
+                if (row.event == 'entregado') return `Entregado`;
+                if (row.event == 'abierto') return `Abierto`;
                 return '';
             }},
             {"data":'fecha_creacion'}
