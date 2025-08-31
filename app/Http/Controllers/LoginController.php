@@ -137,20 +137,20 @@ class LoginController extends Controller
         $credenciales1 = ['email' => $request->email, 'password' => $request->password];
         $credenciales2 = ['username' => $request->email, 'password' => $request->password];
 
-        if($captcha_token){
-			$captcha_response = $this->validateReCaptcha($captcha_token);
-			if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
-				return response()->json([
-					'success' => false,
-					'message' => 'Falló la validación de reCAPTCHA'
-				], 401);
-			}
-		}else{
-			return response()->json([
-                'success' => false,
-				'message' => 'Falló la validación de reCAPTCHA'
-			], 401);
-		}
+        // if($captcha_token){
+		// 	$captcha_response = $this->validateReCaptcha($captcha_token);
+		// 	if ($captcha_response->success == false || $captcha_response->score < 0.5||$captcha_response->action != 'login') {
+		// 		return response()->json([
+		// 			'success' => false,
+		// 			'message' => 'Falló la validación de reCAPTCHA'
+		// 		], 401);
+		// 	}
+		// }else{
+		// 	return response()->json([
+        //         'success' => false,
+		// 		'message' => 'Falló la validación de reCAPTCHA'
+		// 	], 401);
+		// }
 
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         $browser        = "Desconocido";
