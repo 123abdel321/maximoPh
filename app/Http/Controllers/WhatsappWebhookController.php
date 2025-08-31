@@ -12,8 +12,8 @@ class WhatsappWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        $events = json_decode($request->getContent(), true);
-        Log::info($events);
+        Log::info($request->all());
+        // $events = json_decode($request->getContent(), true);
 
         // foreach ($events as $event) {
 
