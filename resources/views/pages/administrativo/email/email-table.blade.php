@@ -32,7 +32,7 @@
 <table id="emailTable" class="table table-bordered display responsive" width="100%">
     <thead>
         <tr>
-            <th style="border-radius: 15px 0px 0px 0px !important;">Email</th>
+            <th style="border-radius: 15px 0px 0px 0px !important;">Para</th>
             <th>Nombre nit</th>
             <th>Contexto</th>
             <th>Estado</th>

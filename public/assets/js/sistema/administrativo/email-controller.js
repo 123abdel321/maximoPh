@@ -54,10 +54,13 @@ function initTablesEmail() {
             }},
             {"data": function (row, type, set){
                 if (row.contexto == 'emails.factura') {
-                    return `Facturación`;
+                    return `Email Facturación`;
+                }
+                if (row.contexto == 'whatsapp.factura') {
+                    return `Whatsapp Facturación`;
                 }
                 if (row.contexto == 'emails.welcome') {
-                    return `Bienvenida`;
+                    return `Email Bienvenida`;
                 }
                 return row.contexto;
             }},
@@ -73,6 +76,9 @@ function initTablesEmail() {
                 }
                 if (row.status == 'rechazado') {
                     return `<span class="badge bg-danger" style="margin-bottom: 0rem !important; min-width: 50px;">RECHAZADO</span>`;
+                }
+                if (row.status == 'entregado') {
+                    return `<span class="badge bg-dark" style="margin-bottom: 0rem !important; min-width: 50px;">ENTREGADO</span>`;
                 }
                 return `<span class="badge bg-dark" style="margin-bottom: 0rem !important; min-width: 50px;">NINGUNO</span>`;
             }},
