@@ -20,16 +20,6 @@ abstract class AbstractTwilioWhatsAppSender
         $sid = config('services.twilio.account_sid');
         $token = config('services.twilio.auth_token');
 
-        // CORRECTO: Pasar el contexto como array
-        \Log::info('Twilio credentials', [
-            'sid' => $sid,
-            'token' => $token,
-            'getTo' => $this->getTo(),
-            "from" => $this->getFrom(),
-            "contentSid" => $this->getContentSid(),
-            "contentVariables" => json_encode($this->getParameters())
-        ]);
-
         $twilio = new Client($sid, $token);
 
         try {
