@@ -142,7 +142,9 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                     ]);
 
                     $to = "57$whatsapp";
-                    $contentSid = EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION;
+                    // $contentSid = EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION;
+                    $contentSid = "HX5f1e359d73b28281e05c4a796cda7c17";
+                    
                     $parameters = [
                         "1" => $nit->nombre_nit,
                         "2" => $this->empresa->razon_social,
