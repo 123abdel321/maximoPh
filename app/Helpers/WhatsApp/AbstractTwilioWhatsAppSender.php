@@ -17,8 +17,8 @@ abstract class AbstractTwilioWhatsAppSender
     public function send($id_empresa = null)
     {
         // Configuración de Twilio
-        $sid = env('TWILIO_ACCOUNT_SID');
-        $token = env('TWILIO_AUTH_TOKEN');
+        $sid = config('services.twilio.account_sid');
+        $token = config('services.twilio.auth_token');
 
         $twilio = new Client($sid, $token);
 

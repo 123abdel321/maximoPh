@@ -14,7 +14,7 @@ class SendTwilioWhatsApp extends AbstractTwilioWhatsAppSender
         $this->contentSid = $contentSid;
         $this->to = $to;
         $this->parameters = $parameters;
-        $this->from = env('TWILIO_WHATSAPP_FROM');
+        $this->from = config('services.twilio.phone_number');
     }
 
     public function getContentSid(): string
@@ -34,7 +34,7 @@ class SendTwilioWhatsApp extends AbstractTwilioWhatsAppSender
 
     public function getFrom(): string
     {
-        $from = env('TWILIO_WHATSAPP_FROM');
+        $from = config('services.twilio.phone_number');
         return 'whatsapp:' . $from;
         
     }
