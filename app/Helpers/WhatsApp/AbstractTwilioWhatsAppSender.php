@@ -20,8 +20,8 @@ abstract class AbstractTwilioWhatsAppSender
         $sid = config('services.twilio.account_sid');
         $token = config('services.twilio.auth_token');
 
-        \Log::info('sid: ', $sid);
-        \Log::info('token: ', $token);
+        \Log::info("sid: $sid");
+        \Log::info("token: $token");
 
         $twilio = new Client($sid, $token);
 
