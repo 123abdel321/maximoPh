@@ -31,21 +31,18 @@ use App\Models\Sistema\InmuebleNit;
 use App\Models\Portafolio\FacDocumentos;
 use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Portafolio\DocumentosGeneral;
-
-class ProcessEnvioFacturaWhatsapp
-// class ProcessEnvioFacturaWhatsapp implements ShouldQueue
+class ProcessEnvioFacturaWhatsapp implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, SerializesModels;
-    // use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    // public $tries = 3;
-    // public $timeout = 300;
+    public $tries = 3;
+    public $timeout = 300;
     public $empresa = null;
     public $request = null;
     public $id_empresa = null;
     public $id_usuario = null;
-    // public $maxExceptions = 3;
-    // public $backoff = [60, 120];
+    public $maxExceptions = 3;
+    public $backoff = [60, 120];
     public $whatsappPerMinute = 60;
 
     public function __construct($request, $id_empresa, $id_usuario)
@@ -67,8 +64,6 @@ class ProcessEnvioFacturaWhatsapp
             setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
             $countFacturasEnviadas = 0;
-
-            
 
             $query = $this->carteraDocumentosQuery();
             $query->unionAll($this->carteraAnteriorQuery());
@@ -123,10 +118,7 @@ class ProcessEnvioFacturaWhatsapp
                 $facturaPdf = (new FacturacionPdf($this->empresa, $nit->id_nit, $this->request['periodo']))
                     ->buildPdf()
                     ->saveStorageNormalName();
-                
                 if (!$facturaPdf) continue;
-
-                
                 
                 $countFacturasEnviadas++;
                 

@@ -1405,7 +1405,6 @@ class FacturacionController extends Controller
             $id_usuario = $request->user()->id;
             $id_empresa = request()->user()->id_empresa;
             
-
             ProcessEnvioFacturaWhatsapp::dispatch($request->all(), $id_empresa, $id_usuario);
 
             return response()->json([

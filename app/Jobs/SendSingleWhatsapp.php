@@ -15,11 +15,9 @@ use App\Helpers\WhatsApp\SendTwilioWhatsApp;
 use App\Models\Empresa\Empresa;
 use App\Models\Empresa\EnvioEmail;
 
-class SendSingleWhatsapp
-// class SendSingleWhatsapp implements ShouldQueue
+class SendSingleWhatsapp implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, SerializesModels;
-    // use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
     public $timeout = 60;
