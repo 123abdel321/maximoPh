@@ -27,6 +27,7 @@ abstract class AbstractTwilioWhatsAppSender
             'empresa_id' => $id_empresa
         ]);
 
+        return;
         $twilio = new Client($sid, $token);
 
         try {
