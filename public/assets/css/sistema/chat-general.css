@@ -1,0 +1,191 @@
+.item-grupos-chat {
+    background-color: #111b21;
+    padding-right: 0px;
+}
+.list-group-item {
+    background: transparent;
+    color: white;
+    cursor: pointer;
+}
+.list-group-item:hover {
+    background-color: #243946;
+    color: white;
+}
+.chat-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.component-chat:hover {
+    background-color: #28353c;
+}
+.componente-chat-mensajes {
+    background: linear-gradient(rgba(17, 27, 33, 0.9), rgba(17, 27, 33, 0.9)), url('https://static.whatsapp.net/rsrc.php/v4/yl/r/gi_DckOUM5a.png');
+    z-index: 1;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+.icono-status-no_entregado {
+    margin-top: -6px;
+    margin-left: 5px;
+    font-size: 12px;
+    color: #cecece;
+}
+.icono-status-entregado {
+    margin-top: -6px;
+    margin-left: 5px;
+    font-size: 12px;
+    color: #cecece;
+}
+.icono-status-leido {
+    margin-top: -6px;
+    margin-left: 5px;
+    font-size: 12px;
+    color: #53bdeb;
+}
+.container-chat {
+    width: 67%;
+    position: absolute;
+    bottom: 0;
+    background-color: #202c33;
+    padding: 10px;
+    display: flex;
+}
+.icon-send {
+    font-size: 17px;
+    align-self: center;
+    margin-left: 5px;
+    margin-right: 0px;
+    cursor: pointer;
+}
+.icon-action {
+    font-size: 20px;
+    margin-left: -2px;
+    margin-right: 7px;
+    cursor: pointer;
+}
+#mensaje-body {
+    contain: content;
+    padding: 5px 10px 10px 10px;
+    overflow: hidden;
+    background: linear-gradient(rgba(17, 27, 33, 0.9), rgba(17, 27, 33, 0.9)), url(https://static.whatsapp.net/rsrc.php/v4/yl/r/gi_DckOUM5a.png);
+}
+#input-search {
+    background-color: #2c3c45;
+    color: #cacaca;
+    border: solid 1px #2c3c45;
+}
+.button-search {
+    cursor: pointer;
+    background-color: #2c3c45;
+    color: #cacaca;
+    border: solid 1px #2c3c45;
+}
+.button-clean-search {
+    cursor: pointer;
+    background-color: #2c3c45;
+    color: #00a884;
+    border: solid 1px #2c3c45;
+}
+.input-group.focused .input-group-text {
+    border-color: transparent !important;
+    box-shadow: 0 3px 9px rgba(50, 50, 9, 0), 3px 4px 8px rgba(94, 114, 228, 0.1) !important;
+}
+.btn-filter-chat-types {
+    margin-left: 5px !important;
+    border-radius: 10px !important;
+    margin-bottom: 0px !important;
+    padding: 5px 10px 5px 10px !important;
+    box-shadow: 0px 0px 0px rgba(50, 50, 93, 0.1), 0px 0px 0px 0px rgb(0 0 0 / 57%) !important;
+}
+.btn-check:checked + .btn-filter-chat-types {
+    background-color: #0a332c !important;
+    border-color: #0a332c !important;
+    color: #00a884 !important;
+}
+.btn-check + .btn-filter-chat-types {
+    background-color: #2c3c45  !important;
+    border-color: #2c3c45  !important;
+    color: #8696a0 !important;
+}
+.ultimo-mensaje {
+    font-size: 10px;
+    color: #fff;
+    font-weight: 500;
+    padding-right: 0px;
+    padding-left: 0px;
+    overflow: hidden;
+    display: -webkit-box;
+    /* -webkit-line-clamp: 1; */
+    -webkit-box-orient: vertical;
+}
+
+.nombre-usuario {
+    font-size: 10px;
+    color: springgreen;
+}
+
+.formato-fecha {
+    font-size: 10px;
+    margin-bottom: 0;
+    font-weight: 500;
+    float: inline-end;
+    margin-top: -7px;
+}
+
+.formato-fecha-propio {
+    font-size: 10px;
+    margin-bottom: 0;
+    font-weight: 500;
+    text-align: end;
+    margin-top: -10px;
+    color: #cecece;
+}
+
+.texto-mensaje {
+    font-size: 13px;
+    margin-bottom: 0;
+    text-align-last: auto;
+    font-weight: 600;
+    padding-right: 40px;
+}
+
+.button-action-chat {
+    width: 50px;
+    height: 50px;
+    text-align: -webkit-center;
+}
+
+.icon-action-chat {
+    padding: 10px;
+    background-color: #2a3942;
+    font-size: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.icon-action-chat:hover {
+    background-color: #34637f;
+}
+
+.turquoise {
+    color: turquoise;
+}
+
+.deepskyblue {
+    color: deepskyblue;
+}
+
+.springgreen {
+    color: springgreen;
+}
+
+.nombre-container-estados {
+    color: #d5d5d5;
+    font-weight: 400;
+    font-size: 15px;
+    position: absolute;
+    margin-top: -12px;
+    margin-left: -40px;
+}
