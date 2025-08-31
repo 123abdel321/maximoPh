@@ -12,8 +12,6 @@ class WhatsappWebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        Log::info($request->all());
-
         $envio = EnvioEmail::where('sg_message_id', $request->MessageSid)->first();
 
         if (!$envio) {
