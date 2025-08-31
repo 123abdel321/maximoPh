@@ -30,7 +30,6 @@ abstract class AbstractTwilioWhatsAppSender
             "contentVariables" => json_encode($this->getParameters())
         ]);
 
-        return;
         $twilio = new Client($sid, $token);
 
         try {
