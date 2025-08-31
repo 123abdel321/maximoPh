@@ -42,8 +42,7 @@ class WhatsappWebhookController extends Controller
             'id_email' => $envio->id,
             'email' => $request->To,
             'event' => $status,
-            'sg_message_id' => $request->MessageSid,
-            'timestamp' => $timestamp
+            'sg_message_id' => $request->MessageSid
         ]);
 
         return response()->json(['status' => 'ok']);
