@@ -24,7 +24,10 @@ abstract class AbstractTwilioWhatsAppSender
         \Log::info('Twilio credentials', [
             'sid' => $sid,
             'token' => $token,
-            'empresa_id' => $id_empresa
+            'getTo' => $this->getTo(),
+            "from" => $this->getFrom(),
+            "contentSid" => $this->getContentSid(),
+            "contentVariables" => json_encode($this->getParameters())
         ]);
 
         return;
