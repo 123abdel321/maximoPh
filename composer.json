@@ -13,7 +13,6 @@
         "guzzlehttp/guzzle": "^7.9",
         "laravel-frontend-presets/argon": "^2.0",
         "laravel/framework": "^10.10",
-        "laravel/horizon": "5.14",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.10",
         "laravel/ui": "^4.4",
