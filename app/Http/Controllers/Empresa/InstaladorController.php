@@ -186,8 +186,9 @@ class InstaladorController extends Controller
         }
 
         try {
-            // DB::connection('clientes')->beginTransaction();
-            // DB::connection('max')->beginTransaction();
+
+            DB::connection('max')->beginTransaction();
+            DB::connection('clientes')->beginTransaction();
 
             $existEmpresa = Empresa::where('nit',$request->get('nit_empresa_nueva'))->first();
 
@@ -213,6 +214,7 @@ class InstaladorController extends Controller
             }
 
             info('Creando empresa: '. $request->razon_social_empresa_nueva. '...');
+
             $usuarioOwner = User::create([
                 'firstname' => $request->nombre_completo_empresa_nueva,
                 'username' => $request->email_empresa_nueva,
@@ -221,10 +223,22 @@ class InstaladorController extends Controller
 				'address' => $request->direccion_empresa_nueva,
             ]);
 
-            $numeroUnidades = str_replace(".00", "", $request->get('numero_unidades_edit'));
-            $numeroUnidades = str_replace(",", "", $request->get('numero_unidades_edit'));
-            $valorUnidades = str_replace(".00", "", $request->get('valor_unidades_edit'));
-            $valorUnidades = str_replace(",", "", $request->get('valor_unidades_edit'));
+            $numeroUnidades = 0;
+            if ($request->get('numero_unidades_edit')) {
+                $numeroUnidades = floatval(str_replace(".00", "", $request->get('numero_unidades_edit')));
+                $numeroUnidades = floatval(str_replace(",", "", $request->get('numero_unidades_edit')));
+            }
+
+            $valorUnidades = 0;
+            if ($request->get('valor_unidades_edit')) {
+                $valorUnidades = floatval(str_replace(".00", "", $request->get('valor_unidades_edit')));
+                $valorUnidades = floatval(str_replace(",", "", $request->get('valor_unidades_edit')));
+            }
+
+            $valorSuscriocionMensual = 0;
+            if ($valorUnidades && $numeroUnidades) {
+                $valorSuscriocionMensual = $numeroUnidades * $valorUnidades;
+            }
 
             $empresa = Empresa::create([
 				'servidor' => 'max',
@@ -237,18 +251,20 @@ class InstaladorController extends Controller
 				'dv' => '',
 				'telefono' => $request->telefono_empresa_nueva,
                 'id_usuario_owner' => $usuarioOwner->id,
-                'valor_suscripcion_mensual' => floatval($numeroUnidades) * floatval($valorUnidades),
+                'valor_suscripcion_mensual' => $valorSuscriocionMensual,
 				'estado' => 0
 			]);
 
             $response = (new InstaladorEmpresa($empresa, $usuarioOwner))->send();
 
             if ($response['status'] > 299) {
+                DB::connection('max')->rollback();
                 DB::connection('clientes')->rollback();
+                info('Error al crear empresa: '. $response['response']->message);
                 return response()->json([
                     "success"=>false,
                     'data' => [],
-                    "message"=>$response['response']->message
+                    "message"=> $response['response']->message
                 ], 422);
             }
 
@@ -274,6 +290,9 @@ class InstaladorController extends Controller
             ProcessProvisionedDatabase::dispatch($empresa);
             info('Empresa'. $request->razon_social.' creada con exito!');
 
+            DB::connection('max')->commit();
+            DB::connection('clientes')->commit();
+
             return response()->json([
                 "success" => true,
                 'data' => '',
@@ -281,11 +300,13 @@ class InstaladorController extends Controller
             ], 200);
             
         } catch (Exception $e) {
-            
+            DB::connection('max')->rollback();
+            DB::connection('clientes')->rollback();
+            info('Error al crear empresa: '. $e->getMessage());
             return response()->json([
                 "success"=>false,
                 'data' => [],
-                "message"=>$e->getMessage()
+                "message"=> $e->getMessage()
             ], 422);
         }
     }
