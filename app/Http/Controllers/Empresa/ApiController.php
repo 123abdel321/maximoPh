@@ -22,6 +22,7 @@ use App\Http\Controllers\Traits\BegReCaptchaValidateTrait AS validateReCaptcha;
 use App\Models\User;
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
+use App\Models\Empresa\EnvioEmail;
 use App\Models\Empresa\UsuarioEmpresa;
 use App\Models\Empresa\UsuarioPermisos;
 use App\Models\Sistema\TerminosCondiciones;
