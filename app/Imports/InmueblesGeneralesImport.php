@@ -139,9 +139,9 @@ class InmueblesGeneralesImport implements ToCollection, WithValidation, SkipsOnF
 
             if (!$this->actualizar_valores) {
                 if ($row['tipo'] || $row['tipo'] == '0' ) {
-                    if ($row['tipo'] != '0' &&  $row['tipo'] != '1' && $row['tipo'] != '2') {
+                    if ($row['tipo'] != '0' &&  $row['tipo'] != '1' && $row['tipo'] != '2' && $row['tipo'] != '3') {
                         $estado = 1;
-                        $observacionMala.= 'El tipo de propietario: '.$row['concepto'].', es incorrecto! <br>';
+                        $observacionMala.= 'El tipo de propietario: '.$row['tipo'].', es incorrecto! <br>';
                     }
                 } else {
                     $estado = 1;
