@@ -4,8 +4,9 @@
             <th style="border-radius: 15px 0px 0px 0px !important;">Logo</th>
             <th>Razon social</th>
             <th>Nit</th>
+            <th>Empresa email</th>
             <th>Usuario</th>
-            <th>Email</th>
+            <th>Usuario email</th>
             <th>Valor</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Acciones</th>
         </tr>

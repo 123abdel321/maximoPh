@@ -42,6 +42,9 @@ function instalacionempresaInit() {
             {"data":'razon_social'},
             {"data":'nit'},
             {"data": function (row, type, set){  
+                return row.correo;
+            }},
+            {"data": function (row, type, set){  
                 if (row.usuario) {
                     return row.usuario.firstname;
                 }
@@ -80,6 +83,10 @@ function instalacionempresaInit() {
                 $('#default_avatar_empresa_edit').show();
                 $('#new_avatar_empresa_edit').hide();
             }
+
+            var numero_unidades = parseFloat(data.numero_unidades) ?? 0;
+            var total_mensualidad = parseFloat(data.valor_suscripcion_mensual) ?? 0;
+            var valor_unidades = numero_unidades && total_mensualidad ? total_mensualidad / numero_unidades : 0;
             
             $("#id_empresa_up").val(data.id);
             $("#razon_social_empresa_edit").val(data.razon_social);
@@ -87,9 +94,10 @@ function instalacionempresaInit() {
             $("#nit_empresa_edit").val(data.nit);
             $("#telefono_empresa_edit").val(data.telefono);
             $("#direccion_empresa_edit").val(data.direccion);
-            $("#numero_unidades_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(data.numero_unidades)));
-            $("#valor_unidades_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(data.valor_suscripcion_mensual) / parseFloat(data.numero_unidades)));
-            $("#total_mensualidad_edit").val(new Intl.NumberFormat("ja-JP").format(parseFloat(data.valor_suscripcion_mensual)));
+            $("#correo_empresa_edit").val(data.correo);
+            $("#numero_unidades_edit").val(new Intl.NumberFormat("ja-JP").format(numero_unidades));
+            $("#valor_unidades_edit").val(new Intl.NumberFormat("ja-JP").format(valor_unidades));
+            $("#total_mensualidad_edit").val(new Intl.NumberFormat("ja-JP").format(total_mensualidad));
 
             $("#empresaEditFormModal").modal('show');
         });
