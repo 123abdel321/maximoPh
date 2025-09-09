@@ -246,12 +246,12 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 }
 			})
             ->when(array_key_exists('id_nit', $this->request), function ($query) {
-                if (array_key_exists('id_nit', $this->request)) {
+                if (array_key_exists('id_nit', $this->request) && $this->request['id_nit']) {
                     $query->where('DG.id_nit', '=', $this->request['id_nit']);
                 }
 			})
             ->when(array_key_exists('id_zona', $this->request), function ($query) {
-                if (array_key_exists('id_zona', $this->request)) {
+                if (array_key_exists('id_zona', $this->request) && $this->request['id_zona']) {
                     $zona = Zonas::where('id', $this->request['id_zona'])->first();
                     if ($zona) {
                         $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
@@ -259,7 +259,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 }
 			})
             ->when(array_key_exists('factura_fisica', $this->request), function ($query) {
-                if (array_key_exists('factura_fisica', $this->request)) {
+                if (array_key_exists('factura_fisica', $this->request) && $this->request['factura_fisica']) {
                     $nits = $this->nitFacturaFisica(true);
                     $query->whereIn('DG.id_nit', $nits);
                 }
@@ -321,16 +321,16 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when(array_key_exists('periodo', $this->request), function ($query) {
                 if (array_key_exists('periodo', $this->request)) {
-                    $query->where('DG.fecha_manual', '>=', $this->request['periodo']);
+                    $query->where('DG.fecha_manual', '<', $this->request['periodo']);
                 }
 			})
             ->when(array_key_exists('id_nit', $this->request), function ($query) {
-                if (array_key_exists('id_nit', $this->request)) {
+                if (array_key_exists('id_nit', $this->request) && $this->request['id_nit']) {
                     $query->where('DG.id_nit', '=', $this->request['id_nit']);
                 }
 			})
             ->when(array_key_exists('id_zona', $this->request), function ($query) {
-                if (array_key_exists('id_zona', $this->request)) {
+                if (array_key_exists('id_zona', $this->request) && $this->request['id_zona']) {
                     $zona = Zonas::where('id', $this->request['id_zona'])->first();
                     if ($zona) {
                         $query->where('N.apartamentos', 'LIKE', '%'.$zona->nombre.'%');
@@ -338,7 +338,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 }
 			})
             ->when(array_key_exists('factura_fisica', $this->request), function ($query) {
-                if (array_key_exists('factura_fisica', $this->request)) {
+                if (array_key_exists('factura_fisica', $this->request) && $this->request['factura_fisica']) {
                     $nits = $this->nitFacturaFisica(true);
                     $query->whereIn('DG.id_nit', $nits);
                 }
