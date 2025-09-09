@@ -143,10 +143,15 @@ class BackupDatabaseJob implements ShouldQueue
                 ->get();
                 
             if ($backups->count() > $this->maxBackups) {
-                $oldestBackups = $backups->slice($this->maxBackups);
+                // Obtener los IDs de los backups que deben ser eliminados (los más antiguos)
+                $backupsToDelete = $backups->slice($this->maxBackups)->pluck('id');
                 
-                foreach ($oldestBackups as $backup) {
-                    $this->deleteBackupWithRetry($backup);
+                // Eliminar los backups más antiguos
+                foreach ($backupsToDelete as $backupId) {
+                    $backup = $backups->firstWhere('id', $backupId);
+                    if ($backup) {
+                        $this->deleteBackupWithRetry($backup);
+                    }
                 }
             }
         } catch (\Exception $e) {
