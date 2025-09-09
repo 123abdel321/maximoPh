@@ -72,11 +72,16 @@ function instalacionempresaInit() {
 
             var id = this.id.split('_')[1];
             var data = getDataById(id, empresas_table);
-
+            console.log('data: ',data);
             clearFormularioEditEmpresa();
 
             if (data.logo) {
-                $('#new_avatar_empresa_edit').attr('src', data.logo);
+                imagen = data.logo;
+                if (!data.logo.includes(bucketUrl)) {
+                    imagen = bucketUrl + imagen;
+                }
+
+                $('#new_avatar_empresa_edit').attr('src', imagen);
                 $('#default_avatar_empresa_edit').hide();
                 $('#new_avatar_empresa_edit').show();
             } else {
