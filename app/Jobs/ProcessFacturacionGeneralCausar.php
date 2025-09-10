@@ -158,6 +158,10 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             $cuentaContable = PlanCuentas::where('id', $doc->{$cuentaContableI})
                                 ->with('tipos_cuenta')
                                 ->first();
+
+                            if (!$cuentaContable) {
+                                continue;
+                            }
     
                             $tipoNumeroCuenta = mb_substr($cuentaContable->cuenta, 0, 1);
     
