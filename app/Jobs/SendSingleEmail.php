@@ -67,6 +67,9 @@ class SendSingleEmail implements ShouldQueue
             $envioEmail->sg_message_id = $sgMessageId;
             $envioEmail->save();
         } catch (\Throwable $th) {
+            Log::error('SendSingleEmail falló', [
+                'data' => $response
+            ]);
             $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
             $envioEmail->status = 'rechazado';
             $envioEmail->save();
