@@ -36,35 +36,41 @@ class SendSingleEmail implements ShouldQueue
 
     public function handle()
     {
-        copyDBConnection('max', 'max');
-        setDBInConnection('max', $this->empresa->token_db_maximo);
-
-        if ($this->pdfPath) {
-            $path = stripslashes($this->pdfPath);
-            $baseUrl = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com";
-            
-            if (!str_contains($path, $baseUrl)) {
-                $this->pdfPath = $baseUrl . $path;
+        try {
+            copyDBConnection('max', 'max');
+            setDBInConnection('max', $this->empresa->token_db_maximo);
+    
+            if ($this->pdfPath) {
+                $path = stripslashes($this->pdfPath);
+                $baseUrl = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com";
+                
+                if (!str_contains($path, $baseUrl)) {
+                    $this->pdfPath = $baseUrl . $path;
+                }
             }
+    
+            $generalEmail = new GeneralEmail(
+                $this->empresa->razon_social,
+                $this->view,
+                [
+                    'nombre' => $this->nombre,
+                    'factura' => $this->consecutivo,
+                    'valor' => $this->saldo_final,
+                ],
+                $this->pdfPath
+            );
+    
+            $response = Mail::to($this->email)->send($generalEmail);
+            $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
+    
+            $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
+            $envioEmail->sg_message_id = $sgMessageId;
+            $envioEmail->save();
+        } catch (\Throwable $th) {
+            $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
+            $envioEmail->status = 'rechazado';
+            $envioEmail->save();
         }
-
-        $generalEmail = new GeneralEmail(
-            $this->empresa->razon_social,
-            $this->view,
-            [
-                'nombre' => $this->nombre,
-                'factura' => $this->consecutivo,
-                'valor' => $this->saldo_final,
-            ],
-            $this->pdfPath
-        );
-
-        $response = Mail::to($this->email)->send($generalEmail);
-        $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
-
-        $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
-        $envioEmail->sg_message_id = $sgMessageId;
-        $envioEmail->save();
     }
 
     public function failed(\Throwable $exception)
