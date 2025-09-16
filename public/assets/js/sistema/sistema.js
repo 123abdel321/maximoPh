@@ -677,16 +677,16 @@ function generateView(id, nombre, icon){
     $('#containner-'+id).load('/'+id, function(response, status, xhr) {
         
         // Verificar si la respuesta contiene indicios de ser la página de login
-        if (response.includes('form-login') || 
-            response.includes('password') || 
-            response.includes('csrf-token') ||
-            xhr.status === 401 || 
-            xhr.status === 419) {
+        // if (response.includes('form-login') || 
+        //     response.includes('password') || 
+        //     response.includes('csrf-token') ||
+        //     xhr.status === 401 || 
+        //     xhr.status === 419) {
             
-            // Redirigir a la página de login
-            window.location.href = '/login';
-            return;
-        }
+        //     // Redirigir a la página de login
+        //     window.location.href = '/login';
+        //     return;
+        // }
 
         if(!moduloCreado[id]) includeJs(id);
         else callInitFuntion(id);
