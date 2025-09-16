@@ -171,7 +171,7 @@ $('#containner-dashboard').load('/dashboard', function() {
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
     if(xhr.status == 401) {
-        // document.getElementById('logout-form').submit();
+        closeSessionProfile();
     }
 });
 
