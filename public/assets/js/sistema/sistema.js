@@ -674,19 +674,7 @@ function generateView(id, nombre, icon){
     $('.water').show();
     $('#contenerdores-views').append('<main class="tab-pane main-content border-radius-lg change-view" style="margin-left: 5px;" id="containner-'+id+'"></main>');
     $('#footer-navigation').append(generateNewTabButton(id, nombre, icon));
-    $('#containner-'+id).load('/'+id, function(response, status, xhr) {
-        
-        // Verificar si la respuesta contiene indicios de ser la página de login
-        if (response.includes('form-login') || 
-            response.includes('password') || 
-            response.includes('csrf-token') ||
-            xhr.status === 401 || 
-            xhr.status === 419) {
-            
-            // Redirigir a la página de login
-            window.location.href = '/login';
-            return;
-        }
+    $('#containner-'+id).load('/'+id, function() {
 
         if(!moduloCreado[id]) includeJs(id);
         else callInitFuntion(id);
