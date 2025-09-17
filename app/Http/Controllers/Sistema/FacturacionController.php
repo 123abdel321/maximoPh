@@ -1350,7 +1350,14 @@ class FacturacionController extends Controller
         //     ->buildPdf()
         //     ->saveStorage();
         
-        ProcessGenerateFacturaMultiplePdf::dispatch($empresa, $nits, $request->get('periodo'), $request->get('id_zona'), $request->user()->id);
+        ProcessGenerateFacturaMultiplePdf::dispatch(
+                $empresa,
+                $nits,
+                $request->get('periodo'),
+                $request->get('id_zona'),
+                $request->user()->id
+            )
+        ->onQueue('pdf-generation');
 
         return response()->json([
             "success"=>false,
