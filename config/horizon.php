@@ -185,10 +185,10 @@ return [
                 'connection' => 'redis',
                 'queue' => ['pdf-generation'], // Cola específica para PDFs
                 'balance' => 'auto',
-                'maxProcesses' => 3, // Procesos dedicados
+                'maxProcesses' => 2, // Procesos dedicados
                 'minProcesses' => 1,
-                'memory' => 512,     // Más memoria para PDFs
-                'tries' => 3,        // Intentos para jobs en esta cola
+                'memory' => 1024,     // Más memoria para PDFs
+                'tries' => 2,        // Intentos para jobs en esta cola
                 'timeout' => 1800,   // 30 minutos timeout
                 'nice' => 10,
             ],
