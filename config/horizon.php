@@ -181,6 +181,17 @@ return [
 
     'environments' => [
         'production' => [
+            'supervisor-long-running' => [
+                'connection' => 'redis',
+                'queue' => ['pdf-generation'], // Cola específica para PDFs
+                'balance' => 'auto',
+                'maxProcesses' => 3, // Procesos dedicados
+                'minProcesses' => 1,
+                'memory' => 512,     // Más memoria para PDFs
+                'tries' => 3,        // Intentos para jobs en esta cola
+                'timeout' => 1800,   // 30 minutos timeout
+                'nice' => 10,
+            ],
             'supervisor-1' => [
                 'connection' => 'redis',
                 'queue' => ['default'],
