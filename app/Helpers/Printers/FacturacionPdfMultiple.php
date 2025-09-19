@@ -340,7 +340,11 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
-				$query->where('DG.fecha_manual', '>=', $this->periodo);
+                $startDate = Carbon::parse($this->periodo)->startOfDay();
+                $endDate = Carbon::parse($this->periodo)->endOfMonth()->endOfDay();
+                
+                $query->whereBetween('DG.fecha_manual', [$startDate, $endDate]);
+				// $query->where('DG.fecha_manual', '>=', $this->periodo);
 			})
             ->when($id_nit, function ($query) use ($id_nit) {
 				$query->where('DG.id_nit', $id_nit);
