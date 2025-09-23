@@ -162,6 +162,24 @@
 				page-break-inside: avoid;
 			}
 
+			.page {
+				page-break-after: always;
+				page-break-inside: avoid;
+				position: relative;
+				min-height: 280mm;
+				margin: 0;
+				padding: 0;
+			}
+			
+			.page:last-child {
+				page-break-after: avoid;
+			}
+			
+			/* Forzar nueva página para cada factura después de la primera */
+			.page + .page {
+				page-break-before: always;
+			}
+
 		</style>
 
 	</head>
