@@ -178,11 +178,12 @@
 		</style>
 
 	</head>
+	<body>
 	
-	@foreach ($facturas as $factura)
-		@if ($factura && property_exists($factura, 'consecutivo'))
-		<div class="page">
-			<body class="main">
+		@foreach ($facturas as $factura)
+			@if ($factura && property_exists($factura, 'consecutivo'))
+			<div class="page">
+				
 
 				<table >
 					<thead>
@@ -464,10 +465,11 @@
 						</td>
 					</tr>
 				</table> 
+					
 				
-			</body>
-		</div>
-		@endif
-	@endforeach
+			</div>
+			@endif
+		@endforeach
 
+	</body>
 </html>

@@ -14,19 +14,19 @@
 
                     <div class="row">
                         <div class="form-group col-12 col-sm-6 col-md-4">
-                            <label for="exampleFormControlSelect1">Periodo</label>
+                            <label for="periodo_facturaciones">Periodo</label>
                             <select name="periodo_facturaciones" id="periodo_facturaciones" class="form-control form-control-sm">
                                 <option value="">Seleccionar</option>
                             </select>
                         </div>
                         <div class="form-group col-12 col-sm-6 col-md-4">
-                            <label for="exampleFormControlSelect1">Nit</label>
+                            <label for="id_nit_facturaciones">Nit</label>
                             <select class="form-control form-control-sm" name="id_nit_facturaciones" id="id_nit_facturaciones">
                                 <option value="">Seleccionar</option>
                             </select>
                         </div>
                         <div class="form-group col-12 col-sm-6 col-md-4">
-                            <label for="exampleFormControlSelect1">Zona</label>
+                            <label for="id_zona_facturaciones">Zona</label>
                             <select class="form-control form-control-sm" name="id_zona_facturaciones" id="id_zona_facturaciones">
                                 <option value="">Seleccionar</option>
                             </select>
