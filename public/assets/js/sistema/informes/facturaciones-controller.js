@@ -416,13 +416,6 @@ channelFacturaNofiticacion.bind('notificaciones', function(data) {
     $("#imprimirMultipleFacturacion").show();
     $("#imprimirMultipleFacturacionLoading").hide();
     agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
-    window.open(data.urf_factura, "_blank");
-});
-
-channelFacturaNofiticacion.bind('notificaciones', function(data) {
-    $("#imprimirMultipleFacturacion").show();
-    $("#imprimirMultipleFacturacionLoading").hide();
-    agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
     
     // Verificar y completar la URL si es necesario
     let url = data.urf_factura;
