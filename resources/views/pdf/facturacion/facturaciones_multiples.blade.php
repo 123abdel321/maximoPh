@@ -163,7 +163,7 @@
 			}
 
 			.page {
-				page-break-after: always;
+				page-break-before: always; /* Solo esta línea */
 				page-break-inside: avoid;
 				position: relative;
 				min-height: 280mm;
@@ -171,13 +171,8 @@
 				padding: 0;
 			}
 			
-			.page:last-child {
-				page-break-after: avoid;
-			}
-			
-			/* Forzar nueva página para cada factura después de la primera */
-			.page + .page {
-				page-break-before: always;
+			.page:first-child {
+				page-break-before: avoid; /* La primera factura no necesita salto */
 			}
 
 		</style>
