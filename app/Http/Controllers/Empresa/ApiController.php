@@ -259,7 +259,7 @@ class ApiController extends Controller
             ], 401);
 		}
 
-        $captcha_token = $request->get("g-recaptcha-response");
+        // $captcha_token = $request->get("g-recaptcha-response");
 
         // if($captcha_token){
 		// 	$captcha_response = $this->validateReCaptcha($captcha_token);
@@ -330,7 +330,7 @@ class ApiController extends Controller
             $nombreUsuario.= $usuario->lastname ? ' '.$usuario->lastname : '';
 
             $envioEmail = EnvioEmail::create([
-                'id_empresa' => $this->empresa->id,
+                'id_empresa' => $usuario->id_empresa,
                 'id_nit' => $nit->id_nit,
                 'email' => $email,
                 'contexto' => 'emails.recover',
