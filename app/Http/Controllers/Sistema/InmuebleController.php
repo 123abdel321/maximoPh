@@ -279,7 +279,7 @@ class InmuebleController extends Controller
                 $coeficiente = $request->get('coeficiente');
                 $valor_total_administracion = $request->get('valor_total_administracion');
             } else {
-                if ($editar_valor_admon_inmueble && $editar_coheficiente_admon_inmueble) {
+                if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
                     $coeficiente = $request->get('coeficiente');
                 } else {
                     $coeficiente = $request->get('area') / $area_total_m2;
