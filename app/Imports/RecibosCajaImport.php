@@ -372,7 +372,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     public function existeRegistro($id_nit = null, $fecha = null, $valor = null, $fecha_limite = null)
     {
         $fechaHoy = Carbon::now();
-
+        $id_comprobante_recibos_caja = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
+        $id_comprobante_recibos_caja = $id_comprobante_recibos_caja ?? 1;
         return DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
                 "N.id AS id_nit",
@@ -430,6 +431,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 			})
             ->when($fecha ? $fecha : false, function ($query) use($fecha) {
 				$query->where('DG.fecha_manual', $fecha);
+			})
+            ->when($id_comprobante_recibos_caja ? $id_comprobante_recibos_caja : false, function ($query) use($id_comprobante_recibos_caja) {
+				$query->where('DG.id_comprobante', $id_comprobante_recibos_caja);
 			})
             ->when($valor ? $valor : false, function ($query) use($valor) {
                 $query->where(function ($q) use($valor) {
