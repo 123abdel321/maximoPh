@@ -39,7 +39,9 @@ class EstadisticasController extends Controller
         if($request->get('id_concepto_facturacion')) {
             $concepto = ConceptoFacturacion::find($request->get('id_concepto_facturacion'));
             $cuenta = PlanCuentas::find($request->get('id_cuenta_cobrar'));
-            $request->merge(['id_cuenta' => $cuenta->id]);
+            if ($cuenta) {
+                $request->merge(['id_cuenta' => $cuenta->id]);
+            }
         }
 
         $estadisticas = InfEstadisticas::where('id_empresa', $empresa->id)
