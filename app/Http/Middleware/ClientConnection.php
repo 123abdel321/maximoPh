@@ -20,29 +20,55 @@ class ClientConnection
      */
     public function handle($request, Closure $next)
     {
-		$user = $request->user();
-        if(!$user->has_empresa){
+        $user = $request->user();
+
+        // 1. Validación de empresa
+        if (!$user || !$user->has_empresa) {
             return response()->json([
                 "success" => false,
-				"message" => "Para acceder a esta opción debes seleccionar una empresa",
+                "message" => "Para acceder a esta opción debes seleccionar una empresa",
             ], 401);
         }
 
+        // 2. Obtener la empresa y los nombres de BD deseados
         $empresa = Empresa::where('token_db_maximo', $user->has_empresa)->first();
+        
+        // Manejo de error si no se encuentra la empresa (opcional, pero buena práctica)
+        if (!$empresa) {
+             return response()->json([
+                "success" => false,
+                "message" => "Empresa no encontrada o datos de conexión inválidos.",
+            ], 401);
+        }
+        
+        $desiredDbMax = $empresa->token_db_maximo;
+        $desiredDbSam = $empresa->token_db_portafolio;
+        
+        // --- Conexión 'max' (Contabilidad) ---
+        $currentConfigDbMax = Config::get('database.connections.max.database');
 
-        // Cerrar la conexión max actual si existe
-        if (DB::connection('max')->getDatabaseName() !== $empresa->token_db_maximo) {
-            DB::purge('max'); // Cierra la conexión actual
+        if ($currentConfigDbMax !== $desiredDbMax) {
+            // Cierra la conexión actual si está activa
+            if (DB::getConnections() && array_key_exists('max', DB::getConnections())) {
+                DB::purge('max');
+            }
+            // Setea la nueva configuración
+            Config::set('database.connections.max.database', $desiredDbMax);
         }
 
-        // Cerrar la conexión sam actual si existe
-        if (DB::connection('sam')->getDatabaseName() !== $empresa->token_db_portafolio) {
-            DB::purge('sam'); // Cierra la conexión actual
-        }        
+        // --- Conexión 'sam' (Portafolio/Principal) ---
+        $currentConfigDbSam = Config::get('database.connections.sam.database');
 
-		Config::set('database.connections.max.database', $empresa->token_db_maximo);
-		Config::set('database.connections.sam.database', $empresa->token_db_portafolio);
-		
+        if ($currentConfigDbSam !== $desiredDbSam) {
+            // Cierra la conexión actual si está activa
+            if (DB::getConnections() && array_key_exists('sam', DB::getConnections())) {
+                DB::purge('sam');
+            }
+            // Setea la nueva configuración
+            Config::set('database.connections.sam.database', $desiredDbSam);
+        }
+        
+        // 3. Continuar con la solicitud
         return $next($request);
     }
 }
