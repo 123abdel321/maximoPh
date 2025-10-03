@@ -58,15 +58,12 @@ class Extracto
                 'concepto',
                 'fecha_manual',
                 'created_at',
+                "id_tipo_cuenta",
                 'naturaleza_ingresos',
                 'naturaleza_egresos',
                 'naturaleza_compras',
                 'naturaleza_ventas',
                 'naturaleza_cuenta',
-                'exige_nit',
-                'exige_documento_referencia',
-                'exige_concepto',
-                'exige_centro_costos',
                 DB::raw('SUM(debito) AS debito'),
                 DB::raw('SUM(credito) AS credito'),
                 'dias_cumplidos',
@@ -76,9 +73,9 @@ class Extracto
                 'updated_by',
                 DB::raw('SUM(total_abono) AS total_abono'),
                 DB::raw('SUM(total_facturas) AS total_facturas'),
-                DB::raw('CASE WHEN (SUM(saldo)) < 0 THEN SUM(saldo) * -1 ELSE SUM(saldo) END AS saldo'),
+                DB::raw('CASE WHEN (SUM(saldo)) < 0 THEN SUM(saldo) ELSE SUM(saldo) END AS saldo'),
             )
-            ->orderByRaw('cuenta, fecha_manual ASC')
+            ->orderByRaw('cuenta, fecha_manual, documento_referencia ASC')
             ->groupByRaw('documento_referencia, id_cuenta, id_nit');
 
         return $extracto;

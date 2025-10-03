@@ -180,9 +180,9 @@ class ProcessImportarRecibos implements ShouldQueue
                             $finMes
                         ))->actual()->get();
 
-                        $extractos = $extractos->sortBy(function ($item) use ($ordenFacturacion) {
-                            return $ordenFacturacion[$item->id_cuenta] ?? 9999;
-                        })->values();
+                        // $extractos = $extractos->sortBy(function ($item) use ($ordenFacturacion) {
+                        //     return $ordenFacturacion[$item->id_cuenta] ?? 9999;
+                        // })->values();
                         
                         $realizarDescuento = false;
                         
