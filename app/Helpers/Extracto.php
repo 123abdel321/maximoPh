@@ -58,12 +58,15 @@ class Extracto
                 'concepto',
                 'fecha_manual',
                 'created_at',
-                "id_tipo_cuenta",
                 'naturaleza_ingresos',
                 'naturaleza_egresos',
                 'naturaleza_compras',
                 'naturaleza_ventas',
                 'naturaleza_cuenta',
+                'exige_nit',
+                'exige_documento_referencia',
+                'exige_concepto',
+                'exige_centro_costos',
                 DB::raw('SUM(debito) AS debito'),
                 DB::raw('SUM(credito) AS credito'),
                 'dias_cumplidos',
@@ -73,9 +76,9 @@ class Extracto
                 'updated_by',
                 DB::raw('SUM(total_abono) AS total_abono'),
                 DB::raw('SUM(total_facturas) AS total_facturas'),
-                DB::raw('CASE WHEN (SUM(saldo)) < 0 THEN SUM(saldo) ELSE SUM(saldo) END AS saldo'),
+                DB::raw('CASE WHEN (SUM(saldo)) < 0 THEN SUM(saldo) * -1 ELSE SUM(saldo) END AS saldo'),
             )
-            ->orderByRaw('cuenta, fecha_manual, documento_referencia ASC')
+            ->orderByRaw('cuenta, fecha_manual ASC')
             ->groupByRaw('documento_referencia, id_cuenta, id_nit');
 
         return $extracto;
@@ -211,7 +214,10 @@ class Extracto
                 "PC.naturaleza_compras",
                 "PC.naturaleza_ventas",
                 "PC.naturaleza_cuenta",
-                "PCT.id_tipo_cuenta",
+                "PC.exige_nit",
+                "PC.exige_documento_referencia",
+                "PC.exige_concepto",
+                "PC.exige_centro_costos",
                 DB::raw("SUM(DG.debito) AS debito"),
                 DB::raw("SUM(DG.credito) AS credito"),
                 DB::raw("DATEDIFF('$fecha', DG.fecha_manual) AS dias_cumplidos"),
@@ -252,9 +258,6 @@ class Extracto
 			})
             ->when($this->documento_referencia ? false : true, function ($query) {
                 $query->havingRaw("IF(PC.naturaleza_cuenta=0, SUM(DG.debito - DG.credito), SUM(DG.credito - DG.debito)) != 0");
-			})
-            ->when($this->consecutivo ? true : false, function ($query) {
-                $query->where('DG.consecutivo', $this->consecutivo);
 			})
             ->groupByRaw('DG.id_cuenta, DG.id_nit, DG.documento_referencia');
 
