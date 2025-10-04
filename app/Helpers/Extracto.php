@@ -211,10 +211,7 @@ class Extracto
                 "PC.naturaleza_compras",
                 "PC.naturaleza_ventas",
                 "PC.naturaleza_cuenta",
-                "PC.exige_nit",
-                "PC.exige_documento_referencia",
-                "PC.exige_concepto",
-                "PC.exige_centro_costos",
+                "PCT.id_tipo_cuenta",
                 DB::raw("SUM(DG.debito) AS debito"),
                 DB::raw("SUM(DG.credito) AS credito"),
                 DB::raw("DATEDIFF('$fecha', DG.fecha_manual) AS dias_cumplidos"),
@@ -255,6 +252,9 @@ class Extracto
 			})
             ->when($this->documento_referencia ? false : true, function ($query) {
                 $query->havingRaw("IF(PC.naturaleza_cuenta=0, SUM(DG.debito - DG.credito), SUM(DG.credito - DG.debito)) != 0");
+			})
+            ->when($this->consecutivo ? true : false, function ($query) {
+                $query->where('DG.consecutivo', $this->consecutivo);
 			})
             ->groupByRaw('DG.id_cuenta, DG.id_nit, DG.documento_referencia');
 
