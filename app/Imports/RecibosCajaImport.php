@@ -167,7 +167,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                     $pagoTotal = floatval($row['valor']);
                     
-                    if ($this->existeRegistro($nit->id, Carbon::parse($fechaManual)->format('Y-m-d'), $pagoTotal, $fechaCargaArchivos)){
+                    if ($this->existeRegistro($nit->id, $fechaManual, $pagoTotal, $fechaCargaArchivos)){
                         $estado = 1;
                         $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fechaManual->format('Y-m-d').'!<br>';
                     } else if (!$conceptoFacturacion) {
@@ -372,6 +372,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     public function existeRegistro($id_nit = null, $fecha = null, $valor = null, $fecha_limite = null)
     {
         $fechaHoy = Carbon::now();
+        $fecha = Carbon::parse($fecha)->format('Y-m-d');
         $id_comprobante_recibos_caja = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
         $id_comprobante_recibos_caja = $id_comprobante_recibos_caja ?? 1;
         return DB::connection('sam')->table('documentos_generals AS DG')
