@@ -522,7 +522,6 @@ class EstadoCuentaController extends Controller
                 $request->ip(),
                 $request->userAgent()
             ))->send();
-            
 
             if ($response->status < 300) {
 
