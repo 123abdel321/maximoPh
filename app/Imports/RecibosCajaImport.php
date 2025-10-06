@@ -169,8 +169,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     
                     if ($this->existeRegistro($nit->id, $fechaManual, $pagoTotal, $fechaCargaArchivos)){
                         $estado = 1;
-                        $fecha = Carbon::parse($fecha)->format('Y-m-d');
-                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fecha.'!<br>';
+                        // $fecha = Carbon::parse($fechaManual)->format('Y-m-d');
+                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fechaManual.'!<br>';
                     } else if (!$conceptoFacturacion) {
 
                         $sandoPendiente = (new Extracto(
