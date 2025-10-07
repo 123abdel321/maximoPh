@@ -129,6 +129,7 @@ class EstadoCuentaController extends Controller
                 $nit->id,
                 [3,7]
             ))->actual()->get();
+            // $response = $response->sortBy('orden, cuenta')->values();
 
             $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
                 $nit->id,
@@ -253,6 +254,7 @@ class EstadoCuentaController extends Controller
                 $nit->id,
                 [3,7]
             ))->actual()->get();
+            // $extractos = $extractos->sortBy('orden, cuenta')->values();
 
             $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
             $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
@@ -536,6 +538,15 @@ class EstadoCuentaController extends Controller
                     'link' => $response->response->processUrl,
                     "message"=>'Link portal de pago'
                 ], 200);
+            }
+
+            if ($response->status == 503) {
+                DB::connection('sam')->rollback();
+                return response()->json([
+                    "success"=> false,
+                    'data' => [],
+                    "message"=> 'El servicio no está disponible en este momento. Por favor, inténtelo más tarde.'
+                ], 422);
             }
             
             Log::error('EstadoCuentaController', [
