@@ -26,17 +26,21 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
     protected $periodo;
     protected $idZona;
     protected $idUser;
+    protected $jobIndex;
+    protected $totalChunks;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($empresa, $nits = null, $periodo = null, $idZona = null, $idUser = null)
+    public function __construct($empresa, $nits = null, $periodo = null, $idZona = null, $idUser = null, $jobIndex = null, $totalChunks = null)
     {
         $this->empresa = $empresa;
         $this->nits = $nits;
         $this->periodo = $periodo;
         $this->idZona = $idZona;
         $this->idUser = $idUser;
+        $this->jobIndex = $jobIndex;
+        $this->totalChunks = $totalChunks;
     }
 
     /**
@@ -50,29 +54,44 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
         
-        try {
-            $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
-            $facturasPdf = null;
+        $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
+        $facturasPdf = null;
 
-            $facturasPdf = (new FacturacionPdfMultiple($this->empresa, $this->nits, $this->periodo, $this->idZona))
-                ->buildPdf()
-                ->saveStorage();
+        try {
+
+            $printer = (new FacturacionPdfMultiple($this->empresa, $this->nits, $this->periodo, $this->idZona))
+                ->buildPdf();
+
+            // 1. Generar nombre de archivo dinámico basado en la partición
+            $baseName = 'facturacion_' . $this->periodo;
+            $fileSuffix = $this->jobIndex && $this->totalChunks 
+                ? "_Parte_{$this->jobIndex}_de_{$this->totalChunks}" 
+                : "";
+
+            $newFileName = $baseName . $fileSuffix;
+            $printer->name = $newFileName . '_' . uniqid();
+            $facturasPdf = $printer->saveStorage();
 
             $archivo = ArchivosCache::create([
                 'tipo_archivo' => '.pdf',
-                'name_file' => 'facturacion.pdf',
+                'name_file' => $printer->name . '.pdf', 
                 'relative_path' => '',
                 'url_archivo' => $facturasPdf,
                 'created_by' => $this->idUser,
                 'updated_by' => $this->idUser
             ]);
 
-            $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
+            // 3. Generar mensaje de notificación claro para el usuario (ej: Parte 1 de 9)
+            $messageSuffix = $this->jobIndex && $this->totalChunks 
+                ? " (Parte {$this->jobIndex} de {$this->totalChunks})"
+                : "";
+
             event(new PrivateMessageEvent('facturacion-factura-'.$urlEventoNotificacion, [
                 'tipo' => 'exito',
                 'urf_factura' => $facturasPdf,
-                'success' =>  true,
-                'action' => 3
+                'success' => true,
+                'action' => 3,
+                'message' => 'Factura generada exitosamente' . $messageSuffix
             ]));
         } catch (Exception $exception) {
 			Log::error('Error al generar PDF de facturación', [
@@ -87,12 +106,24 @@ class ProcessGenerateFacturaMultiplePdf implements ShouldQueue
 
     public function failed($exception)
     {
-        Log::error('Error al generar PDF de facturación', [
+        $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->idUser;
+        $messageSuffix = $this->jobIndex && $this->totalChunks 
+            ? " (Parte {$this->jobIndex} de {$this->totalChunks})"
+            : "";
+            
+        Log::error('Fallo permanente al generar PDF de facturación' . $messageSuffix, [
             'error' => $exception->getMessage(),
             'line' => $exception->getLine(),
             'file' => $exception->getFile(),
             'user' => $this->idUser,
             'empresa' => $this->empresa->id,
         ]);
+
+        event(new PrivateMessageEvent('facturacion-factura-'.$urlEventoNotificacion, [
+            'tipo' => 'error',
+            'success' => false,
+            'action' => 4,
+            'message' => 'Fallo al generar la factura' . $messageSuffix . '. Contacte soporte.'
+        ]));
     }
 }

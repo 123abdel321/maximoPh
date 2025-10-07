@@ -324,7 +324,9 @@ $("#imprimirMultipleFacturacion").on('click', function(event) {
         }),
         headers: headers
     }).done((res) => {
-        agregarToast('info', 'Generando facturas pdf', 'Se notificará cuando se hayan generado las facturas pdf!', true);
+        $("#imprimirMultipleFacturacion").show();
+        $("#imprimirMultipleFacturacionLoading").hide();
+        agregarToast('info', 'Generando facturas pdf', res.message, true);
     }).fail((err) => {
         var mensaje = err.responseJSON.message;
         var errorsMsg = arreglarMensajeError(mensaje);
@@ -413,16 +415,43 @@ channelEmailNofiticacion.bind('notificaciones', function(data) {
 });
 
 channelFacturaNofiticacion.bind('notificaciones', function(data) {
-    $("#imprimirMultipleFacturacion").show();
-    $("#imprimirMultipleFacturacionLoading").hide();
-    agregarToast('exito', 'Pdf generado', 'Los pdf de las facturas se han generado con exito!', true);
-    
-    // Verificar y completar la URL si es necesario
-    let url = data.urf_factura;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com' + 
-        (url.startsWith('/') ? url : '/' + url);
+    // Función para construir la URL completa, manejando el caso de rutas relativas
+    function buildFullUrl(url) {
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            // Asumiendo que esta es la base de tu DO Space
+            const baseUrl = 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com';
+            // Asegura que no haya doble barra entre la base y la ruta
+            return baseUrl + (url.startsWith('/') ? url : '/' + url);
+        }
+        return url;
     }
-    
-    window.open(url, "_blank");
+
+    // Comprobamos la acción para determinar si fue éxito o fallo
+    if (data.action === 3) {
+        // --- ÉXITO: Generación de PDF completada (Parte X de Y) ---
+
+        // Mostrar un mensaje de éxito con el mensaje específico (incluye la parte X de Y)
+        const successMessage = data.message || 'Una parte de las facturas se ha generado con éxito.';
+        agregarToast('exito', 'PDF Generado', successMessage, true);
+        
+        // Abrir la URL del archivo
+        if (data.urf_factura) {
+            const url = buildFullUrl(data.urf_factura);
+            window.open(url, "_blank");
+        }
+        
+    } else if (data.action === 4) {
+        // --- ERROR/FALLO: Un Job de una parte falló ---
+
+        // Mostrar un mensaje de error
+        const errorMessage = data.message || 'Fallo al generar una de las partes de la factura. Por favor, revise los logs.';
+        agregarToast('error', 'Error en PDF', errorMessage, true);
+        
+    } else {
+        // --- Otras notificaciones (ej. inicio de proceso) ---
+        
+        // Opcional: Si tienes un mensaje genérico de inicio o progreso
+        const genericMessage = data.message || 'Procesando sus facturas...';
+        agregarToast(data.tipo || 'info', 'Proceso en curso', genericMessage, true);
+    }
 });

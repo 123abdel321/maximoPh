@@ -253,6 +253,8 @@ class FacturacionController extends Controller
                 $periodo_facturacion
             ))->actual()->get();
 
+            // $extractos = $extractos->sortBy('orden, cuenta')->values();
+
             //AGRUPAMOS 
             $this->extractosAgrupados = [];
             foreach ($extractos as $extracto) {
@@ -630,6 +632,9 @@ class FacturacionController extends Controller
 
                 //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
                 if (!count($extractos)) return;
+
+                // $extractos = $extractos->sortBy('orden, cuenta')->values();
+
                 //AGRUPAMOS 
                 $this->extractosAgrupados = [];
                 foreach ($extractos as $extracto) {
@@ -791,6 +796,8 @@ class FacturacionController extends Controller
             null,
             $fechaPeriodo
         ))->actual()->get();
+
+        // $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $extractosNits = [];
 
@@ -1058,6 +1065,8 @@ class FacturacionController extends Controller
             null,
             $fechaPeriodo
         ))->actual()->get();
+
+        // $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $extractosNits = [];
 
@@ -1341,28 +1350,41 @@ class FacturacionController extends Controller
 
     public function showMultiplePdf(Request $request)
     {
+        // 1. Obtener datos básicos
         $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
-        $nits = $this->nitFacturaFisica($request->get('factura_fisica'), $request->get('id_zona'));
-        // $data = (new FacturacionPdfMultiple($empresa, [125], $request->get('periodo'), null))->buildPdf()->getData();
-        // return view('pdf.facturacion.facturaciones_multiples', $data);
-        // dd($data);
-        // $facturasPdf = (new FacturacionPdfMultiple($this->empresa, $this->nits, $this->periodo, $this->idZona))
-        //     ->buildPdf()
-        //     ->saveStorage();
-        
-        ProcessGenerateFacturaMultiplePdf::dispatch(
+        $allNits = $this->nitFacturaFisica($request->get('factura_fisica'), $request->get('id_zona'));
+
+        $userId = $request->user()->id;
+        $periodo = $request->get('periodo');
+        $idZona = $request->get('id_zona');
+
+        // 2. Particionar la lista de Nits (Chunking)
+        $chunkSize = 21;
+        $nitChunks = array_chunk($allNits, $chunkSize);
+        $totalChunks = count($nitChunks);
+        $jobsDispatched = 0;
+
+        // 3. Despachar un Job por cada parte
+        foreach ($nitChunks as $index => $nits) {
+            $jobIndex = $index + 1; // El índice para la parte (empezando en 1)
+
+            ProcessGenerateFacturaMultiplePdf::dispatch(
                 $empresa,
                 $nits,
-                $request->get('periodo'),
-                $request->get('id_zona'),
-                $request->user()->id
-            )
-        ->onQueue('pdf-generation');
+                $periodo,
+                $idZona,
+                $userId,
+                $jobIndex,
+                $totalChunks
+            )->onQueue('pdf-generation');
+            
+            $jobsDispatched++;
+        }
 
         return response()->json([
-            "success"=>false,
+            "success" => true,
             'data' => [],
-            "message"=> 'Generando facturas pdf, se notificará apenas finalice'
+            "message" => "Generando {$jobsDispatched} archivos PDF en total. Recibirá una notificación por cada parte generada."
         ], 200);
     }
 
@@ -1824,6 +1846,8 @@ class FacturacionController extends Controller
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
+
+        // $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $this->facturas = [];
         $totalAnticipos = 0;
