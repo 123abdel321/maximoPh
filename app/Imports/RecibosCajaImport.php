@@ -83,18 +83,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 $nit = Nits::where('id', $nitPorDefecto)->first();
             }
             
-            $fechaManual = null;
-            $fechaFormato = $row['fecha_manual'];
-            
-            if ($fechaFormato && str_contains($fechaFormato, '/')) {
-                $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
-            } else if ($fechaFormato && str_contains($fechaFormato, '-')) {
-                $fechaManual = Carbon::parse($row['fecha_manual'])->format('Y-m-d');
-            } else if (is_numeric($fechaFormato)) {
-                $fechaManual = Date::excelToDateTimeObject($row['fecha_manual']);
-            } else {
-                $estado = 1;
-                $observacion.= 'La fecha: '.$fechaFormato.', no tiene el formato correcto!<br>'; 
+            $fechaManual = $this->parseFecha($row['fecha_manual']);
+            if (!$fechaManual) {
+                $observacion.= 'La fecha: '.$row['fecha_manual'].', no tiene el formato correcto!<br>';
             }
 
             if ($row['inmueble']) {
@@ -169,8 +160,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     
                     if ($this->existeRegistro($nit->id, $fechaManual, $pagoTotal, $fechaCargaArchivos)){
                         $estado = 1;
-                        // $fecha = Carbon::parse($fechaManual)->format('Y-m-d');
-                        
                         $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fechaManual.'!<br>';
                     } else if (!$conceptoFacturacion) {
 
@@ -358,6 +347,48 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $data->descuento = $this->roundNumber($data->descuento);
 
         return $data;
+    }
+
+    private function parseFecha($fecha, $hora = null)
+    {
+        $fechaObj = null;
+        
+        // Parsear la fecha
+        if ($fecha && str_contains($fecha, '/')) {
+            $fechaObj = Carbon::parse($fecha);
+        } else if ($fecha && str_contains($fecha, '-')) {
+            $fechaObj = Carbon::parse($fecha);
+        } else if (is_numeric($fecha)) {
+            $fechaObj = Carbon::instance(Date::excelToDateTimeObject($fecha));
+        }
+        
+        if (!$fechaObj) {
+            return null;
+        }
+        
+        // Formatear la fecha base
+        $fechaFormateada = $fechaObj->format('Y-m-d');
+        
+        // Si hay hora, agregarla
+        if (isset($hora)) {
+            try {
+                if (is_numeric($hora)) {
+                $horaObj = Carbon::instance(Date::excelToDateTimeObject($hora));
+                
+                } else {
+                    // Intenta parsear la hora en diferentes formatos comunes
+                    $horaObj = Carbon::createFromFormat('H:i:s', $hora) ?:
+                            Carbon::createFromFormat('H:i', $hora) ?:
+                            Carbon::parse($hora);
+                }
+                
+                $horaFormateada = $horaObj->format('H:i:s');
+                return $fechaFormateada . ' ' . $horaFormateada;
+            } catch (\Exception $e) {
+                return $fechaFormateada;
+            }
+        }
+        return $fechaFormateada;
     }
 
     private function roundNumber($number)
