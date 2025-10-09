@@ -1063,7 +1063,7 @@ class FacturacionController extends Controller
             null,
             [3],
             null,
-            $fechaPeriodo
+            $fechaPeriodo.' 23:59:59'
         ))->actual()->get();
 
         // $extractos = $extractos->sortBy('orden, cuenta')->values();
@@ -1087,7 +1087,7 @@ class FacturacionController extends Controller
             null,
             [8],
             null,
-            $fechaPeriodo
+            $fechaPeriodo.' 23:59:59'
         ))->actual()->get();
 
         $anticiposNits = [];
