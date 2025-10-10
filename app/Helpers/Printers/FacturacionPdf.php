@@ -223,24 +223,12 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'concepto' =>  $concepto,
                 'saldo_anterior' => $facturacion->saldo_anterior,
                 'total_facturas' => $facturacion->total_facturas,
-                'total_abono' => 0,
+                'total_abono' => $facturacion->total_abono,
                 'descuento' => $descuento,
                 'documento_referencia' => $facturacion->documento_referencia,
                 'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-                'saldo_final' => $facturacion->total_facturas,
+                'saldo_final' => $facturacion->saldo_final,
             ];
-
-            // $dataCuentas[] = (object)[
-            //     'nombre_cuenta' => $facturacion->nombre_cuenta,
-            //     'concepto' =>  $concepto,
-            //     'saldo_anterior' => $facturacion->saldo_anterior,
-            //     'total_facturas' => $facturacion->total_facturas,
-            //     'total_abono' => $facturacion->total_abono,
-            //     'descuento' => $descuento,
-            //     'documento_referencia' => $facturacion->documento_referencia,
-            //     'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-            //     'saldo_final' => $facturacion->saldo_final,
-            // ];
         }
         
         foreach ($dataDescuento as $key => $descuento) {
@@ -259,12 +247,12 @@ class FacturacionPdf extends AbstractPrinterPdf
         $totalAnticipos = $cxp ? $cxp->saldo : 0;
         $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
         $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
-
+        
         $totalData = (object)[
             'nombre_cuenta' => '',
-            'saldo_anterior' => $totales->total_facturas,
+            'saldo_anterior' => $totales->saldo_anterior,
             'total_facturas' => $totales->total_facturas,
-            'total_abono' => 0,
+            'total_abono' => $totales->total_abono,
             'total_anticipos' => $cxp ? $cxp->saldo : 0,
             'anticipos_disponibles' => $totalAnticipos,
             'descuento' => $totalDescuento,
@@ -272,23 +260,8 @@ class FacturacionPdf extends AbstractPrinterPdf
             'fecha_manual' => $totales->fecha_manual,
             'fecha_plazo' => $fechaPlazo,
             'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
-            'saldo_final' => $totales->total_facturas
+            'saldo_final' => $totales->saldo_final
         ];
-        
-        // $totalData = (object)[
-        //     'nombre_cuenta' => '',
-        //     'saldo_anterior' => $totales->saldo_anterior,
-        //     'total_facturas' => $totales->total_facturas,
-        //     'total_abono' => $totales->total_abono,
-        //     'total_anticipos' => $cxp ? $cxp->saldo : 0,
-        //     'anticipos_disponibles' => $totalAnticipos,
-        //     'descuento' => $totalDescuento,
-        //     'consecutivo' => $totales->consecutivo,
-        //     'fecha_manual' => $totales->fecha_manual,
-        //     'fecha_plazo' => $fechaPlazo,
-        //     'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
-        //     'saldo_final' => $totales->saldo_final
-        // ];
 
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
         $texto2 = Entorno::where('nombre', 'factura_texto2')->first();
@@ -354,6 +327,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
+            ->where('CO.tipo_comprobante', '!=', 0)
             ->when($this->periodo, function ($query) {
                 $startOfMonth = Carbon::parse($this->periodo)->startOfMonth();
                 $endOfMonth = Carbon::parse($this->periodo)->endOfMonth();
@@ -414,6 +388,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
+            ->where('CO.tipo_comprobante', '!=', 0)
             ->when($this->periodo, function ($query) {
 				$query->where('DG.fecha_manual', '<', $this->periodo);
 			})

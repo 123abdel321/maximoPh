@@ -218,24 +218,12 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     'concepto' =>  $concepto,
                     'saldo_anterior' => $facturacion->saldo_anterior,
                     'total_facturas' => $facturacion->total_facturas,
-                    'total_abono' => 0,
+                    'total_abono' => $facturacion->total_abono,
                     'descuento' => $descuento,
                     'documento_referencia' => $facturacion->documento_referencia,
                     'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-                    'saldo_final' => $facturacion->total_facturas,
+                    'saldo_final' => $facturacion->saldo_final,
                 ];
-
-                // $dataCuentas[] = (object)[
-                //     'nombre_cuenta' => $facturacion->nombre_cuenta,
-                //     'concepto' =>  $concepto,
-                //     'saldo_anterior' => $facturacion->saldo_anterior,
-                //     'total_facturas' => $facturacion->total_facturas,
-                //     'total_abono' => $facturacion->total_abono,
-                //     'descuento' => $descuento,
-                //     'documento_referencia' => $facturacion->documento_referencia,
-                //     'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-                //     'saldo_final' => $facturacion->saldo_final,
-                // ];
             }
 
             foreach ($dataDescuento as $key => $descuento) {
@@ -273,7 +261,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 'descuentos' => $dataDescuento,
                 'saldo_anterior' => $totales->saldo_anterior,
                 'total_facturas' => $totales->total_facturas,
-                'total_abono' => 0,
+                'total_abono' => $totales->total_abono,
                 'total_anticipos' => $cxp ? $cxp->saldo : 0,
                 'anticipos_disponibles' => $totalAnticipos,
                 'descuento' => $totalDescuento,
@@ -281,28 +269,9 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 'fecha_manual' => Carbon::parse($totales->fecha_manual)->format('Y-m-d'),
                 'fecha_plazo' => $fechaPlazo,
                 'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
-                'saldo_final' => $totales->total_facturas,
+                'saldo_final' => $totales->saldo_final,
                 'pronto_pago' => $tieneDescuentoProntoPago
             ]);
-
-            // array_push($dataFacturas, (object)[
-            //     'nit' => $nit,
-            //     'nombre_cuenta' => '',
-            //     'cuentas' => $dataCuentas,
-            //     'descuentos' => $dataDescuento,
-            //     'saldo_anterior' => $totales->saldo_anterior,
-            //     'total_facturas' => $totales->total_facturas,
-            //     'total_abono' => $totales->total_abono,
-            //     'total_anticipos' => $cxp ? $cxp->saldo : 0,
-            //     'anticipos_disponibles' => $totalAnticipos,
-            //     'descuento' => $totalDescuento,
-            //     'consecutivo' => $totales->consecutivo,
-            //     'fecha_manual' => Carbon::parse($totales->fecha_manual)->format('Y-m-d'),
-            //     'fecha_plazo' => $fechaPlazo,
-            //     'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
-            //     'saldo_final' => $totales->saldo_final,
-            //     'pronto_pago' => $tieneDescuentoProntoPago
-            // ]);
         }
         
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
@@ -369,6 +338,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
+            ->where('CO.tipo_comprobante', '!=', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
                 $startDate = Carbon::parse($this->periodo)->startOfDay();
@@ -436,6 +406,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
+            ->where('CO.tipo_comprobante', '!=', 0)
             ->when($this->periodo, function ($query) {
 				$query->where('DG.fecha_manual', '<', $this->periodo);
 			})
