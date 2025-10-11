@@ -388,7 +388,6 @@ class FacturacionPdf extends AbstractPrinterPdf
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
-            ->where('CO.tipo_comprobante', '!=', 0)
             ->when($this->periodo, function ($query) {
 				$query->where('DG.fecha_manual', '<', $this->periodo);
 			})
