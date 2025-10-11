@@ -338,7 +338,6 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             ->leftJoin('centro_costos AS CC', 'DG.id_centro_costos', 'CC.id')
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->where('anulado', 0)
-            ->where('CO.tipo_comprobante', '!=', 0)
             ->whereIn('PCT.id_tipo_cuenta', [3,7])
             ->when($this->periodo, function ($query) {
                 $startDate = Carbon::parse($this->periodo)->startOfDay();
