@@ -5,6 +5,7 @@ var $comboFormasPagoPlacetoPay = null;
 var $comboCuentaIngreso = null;
 var $comboCuentaAnticipo = null;
 var $comboCuentaIntereses = null;
+var $comboCuentaIngresoIntereses = null;
 var $comboCuentaIngresoPagos = null;
 var $comboCuentaIngresoPasarela = null;
 
@@ -153,6 +154,16 @@ function entornoInit() {
                 var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
                 $comboCuentaIntereses.append(newOption).trigger('change');
                 $comboCuentaIntereses.val(dataCuenta.id).trigger('change');
+            }
+
+            if (variable.nombre == 'id_cuenta_ingreso_intereses' && variable.cuenta) {
+                var dataCuenta = {
+                    id: variable.cuenta.id,
+                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
+                };
+                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
+                $comboCuentaIngresoIntereses.append(newOption).trigger('change');
+                $comboCuentaIngresoIntereses.val(dataCuenta.id).trigger('change');
             }
 
             if (variable.nombre == 'id_cuenta_egreso_pagos' && variable.cuenta) {
@@ -330,7 +341,7 @@ function cargarCombosEntorno() {
         }
     });
 
-    $comboCuentaIntereses = $('#id_cuenta_ingreso_intereses_entorno').select2({
+    $comboCuentaIngresoIntereses = $('#id_cuenta_ingreso_intereses_entorno').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una cuenta",
