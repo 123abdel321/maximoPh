@@ -61,6 +61,7 @@ function entornoInit() {
         'id_cuenta_intereses',
         'id_cuenta_egreso_pagos',
         'id_cuenta_ingreso_pasarela',
+        'id_cuenta_ingreso_intereses',
     ];
 
     var img = [
@@ -155,12 +156,13 @@ function entornoInit() {
                 $comboCuentaIntereses.append(newOption).trigger('change');
                 $comboCuentaIntereses.val(dataCuenta.id).trigger('change');
             }
-
+            
             if (variable.nombre == 'id_cuenta_ingreso_intereses' && variable.cuenta) {
                 var dataCuenta = {
                     id: variable.cuenta.id,
                     text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
                 };
+                
                 var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
                 $comboCuentaIngresoIntereses.append(newOption).trigger('change');
                 $comboCuentaIngresoIntereses.val(dataCuenta.id).trigger('change');
