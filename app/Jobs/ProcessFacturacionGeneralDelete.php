@@ -74,22 +74,28 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
                 ->orderByRaw('id_nit')
                 ->chunk(233, function ($nits) {
                     $nits->each(function ($nit) {
-
+                        
                         $facturaEliminar = Facturacion::where('id_nit', $nit->id_nit)
                             ->where('fecha_manual', $this->inicioMes.'-01')
                             ->first();
 
-                        if ($facturaEliminar) {
-                            $facturaPortafolio = FacDocumentos::where('token_factura', $facturaEliminar->token_factura)->first();
-                            if ($facturaPortafolio) {
-                                $documento = DocumentosGeneral::where('relation_id', $facturaPortafolio->id)
-                                    ->where('relation_type', 2)
-                                    ->delete();
+                        if ($facturaEliminar && $facturaEliminar->token_factura) {
+                            
+                            $facturasPortafolio = FacDocumentos::with('documentos')
+                                ->where('token_factura', $facturaEliminar->token_factura)
+                                ->get();
+    
+                            foreach ($facturasPortafolio as $facturaPortafolio) {
+                                // Eliminar documentos relacionados usando la relación
+                                $facturaPortafolio->documentos()->delete();
                                 $facturaPortafolio->delete();
                             }
-                            FacturacionDetalle::where('id_factura', $facturaEliminar->id)->delete();
-                            $facturaEliminar->delete();
                         }
+
+                        if ($facturaEliminar){
+                            $facturaEliminar->delete();
+                        } 
+
                     });
                 });
 

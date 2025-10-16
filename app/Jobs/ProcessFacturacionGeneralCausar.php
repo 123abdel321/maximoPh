@@ -63,6 +63,8 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
+            DB::connection('sam')->beginTransaction();
+
             $facturas = Facturacion::with('detalle')
                 ->where('fecha_manual', $this->inicioMes.'-01')
                 ->get();
@@ -142,12 +144,12 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                         'created_by' => $this->id_usuario,
                         'updated_by' => $this->id_usuario,
                     ]);
-    
+
                     $documentoGeneral = new Documento(
-                        $docGroup[0]->id_comprobante,
+                        $facDocumento->id_comprobante,
                         $facDocumento,
-                        $docGroup[0]->fecha_manual,
-                        $consecutivo
+                        $facDocumento->fecha_manual,
+                        $facDocumento->consecutivo
                     );
                     
                     foreach ($docGroup as $doc) {
@@ -204,8 +206,9 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             $docGeneral = new DocumentosGeneral($docGeneral);
                             $documentoGeneral->addRow($docGeneral, $naturaleza);
                         }
+                        
                     }
-
+                    
                     if (!$documentoGeneral->save()) {
                         DB::connection('sam')->rollback();
 
@@ -230,6 +233,8 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 }
             }
 
+            DB::connection('sam')->commit();
+
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
                 'success' =>  true,
@@ -237,6 +242,8 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             ]));
 
 		} catch (Exception $exception) {
+
+            DB::connection('sam')->rollback();
 
 			Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
                 'message' => $exception->getMessage(),
@@ -301,8 +308,21 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 		];
 	}
 
+    public function getLastConsecutive($id_comprobante, $fecha)
+	{
+		$castConsecutivo = 'MAX(CAST(consecutivo AS SIGNED)) AS consecutivo';
+		$lastConsecutivo = DocumentosGeneral::select(DB::raw($castConsecutivo))
+			->where('id_comprobante', $id_comprobante)
+			->where('fecha_manual', 'like', substr($fecha, 0, 7) . '%')
+			->first();
+
+		return $lastConsecutivo ? $lastConsecutivo->consecutivo : 0;
+	}
+
 	public function failed($exception)
 	{
+        DB::connection('sam')->rollback();
+
 		Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
@@ -315,16 +335,5 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             'line' => $exception->getLine(),
             'action' => 5
         ]));
-	}
-
-    public function getLastConsecutive($id_comprobante, $fecha)
-	{
-		$castConsecutivo = 'MAX(CAST(consecutivo AS SIGNED)) AS consecutivo';
-		$lastConsecutivo = DocumentosGeneral::select(DB::raw($castConsecutivo))
-			->where('id_comprobante', $id_comprobante)
-			->where('fecha_manual', 'like', substr($fecha, 0, 7) . '%')
-			->first();
-
-		return $lastConsecutivo ? $lastConsecutivo->consecutivo : 0;
 	}
 }
