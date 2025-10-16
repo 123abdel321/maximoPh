@@ -192,6 +192,12 @@
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_ingreso_intereses_entorno">Cuenta ingreso intereses</label>
+                                <select name="id_cuenta_ingreso_intereses_entorno" id="id_cuenta_ingreso_intereses_entorno" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
                                 <label for="id_cuenta_ingreso_pagos_entorno">Cuenta ingreso pagos</label>
                                 <select name="id_cuenta_ingreso_pagos_entorno" id="id_cuenta_ingreso_pagos_entorno" class="form-control form-control-sm">
                                 </select>

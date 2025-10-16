@@ -37,6 +37,7 @@ class EntornoController extends Controller
                 'id_comprobante_recibos_caja',
                 'id_comprobante_pagos',
                 'id_cuenta_intereses',
+                'id_cuenta_ingreso_intereses',
                 'id_cuenta_descuento',
                 'id_cuenta_ingreso_recibos_caja',
                 'id_cuenta_egreso_pagos',
@@ -73,10 +74,7 @@ class EntornoController extends Controller
                 'firma_digital',
                 'nombre_administrador',
                 'id_cuenta_ingreso',
-                'id_cuenta_anticipos',
-                'id_cuenta_intereses',
-                'id_cuenta_egreso_pagos',
-                'id_cuenta_ingreso_pasarela',
+                'id_cuenta_anticipos'
             ];
 
             foreach ($variablesEntorno as $variable) {

@@ -330,6 +330,29 @@ function cargarCombosEntorno() {
         }
     });
 
+    $comboCuentaIntereses = $('#id_cuenta_ingreso_intereses_entorno').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una cuenta",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'plan-cuenta/combo-cuenta',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
     $comboCuentaIngresoPagos = $('#id_cuenta_ingreso_pagos_entorno').select2({
         theme: 'bootstrap-5',
         delay: 250,
@@ -409,6 +432,7 @@ $(document).on('click', '#updateEntorno', function () {
         'id_cuenta_ingreso': $('#id_cuenta_ingreso_entorno').val(),
         'id_cuenta_anticipos': $('#id_cuenta_anticipos_entorno').val(),
         'id_cuenta_intereses': $('#id_cuenta_intereses_entorno').val(),
+        'id_cuenta_ingreso_intereses': $('#id_cuenta_ingreso_intereses_entorno').val(),
         'id_cuenta_egreso_pagos': $('#id_cuenta_ingreso_pagos_entorno').val(),
         'id_cuenta_ingreso_pasarela': $('#id_cuenta_ingreso_pasarela_entorno').val(),
 

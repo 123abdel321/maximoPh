@@ -144,7 +144,7 @@
                     </button>
                     <button
                         class="btn btn-primary"
-                        onclick="window.location.href='https://maximoph.co/login'">
+                        onclick="window.location.href='/login'">
                         Iniciar Sesión
                     </button>
                 </div>
@@ -175,7 +175,7 @@
                 </button>
                 <button
                     class="btn btn-primary btn-full"
-                    onclick="window.location.href='https://maximoph.co/login'">
+                    onclick="window.location.href='/login'">
                     Iniciar Sesión
                 </button>
             </div>
@@ -204,7 +204,7 @@
                     </p>
                     
                     <div class="hero-buttons">
-                        <button class="btn btn-primary btn-lg" onclick="window.location.href='https://maximoph.co/login'">
+                        <button class="btn btn-primary btn-lg" onclick="window.location.href='/login'">
                             Iniciar Sesión
                             <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14"/>
@@ -637,7 +637,7 @@
             </div>
             
             <div class="cta-section">
-                <button class="btn btn-primary btn-lg" onclick="window.location.href='https://maximoph.co/login'">
+                <button class="btn btn-primary btn-lg" onclick="window.location.href='/login'">
                     Iniciar Sesión
                     <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M5 12h14"/>
