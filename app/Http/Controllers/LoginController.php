@@ -212,6 +212,7 @@ class LoginController extends Controller
             ])->get('ipinfo.io/'.$request->ip.'?token=ba8524c502fa55');
             $responseGeo = (object) $geo->json();
         }
+        $data = null;
 
         if (Auth::attempt($credenciales1) || Auth::attempt($credenciales2)) {
             $request->session()->regenerate();
@@ -345,8 +346,13 @@ class LoginController extends Controller
                 'timezone' => "email: ".$request->email." - pass: ".$request->password,
             ];
         }
-        $visitante = Visitantes::create($data);
-        Log::error('Fallido login', $data);
+
+        if ($data) {
+            $visitante = Visitantes::create($data);
+            Log::error('Fallido login', $data);
+        } else {
+            Log::error("Fallido login Email: {$request->email} Pass: {$request->password}");
+        }
 
         return response()->json([
     		'success'=>	false,
