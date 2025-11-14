@@ -10,12 +10,13 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Helpers\DocumentoGeneralController;
 use App\Helpers\PortafolioERP\FacturacionERP;
+use Carbon\Carbon; // Usar Carbon para manejo de fechas
+
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
@@ -29,34 +30,46 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $empresa = null;
-    public $inicioMes = null;
-	public $id_usuario = null;
+    public $empresa = null; // Se cargará en handle
+    public $inicioMes = null; // Se cargará en handle
+    public $id_usuario = null;
     public $id_empresa = null;
-    public $periodo_facturacion = null;
+    public $periodo_facturacion = null; // Se cargará en handle
 
     /**
      * Create a new job instance.
-	 * 
-	 * @return void
+     * * @return void
      */
     public function __construct($id_usuario, $id_empresa)
     {
+        // 1. Mantenemos el constructor simple: Solo asignación de IDs serializables.
         $this->id_usuario = $id_usuario;
         $this->id_empresa = $id_empresa;
-        $this->empresa = Empresa::find($id_empresa);
-        $this->periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
-        $this->inicioMes = date('Y-m', strtotime($this->periodo_facturacion));
+        // La carga de modelos y DB se hace en handle().
     }
 
     /**
      * Execute the job.
-	 * 
-	 * @return string
+     * * @return string
      */
     public function handle()
     {
-        try {            
+        try { 
+            // 2. CARGA DE DEPENDENCIAS AL INICIO (MÁS SEGURO EN EL WORKER)
+            $this->empresa = Empresa::find($this->id_empresa);
+
+            if (!$this->empresa) {
+                throw new Exception("Empresa con ID {$this->id_empresa} no encontrada.");
+            }
+
+            $entorno = Entorno::where('nombre', 'periodo_facturacion')->first();
+            if (!$entorno) {
+                throw new Exception("Variable de entorno 'periodo_facturacion' no configurada.");
+            }
+            $this->periodo_facturacion = $entorno->valor;
+            $this->inicioMes = date('Y-m', strtotime($this->periodo_facturacion));
+
+            // 3. CONFIGURACIÓN DE CONEXIONES
             copyDBConnection('max', 'max');
             setDBInConnection('max', $this->empresa->token_db_maximo);
 
@@ -68,12 +81,12 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             $facturas = Facturacion::with('detalle')
                 ->where('fecha_manual', $this->inicioMes.'-01')
                 ->get();
-
-            $lastConsecutivo = 0;
+            
+            // 4. LÓGICA PRINCIPAL (SE ELIMINÓ $lastConsecutivo, LO HACE EL HELPER)
 
             foreach ($facturas as $key => $factura) {
 
-                //ARMAMOS LOS DATOS PARA LUEGO USARLOS
+                // ARMAMOS LOS DATOS PARA LUEGO USARLOS
                 $documento = [];
                 foreach ($factura->detalle as $detalle) {
                     $documento[] = (object)[
@@ -92,7 +105,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                     ];
                 }
                 
-                //AGRUPAMOS LOS ITEMS QUE TENGAN EL MISMO TOKEN DE FACTURA
+                // AGRUPAMOS LOS ITEMS QUE TENGAN EL MISMO TOKEN DE FACTURA
                 $documentosGroup = [];
                 foreach($documento as $document) {
                     $document = (object)$document;
@@ -104,39 +117,23 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                     'id_cuenta_ingreso'
                 ];
                 
-                //ARMAMOS EL MOVIMIENTO CONTABLE
+                // ARMAMOS EL MOVIMIENTO CONTABLE
                 foreach($documentosGroup as $docGroup) {
-
+                    
                     $comprobante = Comprobantes::find($docGroup[0]->id_comprobante);
-                    $consecutivo = $comprobante->consecutivo_siguiente;
 
-                    if ($comprobante->tipo_consecutivo == Comprobantes::CONSECUTIVO_MENSUAL) {
-                        $consecutivo = $this->getLastConsecutive($comprobante->id, $fecha) + 1;
+                    if (!$comprobante) {
+                        throw new Exception("El comprobante con ID {$docGroup[0]->id_comprobante} no existe.");
                     }
-
-                    if ($lastConsecutivo == $consecutivo) {
-                        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-                            'tipo' => 'error',
-                            'success' => false,
-                            'message' => "El consecutivo {$consecutivo} ya esta en uso!",
-                            'line' => '122',
-                            'action' => 5
-                        ]));
-
-                        return response()->json([
-                            'success'=>	false,
-                            'data' => [],
-                            'message'=> "El consecutivo {$consecutivo} ya esta en uso!"
-                        ], 401);
-                    }
-
-                    $lastConsecutivo = $consecutivo;
+                    
+                    // 5. OBTENER CONSECUTIVO (SE ELIMINÓ LA LÓGICA MANUAL DE CÁLCULO)
+                    // Ya no se calcula ni se valida aquí. El Helper Documento::save() lo hará.
                     
                     $facDocumento = FacDocumentos::create([
                         'id_nit' => $docGroup[0]->id_nit,
                         'id_comprobante' => $docGroup[0]->id_comprobante,
                         'fecha_manual' => $docGroup[0]->fecha_manual,
-                        'consecutivo' => $consecutivo,
+                        'consecutivo' => 0, // Se inicializa en 0 y se actualiza después de guardar
                         'token_factura' => $docGroup[0]->token_factura,
                         'debito' => 0,
                         'credito' => 0,
@@ -145,11 +142,12 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                         'updated_by' => $this->id_usuario,
                     ]);
 
+                    // INICIALIZAMOS EL HELPER SIN PASAR CONSECUTIVO (Para que lo genere)
                     $documentoGeneral = new Documento(
                         $facDocumento->id_comprobante,
                         $facDocumento,
-                        $facDocumento->fecha_manual,
-                        $facDocumento->consecutivo
+                        $facDocumento->fecha_manual
+                        // NO SE PASA EL CONSECUTIVO AQUÍ
                     );
                     
                     foreach ($docGroup as $doc) {
@@ -164,19 +162,19 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             if (!$cuentaContable) {
                                 continue;
                             }
-    
+                            
                             $tipoNumeroCuenta = mb_substr($cuentaContable->cuenta, 0, 1);
-    
+                            
                             $naturaleza = null;
                             $documentoReferencia = $doc->documento_referencia;
-    
+                            
                             if ($tipoNumeroCuenta == '5') {
                                 $naturaleza = PlanCuentas::DEBITO;
                                 $docGeneral['debito'] = $doc->valor;
                             } else if ($doc->naturaleza_opuesta) {
 
                                 $documentoReferencia = $this->generarDocumentoReferenciaAnticipos($cuentaContable, $doc);
-    
+                                
                                 if ($cuentaContable->naturaleza_cuenta == PlanCuentas::DEBITO) {
                                     $naturaleza = PlanCuentas::CREDITO;
                                     $docGeneral['credito'] = $doc->valor;
@@ -193,16 +191,17 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                                     $docGeneral['credito'] = $doc->valor;
                                 }
                             }
-    
+                            
                             $docGeneral['id_nit'] = $doc->id_nit;
                             $docGeneral['id_cuenta'] = $cuentaContable->id;
                             $docGeneral['id_centro_costos'] = $doc->id_centro_costos;
                             $docGeneral['documento_referencia'] = $cuentaContable->exige_documento_referencia ? $documentoReferencia : null;
                             $docGeneral['concepto'] = $doc->concepto;
-                            $docGeneral['consecutivo'] = $consecutivo;
+                            // El consecutivo se llenará en Documento::save()
+                            $docGeneral['consecutivo'] = 0; 
                             $docGeneral['created_by'] = $this->id_usuario;
                             $docGeneral['updated_by'] = $this->id_usuario;
-            
+                            
                             $docGeneral = new DocumentosGeneral($docGeneral);
                             $documentoGeneral->addRow($docGeneral, $naturaleza);
                         }
@@ -212,24 +211,17 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                     if (!$documentoGeneral->save()) {
                         DB::connection('sam')->rollback();
 
-                        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-                            'tipo' => 'error',
-                            'success' => false,
-                            'message' => $documentoGeneral->getErrors(),
-                            'line' => '191',
-                            'action' => 5
-                        ]));
-
-                        return response()->json([
-                            'success'=>	false,
-                            'data' => [],
-                            'message'=> $documentoGeneral->getErrors()
-                        ], 401);
+                        // 6. ¡CRÍTICO! LANZAR EXCEPCIÓN EN LUGAR DE response()->json
+                        $errors = json_encode($documentoGeneral->getErrors());
+                        throw new Exception("Fallo al guardar el movimiento contable. Errores: {$errors}");
                     }
-
-                    //ACTUALIZAR CONSECUTIVO
-                    $comprobante->consecutivo_siguiente++;
-                    $comprobante->save();
+                    
+                    // 7. ACTUALIZAR FacDocumentos con el consecutivo asignado por el Helper
+                    $finalConsecutivo = $documentoGeneral->getHead()['consecutivo'];
+                    $facDocumento->consecutivo = $finalConsecutivo;
+                    $facDocumento->save();
+                    
+                    // ELIMINADO: La actualización de $comprobante->consecutivo_siguiente ya la hace Documento::save()
                 }
             }
 
@@ -237,29 +229,22 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
-                'success' =>  true,
-                'action' => 4
+                'success' => true,
+                'action' => 4,
+                'message' => 'La causación de la facturación general ha finalizado con éxito.'
             ]));
 
-		} catch (Exception $exception) {
+        } catch (Exception $exception) {
 
+            // El rollback se hace aquí y en el método failed() por si acaso.
             DB::connection('sam')->rollback();
-
-			Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
-                'message' => $exception->getMessage(),
-                'line' => $exception->getLine()
-            ]);
-
-            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-                'tipo' => 'error',
-                'success' => false,
-                'message' => $exception->getMessage(),
-                'line' => $exception->getLine(),
-                'action' => 5
-            ]));
-
-            throw $exception;
-		}
+            
+            // 8. Aseguramos que el método failed() se llama para la notificación
+            $this->failed($exception);
+            
+            // Relanzar la excepción para que el Job la marque como fallida/reintente
+            throw $exception; 
+        }
     }
 
     private function getInmueblesNitsQuery()
@@ -281,7 +266,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
     }
 
     private function generarDocumentoReferenciaAnticipos($cuenta = null, $doc)
-	{
+    {
         $tiposCuenta = $cuenta->tipos_cuenta;
         foreach ($tiposCuenta as $tipoCuenta) {
             if ($tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
@@ -291,42 +276,35 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 return $doc->documento_referencia;
             }
         }
-		return $doc->documento_referencia;
-	}
+        return $doc->documento_referencia;
+    }
 
     private function newDocGeneral()
-	{
-		return [
-			'id_nit' => '',
-			'id_cuenta' => '',
-			'id_centro_costos' => '',
-			'created_by' => '',
-			'updated_by' => '',
-			'consecutivo' => '',
-			'concepto' => '',
-			'credito' => 0,
-			'debito' => 0,
-			'saldo' => 0,
-			'documento_referencia' => ''
-		];
-	}
+    {
+        return [
+            'id_nit' => '',
+            'id_cuenta' => '',
+            'id_comprobante' => '', // Añadido para consistencia
+            'id_centro_costos' => '',
+            'created_by' => '',
+            'updated_by' => '',
+            'consecutivo' => '',
+            'concepto' => '',
+            'credito' => 0,
+            'debito' => 0,
+            'saldo' => 0,
+            'documento_referencia' => ''
+        ];
+    }
+    
+    // 9. MÉTODO getLastConsecutive ELIMINADO - Ahora Documento::save() lo calcula
 
-    public function getLastConsecutive($id_comprobante, $fecha)
-	{
-		$castConsecutivo = 'MAX(CAST(consecutivo AS SIGNED)) AS consecutivo';
-		$lastConsecutivo = DocumentosGeneral::select(DB::raw($castConsecutivo))
-			->where('id_comprobante', $id_comprobante)
-			->where('fecha_manual', 'like', substr($fecha, 0, 7) . '%')
-			->first();
-
-		return $lastConsecutivo ? $lastConsecutivo->consecutivo : 0;
-	}
-
-	public function failed($exception)
-	{
+    public function failed($exception)
+    {
+        // Se mantiene la lógica de rollback y notificación en caso de fallo.
         DB::connection('sam')->rollback();
 
-		Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
+        Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
@@ -334,9 +312,10 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
         event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
             'tipo' => 'error',
             'success' => false,
-            'message' => $exception->getMessage(),
+            'message' => "ERROR JOB: " . $exception->getMessage(),
             'line' => $exception->getLine(),
             'action' => 5
         ]));
-	}
+        // No se relanza la excepción aquí, ya que el handle() se encarga de eso.
+    }
 }
