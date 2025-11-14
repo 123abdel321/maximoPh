@@ -119,7 +119,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             'tipo' => 'error',
                             'success' => false,
                             'message' => "El consecutivo {$consecutivo} ya esta en uso!",
-                            'line' => '121',
+                            'line' => '122',
                             'action' => 5
                         ]));
 
@@ -197,7 +197,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             $docGeneral['id_nit'] = $doc->id_nit;
                             $docGeneral['id_cuenta'] = $cuentaContable->id;
                             $docGeneral['id_centro_costos'] = $doc->id_centro_costos;
-                            $docGeneral['documento_referencia'] = $documentoReferencia;
+                            $docGeneral['documento_referencia'] = $cuentaContable->exige_documento_referencia ? $documentoReferencia : null;
                             $docGeneral['concepto'] = $doc->concepto;
                             $docGeneral['consecutivo'] = $consecutivo;
                             $docGeneral['created_by'] = $this->id_usuario;
@@ -285,7 +285,10 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
         $tiposCuenta = $cuenta->tipos_cuenta;
         foreach ($tiposCuenta as $tipoCuenta) {
             if ($tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
-                return $doc->documento_referencia_anticipo;
+                if ($doc->documento_referencia_anticipo) {
+                    return $doc->documento_referencia_anticipo;
+                }
+                return $doc->documento_referencia;
             }
         }
 		return $doc->documento_referencia;
