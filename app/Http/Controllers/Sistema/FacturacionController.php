@@ -72,7 +72,7 @@ class FacturacionController extends Controller
             'area_total_m2' => $area_total_m2 ? $area_total_m2->valor : 0,
             'area_registro_m2' => $areaM2Total,
             'valor_total_presupuesto' => $valor_total_presupuesto ? $valor_total_presupuesto : 0,
-            'causacion_mensual_rapida' => $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : 0,
+            'causacion_mensual_rapida' => 1,
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
             'valor_registro_coeficiente' => $coeficienteTotal,
             'recausar_meses' => $recausar_meses ? intval($recausar_meses->valor) : 0
@@ -968,7 +968,7 @@ class FacturacionController extends Controller
         $inicioMes = date('Y-m', strtotime($periodo_facturacion));
         $finMes = date('Y-m-t', strtotime($periodo_facturacion));
         $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
-        $causacion_mensual_rapida = $causacion_mensual_rapida ? $causacion_mensual_rapida->valor : 0;
+        $causacion_mensual_rapida = 1;
         $recausar_meses = Entorno::where('nombre', 'recausar_meses')->first();
         $recausar_meses = $recausar_meses ? intval($recausar_meses->valor) : 0;
 
