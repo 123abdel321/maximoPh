@@ -499,7 +499,7 @@ class Documento
                     $currentConsecutivo = $this->getConsecutivo($this->head['id_comprobante'], $this->head['fecha']);
                     $this->updateRowsWithConsecutive($currentConsecutivo); 
                 }
-                dd('guarnado');
+                
                 // 2. Guardar Documentos
                 if ($this->captura) {
                     $this->saveDocumentsWithCapture();
