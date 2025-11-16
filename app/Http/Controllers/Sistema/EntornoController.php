@@ -69,6 +69,7 @@ class EntornoController extends Controller
                 'placetopay_login',
                 'placetopay_trankey',
                 'placetopay_forma_pago',
+                'id_forma_pago_comprobante',
                 'terminos_condiciones',
                 'aceptar_terminos',
                 'firma_digital',

@@ -98,22 +98,23 @@
                                 <input type="number" class="form-control form-control-sm" name="dias_pronto_pago" id="dias_pronto_pago">
                             </div>
 
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="exampleFormControlSelect1">Concepto pago sin identificar</label>
+                                <select name="id_concepto_pago_none" id="id_concepto_pago_none" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_forma_pago_comprobante">Forma de pago Comprobante</label>
+                                <select name="id_forma_pago_comprobante" id="id_forma_pago_comprobante" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
                             <div class="form-check form-switch col-12 col-sm-4 col-md-3">
                                 <input class="form-check-input" type="checkbox" name="descuento_pago_parcial" id="descuento_pago_parcial" style="height: 20px;">
                                 <label class="form-check-label" for="descuento_pago_parcial">
                                     Descuento pago parcial
                                 </label>
-                            </div>
-
-                            <!-- <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Tasa interes pronto pago</label>
-                                <input type="number" class="form-control form-control-sm" name="tasa_pronto_pago" id="tasa_pronto_pago">
-                            </div> -->
-
-                            <div class="form-group col-12 col-sm-4 col-md-3">
-                                <label for="exampleFormControlSelect1">Concepto pago sin identificar</label>
-                                <select name="id_concepto_pago_none" id="id_concepto_pago_none" class="form-control form-control-sm">
-                                </select>
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">
@@ -208,8 +209,6 @@
                                 <select name="id_cuenta_ingreso_pasarela_entorno" id="id_cuenta_ingreso_pasarela_entorno" class="form-control form-control-sm">
                                 </select>
                             </div>
-
-                            
 
                         </div>
 

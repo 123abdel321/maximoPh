@@ -448,6 +448,7 @@ $(document).on('click', '#saveEstadoCuentaPago', function () {
         'id_nit': $idNitEstadoCuenta,
         'id_comprobante': $idComprobante,
         'id_cuenta_ingreso': $idCuentaIngreso,
+        'id_forma_pago_comprobante': idFormaPagoComprobante,
         'numero_documento': $numeroDocumentoEstadoCuenta,
         'fecha_pago': '',
         'valor_comprobante': 0,

@@ -60,6 +60,8 @@
             var $idComprobante = @json($id_comprobante);
             var $pasarela_pagos = @json($pasarela_pagos);
             var $idCuentaIngreso = @json($id_cuenta_ingreso);
+            var $idFormaPagoComprobante = @json($id_forma_pago_comprobante);
+            
             var $numeroDocumentoEstadoCuenta = @json($numero_documento);
             
         </script>

@@ -85,12 +85,13 @@ class EstadoCuentaController extends Controller
             $pasarelaPagos = true;
         }
         
-        $data = [
-            'id_nit' => $nit ? $nit->id : '',
-            'numero_documento' => $nit ? $nit->numero_documento : '',
+        $$data = [
+            'id_nit' => $nit?->id ?? '',
+            'numero_documento' => $nit?->numero_documento ?? '',
             'pasarela_pagos' => $pasarelaPagos,
-            'id_comprobante' => Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor,
-            'id_cuenta_ingreso' => Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor,
+            'id_comprobante' => Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()?->valor ?? '',
+            'id_cuenta_ingreso' => Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()?->valor ?? '',
+            'id_forma_pago_comprobante' => Entorno::where('nombre', 'id_forma_pago_comprobante')->first()?->valor ?? '',
             'usuario_empresa' => UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
                 ->where('id_usuario', $request->user()['id'])
                 ->first()
@@ -554,6 +555,7 @@ class EstadoCuentaController extends Controller
             ]);
 
             DB::connection('sam')->rollback();
+            
             return response()->json([
                 "success"=> false,
                 'data' => [],

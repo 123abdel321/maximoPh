@@ -2,6 +2,7 @@ var $nitPorDefecto = null;
 var newFirmaDigital = null;
 var $comboConceptoFacturacion = null;
 var $comboFormasPagoPlacetoPay = null;
+var $comboFormasPagoComprobante = null;
 var $comboCuentaIngreso = null;
 var $comboCuentaAnticipo = null;
 var $comboCuentaIntereses = null;
@@ -56,6 +57,7 @@ function entornoInit() {
         'id_concepto_pago_none',
         'id_nit_por_defecto',
         'placetopay_forma_pago',
+        'id_forma_pago_comprobante',
         'id_cuenta_ingreso',
         'id_cuenta_anticipos',
         'id_cuenta_intereses',
@@ -108,6 +110,7 @@ function entornoInit() {
                 $comboConceptoFacturacion.append(newOption).trigger('change');
                 $comboConceptoFacturacion.val(dataConceptoFacturacion.id).trigger('change');
             }
+
             if (variable.nombre == 'id_nit_por_defecto' && variable.nit) {
                 var dataNit = {
                     id: variable.nit.id,
@@ -117,6 +120,7 @@ function entornoInit() {
                 $nitPorDefecto.append(newOption).trigger('change');
                 $nitPorDefecto.val(dataNit.id).trigger('change');
             }
+
             if (variable.nombre == 'placetopay_forma_pago') {
                 var dataPlacetoPay = {
                     id: variable.formas_pago.id,
@@ -125,6 +129,16 @@ function entornoInit() {
                 var newOption = new Option(dataPlacetoPay.text, dataPlacetoPay.id, false, false);
                 $comboFormasPagoPlacetoPay.append(newOption).trigger('change');
                 $comboFormasPagoPlacetoPay.val(dataPlacetoPay.id).trigger('change');
+            }
+
+            if (variable.nombre == 'id_forma_pago_comprobante') {
+                var dataPagoComprobante = {
+                    id: variable.formas_pago.id,
+                    text: variable.formas_pago.nombre
+                };
+                var newOption = new Option(dataPagoComprobante.text, dataPagoComprobante.id, false, false);
+                $comboFormasPagoComprobante.append(newOption).trigger('change');
+                $comboFormasPagoComprobante.val(dataPagoComprobante.id).trigger('change');
             }
 
             if (variable.nombre == 'id_cuenta_ingreso' && variable.cuenta) {
@@ -217,6 +231,30 @@ function cargarCombosEntorno() {
     });
 
     $comboFormasPagoPlacetoPay = $('#placetopay_forma_pago').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una forma de pago",
+        allowClear: true,
+        ajax: {
+            url: base_url_erp + 'forma-pago/combo-forma-pago',
+            headers: headersERP,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    tipo_concepto: 0
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $comboFormasPagoComprobante = $('#id_forma_pago_comprobante').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una forma de pago",
@@ -449,6 +487,7 @@ $(document).on('click', '#updateEntorno', function () {
         'id_cuenta_egreso_pagos': $('#id_cuenta_ingreso_pagos_entorno').val(),
         'id_cuenta_ingreso_pasarela': $('#id_cuenta_ingreso_pasarela_entorno').val(),
 
+        'id_forma_pago_comprobante': $('#id_forma_pago_comprobante').val(),
 
         'firma_digital': newFirmaDigital,
         'nombre_administrador': $('#nombre_administrador').val(),
