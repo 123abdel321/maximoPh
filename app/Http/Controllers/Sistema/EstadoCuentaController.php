@@ -85,7 +85,7 @@ class EstadoCuentaController extends Controller
             $pasarelaPagos = true;
         }
         
-        $$data = [
+        $data = [
             'id_nit' => $nit?->id ?? '',
             'numero_documento' => $nit?->numero_documento ?? '',
             'pasarela_pagos' => $pasarelaPagos,
