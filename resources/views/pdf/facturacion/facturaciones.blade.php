@@ -127,20 +127,6 @@
 			.ubicacion-factura {
 				color: black;
 				font-size: 1.3em;
-				/* Propiedades para limitar líneas */
-				display: -webkit-box;
-				-webkit-line-clamp: 2;
-				-webkit-box-orient: vertical;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				line-height: 1.2em;
-				max-height: 2.4em;
-				/* Para navegadores modernos */
-				display: -moz-box;
-				-moz-line-clamp: 2;
-				-moz-box-orient: vertical;
-				/* Aseguramos que ocupe el ancho completo disponible */
-				width: 100%;
 			}
 			
 			.generado {

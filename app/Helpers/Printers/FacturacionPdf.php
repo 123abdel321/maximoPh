@@ -75,6 +75,11 @@ class FacturacionPdf extends AbstractPrinterPdf
         $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
         $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
         $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
+
+        $max_length = 40;
+        $apartamentos_original = $getNit->apartamentos;
+        if (mb_strlen($apartamentos_original, 'UTF-8') > $max_length) $apartamentos_limitado = mb_substr($apartamentos_original, 0, $max_length, 'UTF-8') . '...';
+        else $apartamentos_limitado = $apartamentos_original;
 		
 		if($getNit){ 
 			$nit = (object)[
@@ -85,7 +90,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 				'tipo_documento' => $getNit->tipo_documento->nombre,
 				'numero_documento' => $getNit->numero_documento,
 				"ciudad" => $getNit->ciudad ? $getNit->ciudad->nombre_completo : '',
-                'apartamentos' => $getNit->apartamentos
+                'apartamentos' => $apartamentos_limitado
 			];
 		}
 

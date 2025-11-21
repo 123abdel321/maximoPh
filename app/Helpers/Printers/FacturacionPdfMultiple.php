@@ -241,7 +241,12 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 
             $totalAnticipos = $cxp ? $cxp->saldo : 0;
             $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
-            $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;            
+            $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
+            
+            $max_length = 40;
+            $apartamentos_original = $getNit->apartamentos;
+            if (mb_strlen($apartamentos_original, 'UTF-8') > $max_length) $apartamentos_limitado = mb_substr($apartamentos_original, 0, $max_length, 'UTF-8') . '...';
+            else $apartamentos_limitado = $apartamentos_original;
 
             $nit = (object)[
 				'nombre_nit' => $getNit->nombre_completo,
@@ -251,7 +256,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 				'tipo_documento' => $getNit->tipo_documento->nombre,
 				'numero_documento' => $getNit->numero_documento,
 				"ciudad" => $getNit->ciudad ? $getNit->ciudad->nombre_completo : '',
-                'apartamentos' => $getNit->apartamentos
+                'apartamentos' => $apartamentos_limitado
 			];
 
             array_push($dataFacturas, (object)[
