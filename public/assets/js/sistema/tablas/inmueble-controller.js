@@ -56,7 +56,7 @@ function inmuebleInit() {
                     if (persona) {
                         return persona.numero_documento;
                     } else {
-                        return `<span class="badge rounded-pill bg-danger">Error al leer nit id: ${row.personas[0].id_nit}</span>`;
+                        return `<span class="badge rounded-pill bg-danger">Nit no encontrado</span>`;
                     }
                 }
                 return '';
@@ -72,7 +72,7 @@ function inmuebleInit() {
                             }
                             return persona.primer_nombre+' '+persona.primer_apellido;
                         } else {
-                            return `<span class="badge rounded-pill bg-danger">Error al leer nit id: ${row.personas[0].id_nit}</span>`;
+                            return `<span class="badge rounded-pill bg-danger">Nit no encontrado</span>`;
                         }
                     }
                     return '';

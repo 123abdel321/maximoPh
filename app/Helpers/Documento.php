@@ -2,132 +2,194 @@
 namespace App\Helpers;
 
 use App\Http\Controllers\Traits\BegConsecutiveTrait;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\QueryException; // Excepción específica para manejar duplicidad
-use Illuminate\Support\Collection;
-use Carbon\Carbon;
+use App\Models\Portafolio\DocumentosGeneral;
+use App\Models\Portafolio\Comprobantes;
+use App\Models\Portafolio\PlanCuentas;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use stdClass;
 use DB;
 
-// MODELS (Asegúrate que estos namespaces sean correctos)
-use App\Models\Sistema\PlanCuentas;
-use App\Models\Sistema\Comprobantes;
-use App\Models\Sistema\VariablesEntorno;
-use App\Models\Sistema\DocumentosGeneral;
-
-
 class Documento
 {
-    use BegConsecutiveTrait; 
+	use BegConsecutiveTrait;
 
-    // --- PROPIEDADES ---
-
+    /**
+     * Informacion de la cabeza del documento
+     *
+     * @var array
+     */
     private $head = [];
-    private Collection $rows;
+
+    /**
+     * Registros del documento a insertar en la tabla con_documentos_general
+     *
+     * @var array
+     */
+    private $rows = [];
+
+    /**
+     * Errores registrados
+     *
+     * @var array
+     */
     private $errors = [];
-    private ?Model $captura = null;
-    private Carbon $created_at; 
-    private $shouldUpdateConsecutivo = true;
-    private $saveUnbalancedDocuments = true;
-    private $conceptoDefault = "SIN OBSERVACIÓN";
 
-    // --- CONSTRUCTOR Y CONFIGURACIÓN ---
+    /**
+     * Captura origen de los datos, se utiliza para el polimorfismo
+     *
+     * @var Model
+     */
+    private $captura;
 
-    public function __construct(
-        ?int $id_comprobante = null, 
-        ?Model $captura = null, 
-        string $fecha = null, 
-        ?int $consecutivo = null, 
-        bool $save_unbalanced = true
-    )
+	/**
+	 * Fecha de creación del documento
+	 *
+	 * @var string
+	 */
+	private $created_at;
+
+	/**
+	 * Indica si se debe actualizar el consecutivo siguiente en el comprobante
+	 *
+	 * @var bool
+	 */
+	private $shouldUpdateConsecutivo = true;
+
+	/**
+	 * @var string
+	 */
+	private $conceptoDefault = "SIN OBSERVACIÓN";
+
+    /**
+     * @param int|null $id_comprobante
+     * @param Model|null $captura
+     * @param string|null $fecha
+     * @param int|null $consecutivo
+     */
+    public function __construct(int $id_comprobante = null, Model $captura = null, string $fecha = null, int $consecutivo = null)
     {
-        $this->rows = new Collection();
-        $this->setCreatedAt($fecha ?: date('Y-m-d H:i:s'));
-        
-        // Si se proporciona un consecutivo o una captura
-        $this->shouldUpdateConsecutivo = !$consecutivo && !$captura; 
-        
+
+		$this->setCreatedAt(date('Y-m-d H:i:s'));
+        $fecha = $fecha ?: date('y-m-d');
+
+
+		$this->shouldUpdateConsecutivo = !$consecutivo;
+
+        $consecutivo = isset($captura->consecutivo) ? $captura->consecutivo : $consecutivo;
+
         $this->captura = $captura;
-        $this->saveUnbalancedDocuments = $save_unbalanced;
-        
         $this->head = [
             "id_comprobante" => $id_comprobante,
-            "fecha" => $this->created_at->format('Y-m-d H:i:s'),
-            "consecutivo" => $consecutivo ?: $captura?->consecutivo, 
+            "fecha" => $fecha,
+            "consecutivo" => $consecutivo,
         ];
     }
-    
-    public function setShouldUpdateConsecutivo(bool $shouldUpdate)
-    {
-        $this->shouldUpdateConsecutivo = $shouldUpdate;
-    }
 
-    public function getConceptoDefault()
-    {
-        return $this->conceptoDefault;
-    }
+	public function setShouldUpdateConsecutivo(bool $shouldUpdate)
+	{
+		$this->shouldUpdateConsecutivo = $shouldUpdate;
+	}
 
-    public function setConceptoDefault(string $concepto): self
-    {
-        if ($concepto !== '') {
-            $this->conceptoDefault = $concepto;
-        }
+	public function getConceptoDefault()
+	{
+		return $this->conceptoDefault;
+	}
 
-        return $this;
-    }
-    
-    public function setCreatedAt(string $fecha) : void
+	public function setConceptoDefault(string $concepto)
+	{
+		if ($concepto !== '') {
+			$this->conceptoDefault = $concepto;
+		}
+
+		return $this;
+	}
+
+    /**
+     * Devuelve el consecutivo siguiente
+     *
+     * Si el tipo_consecutivo del comprobante es "0: normal" debe retornar "consecutivo_siguiente".
+     * Si el tipo_consecutivo del comprobante es "1: mensual" debe retornar "consecutivo_siguiente"
+     * o si ya es mes nuevo debe retornar 1.
+     *
+     * @param int $id_comprobante
+     * @param string|null $fecha
+     *
+     * @return int
+     */
+    public function getConsecutivo(int $id_comprobante, string $fecha = null): int
     {
-        $this->created_at = Carbon::parse($fecha);
-    }
-    
-    public function getConsecutivo(int $id_comprobante, ?string $fecha = null): ?int
-    {
-        $fecha = $fecha ?: date('Y-m-d');
+        $consecutivo = null;
+        $fecha = date('Y-m-d');
         $comprobante = Comprobantes::find($id_comprobante);
-        
         if (!$comprobante) {
             return null;
         }
 
-        // Si es consecutivo normal (0)
-        if ($comprobante->tipo_consecutivo == Comprobantes::CONSECUTIVO_NORMAL) {
-             return $comprobante->consecutivo_siguiente;
+        if ($comprobante->tipo_consecutivo) { // 0: normal - 1: mensual
+            $consecutivo = $comprobante->consecutivo_siguiente;
+        } else {
+            $day = date('d', strtotime($fecha));
+
+            if ($day == '01') {
+                $consecutivo = 1;
+            } else {
+                $consecutivo = $comprobante->consecutivo_siguiente;
+            }
         }
 
-        // Si es consecutivo mensual (1)
-        return (date('d', strtotime($fecha)) == '01')
-            ? 1
-            : $comprobante->consecutivo_siguiente;
+        return $consecutivo;
     }
 
-    // --- MANEJO DE FILAS ---
-    
-    public function addRow($row, ?int $naturaleza = null): self
+    /**
+     * Agrega un elemento a la lista de rows a guardar en con_documentos_general
+     *
+     * Recibe un array clave-valor con los valores de la fila y hace validaciones sobre estos y los asigna a la propiedad $rows
+     *
+     * @param DocumentosGeneral|array $row
+     * @param int|null $naturaleza
+     *
+     * @return Documento
+     */
+    public function addRow($row, int $naturaleza = null): Documento
     {
         $row = $this->normalize($row);
-        $row = $this->completeRowFields($row, $naturaleza);
+        $rowToAdd = $this->completeRowFields($row, $naturaleza);
 
-        if ($row->credito || $row->debito) {
-            $this->validateRow($row);
-            if (!$this->findAndUpdate($row)) {
-                $this->rows->push($row);
+        if ($rowToAdd->credito || $rowToAdd->debito) {
+            $this->validateRow($rowToAdd);
+
+            if (!$this->findAndUpdate($rowToAdd)) {
+                $this->rows[] = $rowToAdd;
             }
         }
 
         return $this;
     }
 
+    /**
+     * @param DocumentosGeneral|array $row
+     *
+     * @return DocumentosGeneral
+     */
     private function normalize($row): DocumentosGeneral
     {
-        if (is_array($row)) {
-            return new DocumentosGeneral($row); 
+		if (is_array($row)) {
+			return new DocumentosGeneral($row);
         }
 
-        return $row;
+		return $row;
     }
 
+    /**
+     * Actualiza row existente
+     *
+     * Busca row con los parámetros ingresados y actualiza los valores de crédito y débito si existe
+     *
+     * @param DocumentosGeneral $newRow
+     *
+     * @return bool
+     */
     private function findAndUpdate(DocumentosGeneral $newRow): bool
     {
         $searchCriteria = [
@@ -139,25 +201,25 @@ class Documento
             "naturaleza" => $newRow->naturaleza,
         ];
 
-        $index = $this->rows->search(function($existingRow) use ($searchCriteria) {
-            foreach ($searchCriteria as $key => $value) {
-                if ($existingRow->{$key} != $value) {
-                    return false;
-                }
-            }
-            return true;
-        });
+        $existingRow = $this->getBy($searchCriteria, true);
+        if ($existingRow) {
+            $rowUpdated = $this->updateRow($existingRow["row"], $newRow);
+            $this->rows[$existingRow["index"]] = $rowUpdated;
 
-        if ($index !== false) {
-            $existingRow = $this->rows->get($index);
-            $rowUpdated = $this->updateRow($existingRow, $newRow);
-            $this->rows->put($index, $rowUpdated);
             return true;
         }
 
         return false;
     }
 
+    /**
+     * Actualiza los valores de crédito y débito si existe
+     *
+     * @param DocumentosGeneral $existingRow
+     * @param DocumentosGeneral $newRow
+     *
+     * @return DocumentosGeneral
+     */
     private function updateRow(DocumentosGeneral $existingRow, DocumentosGeneral $newRow): DocumentosGeneral
     {
         $existingRow->debito = round($existingRow->debito + $newRow->debito, 2);
@@ -166,76 +228,96 @@ class Documento
         return $existingRow;
     }
 
+    /**
+     * Recibe un array clave-valor con los valores de la fila y hace validaciones sobre estos y los asigna a la propiedad $rows
+     *
+     * *    'id_cuenta': campo obligatorio, debe existir, ser auxiliar
+     * *    'id_nit': opcional a menos que la cuenta lo exija
+     * *    'documento_referencia': opcional a menos que la cuenta lo exija
+     * *    'id_centro_costos': opcional a menos que la cuenta lo exija
+     * *    'concepto': opcional a menos que la cuenta lo exija
+     * *    'debito': obligatorio si credito es 0, si este campo tiene valor, 'credito' debe ser 0.
+     * *    'credito': obligatorio si debito es 0, si este campo tiene valor, 'debito' debe ser 0.
+     * *    'saldo': opcional, por defecto es 0
+     *
+     * @param DocumentosGeneral $row
+     *
+     * @return void
+     */
     private function validateRow(DocumentosGeneral $row): void
     {
         $errors = [];
-        // Cargar la cuenta si no existe
-        $cuenta = $row->cuenta ?? PlanCuentas::find($row->id_cuenta);
+        $cuenta = PlanCuentas::find($row->id_cuenta);
 
-        if (!$cuenta) {
-            $errorMsg = $row->id_cuenta
-                ? "El ID de cuenta {$row->id_cuenta} no existe."
-                : "El campo id_cuenta es requerido.";
-            $this->errors['general'][] = $errorMsg; 
-            return;
+        if ($cuenta) {
+            // if ($cuenta && !$cuenta->auxiliar) {
+            //     $errors["id_cuenta"] = "La cuenta $cuenta->cuenta - $cuenta->nombre debe ser auxiliar.";
+            // }
+
+			// $errors['luji'] = 'probando errores';
+
+            if ($cuenta->exige_nit && !$row->id_nit) {
+                $errors["id_nit"] = "El campo id nit es requerido.";
+            }
+            if ($cuenta->exige_documento_referencia && !$row->documento_referencia) {
+                $errors["documento_referencia"] = "El campo documento referencia es requerido.";
+            }
+            if ($cuenta->exige_centro_costos && !$row->id_centro_costos) {
+                $errors["id_centro_costos"] = "El campo id centro costos es requerido.";
+            }
+            if ($cuenta->exige_concepto && !$row->concepto) {
+                $errors["concepto"] = "El campo concepto es requerido.";
+            }
+
+            if ($row->debito === null && $row->credito == 0) {
+                $errors["debito"] = "El campo debito es requerido si el campo credito es igual 0.";
+            }
+            if ($row->credito === null && $row->debito == 0) {
+                $errors["credito"] = "El campo credito es requerido si el campo debito es igual 0.";
+            }
+            if ($row->debito > 0 && $row->credito > 0) {
+                $errors["credito"] = "El campo débito debe ser 0 si el campo crédito es mayor a 0.";
+                $errors["debito"] = "El campo crédito debe ser 0 si el campo débito es mayor a 0.";
+            }
+        } else {
+            if ($row->id_cuenta) {
+                $errors["id_cuenta"] = "El id cuenta no existe en la tabla de plan de cuentas.";
+            } else {
+                $errors["id_cuenta"] = "El campo id cuenta es requerido.";
+            }
         }
 
-        if (!$cuenta->auxiliar) {
-            $errors["id_cuenta"] = "La cuenta {$cuenta->cuenta} - {$cuenta->nombre} debe ser auxiliar.";
-        }
-        if ($cuenta->exige_nit && !$row->id_nit) {
-            $errors["id_nit"] = "En la cuenta {$cuenta->cuenta} - {$cuenta->nombre}, el campo ID Nit es requerido.";
-        }
-        if ($cuenta->exige_documento_referencia && !$row->documento_referencia) {
-            $errors["documento_referencia"] = "En la cuenta {$cuenta->cuenta} - {$cuenta->nombre}, el campo documento referencia es requerido.";
-        }
-        if ($cuenta->exige_centro_costos && !$row->id_centro_costos) {
-             $errors["id_centro_costos"] = "En la cuenta {$cuenta->cuenta} - {$cuenta->nombre}, el campo id centro costos es requerido.";
-        }
-        if ($cuenta->exige_concepto && !$row->concepto) {
-            $errors["concepto"] = "En la cuenta {$cuenta->cuenta} - {$cuenta->nombre}, el campo concepto es requerido.";
-        }
-        
-        // Validación de Débito y Crédito mutuos
-        if ($row->debito === null && $row->credito == 0) {
-            $errors["debito"] = "El campo debito es requerido si el campo credito es igual 0.";
-        }
-        if ($row->credito === null && $row->debito == 0) {
-            $errors["credito"] = "El campo credito es requerido si el campo debito es igual 0.";
-        }
-        if ($row->debito > 0 && $row->credito > 0) {
-            $errors["movimiento"] = "Una línea contable no puede tener débito y crédito a la vez.";
-        }
-
-        if (!empty($errors)) {
-            // Almacenar errores en un formato que identifique la cuenta
-            $this->errors['Cuenta ' . $cuenta->cuenta] = $errors; 
+        if (count($errors)) {
+            $this->errors[strtolower($cuenta->nombre)] = $errors;
         }
     }
 
+    /**
+     * Devuelve un array con los datos de $row faltantes
+     *
+     * Para los datos faltantes se agrega valor null
+     *
+     * @param DocumentosGeneral|array $row
+     * @param string $naturaleza
+     *
+     * @return DocumentosGeneral
+     */
     private function completeRowFields(DocumentosGeneral $row, ?int $naturaleza = null): DocumentosGeneral
     {
-        // Se usa loadMissing para reducir el problema N+1 si la cuenta ya se cargó en un loop
-        $row->loadMissing(['cuenta']); 
-        $cuenta = $row->cuenta;
-        
-        if (!$cuenta) return $row; 
+		$row->loadMissing(['cuenta', 'centro_costos']);
 
-        $naturaleza = $naturaleza ?? $cuenta->naturaleza_cuenta;
+		$cuenta = $row->cuenta;
+        
+        $naturaleza = !is_null($naturaleza) ? $naturaleza : $cuenta->naturaleza_cuenta;
 
         $row->id_cuenta = $row->id_cuenta;
-        // Asignación condicional de campos exigidos (si no se exige, es null)
         $row->id_nit = $cuenta->exige_nit ? $row->id_nit : null;
         $row->documento_referencia = $cuenta->exige_documento_referencia ? $row->documento_referencia : null;
         $row->id_centro_costos = $cuenta->exige_centro_costos ? $row->id_centro_costos : null;
         $row->concepto = $cuenta->exige_concepto ? ($row->concepto ?: $this->conceptoDefault) : null;
-        
-        // Asignación de datos de cabecera (usando los valores de head, que son los que se guardarán)
-        $row->fecha_manual = $this->head['fecha']; 
+        $row->fecha_manual = $this->head['fecha'];
         $row->consecutivo = $this->head['consecutivo'];
         $row->id_comprobante = $this->head['id_comprobante'];
-        
-        // Asignación de valores D/C y naturaleza
         $row->debito = $naturaleza === PlanCuentas::DEBITO ? round($row->debito, 2) : 0;
         $row->credito = $naturaleza === PlanCuentas::CREDITO ? round($row->credito, 2) : 0;
         $row->saldo = $row->saldo ?: 0;
@@ -244,336 +326,235 @@ class Documento
         return $row;
     }
 
-    // --- GETTERS Y HELPERS ---
-
+    /**
+     * Retorna el array dentro de $this->rows segun la posición $index
+     *
+     * @param int $index
+     *
+     * @return array
+     */
     public function get(int $index): array
     {
-        $row = $this->rows->get($index); // Usar Collection->get()
+        $row = isset($this->rows[$index]) ? $this->rows[$index] : [];
 
-        return $row ? $row->toArray() : [];
+        return $row;
     }
 
-    public function getRows(): Collection
+    /**
+     * Retorna los datos de la propiedad rows.
+     *
+     * @return array
+     */
+    public function getRows(): array
     {
         return $this->rows;
     }
 
+    /**
+     * Retorna el array de la cabeza con los datos de fecha, consecutivo, id_comprobante, etc...
+     *
+     * @return array
+     */
     public function getHead(): array
     {
         return $this->head;
     }
 
+    /**
+     * Retorna un array con los errores obtenidos
+     *
+     * @return array
+     */
     public function getErrors(): array
     {
         return $this->errors;
     }
 
+    /**
+     * Valida si el documento tiene errores
+     *
+     * @return bool
+     */
     public function hasErrors(): bool
     {
         return count($this->errors) > 0;
     }
 
-    public function filterBy(string $key, $value): Collection
+    /**
+     * Retorna array con los elementos dentro de $this->rows que cumplan con $key y $value
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public function filterBy(string $key, $value): array
     {
-        return $this->rows->filter(function ($r) use ($key, $value) {
-             return $r->{$key} == $value;
-         });
-    }
-
-    public function getBy(array $condiciones, bool $withIndex = false)
-    {
-        $filtered = $this->rows->filter(function ($row) use ($condiciones) {
-            foreach ($condiciones as $key => $value) {
-                if (!isset($row->{$key}) || $row->{$key} != $value) {
-                    return false;
-                }
-            }
-            return true;
+        $rows = array_filter($this->rows, function ($r) use ($key, $value) {
+            return $r->{$key} == $value;
         });
 
-        if ($withIndex && !$filtered->isEmpty()) {
-            $index = $this->rows->search($filtered->first());
-            return ["index" => $index, "row" => $filtered->first()];
-        }
-
-        return $filtered->first();
+        return $rows;
     }
 
+    /**
+     * Retorna el primer elemento que cumpla con las condicines
+     *
+     * Ejemplo:
+     * * $doc->getBy(['id_cuenta'=>101, 'id_nit'=>302, 'documento_referencia'=> '001232']);
+     *
+     * @param array $condiciones
+     * @param bool $withIndex
+     *
+     * @return array
+     */
+    public function getBy(array $condiciones, $withIndex = false)
+    {
+        $filteredRow = null;
+        $index = 0;
+        $countCondiciones = array_key_exists("naturaleza", $condiciones) ? count($condiciones) - 1 : count($condiciones);
+
+        foreach ($this->rows as $idx => $row) {
+            $coincidences = 0;
+
+            if (array_key_exists("naturaleza", $condiciones)) {
+                $sameNaturaleza = $condiciones["naturaleza"] == $row->naturaleza;
+            } else {
+                $sameNaturaleza = true;
+            }
+
+            foreach ($condiciones as $key => $value) {
+                if ($sameNaturaleza && (in_array($key, $row->getFillable()) && $value == $row->{$key})) {
+                    $coincidences++;
+                }
+            }
+
+            if ($coincidences == $countCondiciones) {
+                $index = $idx;
+                $filteredRow = $row;
+                break;
+            }
+        }
+
+        if ($withIndex && $filteredRow) {
+            return ["index" => $index, "row" => $filteredRow];
+        }
+
+        return $filteredRow;
+    }
+
+    /**
+     *  Retorna array con total debito, credito y diferencia.
+     *
+     * @return stdClass
+     */
     public function getTotals(): stdClass
     {
+
         $totals = new stdClass();
-        $totals->debito = $this->rows->sum('debito');
-        $totals->credito = $this->rows->sum('credito');
+
+        $totals->debito = 0;
+        $totals->credito = 0;
+        $totals->diferencia = 0;
+
+        foreach ($this->rows as $row) {
+            $totals->debito = round($totals->debito + $row->debito, 2);
+            $totals->credito = round($totals->credito + $row->credito, 2);
+        }
+
         $totals->diferencia = abs(round($totals->credito - $totals->debito, 2));
+
         return $totals;
     }
 
     public function withTotalRow(float $totalFactura, int $naturaleza = PlanCuentas::DEBITO): void
     {
-        $totalRow = new stdClass();
+        $totalRow = $this->getTotals();
         $totalRow->debito = $naturaleza === PlanCuentas::DEBITO ? round($totalFactura) : 0;
         $totalRow->credito = $naturaleza === PlanCuentas::CREDITO ? round($totalFactura) : 0;
-        $totalRow->cuenta = (object)['nombre' => "TOTAL FACTURA"]; // Simular cuenta para fines de visualización/debug
-        $this->rows->push($totalRow);
-    }
-    
-    public function loadMissing(array $relations)
-    {
-        foreach ($this->rows as $row) {
-            // Solo si es una instancia de Model, se usa loadMissing
-            if ($row instanceof Model) {
-                $row->loadMissing($relations);
-            }
-        }
+        $totalRow->cuenta = new stdClass();
+        $totalRow->cuenta->nombre = "TOTAL FACTURA";
+        $this->rows[] = $totalRow;
     }
 
-    // --- LÓGICA DE GUARDADO ---
-    
-    protected function updateRowsWithConsecutive(int $consecutivo): void
+	public function setCreatedAt(string $fecha) : void
+	{
+		$this->created_at = $fecha;
+	}
+
+	public function loadMissing(array $relations)
+	{
+		foreach ($this->rows as $row) {
+			$row->loadMissing($relations);
+		}
+	}
+
+    /**
+     * Guarda los datos que estén la propiedad rows en la tabla con_documentos_general
+     *
+     * * Si no tiene registro retorna false
+     *
+     * * Crea la consulta para guardar en las respectivas tablas recorriendo cada uno de los registros.
+     *
+     * * Si hay errores en $this->errors debe retornar false.
+     *
+     * * Debe buscar el consecutivo libre siguiente debido a que mientras se hacía
+     * el documento el consecutivo pudo haber cambiado
+     *
+     * * Se debe validar que si dos registros entran al mismo tiempo no queden con
+     * el mismo consecutivo, para eso se puede hacer uso de los "unique" desde base de datos
+     * y catchear el error para consultar un nuevo consecutivo.
+     *
+     *
+     * @return bool
+     */
+    public function save()
     {
-        $this->head['consecutivo'] = $consecutivo;
-        foreach ($this->rows as $row) {
-            $row->consecutivo = $consecutivo;
-        }
-    }
+        $countRows = count($this->rows);
 
-    protected function isUnbalanced(): bool
-    {
-        // Se usa una pequeña tolerancia para evitar problemas de coma flotante
-        return $this->getTotals()->diferencia > 0.01; 
-    }
-
-    protected function validateUnbalancedDocument()
-    {
-        $totals = $this->getTotals();
-
-        if ($this->isUnbalanced()) {
-            $validate = false;
-
-            $capturarDocumentosDescuadrados = VariablesEntorno::where('nombre', 'capturar_documento_descuadrado')->first();
-            
-            // 1. Validar por Variable de Entorno
-            if (!$capturarDocumentosDescuadrados || $capturarDocumentosDescuadrados->valor == 0) {
-                $validate = true;
-            }
-            // 2. Validar por parámetro del constructor
-            if (!$this->saveUnbalancedDocuments) {
-                $validate = true;
-            }
-            
-            if ($validate) {
-                // ... (lógica de formateo de mensaje de error de descuadre) ...
-                $debitAccounts = $this->rows->where('debito', '>', 0)->pluck('cuenta.nombre', 'cuenta.cuenta')->toArray();
-                $creditAccounts = $this->rows->where('credito', '>', 0)->pluck('cuenta.nombre', 'cuenta.cuenta')->toArray();
-
-                $this->errors['Movimiento contable'][] = sprintf(
-                    "Movimiento contable descuadrado <br><br />".
-                    "<strong>Diferencia:</strong> %.2f (DÉBITO: %.2f vs CRÉDITO: %.2f)<br />" .
-                    "<strong>Cuentas con DÉBITO (%d):</strong> %s.<br />" .
-                    "<strong>Cuentas con CRÉDITO (%d):</strong> %s.",
-                    $totals->diferencia,
-                    $totals->debito,
-                    $totals->credito,
-                    count($debitAccounts),
-                    implode(', ', array_map(fn($k, $v) => "$k ($v)", array_keys($debitAccounts), $debitAccounts)),
-                    count($creditAccounts),
-                    implode(', ', array_map(fn($k, $v) => "$k ($v)", array_keys($creditAccounts), $creditAccounts))
-                );
-            }
-        }
-    }
-
-    protected function validateConsecutiveJump(int $idComprobante, int $currentConsecutivo): bool
-    {
-        $comprobante = Comprobantes::find($idComprobante);
-        
-        if (!$comprobante) {
-            $this->errors['comprobante'][] = "El comprobante no existe para validar el salto.";
+        if (!$countRows) {
+            $this->errors["productos"][] = "No hay documentos a guardar";
             return false;
         }
 
-        $query = DocumentosGeneral::where('id_comprobante', $idComprobante);
-        
-        // --- LÓGICA DE FILTRADO POR TIPO DE CONSECUTIVO ---
-        
-        // 1. Tipo Anual (Si tuvieras)
-        // Se asume que la fecha de la cabecera es $this->head['fecha']
-        $fechaDocumento = $this->head['fecha']; 
-        
-        // Si el tipo de consecutivo requiere reinicio (Mensual o Anual), filtramos por la ventana.
-        // Asumimos: 0=Continuo/Normal, 1=Mensual. Si existiera 2=Anual, lo manejaríamos.
-        if ($comprobante->tipo_consecutivo == Comprobantes::CONSECUTIVO_MENSUAL) {
-            
-            // Si es Mensual, filtramos por el AÑO y el MES del documento actual
-            $query->whereYear('fecha_manual', Carbon::parse($fechaDocumento)->year)
-                ->whereMonth('fecha_manual', Carbon::parse($fechaDocumento)->month);
+        if ($this->captura) {
+            $isUnbalanced = $this->getTotals()->diferencia > 0;
 
-            // Si es el primer día (y por ende el consecutivo es 1), no hay salto que validar.
-            if (Carbon::parse($fechaDocumento)->day === 1 && $currentConsecutivo === 1) {
-                return true;
-            }
-
-        } else {
-            // Si el tipo es ANUAL (asumiendo que existe en tu sistema), filtramos por AÑO
-            $query->whereYear('fecha_manual', Carbon::parse($fechaDocumento)->year);
-            
-            // Si es el primer día del año (y por ende el consecutivo es 1), no hay salto.
-            if (Carbon::parse($fechaDocumento)->isSameDay(Carbon::parse($fechaDocumento)->startOfYear()) && $currentConsecutivo === 1) {
-                return true;
-            }
-        }
-        
-        // --- OBTENER ÚLTIMO CONSECUTIVO USADO ---
-        
-        // Traer el valor más alto del campo 'consecutivo' dentro del filtro (si aplica)
-        $ultimoConsecutivoUsado = $query
-            // Forzar la conversión a entero para la comparación y ordenamiento
-            ->orderByRaw('CAST(consecutivo AS UNSIGNED) DESC') // Usar ORDER BY RAW para ordenar numéricamente
-            ->value('consecutivo');// <-- ¡CORREGIDO! Trae el consecutivo, no el ID.
-
-        // Si no hay documentos previos dentro del período (o en general), no hay salto.
-        if (is_null($ultimoConsecutivoUsado) || $ultimoConsecutivoUsado == 0) {
-            // Si el consecutivo actual es 1 (y no hay usados), está bien.
-            if ($currentConsecutivo === 1) {
-                return true;
-            }
-        }
-        
-        // --- VALIDACIÓN DE SALTO ---
-        
-        // El consecutivo actual DEBE ser exactamente uno más que el último consecutivo usado.
-        if ($currentConsecutivo === ($ultimoConsecutivoUsado + 1)) {
-            return true;
-        }
-        
-        // Error: Salto detectado.
-        if ($currentConsecutivo > ($ultimoConsecutivoUsado + 1)) {
-            $this->errors['consecutivo'][] = sprintf(
-                "¡Error de salto de consecutivo! El último consecutivo usado para este comprobante fue %d, pero el consecutivo a guardar es %d. Esto indica que se saltaron %d números.",
-                $ultimoConsecutivoUsado,
-                $currentConsecutivo,
-                $currentConsecutivo - $ultimoConsecutivoUsado - 1
-            );
-            return false;
-        }
-        
-        // Error: Consecutivo duplicado o menor (Aunque $this->getConsecutivo() debería prevenir esto)
-        if ($currentConsecutivo <= $ultimoConsecutivoUsado) {
-            $this->errors['consecutivo'][] = sprintf(
-                "¡Error! El consecutivo actual %d es menor o igual al último usado %d. Debe ser %d.",
-                $currentConsecutivo,
-                $ultimoConsecutivoUsado,
-                $ultimoConsecutivoUsado + 1
-            );
-            return false;
-        }
-
-        return true; // En teoría, la única forma de llegar aquí es si pasó la validación.
-    }
-
-    public function save(): bool
-    {
-        if ($this->rows->isEmpty()) {
-            $this->errors["general"][] = "No hay documentos a guardar";
-            return false;
-        }
-        
-        if ($this->captura && $this->isUnbalanced()) {
-            $this->validateUnbalancedDocument();
+            // if ($isUnbalanced) {
+            //     $this->errors['documento'][] = 'Documento descuadrado';
+            // }
         }
 
         if ($this->hasErrors()) {
             return false;
-        }
+		}
 
-        $comprobante = Comprobantes::find($this->head['id_comprobante']);
-        if (!$comprobante) {
-            $this->errors['comprobante'][] = "El comprobante no existe";
-            return false;
-        }
+		if ($this->captura) {
+			foreach ($this->rows as $row) {
+				$row->created_at = $this->created_at;
+				unset($row->naturaleza);
+				$row->relation()->associate($this->captura);
 
-        $validarSaltoConsecutivos = VariablesEntorno::where('nombre', 'validar_salto_consecutivos')->first();
+				if (!$this->captura->documentos()->save($row)) {
+					throw new Exception('Error al guardar documentos.');
+				}
+			}
 
-        if ($validarSaltoConsecutivos && $validarSaltoConsecutivos->valor) {
-            $currentConsecutivo = $this->getConsecutivo($this->head['id_comprobante'], $this->head['fecha']);
-            
-            // Validar el salto antes de cualquier reintento
-            if (!$this->validateConsecutiveJump($this->head['id_comprobante'], $currentConsecutivo)) {
-                return false; 
-            }
-        }
-        
-        $maxRetries = 3;
-        // Bucle de reintento para manejar la concurrencia en la asignación del consecutivo
-        for ($i = 0; $i < $maxRetries; $i++) {
-            try {
-                // Iniciar la transacción para asegurar atomicidad
-                DB::beginTransaction(); 
+			if ($this->shouldUpdateConsecutivo) {
+				$this->updateConsecutivo($this->head['id_comprobante'], $this->head['consecutivo']);
+			}
+		} else if (!$this->captura) {
+			foreach ($this->rows as $row) {
+				$row->created_at = $this->created_at;
 
-                // 1. Determinar el consecutivo si es un reintento o si se debe generar
-                if ($this->shouldUpdateConsecutivo || $i > 0) {
-                    $currentConsecutivo = $this->getConsecutivo($this->head['id_comprobante'], $this->head['fecha']);
-                    $this->updateRowsWithConsecutive($currentConsecutivo); 
-                }
-                
-                // 2. Guardar Documentos
-                if ($this->captura) {
-                    $this->saveDocumentsWithCapture();
-                } else {
-                    $this->saveDocumentsWithoutCapture();
-                }
+				unset($row->naturaleza);
 
-                // 3. Actualizar el consecutivo siguiente en el Comprobante (si es necesario)
-                if ($this->shouldUpdateConsecutivo) {
-                    $this->updateConsecutivo($this->head['id_comprobante'], $this->head['consecutivo']);
-                }
+				if (!$row->save()) {
+					throw new Exception('Error al guardar documentos.');
+				}
+			}
+		}
 
-                DB::commit();
-                return true;
-
-            } catch (QueryException $e) {
-                DB::rollBack();
-                
-                // Código de error 23000 es común para UNIQUE constraint violation en MySQL.
-                if ($e->getCode() == "23000" && $this->shouldUpdateConsecutivo && $i < $maxRetries - 1) { 
-                    // Falla por duplicidad. Reintentamos con un nuevo consecutivo en la próxima iteración.
-                    continue; 
-                }
-                
-                $this->errors['documento'][] = "Error de base de datos al guardar: " . $e->getMessage();
-                return false;
-                
-            } catch (Exception $e) {
-                DB::rollBack();
-                $this->errors['documento'][] = "Error general al guardar: " . $e->getMessage();
-                return false;
-            }
-        }
-        
-        $this->errors['documento'][] = "No se pudo guardar el documento después de {$maxRetries} intentos debido a un problema de concurrencia.";
-        return false;
-    }
-    
-    protected function saveDocumentsWithCapture()
-    {
-        foreach ($this->rows as $row) {
-            $row->created_at = $row->created_at ?: $this->created_at;
-            unset($row->naturaleza);
-            $row->relation()->associate($this->captura); // Se usa la relación 'relation' en DocumentosGeneral
-            if (!$this->captura->documentos()->save($row)) {
-                throw new Exception('Error al guardar documentos.');
-            }
-        }
-    }
-
-    protected function saveDocumentsWithoutCapture()
-    {
-        foreach ($this->rows as $row) {
-            $row->created_at = $row->created_at ?: $this->created_at;
-            unset($row->naturaleza);
-            if (!$row->save()) {
-                throw new Exception('Error al guardar documentos.');
-            }
-        }
-    }
+		return true;
+	}
 }
