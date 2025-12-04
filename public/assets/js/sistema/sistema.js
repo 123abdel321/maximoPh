@@ -7,17 +7,14 @@ if (host.includes("maximoph.co")) {
     base_web = "https://maximoph.co/";
     base_web_erp = "https://app.portafolioerp.com/";
     base_url_erp = "https://app.portafolioerp.com/api/";
-} else if (host.includes("maximoph.co")) {
-    base_url = "https://maximoph.co/api/";
-    base_web = "https://maximoph.co/";
-    base_web_erp = "https://app.portafolioerp.com/";
-    base_url_erp = "https://app.portafolioerp.com/api/";
+    base_url_eco = "https://eco.portafolioerp.com/api/";
 } else if (host.includes("127.0.0.1:8090")) {
     // Desarrollo en red local
     base_url = "http://127.0.0.1:8090/api/";
     base_web = "http://127.0.0.1:8090/";
     base_web_erp = "http://localhost:8000/";
     base_url_erp = "http://localhost:8000/api/";
+    base_url_eco = "http://127.0.0.1:8989/api/";
 }
 
 const pusher = new Pusher('9ea234cc370d308638af', {cluster: 'us2'});
@@ -127,6 +124,7 @@ var moduloCreado = {
     'familia': false,
     'novedades': false,
     'email': false,
+    'notificaciones': false,
 };
 
 var moduloRoute = {
@@ -158,6 +156,7 @@ var moduloRoute = {
     'familia': 'administrativo',
     'novedades': 'administrativo',
     'email': 'administrativo',
+    'notificaciones': 'administrativo',
 }
 
 $('.water').show();
@@ -171,7 +170,7 @@ $('#containner-dashboard').load('/dashboard', function() {
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
     if(xhr.status == 401) {
-        closeSessionProfile();
+        // document.getElementById('logout-form').submit();
     }
 });
 
@@ -230,7 +229,18 @@ $imagenes = [
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_46.jpg',
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_47.jpg',
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_48.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_49.jpg'
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_49.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_50.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_51.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_52.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_53.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_54.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_55.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_56.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_57.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_58.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_59.jpg',
+    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_60.jpg',
 ];
 
 var urlImgFondo = $imagenes[getRandomInt($imagenes.length)];
@@ -630,30 +640,11 @@ function openPortafolioERP() {
 }
 
 function openNewItem(id, nombre, icon, open = true) {
-    // if($('#containner-'+id).length == 0) {
-    //     generateView(id, nombre, icon);
-    // }
-    // seleccionarView(id, nombre);
-    // if (open) document.getElementById('sidenav-main-2').click();
-
-    // Cerrar vistas anteriores si hay muchas abiertas
-    if ($('.change-view').length > 10) {
-        // Cerrar la vista más antigua
-        const oldestView = $('.change-view').first();
-        const oldId = oldestView.attr('id').replace('containner-', '');
-        closeViewById(oldId);
-    }
-    
     if($('#containner-'+id).length == 0) {
         generateView(id, nombre, icon);
     }
     seleccionarView(id, nombre);
     if (open) document.getElementById('sidenav-main-2').click();
-}
-
-function closeViewById(id) {
-    const closeButton = $('#closetab_'+id)[0];
-    if (closeButton) closeView(closeButton);
 }
 
 function closeAnotherItems(id) {
@@ -678,35 +669,11 @@ function closeMenu() {
     }
 }
 
-function checkMemoryUsage() {
-    if (window.performance && window.performance.memory) {
-        console.log('Memory used: ', 
-            Math.round(window.performance.memory.usedJSHeapSize / 1048576) + 'MB');
-    }
-}
-
 function generateView(id, nombre, icon){
     $('.water').show();
-
-    // Limpiar vistas inactivas si hay muchas
-    const activeViews = $('.change-view:visible');
-    if (activeViews.length > 5) {
-        activeViews.each(function(index) {
-            if (index > 4) { // Mantener máximo 5 vistas visibles
-                const viewId = $(this).attr('id').replace('containner-', '');
-                closeViewById(viewId);
-            }
-        });
-    }
-
     $('#contenerdores-views').append('<main class="tab-pane main-content border-radius-lg change-view" style="margin-left: 5px;" id="containner-'+id+'"></main>');
     $('#footer-navigation').append(generateNewTabButton(id, nombre, icon));
-    $('#containner-'+id).load('/'+id, function(response, status, xhr) {
-
-        if (xhr.status === 401) {
-            window.location.href = '/login';
-            return;
-        }
+    $('#containner-'+id).load('/'+id, function() {
 
         if(!moduloCreado[id]) includeJs(id);
         else callInitFuntion(id);
@@ -762,37 +729,16 @@ function generateNewTabButton(id, nombre, icon){
     return html;
 }
 
-// En tu código de inicialización
-$(document).on('click', '.close_item_navigation', function(e) {
-    e.stopPropagation();
-    closeView(this);
-});
-
-// Y para los botones del menú
-$(document).on('click', '.button-side-nav', function() {
-    const id = this.id.replace('sidenav_', '');
-    const nombre = $(this).find('.nav-link-text').text().trim();
-    const icon = $(this).find('i').attr('class');
-    openNewItem(id, nombre, icon, true);
-});
-
 function closeView(nameView) {
     var id = nameView.id.split('_')[1];
     
-    // Limpiar event listeners antes de remover
-    const container = $("#containner-"+id);
-    container.off(); // Remover todos los event listeners de jQuery
-    container.empty(); // Limpiar contenido
-    
     $("#lista_view_"+id).remove();
+    $("#containner-"+id).empty();
     $("#containner-"+id).remove();
 
-    // Forzar garbage collection
     setTimeout(() => {
-        if (window.gc) window.gc(); // Solo funciona en Chrome con flags especiales
         seleccionarView('dashboard');
-    }, 10);
-
+    }, 10)
 }
 
 $("#tab-dashboard").click(function(event){
