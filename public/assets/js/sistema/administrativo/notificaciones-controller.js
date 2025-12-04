@@ -103,6 +103,11 @@ function initTablesEco() {
                                     <i class="fas fa-times-circle" ${iconStyle}></i> RECHAZADO
                                 </span>`;
                     }
+                    if (row.status == 'diferido') {// 🟡 EN COLA / PENDIENTE: Estado intermedio, esperando (fa-clock)
+                        return `<span class="badge bg-warning rounded-pill" ${baseStyle}>
+                                    <i class="fas fa-clock" ${iconStyle}></i> DIFERIDO
+                                </span>`;
+                    }
                     // ⚫ POR DEFECTO: Estado desconocido (fa-question-circle)
                     return `<span class="badge bg-dark rounded-pill" ${baseStyle}>
                                 <i class="fas fa-question-circle" ${iconStyle}></i> DESCONOCIDO
