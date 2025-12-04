@@ -145,9 +145,10 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                         'nombre_completo' => $nit->nombre_nit
                     ];
 
-                    // "57$whatsapp",
+                    // 
                     $sender = new SendEcoWhatsApp(
-                        "573145876923", // Teléfono
+                        // "573145876923", // Teléfono
+                        "57$whatsapp",
                         $whatsappData,
                         $filterData,
                         EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION,
