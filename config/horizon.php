@@ -181,28 +181,6 @@ return [
 
     'environments' => [
         'production' => [
-            'whatsapp' => [
-                'connection' => 'redis',
-                'queue' => ['default'],
-                'balance' => 'auto',
-                'maxProcesses' => 1,
-                'memory' => 128,
-                'tries' => 1,
-                'timeout' => 120,
-                'nice' => 0,
-                'tag' => 'eco-whatsapp',
-            ],
-            'email' => [
-                'connection' => 'redis',
-                'queue' => ['default'],
-                'balance' => 'auto',
-                'maxProcesses' => 1,
-                'memory' => 128,
-                'tries' => 1,
-                'timeout' => 120,
-                'nice' => 0,
-                'tag' => 'eco-email',
-            ],
             'supervisor-long-running' => [
                 'connection' => 'redis',
                 'queue' => ['pdf-generation'], // Cola específica para PDFs
