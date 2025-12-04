@@ -108,6 +108,12 @@ function initTablesEco() {
                                     <i class="fas fa-clock" ${iconStyle}></i> DIFERIDO
                                 </span>`;
                     }
+                    
+                    if (row.status == 'leido') { // 🔵 LEÍDO
+                        return `<span class="badge bg-primary rounded-pill" ${baseStyle}>
+                                    <i class="fas fa-eye" ${iconStyle}></i> LEÍDO
+                                </span>`;
+                    }
                     // ⚫ POR DEFECTO: Estado desconocido (fa-question-circle)
                     return `<span class="badge bg-dark rounded-pill" ${baseStyle}>
                                 <i class="fas fa-question-circle" ${iconStyle}></i> DESCONOCIDO
