@@ -63,6 +63,7 @@ function initTablesEco() {
             }
         },
         columns: [
+            {"data": 'id'},
             {"data":'email'},
             {"data": function (row, type, set){
                 if (row.filter_metadata) {
@@ -161,6 +162,7 @@ function initTablesEco() {
             }
         },
         columns: [
+            {"data": 'id'},
             {"data":'phone'},
             {"data": function (row, type, set){
                 if (row.filter_metadata) {
