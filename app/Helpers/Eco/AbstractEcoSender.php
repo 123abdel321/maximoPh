@@ -10,7 +10,7 @@ use App\Models\Empresa\Empresa;
 
 abstract class AbstractEcoSender
 {
-    protected $endPoint = 'http://127.0.0.1:8989/api/';
+    protected $endPoint = 'https://eco.portafolioerp.com/api/';
     protected ?string $token = null;
 
     public abstract function getEndpoint(): string;
