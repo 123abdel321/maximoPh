@@ -93,8 +93,8 @@ function initTablesEco() {
                                     <i class="fas fa-envelope-open" ${iconStyle}></i> ABIERTO
                                 </span>`;
                     }
-                    if (row.status == 'entregado') {// 🟢 ENTREGADO: Entregado al buzón (fa-check-circle)
-                        return `<span class="badge bg-success rounded-pill" ${baseStyle}>
+                    if (row.status == 'entregado') {// 🔵 ENTREGADO: Entregado al buzón (fa-check-circle)
+                        return `<span class="badge bg-info rounded-pill" ${baseStyle}>
                                     <i class="fas fa-check-circle" ${iconStyle}></i> ENTREGADO
                                 </span>`;
                     }
@@ -109,8 +109,8 @@ function initTablesEco() {
                                 </span>`;
                     }
                     
-                    if (row.status == 'leido') { // 🔵 LEÍDO
-                        return `<span class="badge bg-primary rounded-pill" ${baseStyle}>
+                    if (row.status == 'leido') { // 🟢 LEÍDO
+                        return `<span class="badge bg-success rounded-pill" ${baseStyle}>
                                     <i class="fas fa-eye" ${iconStyle}></i> LEÍDO
                                 </span>`;
                     }
