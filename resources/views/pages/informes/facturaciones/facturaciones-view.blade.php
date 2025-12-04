@@ -12,7 +12,7 @@
 
         <div class="card mb-4">
             <div class="card-body" style="padding: 0 !important;">
-                @include('pages.informes.facturaciones.facturaciones-filter')
+                @include('pages.informes.facturaciones.facturaciones-filter', ['tokenEco' => $tokenEco])
             </div>
         </div>
 
@@ -26,4 +26,5 @@
     var periodo_facturaciones = @json($periodo_facturaciones);
     var enviar_facturas = @json(auth()->user()->can('facturaciones email'));
     var whatsapp_facturas = @json(auth()->user()->can('facturaciones whatsapp'));
+    var tieneTokenEco = @json($tokenEco);
 </script>

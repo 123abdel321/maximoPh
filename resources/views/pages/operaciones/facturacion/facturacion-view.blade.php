@@ -164,4 +164,5 @@
 <script>
     var causacion_mensual_rapida = @json($causacion_mensual_rapida);
     var recausar_meses = @json($recausar_meses);
+    var tieneTokenEco = @json($tokenEco);
 </script>

@@ -48,19 +48,21 @@
                             </span>
                         </div>
 
-                        @can('facturaciones email')
-                            <div class="form-check form-switch col-6 col-sm-4 col-md-4" style="">
-                                <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
-                                    <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
-                                    <b style="vertical-align: text-top;">ENVIAR FACTURAS</b>
-                                </span>
+                        @if ($tokenEco)
+                            @can('facturaciones email')
+                                <div class="form-check form-switch col-6 col-sm-4 col-md-4" style="">
+                                    <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
+                                        <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
+                                        <b style="vertical-align: text-top;">ENVIAR FACTURAS</b>
+                                    </span>
 
-                                <span id="enviarEmailFacturasLoading" class="btn disabled badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important; display: none;">
-                                    <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
-                                    <b style="vertical-align: text-top;">CARGANDO</b>
-                                </span>
-                            </div>
-                        @endcan
+                                    <span id="enviarEmailFacturasLoading" class="btn disabled badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important; display: none;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
+                                        <b style="vertical-align: text-top;">CARGANDO</b>
+                                    </span>
+                                </div>
+                            @endcan
+                        @endif
                     </div>  
                 </form>
                 <div style="height: 10px;"></div>  

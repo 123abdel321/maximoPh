@@ -46,7 +46,7 @@ function facturacionesInit() {
             {
                 "data": function (row, type, set){
                     var html = ``;
-                    if (enviar_facturas) html+= `
+                    if (tieneTokenEco && enviar_facturas) html+= `
                         <span
                             id="enviarfacturaciones_${row.id}"
                             href="javascript:void(0)"
@@ -56,7 +56,7 @@ function facturacionesInit() {
                             <i class="fas fa-envelope"></i>&nbsp;&nbsp;
                             Enviar Email
                         </span>&nbsp;`;
-                    if (whatsapp_facturas && (row.telefono_1 || row.telefono_2)) html+= `
+                    if (tieneTokenEco && whatsapp_facturas && (row.telefono_1 || row.telefono_2)) html+= `
                         <span 
                             id="whatsappfacturaciones_${row.id}"
                             href="javascript:void(0)"

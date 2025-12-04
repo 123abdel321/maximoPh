@@ -63,6 +63,7 @@ class FacturacionController extends Controller
         $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
         $valor_total_presupuesto = Entorno::where('nombre', 'valor_total_presupuesto_year_actual')->first();
         $causacion_mensual_rapida = Entorno::where('nombre', 'causacion_mensual_rapida')->first();
+        $eco_login = Entorno::where('nombre', 'eco_login')->first();
         $recausar_meses = Entorno::where('nombre', 'recausar_meses')->first();
         $valor_total_presupuesto = $valor_total_presupuesto && $valor_total_presupuesto->valor ? $valor_total_presupuesto->valor : 0;
 
@@ -75,7 +76,8 @@ class FacturacionController extends Controller
             'causacion_mensual_rapida' => 1,
             'valor_registro_presupuesto' => $valorRegistroPresupuesto,
             'valor_registro_coeficiente' => $coeficienteTotal,
-            'recausar_meses' => $recausar_meses ? intval($recausar_meses->valor) : 0
+            'recausar_meses' => $recausar_meses ? intval($recausar_meses->valor) : 0,
+            'tokenEco' => $eco_login ? $eco_login->valor : false,
         ];
 
         return view('pages.operaciones.facturacion.facturacion-view', $data);
@@ -1236,9 +1238,12 @@ class FacturacionController extends Controller
         )->groupBy('fecha_manual')
         ->orderBy('fecha_manual', 'DESC')
         ->first();
+        
+        $eco_login = Entorno::where('nombre', 'eco_login')->first();
 
         $data = [
-            'periodo_facturaciones' => $periodo
+            'periodo_facturaciones' => $periodo,
+            'tokenEco' => $eco_login ? $eco_login->valor : false
         ];
 
         return view('pages.informes.facturaciones.facturaciones-view', $data);
@@ -1410,7 +1415,11 @@ class FacturacionController extends Controller
             $id_usuario = $request->user()->id;
             $id_empresa = request()->user()->id_empresa;
             
-            ProcessEnvioFacturaEmail::dispatch($request->all(), $id_empresa, $id_usuario);
+            ProcessEnvioFacturaEmail::dispatch(
+                $request->all(),
+                $id_empresa,
+                $id_usuario
+            );
 
             return response()->json([
                 'success'=>	true,
@@ -1433,14 +1442,28 @@ class FacturacionController extends Controller
 
             $id_usuario = $request->user()->id;
             $id_empresa = request()->user()->id_empresa;
-            
-            ProcessEnvioFacturaWhatsapp::dispatch($request->all(), $id_empresa, $id_usuario);
+            $ecoToken = Entorno::where('nombre', 'eco_login')->first();
+            if ($ecoToken && $ecoToken->valor) {
+
+                ProcessEnvioFacturaWhatsapp::dispatch(
+                    $request->all(),
+                    $ecoToken->valor,
+                    $id_empresa,
+                    $id_usuario
+                );
+                
+                return response()->json([
+                    'success'=>	true,
+                    'data' => [],
+                    'message'=> 'Facturas generadas con exito!'
+                ]);
+            }
 
             return response()->json([
-                'success'=>	true,
+                "success"=>false,
                 'data' => [],
-                'message'=> 'Facturas generadas con exito!'
-            ]);
+                "message"=>'No se encuentra configuradas las notificaciones'
+            ], 422);
 
         } catch (Exception $e) {
             return response()->json([
