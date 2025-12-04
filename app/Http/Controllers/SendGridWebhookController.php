@@ -45,6 +45,10 @@ class SendGridWebhookController extends Controller
                 $envio = EnvioEmail::where('sg_message_id', $smtpId)->first();
             }
 
+            if (!$envio) {
+                $envio = EnvioEmail::where('sg_message_id', $event['sg_message_id'])->first();
+            }
+
             if ($envio) {
 
                 if ($eventType == "delivered") {
