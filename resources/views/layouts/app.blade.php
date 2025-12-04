@@ -215,10 +215,6 @@
     @include('layouts.footers.footer')
     <!-- CHAT GENERA -->
 
-    @livewire('chat-general')
-
-    @livewireScripts
-
     <script>
         const idRolUsuario = @json($rol_usuario);
         const is_owner = @json($is_owner);
@@ -235,7 +231,6 @@
         const mensajeNovedad = @json(auth()->user()->can('mensajes novedades'));
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!--   Core JS Files   -->
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
@@ -303,9 +298,9 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script>
         //VALIDAR TOTAL DE NOTIFICACIONES PENDIENTES
-        setTimeout(function(){
-            actualizarNumeroNotificaciones();
-        },500);
+        // setTimeout(function(){
+        //     actualizarNumeroNotificaciones();
+        // },500);
     </script>
     @stack('js')
 </body>

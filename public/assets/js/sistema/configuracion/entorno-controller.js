@@ -1,5 +1,7 @@
 var $nitPorDefecto = null;
 var newFirmaDigital = null;
+var tokenEco = "";
+// var tokenEco = "Bearer 5|HoHWzVDv3wwomgELloQS5RXGyEBEdBZtyKYzSI7X5e1f60a7";
 var $comboConceptoFacturacion = null;
 var $comboFormasPagoPlacetoPay = null;
 var $comboFormasPagoComprobante = null;
@@ -77,6 +79,10 @@ function entornoInit() {
             $("#preview_firma_digital_paz_salvo").attr('src', variable.valor);
             $("#preview_firma_digital_paz_salvo").show();
             $("#firma_digital_paz_salvo").hide();
+        }
+
+        if (variable.nombre == 'eco_login') {
+            tokenEco = variable.valor
         }
 
         if (numberEntorno.indexOf(variable.nombre) + 1) {
@@ -202,7 +208,15 @@ function entornoInit() {
                 $comboCuentaIngresoPasarela.val(dataCuenta.id).trigger('change');
             }
         }
+        
     }
+
+    $('#contenedor-canales').html(`
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-sm mt-2">Cargando...</p>
+        </div>
+    `);
 }
 
 function cargarCombosEntorno() {
@@ -451,6 +465,188 @@ function cargarCombosEntorno() {
     });
 }
 
+function readURLFirmaDigitalNueva(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            newFirmaDigital = e.target.result;
+            $('#preview_firma_digital_paz_salvo').attr('src', e.target.result);
+            $('#firma_digital_paz_salvo').attr('src', e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+
+        $('#preview_firma_digital_paz_salvo').hide();
+        $('#firma_digital_paz_salvo').show();
+    }
+}
+
+function validarNotificaciones() {
+    $.ajax({
+        url: base_url_eco + 'credenciales',
+        method: 'GET',
+        headers: {
+            "Authorization": tokenEco,
+            "Content-Type": "application/json",
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            let htmlContent = '';
+
+            // Recorremos los datos
+            res.data.forEach(item => {
+                // Lógica visual según el tipo de canal
+                let icono = '';
+                let colorIcono = '';
+                let titulo = '';
+
+                // Definir iconos y colores según el tipo
+                if(item.tipo === 'whatsapp'){
+                    icono = 'fab fa-whatsapp';
+                    titulo = 'WhatsApp';
+                    // Si está activo verde, si no gris
+                    colorIcono = item.activo ? 'text-success' : 'text-secondary'; 
+                } else if(item.tipo === 'email'){
+                    icono = 'fas fa-envelope';
+                    titulo = 'Correo Electrónico';
+                    // Si está activo warning (típico de email en argon) o info, si no gris
+                    colorIcono = item.activo ? 'text-warning' : 'text-secondary';
+                } else {
+                    icono = 'fab fa-bell';
+                    titulo = item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1);
+                    colorIcono = 'text-info';
+                }
+
+                // Lógica para el estado (Badge)
+                let badgeClass = item.activo ? 'bg-gradient-success' : 'bg-gradient-secondary';
+                let textoEstado = item.activo ? 'Activo' : 'Inactivo';
+                
+                // Lógica para el estado de verificación
+                let verificacionHtml = '';
+                if(item.estado_verificacion === 'verificado'){
+                    verificacionHtml = `<span class="text-xs text-success font-weight-bold"><i class="fas fa-check-circle me-1"></i>Verificado</span>`;
+                } else {
+                    verificacionHtml = `<span class="text-xs text-danger font-weight-bold"><i class="fas fa-exclamation-circle me-1"></i>No verificado</span>`;
+                }
+
+                // Construcción de la tarjeta (Card de Argon)
+                htmlContent += `
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card card-frame shadow-sm h-100">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-lg icon-shape bg-white shadow text-center border-radius-xl me-3">
+                                    <i class="${icono} ${colorIcono} opacity-10" aria-hidden="true" style="font-size: 1.5rem; line-height: 1.5;"></i>
+                                </div>
+                                
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 text-sm font-weight-bolder">${titulo}</h6>
+                                        <span class="badge badge-sm ${badgeClass}">${textoEstado}</span>
+                                    </div>
+                                    <p class="text-xs text-secondary mb-0">
+                                        Proveedor: <span class="text-dark font-weight-bold text-capitalize">${item.proveedor}</span>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        ${verificacionHtml}
+                                        <small class="text-xxs text-secondary">${new Date(item.ultima_verificacion).toLocaleDateString()}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            // Si no hay datos
+            if(res.data.length === 0){
+                htmlContent = `
+                    <div class="col-12 text-center text-muted">
+                        <p>No se encontraron canales configurados.</p>
+                    </div>`;
+            }
+
+            // Inyectar el HTML
+            $('#contenedor-canales').html(htmlContent);
+        }
+    }).fail((err) => {
+        // Manejo de error visual en el contenedor
+        $('#contenedor-canales').html(`
+            <div class="col-12 text-center text-danger py-3">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <p class="text-sm">Error al cargar las notificaciones.</p>
+            </div>
+        `);
+
+        $('#updateCecos').show();
+        $('#saveCecosLoading').hide();
+        
+        var mensaje = err.responseJSON?.message || "Error desconocido";
+        // Tu función existente de manejo de errores
+        if(typeof arreglarMensajeError === 'function') {
+            var errorsMsg = arreglarMensajeError(mensaje);
+            agregarToast('error', 'Creación errada', errorsMsg);
+        }
+    });
+}
+
+function generarTokenEco() {
+    
+    // Cambio visual: Ocultar botón, mostrar cargando
+    $('#btn-container-token').hide();
+    $('#spinner-token').show();
+
+    $.ajax({
+        url: base_url + 'eco-register',
+        method: 'POST',
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+
+        $('#btn-container-token').show();
+        $('#spinner-token').hide();
+        
+        if(res.success){
+            // 1. Asignar el token a la variable global
+            tokenEco = res.token; 
+            // 2. Feedback visual rápido (Opcional, un toast de éxito)
+            agregarToast('exito', 'Conexión Exitosa', 'Notificaciones configuradas correctamente!', true);
+            // 3. Cambiar vistas automáticamente
+            $("#div-token-eco").fadeOut(300, function() {
+                $("#div-canales-eco").fadeIn(300);
+                validarNotificaciones();
+            });
+
+        }
+
+    }).fail((err) => {
+        // Restaurar estado visual
+        $('#btn-container-token').show();
+        $('#spinner-token').hide();
+
+        var mensaje = err.responseJSON?.message || "Error de conexión";
+        if(typeof arreglarMensajeError === 'function') {
+            var errorsMsg = arreglarMensajeError(mensaje);
+            agregarToast('error', 'Error', errorsMsg);
+        }
+    });
+}
+
+$(document).on('click', '#notificaciones-tab', function () {
+    if (tokenEco) {
+        $("#div-canales-eco").show();
+        $("#div-token-eco").hide();
+        validarNotificaciones();
+    } else {
+        $("#div-canales-eco").hide();
+        $("#div-token-eco").show();
+    }
+});
+
 $(document).on('click', '#updateEntorno', function () {
     $("#updateEntornoLoading").show();
     $("#updateEntorno").hide();
@@ -546,20 +742,3 @@ $("input[data-type='currency']").on({
         formatCurrency($(this), "blur");
     }
 });
-
-function readURLFirmaDigitalNueva(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-            newFirmaDigital = e.target.result;
-            $('#preview_firma_digital_paz_salvo').attr('src', e.target.result);
-            $('#firma_digital_paz_salvo').attr('src', e.target.result);
-        };
-
-        reader.readAsDataURL(input.files[0]);
-
-        $('#preview_firma_digital_paz_salvo').hide();
-        $('#firma_digital_paz_salvo').show();
-    }
-}

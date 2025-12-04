@@ -52,6 +52,8 @@ use App\Http\Controllers\Sistema\ArchivosCacheController;
 use App\Http\Controllers\Sistema\PazSalvoController;
 //EMAIL
 use App\Http\Controllers\Sistema\EmailController;
+//NOTIFICACIONES
+use App\Http\Controllers\Empresa\EcoController;
 
 use App\Mail\GeneralEmail;
 use Illuminate\Support\Facades\Mail;
@@ -208,6 +210,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::delete('/archivos-cache', [ArchivosCacheController::class, 'delete']);
 		//EMAIL
 		Route::get('/email', [EmailController::class, 'index']);
+		//NOTIFICACIONES
+		Route::get('/notificaciones', [EcoController::class, 'index']);
+		
 	});
 	
 });

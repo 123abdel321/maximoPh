@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 //EMPRESA
+use App\Http\Controllers\Empresa\EcoController;
 use App\Http\Controllers\Empresa\ApiController;
 use App\Http\Controllers\Empresa\PerfilController;
 use App\Http\Controllers\Empresa\UsuariosController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Empresa\InstaladorController;
 use App\Http\Controllers\Portafolio\NitController;
 use App\Http\Controllers\Portafolio\RecioController;
 use App\Http\Controllers\Portafolio\PlanCuentaController;
+
 //SISTEMA
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Sistema\PqrsfController;
@@ -320,6 +322,11 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('email', 'read');           
             Route::get('email-detalle', 'readDetalle');           
         });
+        //NOTIFICACIONES
+        Route::controller(EcoController::class)->group(function () {
+            Route::post('eco-register', 'register');                     
+        });
+        
         
     });
 });

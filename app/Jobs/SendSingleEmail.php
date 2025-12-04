@@ -6,11 +6,14 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Bus\Batchable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Mail\GeneralEmail;
+use App\Helpers\Eco\SendEcoEmail;
 //MODEL
 use App\Models\Empresa\Empresa;
 use App\Models\Empresa\EnvioEmail;
@@ -26,12 +29,11 @@ class SendSingleEmail implements ShouldQueue
     public function __construct(
         public Empresa $empresa,
         public string $email,
-        public string $nombre,
-        public string $consecutivo,
-        public float $saldo_final,
+        public array $emailData,
+        public array $filterData,
         public string $pdfPath,
-        public string $view,
-        public string $envioEmailId
+        public string $ecoToken,
+        public string $view
     ) {}
 
     public function handle()
@@ -39,33 +41,58 @@ class SendSingleEmail implements ShouldQueue
         try {
             copyDBConnection('max', 'max');
             setDBInConnection('max', $this->empresa->token_db_maximo);
-    
-            if ($this->pdfPath) {
-                $path = stripslashes($this->pdfPath);
-                $baseUrl = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com";
+
+            $htmlContent = View::make($this->view, $this->emailData)->render();
+
+            $subject = $this->emailData['asunto'] ?? 'Notificación de ' . $this->empresa->razon_social;
+            
+            $attachments = [];
+            
+            if (!empty($this->pdfPath)) {
+                // Descargar el contenido del PDF desde la URL
+                $pdfResponse = Http::timeout(30)->get($this->pdfPath);
                 
-                if (!str_contains($path, $baseUrl)) {
-                    $this->pdfPath = $baseUrl . $path;
+                if ($pdfResponse->successful()) {
+                    $pdfContentBase64 = base64_encode($pdfResponse->body());
+                    
+                    // Intentar obtener el nombre del archivo de la URL
+                    $pdfFileName = basename(parse_url($this->pdfPath, PHP_URL_PATH));
+                    if (empty($pdfFileName) || $pdfFileName === '/') {
+                        $pdfFileName = 'documento_adjunto.pdf';
+                    }
+                    
+                    $attachments[] = [
+                        "contenido" => $pdfContentBase64,
+                        "nombre" => $pdfFileName,
+                        "mime" => "application/pdf"
+                    ];
+
+                } else {
+                    Log::warning('SendSingleEmail: No se pudo descargar el PDF para el envío.', [
+                        'pdfPath' => $this->pdfPath,
+                        'status' => $pdfResponse->status(),
+                    ]);
+                    // Se permite continuar sin adjunto si la descarga falla, pero se registra.
                 }
             }
-    
-            $generalEmail = new GeneralEmail(
-                $this->empresa->razon_social,
-                $this->view,
-                [
-                    'nombre' => $this->nombre,
-                    'factura' => $this->consecutivo,
-                    'valor' => $this->saldo_final,
-                ],
-                $this->pdfPath
+
+            $metadata = array_merge($this->emailData, [
+                'contexto' => $this->view,
+                'envio_id' => '',
+                'empresa_token' => $this->empresa->token_db_maximo,
+            ]);
+
+            $sendEcoEmail = new SendEcoEmail(
+                $this->email,
+                $subject,
+                $htmlContent,
+                $metadata,
+                $this->filterData,
+                $attachments
             );
+
+            $sendEcoEmail->setToken($this->ecoToken)->send();
     
-            $response = Mail::to($this->email)->send($generalEmail);
-            $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
-    
-            $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
-            $envioEmail->sg_message_id = $sgMessageId;
-            $envioEmail->save();
         } catch (\Throwable $exception) {
             Log::error('SendSingleEmail falló', [
                 'email' => $this->email,
@@ -73,9 +100,7 @@ class SendSingleEmail implements ShouldQueue
                 'line' => $exception->getLine(),
                 'pdf_path' => $this->pdfPath,
             ]);
-            $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
-            $envioEmail->status = 'rechazado';
-            $envioEmail->save();
+            throw $exception; 
         }
     }
 

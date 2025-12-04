@@ -39,7 +39,7 @@ class SendGridWebhookController extends Controller
             }
 
             // Buscar por message_id en la base de datos
-            $envio = EnvioEmail::where('sg_message_id', $trackingId)->first();
+            $envio = EnvioEmail::where('sg_message_id', 'LIKE', $trackingId."%")->first();
 
             if (!$envio) {
                 $envio = EnvioEmail::where('sg_message_id', $smtpId)->first();

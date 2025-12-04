@@ -5,7 +5,6 @@ namespace App\Jobs;
 use DB;
 use Exception;
 use Carbon\Carbon;
-use App\Helpers\helpers;
 use App\Mail\GeneralEmail;
 use Illuminate\Bus\Queueable;
 use App\Jobs\SendSingleWhatsapp;
@@ -17,9 +16,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Helpers\Printers\FacturacionPdf;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+//HELPER
+use App\Helpers\helpers;
+use App\Helpers\Eco\SendEcoWhatsApp;
+use App\Helpers\Printers\FacturacionPdf;
 use App\Helpers\DocumentoGeneralController;
 //MODELS
 use App\Models\Sistema\Zonas;
@@ -39,15 +41,17 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
     public $timeout = 300;
     public $empresa = null;
     public $request = null;
+    public $ecoToken = null;
     public $id_empresa = null;
     public $id_usuario = null;
     public $maxExceptions = 3;
     public $backoff = [60, 120];
     public $whatsappPerMinute = 60;
 
-    public function __construct($request, $id_empresa, $id_usuario)
+    public function __construct($request, $ecoToken, $id_empresa, $id_usuario)
     {
         $this->request = $request;
+        $this->ecoToken = $ecoToken;
         $this->id_empresa = $id_empresa;
         $this->id_usuario = $id_usuario;
         $this->empresa = Empresa::find($id_empresa);
@@ -130,41 +134,29 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                 foreach ($whatsappToSend as $whatsapp) {
                     
                     $whatsappIndex++;
-                    $delaySeconds = ($whatsappIndex - 1) * $delayBetweenEmails;
-                    
-                    $envioEmail = EnvioEmail::create([
-                        'id_empresa' => $this->empresa->id,
-                        'id_nit' => $nit->id_nit,
-                        'email' => $whatsapp,
-                        'contexto' => 'whatsapp.factura',
-                        'status' => 'en_cola',
-                        'type' => 'whatsapp',
-                    ]);
-
-                    $to = "57$whatsapp";
-                    $contentSid = EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION;
-                    
-                    $parameters = [
+                    $whatsappData = [
                         "1" => $nit->nombre_nit,
                         "2" => $this->empresa->razon_social,
                         "3" => "# $nit->consecutivo",
                         "4" => $facturaPdf
                     ];
-                    
-                    $jobs[] = (new SendSingleWhatsapp(
-                        $this->empresa,
-                        $to,
-                        $contentSid,
-                        $parameters,
-                        $envioEmail->id
-                    ))->delay(now()->addSeconds($delaySeconds));
+                    $filterData = [
+                        'id_nit' => $nit->id_nit,
+                        'nombre_completo' => $nit->nombre_nit
+                    ];
+
+                    // "57$whatsapp",
+                    $sender = new SendEcoWhatsApp(
+                        "573145876923", // Teléfono
+                        $whatsappData,
+                        $filterData,
+                        EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION,
+                        "whatsapp.factura"
+                    );
+
+                    $response = $sender->setToken($this->ecoToken)->send();
                 }
             }
-            
-            // Usar batch para mejor control
-            $batch = Bus::batch($jobs)
-                ->allowFailures()
-                ->dispatch();
 
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
             event(new PrivateMessageEvent('facturacion-email-'.$urlEventoNotificacion, [
