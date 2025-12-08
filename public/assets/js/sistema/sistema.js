@@ -1,7 +1,6 @@
 const host = window.location.host;
 
 let base_url, base_web, base_web_erp, base_url_erp;
-console.log('aca en sistemas');
 if (host.includes("maximoph.co")) {
     base_url = "https://maximoph.co/api/";
     base_web = "https://maximoph.co/";
@@ -234,13 +233,6 @@ $imagenes = [
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_51.jpg',
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_52.jpg',
     'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_53.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_54.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_55.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_56.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_57.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_58.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_59.jpg',
-    'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/fondo_pantalla/fondo_60.jpg',
 ];
 
 var urlImgFondo = $imagenes[getRandomInt($imagenes.length)];

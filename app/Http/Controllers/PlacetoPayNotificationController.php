@@ -163,6 +163,8 @@ class PlacetoPayNotificationController extends Controller
                 null
             ))->actual()->get();
 
+            $extractos = $extractos->sortBy('orden, cuenta')->values();
+
             $valorPagado = $recibo->total_abono;
             $centro_costos = CentroCostos::first();
 
@@ -171,7 +173,8 @@ class PlacetoPayNotificationController extends Controller
                 $recibo->id_comprobante,
                 $recibo,
                 $recibo->fecha_manual,
-                $recibo->consecutivo
+                $recibo->consecutivo,
+                false
             );
 
             foreach ($extractos as $extracto) {

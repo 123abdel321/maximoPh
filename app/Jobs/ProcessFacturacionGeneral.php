@@ -163,6 +163,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             $this->periodo_facturacion
                         ))->actual()->get();
 
+                        $extractos = $extractos->sortBy('orden, cuenta')->values();
+
                         //AGRUPAMOS 
                         $this->extractosAgrupados = [];
                         foreach ($extractos as $extracto) {
@@ -583,6 +585,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         ))->actual()->get();
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
+
+        $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $this->facturas = [];
         $totalAnticipos = 0;

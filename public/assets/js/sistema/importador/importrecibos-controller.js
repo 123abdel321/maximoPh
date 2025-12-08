@@ -133,7 +133,9 @@ channelImportadorRecibos.bind('notificaciones', function(data) {
         $('#cargarPlantillaRecibos').show();
         $('#actualizarPlantillaRecibos').hide();
         $('#cargarPlantillaRecibosLoagind').hide();
-        agregarToast(data.tipo, data.titulo, data.mensaje);
+
+        var errorsMsg = arreglarMensajeError(data.mensaje);
+        agregarToast('error', 'Importación errada', errorsMsg);
     }
 });
 

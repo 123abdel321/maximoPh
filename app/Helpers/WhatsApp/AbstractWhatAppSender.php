@@ -43,11 +43,7 @@ abstract class AbstractWhatAppSender
         }
         
         $response = (object) $dataResponse->json();
-            dd([
-                "status" => $dataResponse->status(),
-                "status123" => $dataResponse,
-                "response" => $response,
-            ]);
+        
         return [
 			"status" => $dataResponse->status(),
 			"response" => $response,

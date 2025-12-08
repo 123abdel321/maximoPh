@@ -67,6 +67,7 @@ class Extracto
                 'exige_documento_referencia',
                 'exige_concepto',
                 'exige_centro_costos',
+                'orden',
                 DB::raw('SUM(debito) AS debito'),
                 DB::raw('SUM(credito) AS credito'),
                 'dias_cumplidos',
@@ -123,6 +124,7 @@ class Extracto
                 'naturaleza_compras',
                 'naturaleza_ventas',
                 'naturaleza_cuenta',
+                DB::raw('IFNULL(PC.orden, 0) AS orden'),
                 DB::raw('SUM(debito) AS debito'),
                 DB::raw('SUM(credito) AS credito'),
                 'dias_cumplidos',
@@ -155,7 +157,17 @@ class Extracto
                 "DG.credito",
                 "DG.concepto",
                 "DG.anulado",
-                "PC.naturaleza_cuenta"
+                "PC.cuenta",
+                "PC.nombre",
+                "PC.naturaleza_cuenta",
+                "PC.naturaleza_ingresos",
+                "PC.naturaleza_egresos",
+                "PC.naturaleza_compras",
+                "PC.naturaleza_ventas",
+                "PC.exige_nit",
+                "PC.exige_documento_referencia",
+                "PC.exige_concepto",
+                "PC.exige_centro_costos",
             )
             ->leftJoin('plan_cuentas AS PC', 'DG.id_cuenta', 'PC.id')
             ->leftJoin('plan_cuentas_tipos AS PCT', 'DG.id_cuenta', 'PCT.id_cuenta')
@@ -214,6 +226,7 @@ class Extracto
                 "PC.naturaleza_compras",
                 "PC.naturaleza_ventas",
                 "PC.naturaleza_cuenta",
+                "PC.orden AS orden",
                 "PC.exige_nit",
                 "PC.exige_documento_referencia",
                 "PC.exige_concepto",
@@ -264,6 +277,45 @@ class Extracto
         return $queryActual;
     }
 
+    public function anticiposDiscriminados()
+    {
+        $fecha = Carbon::now();
+
+        $query = $this->queryAnticipos();
+        
+        $anticipo = DB::connection('sam')
+            ->table(DB::raw("({$query->toSql()}) AS documentosanticipos"))
+            ->mergeBindings($query)
+            ->select(
+                "id_nit",
+                "id_cuenta",
+                "id_comprobante",
+                "id_centro_costos",
+                "cuenta",
+                "nombre",
+                "fecha_manual",
+                "consecutivo",
+                "documento_referencia",
+                "naturaleza_cuenta",
+                "naturaleza_ingresos",
+                "naturaleza_egresos",
+                "naturaleza_compras",
+                "naturaleza_ventas",
+                "exige_nit",
+                "exige_documento_referencia",
+                "exige_concepto",
+                "exige_centro_costos",
+                DB::raw('IF(naturaleza_cuenta = 0, SUM(credito), SUM(debito)) AS total_abono'),
+                DB::raw('IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) AS saldo'),
+                DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
+            )
+            ->groupByRaw('id_nit, id_cuenta, documento_referencia')
+            ->havingRaw("IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) != 0")
+            ->where('fecha_manual', '<=', $fecha);
+
+        return $anticipo;
+    }
+
     public function anticipos()
     {
         $fecha = Carbon::now();
@@ -289,7 +341,7 @@ class Extracto
                 DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
             )
             ->groupByRaw('id_nit')
-            ->havingRaw("IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) != 0");
+            ->havingRaw("IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) > 0");
 
         return $anticipo;
     }

@@ -61,6 +61,9 @@ class ProcessImportarRecibos implements ShouldQueue
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
+            DB::connection('max')->beginTransaction();
+            DB::connection('sam')->beginTransaction();
+
             $this->id_comprobante = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
             $id_cuenta_ingreso = Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()->valor;
             $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first()->valor;
@@ -70,6 +73,7 @@ class ProcessImportarRecibos implements ShouldQueue
             $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
             $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
             $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
+            $exitoso = true;
 
             if (!$id_cuenta_ingreso) {
                 throw new Error("La cuenta de ingreso id: $id_cuenta_ingreso no existe.");
@@ -115,16 +119,20 @@ class ProcessImportarRecibos implements ShouldQueue
                         $comprobante->id,
                         $recibo,
                         $this->fechaManual,
-                        $this->consecutivo
+                        $this->consecutivo,
+                        false
                     );
 
                     //AGREGAR PAGOS EN CONCEPTOS
                     if ($reciboImport->id_concepto_facturacion) {
+
                         $conceptoFacturacion = ConceptoFacturacion::find($reciboImport->id_concepto_facturacion);
                         $extractos = (new Extracto(
                             $reciboImport->id_nit,
                             [3,7]
                         ))->actual()->get();
+
+                        $extractos = $extractos->sortBy('orden, cuenta')->values();
 
                         $countTotal = count($extractos) ? '-'.count($extractos) : '';
                         $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual)).$countTotal;
@@ -180,9 +188,7 @@ class ProcessImportarRecibos implements ShouldQueue
                             $finMes
                         ))->actual()->get();
 
-                        // $extractos = $extractos->sortBy(function ($item) use ($ordenFacturacion) {
-                        //     return $ordenFacturacion[$item->id_cuenta] ?? 9999;
-                        // })->values();
+                        $extractos = $extractos->sortBy('orden, cuenta')->values();
                         
                         $realizarDescuento = false;
                         
@@ -196,7 +202,7 @@ class ProcessImportarRecibos implements ShouldQueue
                             Facturacion::where('id', $facturaDescuento->id_factura)
                                 ->update(['pronto_pago' => 1]);
                         }
-
+                        
                         //AGREGAR DESCUENTOS
                         if ($realizarDescuento) {
                             $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
@@ -259,11 +265,11 @@ class ProcessImportarRecibos implements ShouldQueue
                             if ($anticiposDisponibles > 0) {
                                 [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
                             }
-
+                            
                             $validarPago = $valorDisponible - $valorPendiente - $valorDescuento;
                             $valorPago = $valorDisponible - $valorPendiente - $valorDescuento > 0 ? $valorPendiente : $valorDisponible;
                             $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
-
+                            
                             if ($valorPago) {
                                 ConReciboDetalles::create([
                                     'id_recibo' => $recibo->id,
@@ -294,7 +300,9 @@ class ProcessImportarRecibos implements ShouldQueue
                                     "created_by" => $this->user_id,
                                     "updated_by" => $this->user_id
                                 ]);
-                                $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
+                                // dd($cuentaPago->naturaleza_ingresos);
+                                // $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
+                                $documentoGeneral->addRow($doc, 0);
                             }
     
                             $valorDisponible-= ($valorPago - ($totalAnticipar));
@@ -367,18 +375,54 @@ class ProcessImportarRecibos implements ShouldQueue
                         $documentoGeneral->addRow($doc, $formaPago->cuenta->naturaleza_ventas);
                     }
                     $this->updateConsecutivo($this->id_comprobante, $this->consecutivo);
-                    
+
                     if (!$documentoGeneral->save()) {
-                        throw new Error($documentoGeneral->getErrors());
+
+                        DB::connection('max')->rollback();
+                        DB::connection('sam')->rollback();
+                        
+                        event(new PrivateMessageEvent('importador-recibos-'.$this->empresa->token_db_maximo.'_'.$this->user_id, [
+                            'success'=>	false,
+                            'accion' => 0,
+                            'tipo' => 'error',
+                            'mensaje' => $documentoGeneral->getErrors(),
+                            'titulo' => 'Fallo en la importación',
+                            'autoclose' => false
+                        ]));
+                        return;
                     }
                 }
             }
+
             ConRecibosImport::whereIn('estado', [0])->delete();
 
+            DB::connection('max')->commit();
+            DB::connection('sam')->commit();
+
+            event(new PrivateMessageEvent('importador-recibos-'.$this->empresa->token_db_maximo.'_'.$this->user_id, [
+                'success'=>	true,
+                'accion' => 2,
+                'tipo' => 'exito',
+                'mensaje' => 'Recibos importados con exito!',
+                'titulo' => 'Recibos importados',
+                'autoclose' => false
+            ]));
+
 		} catch (Exception $exception) {
-            $message = $exception->getMessage();
-            $line = $exception->getLine();
-            throw new Error("Mensaje: $message; Line: $line");
+
+            event(new PrivateMessageEvent('importador-recibos-'.$this->empresa->token_db_maximo.'_'.$this->user_id, [
+                'success'=>	false,
+                'accion' => 0,
+                'tipo' => 'error',
+                'mensaje' => $exception->getMessage(),
+                'titulo' => 'Fallo en la importación',
+                'autoclose' => false
+            ]));
+            
+            Log::error('ProcessImportarRecibos', [
+                'message' => $exception->getMessage(),
+                'line' => $exception->getLine()
+            ]);
 		}
     }
 
@@ -455,10 +499,12 @@ class ProcessImportarRecibos implements ShouldQueue
             [4,8],
             null,
             $this->fechaManual
-        ))->actual()->get();
+        ))->anticiposDiscriminados()->get();
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
+
+        $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $this->facturasAnticipos = [];
         $totalAnticipos = 0;
@@ -551,6 +597,8 @@ class ProcessImportarRecibos implements ShouldQueue
             [4,8]
         ))->anticiposDiscriminados()->get();
 
+        $anticipoCuenta = $anticipoCuenta->sortBy('orden, cuenta')->values();
+
         return $anticipoCuenta;
     }
 
@@ -568,5 +616,14 @@ class ProcessImportarRecibos implements ShouldQueue
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
+
+        event(new PrivateMessageEvent('importador-recibos-'.$this->empresa->token_db_maximo.'_'.$this->user_id, [
+            'success'=>	false,
+            'accion' => 0,
+            'tipo' => 'error',
+            'mensaje' => 'Error al importar recibos: ' . $exception->getMessage(),
+            'titulo' => 'Fallo en la importación',
+            'autoclose' => false
+        ]));
 	}
 }

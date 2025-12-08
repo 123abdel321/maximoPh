@@ -125,12 +125,15 @@ class ProcessValidarPago implements ShouldQueue
             $recibo->fecha_manual
         ))->actual()->get();
 
+        $extractos = $extractos->sortBy('orden, cuenta')->values();
+
         //GUARDAR DETALLE & MOVIMIENTO CONTABLE RECIBOS
         $documentoGeneral = new Documento(
             $recibo->id_comprobante,
             $recibo,
             $recibo->fecha_manual,
-            $consecutivo
+            $consecutivo,
+            false
         );
 
         $valorPagado = $recibo->total_abono;

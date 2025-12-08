@@ -175,28 +175,31 @@ class ImportadorRecibosController extends Controller
             $has_empresa = $request->user()['has_empresa'];
             $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
 
-            // new ProcessImportarRecibos($empresa, $user_id),
-            // ProcessImportarRecibos::dispatch($empresa,  $user_id);
-            Bus::chain([
-                new ProcessImportarRecibos($empresa, $user_id),
-                new ProcessNotify("importador-recibos-{$has_empresa}_{$user_id}", [
-                    'success'=>	true,
-                    'accion' => 2,
-                    'tipo' => 'exito',
-                    'mensaje' => 'Recibos importados con exito!',
-                    'titulo' => 'Recibos importados',
-                    'autoclose' => false
-                ])
-            ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
-                event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
-                    'success'=>	false,
-                    'accion' => 0,
-                    'tipo' => 'error',
-                    'mensaje' => 'Error al importar recibos: ' . $e->getMessage(),
-                    'titulo' => 'Fallo en la importación',
-                    'autoclose' => false
-                ]));
-            })->dispatch();
+            ProcessImportarRecibos::dispatch(
+                $empresa,
+                $user_id
+            );
+            
+            // Bus::chain([
+            //     new ProcessImportarRecibos($empresa, $user_id),
+            //     new ProcessNotify("importador-recibos-{$has_empresa}_{$user_id}", [
+            //         'success'=>	true,
+            //         'accion' => 2,
+            //         'tipo' => 'exito',
+            //         'mensaje' => 'Recibos importados con exito!',
+            //         'titulo' => 'Recibos importados',
+            //         'autoclose' => false
+            //     ])
+            // ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
+            //     event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
+            //         'success'=>	false,
+            //         'accion' => 0,
+            //         'tipo' => 'error',
+            //         'mensaje' => 'Error al importar recibos: ' . $e->getMessage(),
+            //         'titulo' => 'Fallo en la importación',
+            //         'autoclose' => false
+            //     ]));
+            // })->dispatch();
 
             return response()->json([
                 'success'=>	true,
@@ -354,6 +357,8 @@ class ImportadorRecibosController extends Controller
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
+
+        $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $this->facturasAnticipos = [];
         $totalAnticipos = 0;

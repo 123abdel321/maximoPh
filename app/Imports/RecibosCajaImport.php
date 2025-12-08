@@ -212,8 +212,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     ))->completo()->first();
 
                     $extractoSaldo = $extractoSaldo ? $extractoSaldo->saldo : 0;
-                    $extractoSaldo-= $extractoCXP ? $extractoCXP->saldo : 0;
                     $anticipo+= $extractoCXP ? $extractoCXP->saldo : 0;
+                    $anticipo-= $extractoSaldo;
                 }
             }
             
