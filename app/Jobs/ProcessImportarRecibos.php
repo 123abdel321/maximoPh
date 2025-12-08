@@ -99,7 +99,7 @@ class ProcessImportarRecibos implements ShouldQueue
 
             $recibosImport = ConRecibosImport::where('estado', 0)
                 ->get();
-            
+
             if ($recibosImport->count()) {
                 foreach ($recibosImport as $reciboImport) {
                     
@@ -130,7 +130,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $extractos = (new Extracto(
                             $reciboImport->id_nit,
                             [3,7]
-                        ))->actual()->get();
+                        ))->actual()->get();                        
 
                         $extractos = $extractos->sortBy('orden, cuenta')->values();
 
@@ -173,7 +173,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $inicioMes =  Carbon::parse($this->fechaManual)->format('Y-m');
                         $inicioMes = $inicioMes.'-01';
                         $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
-
+                        
                         $sandoPendiente = (new Extracto(
                             $reciboImport->id_nit,
                             [3,7],
@@ -202,7 +202,7 @@ class ProcessImportarRecibos implements ShouldQueue
                             Facturacion::where('id', $facturaDescuento->id_factura)
                                 ->update(['pronto_pago' => 1]);
                         }
-                        
+
                         //AGREGAR DESCUENTOS
                         if ($realizarDescuento) {
                             $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
@@ -300,9 +300,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                     "created_by" => $this->user_id,
                                     "updated_by" => $this->user_id
                                 ]);
-                                // dd($cuentaPago->naturaleza_ingresos);
-                                // $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
-                                $documentoGeneral->addRow($doc, 0);
+
+                                $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
                             }
     
                             $valorDisponible-= ($valorPago - ($totalAnticipar));

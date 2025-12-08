@@ -36,6 +36,7 @@ class PlanCuentas extends Model
 		'naturaleza_compras',
 		'naturaleza_ventas',
 		'cuenta_corriente',
+        'orden',
         'created_by',
         'updated_by'
     ];

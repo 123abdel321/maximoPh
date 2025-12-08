@@ -27,7 +27,7 @@ class Extracto
     {
         $query = $this->queryActual();
         // $query->unionAll($this->queryAnterior());
-
+        
         $extracto = DB::connection('sam')
             ->table(DB::raw("({$query->toSql()}) AS extracto"))
             ->mergeBindings($query)
@@ -63,11 +63,11 @@ class Extracto
                 'naturaleza_compras',
                 'naturaleza_ventas',
                 'naturaleza_cuenta',
+                'orden',
                 'exige_nit',
                 'exige_documento_referencia',
                 'exige_concepto',
                 'exige_centro_costos',
-                'orden',
                 DB::raw('SUM(debito) AS debito'),
                 DB::raw('SUM(credito) AS credito'),
                 'dias_cumplidos',
@@ -124,7 +124,7 @@ class Extracto
                 'naturaleza_compras',
                 'naturaleza_ventas',
                 'naturaleza_cuenta',
-                DB::raw('IFNULL(PC.orden, 0) AS orden'),
+                'orden',
                 DB::raw('SUM(debito) AS debito'),
                 DB::raw('SUM(credito) AS credito'),
                 'dias_cumplidos',
@@ -164,6 +164,7 @@ class Extracto
                 "PC.naturaleza_egresos",
                 "PC.naturaleza_compras",
                 "PC.naturaleza_ventas",
+                DB::raw('IFNULL(PC.orden, 0) AS orden'),
                 "PC.exige_nit",
                 "PC.exige_documento_referencia",
                 "PC.exige_concepto",
@@ -226,11 +227,11 @@ class Extracto
                 "PC.naturaleza_compras",
                 "PC.naturaleza_ventas",
                 "PC.naturaleza_cuenta",
-                "PC.orden AS orden",
                 "PC.exige_nit",
                 "PC.exige_documento_referencia",
                 "PC.exige_concepto",
                 "PC.exige_centro_costos",
+                DB::raw('IFNULL(PC.orden, 0) AS orden'),
                 DB::raw("SUM(DG.debito) AS debito"),
                 DB::raw("SUM(DG.credito) AS credito"),
                 DB::raw("DATEDIFF('$fecha', DG.fecha_manual) AS dias_cumplidos"),
@@ -301,6 +302,7 @@ class Extracto
                 "naturaleza_egresos",
                 "naturaleza_compras",
                 "naturaleza_ventas",
+                'orden',
                 "exige_nit",
                 "exige_documento_referencia",
                 "exige_concepto",
