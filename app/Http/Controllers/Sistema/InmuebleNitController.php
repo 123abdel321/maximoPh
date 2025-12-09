@@ -84,7 +84,6 @@ class InmuebleNitController extends Controller
                 $dataInmueblesNits[$key]->saldo_final = $extracto ? $extracto->saldo : 0;
                 $key++;
             }
-            
 
             return response()->json([
                 'success'=>	true,

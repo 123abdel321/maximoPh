@@ -132,8 +132,6 @@ class ProcessImportarRecibos implements ShouldQueue
                             [3,7]
                         ))->actual()->get();                        
 
-                        $extractos = $extractos->sortBy('orden, cuenta')->values();
-
                         $countTotal = count($extractos) ? '-'.count($extractos) : '';
                         $documentoReferencia = date('Ymd', strtotime($reciboImport->fecha_manual)).$countTotal;
 
@@ -187,8 +185,6 @@ class ProcessImportarRecibos implements ShouldQueue
                             null,
                             $finMes
                         ))->actual()->get();
-
-                        $extractos = $extractos->sortBy('orden, cuenta')->values();
                         
                         $realizarDescuento = false;
                         
@@ -503,8 +499,6 @@ class ProcessImportarRecibos implements ShouldQueue
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
 
-        $extractos = $extractos->sortBy('orden, cuenta')->values();
-
         $this->facturasAnticipos = [];
         $totalAnticipos = 0;
         
@@ -595,8 +589,6 @@ class ProcessImportarRecibos implements ShouldQueue
             $idNit,
             [4,8]
         ))->anticiposDiscriminados()->get();
-
-        $anticipoCuenta = $anticipoCuenta->sortBy('orden, cuenta')->values();
 
         return $anticipoCuenta;
     }

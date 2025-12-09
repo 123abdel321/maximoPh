@@ -136,7 +136,7 @@ class Extracto
                 DB::raw('SUM(total_facturas) AS total_facturas'),
                 DB::raw('CASE WHEN (SUM(saldo)) < 0 THEN SUM(saldo) * -1 ELSE SUM(saldo) END AS saldo'),
             )
-            ->orderByRaw('cuenta, fecha_manual ASC')
+            ->orderByRaw('orden, cuenta, fecha_manual, documento_referencia ASC')
             ->groupByRaw('id_nit');
 
         return $extracto;
@@ -311,6 +311,7 @@ class Extracto
                 DB::raw('IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) AS saldo'),
                 DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
             )
+            ->orderByRaw('orden, cuenta, fecha_manual, documento_referencia ASC')
             ->groupByRaw('id_nit, id_cuenta, documento_referencia')
             ->havingRaw("IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) != 0")
             ->where('fecha_manual', '<=', $fecha);
@@ -334,6 +335,8 @@ class Extracto
                 "id_centro_costos",
                 "fecha_manual",
                 "consecutivo",
+                "orden",
+                "cuenta",
                 "documento_referencia",
                 "naturaleza_cuenta",
                 DB::raw('SUM(debito) AS debito'),
@@ -342,6 +345,7 @@ class Extracto
                 DB::raw('IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) AS saldo'),
                 DB::raw('DATEDIFF(now(), fecha_manual) AS dias_cumplidos'),
             )
+            ->orderByRaw('orden, cuenta, fecha_manual, documento_referencia ASC')
             ->groupByRaw('id_nit')
             ->havingRaw("IF(naturaleza_cuenta = 0, SUM(debito - credito), SUM(credito - debito)) > 0");
 

@@ -358,8 +358,6 @@ class ImportadorRecibosController extends Controller
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
 
-        $extractos = $extractos->sortBy('orden, cuenta')->values();
-
         $this->facturasAnticipos = [];
         $totalAnticipos = 0;
         

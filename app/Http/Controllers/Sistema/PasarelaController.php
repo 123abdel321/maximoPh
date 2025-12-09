@@ -159,8 +159,6 @@ class PasarelaController extends Controller
             $recibo->fecha_manual
         ))->actual()->get();
 
-        $extractos = $extractos->sortBy('orden, cuenta')->values();
-
         //GUARDAR DETALLE & MOVIMIENTO CONTABLE RECIBOS
         $documentoGeneral = new Documento(
             $recibo->id_comprobante,

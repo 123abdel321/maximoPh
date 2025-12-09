@@ -130,13 +130,11 @@ class EstadoCuentaController extends Controller
                 $nit->id,
                 [3,7]
             ))->actual()->get();
-            $response = $response->sortBy('orden, cuenta')->values();
 
             $responseCXP = (new Extracto(//TRAER CUENTAS POR PAGAR
                 $nit->id,
                 [4,8]
             ))->anticipos()->get();
-            $responseCXP = $responseCXP->sortBy('orden, cuenta')->values();
 
             $cuentasXPData = null;
             if (count($responseCXP)) {
@@ -256,7 +254,6 @@ class EstadoCuentaController extends Controller
                 $nit->id,
                 [3,7]
             ))->actual()->get();
-            $extractos = $extractos->sortBy('orden, cuenta')->values();
 
             $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
             $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
@@ -268,7 +265,6 @@ class EstadoCuentaController extends Controller
                 null,
                 $id_cuenta_anticipos
             ))->actual()->get();
-            $cuentasXP = $cuentasXP->sortBy('orden, cuenta')->values();
 
             foreach ($extractos as $extracto) {
                 $extracto = (object)$extracto;

@@ -255,8 +255,6 @@ class FacturacionController extends Controller
                 $periodo_facturacion
             ))->actual()->get();
 
-            $extractos = $extractos->sortBy('orden, cuenta')->values();
-
             //AGRUPAMOS 
             $this->extractosAgrupados = [];
             foreach ($extractos as $extracto) {
@@ -635,8 +633,6 @@ class FacturacionController extends Controller
                 //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
                 if (!count($extractos)) return;
 
-                $extractos = $extractos->sortBy('orden, cuenta')->values();
-
                 //AGRUPAMOS 
                 $this->extractosAgrupados = [];
                 foreach ($extractos as $extracto) {
@@ -799,8 +795,6 @@ class FacturacionController extends Controller
             $fechaPeriodo
         ))->actual()->get();
 
-        $extractos = $extractos->sortBy('orden, cuenta')->values();
-
         $extractosNits = [];
 
         foreach ($extractos as $extracto) {
@@ -822,8 +816,6 @@ class FacturacionController extends Controller
             null,
             $fechaPeriodo
         ))->actual()->get();
-
-        $anticipos = $anticipos->sortBy('orden, cuenta')->values();
 
         $anticiposNits = [];
 
@@ -1070,8 +1062,6 @@ class FacturacionController extends Controller
             $fechaPeriodo.' 23:59:59'
         ))->actual()->get();
 
-        $extractos = $extractos->sortBy('orden, cuenta')->values();
-
         $extractosNits = [];
 
         foreach ($extractos as $extracto) {
@@ -1093,8 +1083,6 @@ class FacturacionController extends Controller
             null,
             $fechaPeriodo.' 23:59:59'
         ))->actual()->get();
-
-        $anticipos = $anticipos->sortBy('orden, cuenta')->values();
 
         $anticiposNits = [];
 
@@ -1873,8 +1861,6 @@ class FacturacionController extends Controller
 
         //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
         if (!count($extractos)) return 0;
-
-        $extractos = $extractos->sortBy('orden, cuenta')->values();
 
         $this->facturas = [];
         $totalAnticipos = 0;
