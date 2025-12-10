@@ -419,41 +419,41 @@ class Documento
             ->value('consecutivo');// <-- ¡CORREGIDO! Trae el consecutivo, no el ID.
 
         // Si no hay documentos previos dentro del período (o en general), no hay salto.
-        if (is_null($ultimoConsecutivoUsado) || $ultimoConsecutivoUsado == 0) {
-            // Si el consecutivo actual es 1 (y no hay usados), está bien.
-            if ($currentConsecutivo === 1) {
-                return true;
-            }
-        }
+        // if (is_null($ultimoConsecutivoUsado) || $ultimoConsecutivoUsado == 0) {
+        //     // Si el consecutivo actual es 1 (y no hay usados), está bien.
+        //     if ($currentConsecutivo === 1) {
+        //         return true;
+        //     }
+        // }
         
         // --- VALIDACIÓN DE SALTO ---
         
         // El consecutivo actual DEBE ser exactamente uno más que el último consecutivo usado.
-        if ($currentConsecutivo === ($ultimoConsecutivoUsado + 1)) {
-            return true;
-        }
+        // if ($currentConsecutivo === ($ultimoConsecutivoUsado + 1)) {
+        //     return true;
+        // }
         
         // Error: Salto detectado.
-        if ($currentConsecutivo > ($ultimoConsecutivoUsado + 1)) {
-            $this->errors['consecutivo'][] = sprintf(
-                "¡Error de salto de consecutivo! El último consecutivo usado para este comprobante fue %d, pero el consecutivo a guardar es %d. Esto indica que se saltaron %d números.",
-                $ultimoConsecutivoUsado,
-                $currentConsecutivo,
-                $currentConsecutivo - $ultimoConsecutivoUsado - 1
-            );
-            return false;
-        }
+        // if ($currentConsecutivo > ($ultimoConsecutivoUsado + 1)) {
+        //     $this->errors['consecutivo'][] = sprintf(
+        //         "¡Error de salto de consecutivo! El último consecutivo usado para este comprobante fue %d, pero el consecutivo a guardar es %d. Esto indica que se saltaron %d números.",
+        //         $ultimoConsecutivoUsado,
+        //         $currentConsecutivo,
+        //         $currentConsecutivo - $ultimoConsecutivoUsado - 1
+        //     );
+        //     return false;
+        // }
         
         // Error: Consecutivo duplicado o menor (Aunque $this->getConsecutivo() debería prevenir esto)
-        if ($currentConsecutivo <= $ultimoConsecutivoUsado) {
-            $this->errors['consecutivo'][] = sprintf(
-                "¡Error! El consecutivo actual %d es menor o igual al último usado %d. Debe ser %d.",
-                $currentConsecutivo,
-                $ultimoConsecutivoUsado,
-                $ultimoConsecutivoUsado + 1
-            );
-            return false;
-        }
+        // if ($currentConsecutivo <= $ultimoConsecutivoUsado) {
+        //     $this->errors['consecutivo'][] = sprintf(
+        //         "¡Error! El consecutivo actual %d es menor o igual al último usado %d. Debe ser %d.",
+        //         $currentConsecutivo,
+        //         $ultimoConsecutivoUsado,
+        //         $ultimoConsecutivoUsado + 1
+        //     );
+        //     return false;
+        // }
 
         return true; // En teoría, la única forma de llegar aquí es si pasó la validación.
     }
