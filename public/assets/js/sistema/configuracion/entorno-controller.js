@@ -67,6 +67,7 @@ function entornoInit() {
         'id_cuenta_egreso_pagos',
         'id_cuenta_ingreso_pasarela',
         'id_cuenta_ingreso_intereses',
+        'id_cuenta_ingreso_recibos_caja',
     ];
 
     var img = [
