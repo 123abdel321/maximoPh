@@ -215,6 +215,14 @@
                                 </select>
                             </div>
 
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_ingreso_recibos_caja">Cuenta ingreso Pagos adjuntos / Comprobantes</label>
+                                <select name="id_cuenta_ingreso_recibos_caja" id="id_cuenta_ingreso_recibos_caja" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            
+
                         </div>
 
                         <br/>
