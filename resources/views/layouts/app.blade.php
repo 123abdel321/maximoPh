@@ -215,6 +215,10 @@
     @include('layouts.footers.footer')
     <!-- CHAT GENERA -->
 
+    @livewire('chat-general')
+
+    @livewireScripts
+
     <script>
         const idRolUsuario = @json($rol_usuario);
         const is_owner = @json($is_owner);
