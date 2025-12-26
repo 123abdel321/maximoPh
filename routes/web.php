@@ -135,6 +135,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		});
 		//PAZ Y SALVO
 		Route::get('/paz-y-salvo', [PazSalvoController::class, 'showPdfPersonal']);
+		Route::get('/paz-y-salvo-nit', [PazSalvoController::class, 'showPdfNit']);
 		//INICIO
 		Route::get('/home', [HomeController::class, 'index'])->name('home');
 		Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');

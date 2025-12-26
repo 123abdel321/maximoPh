@@ -83,8 +83,18 @@ function facturacionesInit() {
                             class="btn badge bg-gradient-success imprimir-facturaciones"
                             style="margin-bottom: 0rem !important; min-width: 50px; background-image: linear-gradient(310deg, #CC2229 0%, #CC2229 100%);"
                         >
-                            <i class="fas fa-file-pdf"></i>&nbsp;&nbsp;
+                            <i class="fa-solid fa-file-pdf"></i>&nbsp;&nbsp;
                             Imprimir
+                        </span>&nbsp;`;
+                    html+= `
+                        <span
+                            id="imprimirpazysalvo_${row.id_nit}"
+                            href="javascript:void(0)"
+                            class="btn badge bg-gradient-info imprimir-pazysalvo"
+                            style="margin-bottom: 0rem !important; min-width: 50px; background-image: linear-gradient(310deg, #15a5af 0%, #15a5af 100%);"
+                        >
+                            <i class="fa-solid fa-file-circle-check"></i>&nbsp;&nbsp;
+                            Paz y Salvo
                         </span>&nbsp;`;
                     return html;
                 }
@@ -98,6 +108,11 @@ function facturacionesInit() {
             window.open("/facturacion-show-pdf?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
         });
 
+        facturaiones_table.on('click', '.imprimir-pazysalvo', function() {
+            var id_nit = this.id.split('_')[1];
+            window.open("/paz-y-salvo-nit?id_nit="+id_nit+"&periodo="+formatoFechaFacturacion(), "_blank");
+        });
+        
         facturaiones_table.on('click', '.enviar-facturaciones', function() {
 
             var id = this.id.split('_')[1];
