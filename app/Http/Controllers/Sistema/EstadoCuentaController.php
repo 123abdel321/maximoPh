@@ -79,6 +79,19 @@ class EstadoCuentaController extends Controller
 			$placetopayFormaPago = $placetopayFormaPago && $placetopayFormaPago->valor ? $placetopayFormaPago->valor : '';
 		}
 
+        $cuentas = Entorno::whereIn('nombre', ['id_comprobante', 'id_cuenta_ingreso', 'id_forma_pago_comprobante'])->get();
+
+        if (count($cuentas)) {
+            $id_comprobante = $entorno->firstWhere('nombre', 'id_comprobante');
+			$id_comprobante = $id_comprobante ? $id_comprobante->valor : '';
+
+            $id_cuenta_ingreso = $entorno->firstWhere('nombre', 'id_cuenta_ingreso');
+			$id_cuenta_ingreso = $id_cuenta_ingreso ? $id_cuenta_ingreso->valor : '';
+
+            $id_forma_pago_comprobante = $entorno->firstWhere('nombre', 'id_forma_pago_comprobante');
+			$id_forma_pago_comprobante = $id_forma_pago_comprobante ? $id_forma_pago_comprobante->valor : '';
+        }
+
         $pasarelaPagos = false;
 
         if ($placetopayUrl && $placetopayLogin && $placetopayTrankey && $placetopayFormaPago) {
@@ -89,9 +102,9 @@ class EstadoCuentaController extends Controller
             'id_nit' => $nit?->id ?? '',
             'numero_documento' => $nit?->numero_documento ?? '',
             'pasarela_pagos' => $pasarelaPagos,
-            'id_comprobante' => Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()?->valor ?? '',
-            'id_cuenta_ingreso' => Entorno::where('nombre', 'id_cuenta_ingreso_recibos_caja')->first()?->valor ?? '',
-            'id_forma_pago_comprobante' => Entorno::where('nombre', 'id_forma_pago_comprobante')->first()?->valor ?? '',
+            'id_comprobante' => $id_comprobante,
+            'id_cuenta_ingreso' => $id_cuenta_ingreso,
+            'id_forma_pago_comprobante' => $id_forma_pago_comprobante,
             'usuario_empresa' => UsuarioEmpresa::where('id_empresa', $request->user()['id_empresa'])
                 ->where('id_usuario', $request->user()['id'])
                 ->first()
