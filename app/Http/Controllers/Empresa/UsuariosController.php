@@ -56,135 +56,129 @@ class UsuariosController extends Controller
         return view('pages.configuracion.usuarios.usuarios-view', $data);
     }
 
-    public function generate (Request $request)
+    public function generate(Request $request)
     {
         $draw = $request->get('draw');
         $start = $request->get("start");
         $rowperpage = $request->get("length");
+        $searchValue = $request->get('search')['value'] ?? '';
+        
         $id_empresa = $request->user()['id_empresa'];
         $rol_maximo = $request->user()['rol_maximo'];
 
-        $filterSearch = '';
-        $filterMaximo = '';
-        $filterGeneral = '';
+        // Consulta base usando Eloquent/Query Builder
+        $usuariosQuery = DB::connection('clientes')
+            ->table('users as US')
+            ->select(
+                'US.id',
+                'UE.id_rol',
+                'UE.id_nit',
+                'RG.nombre as nombre_rol',
+                'US.username',
+                'US.firstname',
+                'US.lastname',
+                'US.email',
+                'US.telefono',
+                'US.address',
+                'US.email_verified_at',
+                'US.created_by',
+                'US.updated_by',
+                'US.created_at',
+                'US.updated_at'
+            )
+            ->leftJoin('usuario_empresas as UE', function($join) use ($id_empresa) {
+                $join->on('US.id', '=', 'UE.id_usuario')
+                    ->where('UE.id_empresa', '=', $id_empresa);
+            })
+            ->leftJoin('roles_generales as RG', 'UE.id_rol', '=', 'RG.id')
+            ->where('UE.id_empresa', $id_empresa);
 
-        $searchValue = $request->get('search');
-
-        if ($searchValue) {
-            $filterSearch = "AND (
-                US.firstname LIKE '%$searchValue%' 
-                OR US.lastname LIKE '%$searchValue%' 
-                OR US.email LIKE '%$searchValue%' 
-                OR US.username LIKE '%$searchValue%'
-            )";
-        }
-
-        if ($request->get('id_rol')) {
-            $filterGeneral.= 'AND UE.id_rol = '.$request->get('id_rol').' ';
-        }
-
-        if ($request->get('id_nit')) {
-            $filterGeneral.= 'AND UE.id_nit = '.$request->get('id_nit').' ';
-        }
-        
+        // Filtro por rol máximo del usuario
         if (!$rol_maximo) {
-            $filterMaximo = 'AND US.rol_maximo = 0 ';
+            $usuariosQuery->where('US.rol_maximo', 0);
         }
 
-        $totalUsuarios = DB::connection('clientes')->select("SELECT
-                COUNT(US.id) AS total_usuarios
-            FROM
-                users US
-                
-            LEFT JOIN usuario_empresas UE ON US.id = UE.id_usuario
+        // Filtro por id_rol
+        if ($request->filled('id_rol')) {
+            $usuariosQuery->where('UE.id_rol', $request->get('id_rol'));
+        }
 
-            WHERE UE.id_empresa = {$id_empresa}
-                {$filterSearch}
-            ");
+        // Filtro por id_nit
+        if ($request->filled('id_nit')) {
+            $usuariosQuery->where('UE.id_nit', $request->get('id_nit'));
+        }
 
-        $totalUsuarios = collect($totalUsuarios);
-        if (count($totalUsuarios)) $totalUsuarios = $totalUsuarios[0]->total_usuarios;
-        else $totalUsuarios = 0;
+        // Búsqueda general (sin SQL injection)
+        if (!empty($searchValue)) {
+            $usuariosQuery->where(function($query) use ($searchValue) {
+                $query->where('US.firstname', 'like', '%' . $searchValue . '%')
+                    ->orWhere('US.lastname', 'like', '%' . $searchValue . '%')
+                    ->orWhere('US.email', 'like', '%' . $searchValue . '%')
+                    ->orWhere('US.username', 'like', '%' . $searchValue . '%');
+            });
+        }
 
-        $usuarios = DB::connection('clientes')->select("SELECT
-                US.id,
-                UE.id_rol,
-                UE.id_nit,
-                RG.nombre AS nombre_rol,
-                US.username,
-                US.firstname,
-                US.lastname,
-                US.email,
-                US.telefono,
-                US.address,
-                US.email_verified_at,
-                US.created_by,
-                US.updated_by,
-                US.created_at,
-                US.updated_at
-            FROM
-                users US
-                
-            LEFT JOIN usuario_empresas UE ON US.id = UE.id_usuario
-            LEFT JOIN roles_generales RG ON UE.id_rol = RG.id
+        // Obtener total de registros sin paginación
+        $totalUsuarios = $usuariosQuery->count();
 
-            WHERE UE.id_empresa = {$id_empresa}
-                {$filterSearch}
-                {$filterMaximo}
-                {$filterGeneral}
-                
-            GROUP BY US.id
-            LIMIT {$rowperpage} OFFSET {$start}
-        ");
-
-        $usuarios = collect($usuarios);
+        // Aplicar paginación
+        if ($rowperpage > 0) {
+            $usuariosQuery->skip($start)->take($rowperpage);
+        }
         
-        $dataUsuarios = [];
+        $usuarios = $usuariosQuery->get();
 
-        if (count($usuarios)) {
-            foreach ($usuarios as $usuario) {
-                $nit = null;
-                if ($usuario->id_nit) {
-                    $nit = Nits::where('id', $usuario->id_nit)->first();
-                }
-                
-                $dataUsuarios[] = (object)[
-                    'id' => $usuario->id,
-                    'id_rol' => $usuario->id_rol,
-                    'id_nit' => $usuario->id_nit,
-                    'nombre_completo' => $nit ? $nit->nombre_completo.' '.$nit->apartamentos : '',
-                    'email_verified_at' => $usuario->email_verified_at,
-                    'nombre_rol' => $usuario->nombre_rol,
-                    'username' => $usuario->username,
-                    'firstname' => $usuario->firstname,
-                    'lastname' => $usuario->lastname,
-                    'email' => $usuario->email,
-                    'telefono' => $usuario->telefono,
-                    'address' => $usuario->address,
-                    'created_by' => $usuario->created_by,
-                    'updated_by' => $usuario->updated_by,
-                    'fecha_creacion' => Carbon::parse($usuario->created_at)->format('Y-m-d H:i:s'),
-                    'fecha_edicion' => Carbon::parse($usuario->updated_at)->format('Y-m-d H:i:s'),
-                ];
+        // Procesar los resultados
+        $dataUsuarios = [];
+        
+        // Precargar NITs para evitar N+1 queries
+        $idsNit = $usuarios->pluck('id_nit')->filter()->unique()->values();
+        $nits = Nits::whereIn('id', $idsNit)->get()->keyBy('id');
+        
+        foreach ($usuarios as $usuario) {
+            $nombreCompletoNit = '';
+            
+            if ($usuario->id_nit && isset($nits[$usuario->id_nit])) {
+                $nit = $nits[$usuario->id_nit];
+                $nombreCompletoNit = $nit->nombre_completo . ($nit->apartamentos ? ' ' . $nit->apartamentos : '');
             }
+            
+            $dataUsuarios[] = [
+                'id' => $usuario->id,
+                'id_rol' => $usuario->id_rol,
+                'id_nit' => $usuario->id_nit,
+                'nombre_completo' => $nombreCompletoNit,
+                'email_verified_at' => $usuario->email_verified_at,
+                'nombre_rol' => $usuario->nombre_rol,
+                'username' => $usuario->username,
+                'firstname' => $usuario->firstname,
+                'lastname' => $usuario->lastname,
+                'email' => $usuario->email,
+                'telefono' => $usuario->telefono,
+                'address' => $usuario->address,
+                'created_by' => $usuario->created_by,
+                'updated_by' => $usuario->updated_by,
+                'fecha_creacion' => $usuario->created_at ? Carbon::parse($usuario->created_at)->format('Y-m-d H:i:s') : null,
+                'fecha_edicion' => $usuario->updated_at ? Carbon::parse($usuario->updated_at)->format('Y-m-d H:i:s') : null,
+            ];
         }
 
         return response()->json([
-            'success'=>	true,
-            'draw' => $draw,
+            'success' => true,
+            'draw' => intval($draw),
             'iTotalRecords' => $totalUsuarios,
             'iTotalDisplayRecords' => $totalUsuarios,
             'data' => $dataUsuarios,
             'perPage' => $rowperpage,
-            'message'=> 'Usuarios cargados con exito!'
+            'message' => 'Usuarios cargados con éxito!'
         ]);
     }
 
-    public function create (Request $request)
+    public function create(Request $request)
     {        
         $rules = [
-            'usuario' => 'required|string|min:1|unique:App\Models\User,username',
-            'email' => 'required|email|string|max:255|unique:App\Models\User,email',
+            'usuario' => 'required|string|min:1',
+            'email' => 'required|email|string|max:255',
             'firstname' => 'nullable|string|max:255',
             'lastname' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255'
@@ -193,83 +187,181 @@ class UsuariosController extends Controller
         $validator = Validator::make($request->all(), $rules, $this->messages);
 
         if ($validator->fails()){
-            
             return response()->json([
-                "success"=>false,
+                "success" => false,
                 'data' => [],
-                "message"=>$validator->errors()
+                "message" => $validator->errors()
             ], 422);
         }
 
+        // Validación del rol y NIT
         if ($request->get('rol_usuario') != 1) {
             if (!$request->get('id_nit')) {
                 return response()->json([
-                    "success"=>false,
+                    "success" => false,
                     'data' => [],
-                    "message"=>['id_nit' => 'El nit es obligatorio']
+                    "message" => ['id_nit' => 'El nit es obligatorio']
                 ], 422);
             }
+            
             $nit = Nits::where('id', $request->get('id_nit'))->first();
             if (!$nit) {
                 return response()->json([
-                    "success"=>false,
+                    "success" => false,
                     'data' => [],
-                    "message"=>['id_nit' => 'El nit es invalido']
+                    "message" => ['id_nit' => 'El nit es invalido']
                 ], 422);
             }
         }
 
         try {
-            
             DB::connection('clientes')->beginTransaction();
 
             $rol = RolesGenerales::where('id', $request->get('rol_usuario'))->first();
+            
+            if (!$rol) {
+                throw new Exception("El rol especificado no existe");
+            }
 
-            $usuario = User::create([
-                'username' => $request->get('usuario'),
-                'id_empresa' => $request->user()['id_empresa'],
-                'has_empresa' => $request->user()['has_empresa'],
-                'firstname' => $request->get('firstname'),
-                'lastname' => $request->get('lastname'),
-                'email' => $request->get('email'),
-                'address' => $request->get('address'),
-                'password' => $request->get('password'),
-                'telefono' => $request->get('telefono'),
-                'created_by' => request()->user()->id,
-                'updated_by' => request()->user()->id,
-            ]);
+            $empresaActualId = request()->user()->id_empresa;
+            $empresaActualHash = request()->user()->has_empresa;
+            $usuarioCreadorId = request()->user()->id;
 
-            UsuarioEmpresa::updateOrCreate([
-                'id_usuario' => $usuario->id,
-                'id_empresa' => request()->user()->id_empresa
-            ],[
-                'id_rol' => $rol->id, // ROL PROPIETARIO
-                'estado' => 1, // default: 1 activo
-                'id_nit' => $request->get('id_nit')
-            ]);
+            // Verificar si el usuario ya existe por username o email
+            $usuarioExistente = User::where('username', $request->get('usuario'))
+                ->orWhere('email', $request->get('email'))
+                ->first();
 
-            UsuarioPermisos::updateOrCreate([
-                'id_user' => $usuario->id,
-                'id_empresa' => request()->user()->id_empresa
-            ],[
-                'id_rol' => $rol->id, // ROL PROPIETARIO
-                'ids_permission' => $rol->ids_permission
-            ]);
+            // Verificar si el usuario ya está asociado a esta empresa
+            $yaAsociadoEmpresa = false;
+            if ($usuarioExistente) {
+                $yaAsociadoEmpresa = UsuarioEmpresa::where('id_usuario', $usuarioExistente->id)
+                    ->where('id_empresa', $empresaActualId)
+                    ->exists();
+            }
+
+            // Si el usuario existe y ya está asociado a esta empresa, retornar error
+            if ($usuarioExistente && $yaAsociadoEmpresa) {
+                DB::connection('clientes')->rollback();
+                return response()->json([
+                    "success" => false,
+                    'data' => [],
+                    "message" => "El usuario ya existe y está asociado a esta empresa"
+                ], 422);
+            }
+
+            $usuario = null;
+
+            if ($usuarioExistente && !$yaAsociadoEmpresa) {
+                // CASO 1: Usuario existe pero no está asociado a esta empresa
+                $usuario = $usuarioExistente;
+                
+                // Actualizar datos del usuario si se proporcionaron
+                $actualizacionUsuario = [
+                    'updated_by' => $usuarioCreadorId,
+                ];
+                
+                // Solo actualizar campos si se proporcionan
+                if ($request->has('firstname')) {
+                    $actualizacionUsuario['firstname'] = $request->get('firstname');
+                }
+                if ($request->has('lastname')) {
+                    $actualizacionUsuario['lastname'] = $request->get('lastname');
+                }
+                if ($request->has('address')) {
+                    $actualizacionUsuario['address'] = $request->get('address');
+                }
+                if ($request->has('telefono')) {
+                    $actualizacionUsuario['telefono'] = $request->get('telefono');
+                }
+                
+                $usuario->update($actualizacionUsuario);
+                
+            } else {
+                // CASO 2: Usuario no existe, crearlo nuevo
+                // Validar unicidad para nuevo usuario
+                $uniqueRules = [
+                    'usuario' => 'unique:App\Models\User,username',
+                    'email' => 'unique:App\Models\User,email',
+                ];
+                
+                $uniqueValidator = Validator::make($request->all(), $uniqueRules);
+                
+                if ($uniqueValidator->fails()) {
+                    DB::connection('clientes')->rollback();
+                    return response()->json([
+                        "success" => false,
+                        'data' => [],
+                        "message" => $uniqueValidator->errors()
+                    ], 422);
+                }
+
+                $usuario = User::create([
+                    'username' => $request->get('usuario'),
+                    'id_empresa' => $empresaActualId,
+                    'has_empresa' => $empresaActualHash,
+                    'firstname' => $request->get('firstname'),
+                    'lastname' => $request->get('lastname'),
+                    'email' => $request->get('email'),
+                    'address' => $request->get('address'),
+                    'password' => $request->get('password'),
+                    'telefono' => $request->get('telefono'),
+                    'created_by' => $usuarioCreadorId,
+                    'updated_by' => $usuarioCreadorId,
+                ]);
+            }
+
+            // Asociar usuario a la empresa (crear o actualizar)
+            UsuarioEmpresa::updateOrCreate(
+                [
+                    'id_usuario' => $usuario->id,
+                    'id_empresa' => $empresaActualId
+                ],
+                [
+                    'id_rol' => $rol->id,
+                    'estado' => 1,
+                    'id_nit' => $request->get('id_nit')
+                ]
+            );
+
+            // Asignar permisos según el rol
+            UsuarioPermisos::updateOrCreate(
+                [
+                    'id_user' => $usuario->id,
+                    'id_empresa' => $empresaActualId
+                ],
+                [
+                    'id_rol' => $rol->id,
+                    'ids_permission' => $rol->ids_permission
+                ]
+            );
+
+            // Si el usuario es nuevo, asignar el rol global (si es necesario)
+            if (!$usuarioExistente) {
+                // Esto depende de cómo manejes los roles en este proyecto
+                // Si usas Spatie Permission como en el otro proyecto:
+                // $usuario->syncRoles($rol);
+            }
 
             DB::connection('clientes')->commit();
 
+            $mensaje = $usuarioExistente 
+                ? "Usuario asociado a la empresa con éxito!" 
+                : "Usuario creado con éxito!";
+
             return response()->json([
-                'success'=>	true,
+                'success' => true,
                 'data' => $usuario,
-                'message'=> 'Usuario creado con exito!'
+                'message' => $mensaje,
+                'nuevo_usuario' => !$usuarioExistente
             ]);
 
         } catch (Exception $e) {
             DB::connection('clientes')->rollback();
             return response()->json([
-                "success"=>false,
+                "success" => false,
                 'data' => [],
-                "message"=>$e->getMessage()
+                "message" => $e->getMessage()
             ], 422);
         }
     }
