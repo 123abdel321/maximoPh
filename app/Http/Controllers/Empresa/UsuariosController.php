@@ -366,28 +366,38 @@ class UsuariosController extends Controller
         }
     }
 
-    public function update (Request $request)
+    public function update(Request $request)
     {
         $rules = [
             'id' => 'required|exists:App\Models\User,id',
-            'usuario' => 'required|string|min:1|unique:App\Models\User,username',
-            "usuario" => [
-                "required","string",
-				function ($attribute, $value, $fail) use ($request) {
-                    $existeUsuario = User::where('username', $request->get('usuario'))->where('id', '!=', $request->get('id'));
-					if ($existeUsuario->count()) {
-                        $fail("El usuario (".$value.") ya se encuentra en uso.");
+            'usuario' => [
+                'required',
+                'string',
+                'min:1',
+                function ($attribute, $value, $fail) use ($request) {
+                    $existeUsuario = User::where('username', $value)
+                        ->where('id', '!=', $request->get('id'))
+                        ->exists();
+                    
+                    if ($existeUsuario) {
+                        $fail("El usuario ($value) ya se encuentra en uso.");
                     }
-				},
+                },
             ],
-            "email" => [
-                "required","email","string","max:255",
-				function ($attribute, $value, $fail) use ($request) {
-                    $existeCorreo = User::where('email', $request->get('email'))->where('id', '!=', $request->get('id'));
-					if ($existeCorreo->count()) {
-                        $fail("El correo (".$value.") ya se encuentra en uso.");
+            'email' => [
+                'required',
+                'email',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($request) {
+                    $existeCorreo = User::where('email', $value)
+                        ->where('id', '!=', $request->get('id'))
+                        ->exists();
+                    
+                    if ($existeCorreo) {
+                        $fail("El correo ($value) ya se encuentra en uso.");
                     }
-				},
+                },
             ],
             'firstname' => 'nullable|string|max:255',
             'lastname' => 'nullable|string|max:255',
@@ -396,43 +406,60 @@ class UsuariosController extends Controller
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
 
-        if ($validator->fails()){
-            
+        if ($validator->fails()) {
             return response()->json([
-                "success"=>false,
+                "success" => false,
                 'data' => [],
-                "message"=>$validator->errors()
+                "message" => $validator->errors()
             ], 422);
         }
 
         if ($request->get('rol_usuario') != 1) {
             if (!$request->get('id_nit')) {
                 return response()->json([
-                    "success"=>false,
+                    "success" => false,
                     'data' => [],
-                    "message"=>'El nit es obligatorio'
+                    "message" => ['id_nit' => 'El nit es obligatorio']
                 ], 422);
             }
+            
             $nit = Nits::where('id', $request->get('id_nit'))->first();
             if (!$nit) {
                 return response()->json([
-                    "success"=>false,
+                    "success" => false,
                     'data' => [],
-                    "message"=>'El nit es invalido'
+                    "message" => ['id_nit' => 'El nit es invalido']
                 ], 422);
             }
         }
 
         try {
-
             DB::connection('max')->beginTransaction();
 
             $rol = RolesGenerales::where('id', $request->get('rol_usuario'))->first();
+            
+            if (!$rol) {
+                throw new Exception("El rol especificado no existe");
+            }
 
             $usuario = User::where('id', $request->get('id'))->first();
+            
+            if (!$usuario) {
+                throw new Exception("Usuario no encontrado");
+            }
+
+            // Verificar que el usuario pertenezca a la empresa del usuario logeado
+            // Esto es importante para seguridad multi-tenancy
+            $perteneceEmpresa = UsuarioEmpresa::where('id_usuario', $usuario->id)
+                ->where('id_empresa', request()->user()->id_empresa)
+                ->exists();
+            
+            if (!$perteneceEmpresa) {
+                throw new Exception("No tienes permisos para editar este usuario");
+            }
+
+            // Actualizar datos del usuario
             $usuario->username = $request->get('usuario');
-            $usuario->id_empresa = $request->user()['id_empresa'];
-            $usuario->has_empresa = $request->user()['has_empresa'];
             $usuario->firstname = $request->get('firstname');
             $usuario->lastname = $request->get('lastname');
             $usuario->email = $request->get('email');
@@ -442,43 +469,52 @@ class UsuariosController extends Controller
             $usuario->updated_by = request()->user()->id;
             $usuario->save();
 
-            if ($request->get('password')) {
+            // Actualizar password si se proporciona
+            if ($request->filled('password')) {
                 $usuario->update([
                     'password' => $request->get('password')
                 ]);
             }
 
-            UsuarioEmpresa::updateOrCreate([
-                'id_usuario' => $usuario->id,
-                'id_empresa' => request()->user()->id_empresa
-            ],[
-                'id_rol' => $rol->id, // ROL PROPIETARIO
-                'estado' => 1, // default: 1 activo
-                'id_nit' => $request->get('id_nit')
-            ]);
+            // Actualizar la relación con la empresa
+            UsuarioEmpresa::updateOrCreate(
+                [
+                    'id_usuario' => $usuario->id,
+                    'id_empresa' => request()->user()->id_empresa
+                ],
+                [
+                    'id_rol' => $rol->id,
+                    'estado' => 1,
+                    'id_nit' => $request->get('id_nit')
+                ]
+            );
 
-            UsuarioPermisos::updateOrCreate([
-                'id_user' => $usuario->id,
-                'id_empresa' => request()->user()->id_empresa
-            ],[
-                'id_rol' => $rol->id, // ROL PROPIETARIO
-                'ids_permission' => $rol->ids_permission
-            ]);
+            // Actualizar permisos
+            UsuarioPermisos::updateOrCreate(
+                [
+                    'id_user' => $usuario->id,
+                    'id_empresa' => request()->user()->id_empresa
+                ],
+                [
+                    'id_rol' => $rol->id,
+                    'ids_permission' => $rol->ids_permission
+                ]
+            );
 
             DB::connection('max')->commit();
 
             return response()->json([
-                'success'=>	true,   
+                'success' => true,
                 'data' => $usuario,
-                'message'=> 'Usuario actualizado con exito!'
+                'message' => 'Usuario actualizado con éxito!'
             ]);
 
         } catch (Exception $e) {
             DB::connection('max')->rollback();
             return response()->json([
-                "success"=>false,
+                "success" => false,
                 'data' => [],
-                "message"=>$e->getMessage()
+                "message" => $e->getMessage()
             ], 422);
         }
     }

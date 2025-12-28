@@ -8,10 +8,7 @@ git pull
 
 # Limpiar configuraciones y cachés
 echo "🧹 Limpiando cachés de Laravel..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
+php artisan optimize:clear
 
 # Reconstruir la caché de configuración
 echo "📦 Generando config:cache..."

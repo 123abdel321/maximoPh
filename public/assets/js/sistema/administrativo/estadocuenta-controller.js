@@ -274,6 +274,12 @@ function estadocuentaInit() {
     getTotalesEstadoCuenta();
 
     estado_cuenta_table.ajax.reload();
+
+    if (!$idFormaPagoComprobante) {
+        $('#generateComprobanteEstadoCuenta').hide();
+        $('#generateComprobanteEstadoCuentaDisabled').show();
+        agregarToast('warning', 'No se pueden adjuntar comprobantes', 'Sin Forma de pago Comprobante configurado correctamente', false);
+    }
 }
 
 channelEstadoCuenta.bind('notificaciones', function(data) {
@@ -448,7 +454,7 @@ $(document).on('click', '#saveEstadoCuentaPago', function () {
         'id_nit': $idNitEstadoCuenta,
         'id_comprobante': $idComprobante,
         'id_cuenta_ingreso': $idCuentaIngreso,
-        'id_forma_pago_comprobante': idFormaPagoComprobante,
+        'id_forma_pago_comprobante': $idFormaPagoComprobante,
         'numero_documento': $numeroDocumentoEstadoCuenta,
         'fecha_pago': '',
         'valor_comprobante': 0,
@@ -626,8 +632,9 @@ function showViewEstadoCuenta(tipo) {
         $('#generatePagoEstadoCuenta').hide();
         $('#generatePagoEstadoCuentaDisabled').hide();
     }
+
     $('#generateComprobanteEstadoCuenta').hide();
-    $('#generateComprobanteEstadoCuentaDisabled').hide();
+    $('#generateComprobanteEstadoCuentaDisabled').show();
     
     switch (tipo) {
         case 1:
@@ -635,7 +642,8 @@ function showViewEstadoCuenta(tipo) {
             $('#table_estado_cuenta').show();
             $('#table_pagos_estado_cuenta').hide();
             $('#table_facturas_estado_cuenta').hide();
-            if (totalCuentasPagar) {
+            
+            if (totalCuentasPagar && $idFormaPagoComprobante) {
                 if ($pasarela_pagos) $('#generatePagoEstadoCuenta').show();
                 $('#generateComprobanteEstadoCuenta').show();
             } else {
@@ -669,6 +677,7 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
         $('#generatePagoEstadoCuenta').hide();
         $('#generatePagoEstadoCuentaDisabled').show();
     }
+    
     $('#generateComprobanteEstadoCuenta').hide();
     $('#generateComprobanteEstadoCuentaDisabled').show();
 
@@ -686,8 +695,10 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
                     $('#generatePagoEstadoCuenta').show();
                     $('#generatePagoEstadoCuentaDisabled').hide();
                 }
-                $('#generateComprobanteEstadoCuenta').show();
-                $('#generateComprobanteEstadoCuentaDisabled').hide();
+                if ($idFormaPagoComprobante) {
+                    $('#generateComprobanteEstadoCuenta').show();
+                    $('#generateComprobanteEstadoCuentaDisabled').hide();
+                }
             }
             
             $('#total_estado_cuentaxp').hide();
@@ -738,13 +749,76 @@ function clearFormEstadoCuenta() {
 
 function readFileEstadoCuenta(input) {
     if (input.files && input.files[0]) {
-        var reader = new FileReader();
-
+        const file = input.files[0];
+        
+        // Verificar formato (igual que en readURL)
+        const fileName = file.name.toLowerCase();
+        const isHeic = fileName.endsWith('.heic') || fileName.endsWith('.heif');
+        
+        if (isHeic) {
+            agregarToast('exito', 'Creación exitosa', 'Formato HEIC no compatible. Por favor, tome la foto en formato JPEG o cambie la configuración:\n' +
+                'Configuración > Cámara > Formatos > Seleccione "Más Compatible"', false);
+            input.value = ''; // Limpiar input
+            return;
+        }
+        
+        const reader = new FileReader();
+        
         reader.onload = function (e) {
-            comprobanteFile = e.target.result;
+            const img = new Image();
+            
+            img.onload = function() {
+                // Limitar tamaño máximo si es necesario
+                const maxWidth = 800;
+                const maxHeight = 800;
+                let width = img.width;
+                let height = img.height;
+                
+                // Redimensionar si es muy grande
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) {
+                        height = (maxWidth / width) * height;
+                        width = maxWidth;
+                    } else {
+                        width = (maxHeight / height) * width;
+                        height = maxHeight;
+                    }
+                }
+                
+                // Crear canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Rotar 90 grados si es necesario (para iPhone en modo retrato)
+                if (img.width < img.height) {
+                    canvas.width = height;
+                    canvas.height = width;
+                    ctx.translate(height / 2, width / 2);
+                    ctx.rotate(90 * Math.PI / 180);
+                    ctx.drawImage(img, -width / 2, -height / 2, width, height);
+                } else {
+                    ctx.drawImage(img, 0, 0, width, height);
+                }
+                
+                // Convertir a base64
+                const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+                
+                // Asignar a tu variable (igual que antes)
+                comprobanteFile = base64Image;
+                
+                // Opcional: si tienes vista previa para el comprobante
+                if ($('#vistaPreviaComprobante').length) {
+                    $('#vistaPreviaComprobante').attr('src', base64Image).show();
+                }
+            };
+            
+            img.src = e.target.result;
         };
-
-        reader.readAsDataURL(input.files[0]);
+        
+        reader.readAsDataURL(file);
     }
 }
 
