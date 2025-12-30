@@ -23,6 +23,7 @@ class ConceptoFacturacion extends Model
         'id_nit_cuenta_ingreso',
         'intereses',
         'pronto_pago',
+        'pronto_pago_morosos',
         'id_cuenta_gasto',
         'id_cuenta_anticipo',
         'dias_pronto_pago',

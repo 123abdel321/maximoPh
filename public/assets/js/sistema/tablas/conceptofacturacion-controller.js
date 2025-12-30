@@ -76,9 +76,14 @@ function conceptofacturacionInit() {
                 return 'FACTURACIÓN';
             }},
             {"data":'valor', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
-            {"data":'orden'},
             {"data": function (row, type, set){  
                 if (row.pronto_pago) {
+                    return 'SI'
+                }
+                return 'NO';
+            }},
+            {"data": function (row, type, set){  
+                if (row.pronto_pago_morosos) {
                     return 'SI'
                 }
                 return 'NO';
@@ -219,12 +224,20 @@ function conceptofacturacionInit() {
                 $('#input-id_cuenta_pronto_pago_anticipo').show();
                 $('#input-dias_concepto_facturacion').show();
                 $('#input-porcentaje_descuento_concepto_facturacion').show();
+                $('#input-pronto_pago_morosos_concepto_facturacion').show();
             } else {
                 $('#pronto_pago_concepto_facturacion').prop('checked', false);
                 $('#input-id_cuenta_pronto_pago_gasto').hide();
                 $('#input-id_cuenta_pronto_pago_anticipo').hide();
                 $('#input-dias_concepto_facturacion').hide();
                 $('#input-porcentaje_descuento_concepto_facturacion').hide();
+                $('#input-pronto_pago_morosos_concepto_facturacion').hide();
+            }
+
+            if (data.pronto_pago_morosos) {
+                $('#pronto_pago_morosos_concepto_facturacion').prop('checked', true);
+            } else {
+                $('#pronto_pago_morosos_concepto_facturacion').prop('checked', false);
             }
 
             $("#dias_concepto_facturacion").val(data.dias_pronto_pago);
@@ -530,6 +543,7 @@ $(document).on('click', '#saveConceptoFacturacion', function () {
         valor: $("#valor_concepto_facturacion").val(),
         orden: $('#orden_concepto_facturacion').val(),
         pronto_pago: $("input[type='checkbox']#pronto_pago_concepto_facturacion").is(':checked') ? '1' : '',
+        pronto_pago_morosos: $("input[type='checkbox']#pronto_pago_morosos_concepto_facturacion").is(':checked') ? '1' : '',
         id_cuenta_pronto_pago_anticipo: $('#id_cuenta_pronto_pago_anticipo').val(),
         id_cuenta_pronto_pago_gasto: $('#id_cuenta_pronto_pago_gasto').val(),
         dias_pronto_pago: $('#dias_concepto_facturacion').val(),
@@ -597,6 +611,7 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
         valor: $("#valor_concepto_facturacion").val(),
         orden: $('#orden_concepto_facturacion').val(),
         pronto_pago: $("input[type='checkbox']#pronto_pago_concepto_facturacion").is(':checked') ? '1' : '',
+        pronto_pago_morosos: $("input[type='checkbox']#pronto_pago_morosos_concepto_facturacion").is(':checked') ? '1' : '',
         id_cuenta_pronto_pago_anticipo: $('#id_cuenta_pronto_pago_anticipo').val(),
         id_cuenta_pronto_pago_gasto: $('#id_cuenta_pronto_pago_gasto').val(),
         dias_pronto_pago: $('#dias_concepto_facturacion').val(),
@@ -643,11 +658,13 @@ $("#pronto_pago_concepto_facturacion").on('change', function(event) {
         $('#input-id_cuenta_pronto_pago_anticipo').show();
         $('#input-dias_concepto_facturacion').show();
         $('#input-porcentaje_descuento_concepto_facturacion').show();
+        $('#input-pronto_pago_morosos_concepto_facturacion').show();
     } else {
         $('#input-id_cuenta_pronto_pago_gasto').hide();
         $('#input-id_cuenta_pronto_pago_anticipo').hide();
         $('#input-dias_concepto_facturacion').hide();
         $('#input-porcentaje_descuento_concepto_facturacion').hide();
+        $('#input-pronto_pago_morosos_concepto_facturacion').hide();
     }
 });
 

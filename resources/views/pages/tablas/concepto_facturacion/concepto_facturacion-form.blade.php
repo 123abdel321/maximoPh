@@ -66,10 +66,10 @@
                             </select>
                         </div>
 
-                        <div class="form-group col-12 col-sm-6 col-md-6">
+                        <!-- <div class="form-group col-12 col-sm-6 col-md-6">
                             <label for="orden_concepto_facturacion" class="form-control-label">Orden</label>
                             <input type="input" class="form-control form-control-sm text-align-right" name="orden_concepto_facturacion" id="orden_concepto_facturacion" value="0">
-                        </div>
+                        </div> -->
 
                         <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
                             <input class="form-check-input" type="checkbox" name="intereses_concepto_facturacion" id="intereses_concepto_facturacion" style="height: 20px;">
@@ -101,6 +101,11 @@
                         <div class="form-group col-6 col-sm-6 col-md-6" id="input-porcentaje_descuento_concepto_facturacion" style="display: none;">
                             <label for="porcentaje_descuento_concepto_facturacion" class="form-control-label">Porcentaje descuento</label>
                             <input type="number" class="form-control form-control-sm" name="porcentaje_descuento_concepto_facturacion" id="porcentaje_descuento_concepto_facturacion">
+                        </div>
+
+                        <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="display: none;" id="input-pronto_pago_morosos_concepto_facturacion">
+                            <input class="form-check-input" type="checkbox" name="pronto_pago_morosos_concepto_facturacion" id="pronto_pago_morosos_concepto_facturacion" style="height: 20px;">
+                            <label class="form-check-label" for="pronto_pago_morosos_concepto_facturacion">Pronto pago morosos</label>
                         </div>
 
                     </div>  

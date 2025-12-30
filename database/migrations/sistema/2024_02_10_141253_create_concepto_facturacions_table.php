@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('id_nit_cuenta_ingreso')->nullable();
             $table->boolean('intereses')->nullable()->default(0)->comment('0 - No; 1 - Si;');
             $table->boolean('pronto_pago')->nullable()->default(0)->comment('0 - No; 1 - Si;');
+            $table->boolean('pronto_pago_morosos')->nullable()->default(0)->comment('0 - No; 1 - Si;');
             $table->boolean('tipo_concepto')->nullable()->default(0)->comment('0 - Facturación; 1 - Cuotas extras & multas;');
             $table->decimal('valor', 15)->nullable()->default(0);
             $table->integer('id_cuenta_gasto')->nullable();

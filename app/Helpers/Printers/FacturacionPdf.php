@@ -202,8 +202,22 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->table('concepto_facturacions')
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
-            
-            if (!$tieneSaldoAnterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
+
+            if ($conceptoFactura && $conceptoFactura->pronto_pago && $conceptoFactura->pronto_pago_morosos) {
+                $diaHoy = intval(Carbon::now()->format('d'));
+                $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
+                $tieneDescuentoProntoPago = true;
+                $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
+                $totalDescuento+= $descuento;
+                if (array_key_exists($keyDescuento, $dataDescuento)) {
+                    $dataDescuento[$keyDescuento]['descuento']+= $descuento;
+                } else {
+                    $dataDescuento[$keyDescuento] = [
+                        'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
+                        'descuento' => $totales->saldo_final - $descuento
+                    ];
+                }
+            } else if (!$tieneSaldoAnterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
             // if (!$totales->saldo_anterior && $conceptoFactura && $conceptoFactura->pronto_pago) {
                 $diaHoy = intval(Carbon::now()->format('d'));
                 //VALIDAMOS FECHA LIMITE DE PRONTO PAGO
@@ -222,6 +236,8 @@ class FacturacionPdf extends AbstractPrinterPdf
                     }
                 }
             }
+
+            $tieneDescuentoProntoPago = true;
 
             $dataCuentas[] = (object)[
                 'nombre_cuenta' => $facturacion->nombre_cuenta,

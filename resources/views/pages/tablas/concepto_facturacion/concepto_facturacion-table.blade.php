@@ -11,8 +11,8 @@
             <th>Intereses</th>
             <th>Tipo concepto</th>
             <th>Valor</th>
-            <th>Orden</th>
             <th>Pronto pago</th>
+            <th>Pronto pago morosos</th>
             <th>Dias pronto pago</th>
             <th>Porcentaje pronto pago</th>
             <th>Cuenta gasto</th>

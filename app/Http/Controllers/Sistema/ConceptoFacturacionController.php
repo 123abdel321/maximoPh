@@ -139,6 +139,7 @@ class ConceptoFacturacionController extends Controller
                 'id_cuenta_iva' => $request->get('id_cuenta_iva'),
 
                 'pronto_pago' => $request->get('pronto_pago'),
+                'pronto_pago_morosos' => $request->get('pronto_pago_morosos'),
                 'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
                 'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
                 'dias_pronto_pago' => $diasProntoPago ? $diasProntoPago : $request->get('dias_pronto_pago'),
@@ -220,6 +221,7 @@ class ConceptoFacturacionController extends Controller
                     'intereses' => $request->get('intereses'),
 
                     'pronto_pago' => $request->get('pronto_pago'),
+                    'pronto_pago_morosos' => $request->get('pronto_pago_morosos'),
                     'id_cuenta_gasto' => $request->get('id_cuenta_pronto_pago_gasto'),
                     'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
                     'dias_pronto_pago' => $request->get('dias_pronto_pago'),
