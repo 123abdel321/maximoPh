@@ -547,7 +547,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
         }
         // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
         elseif ($redondeo && $redondeo > 0) {
-            return round($number / floatval($redondeo)) * floatval($redondeo);
+            return round($number / $redondeo) * $redondeo;
         }
         // Caso 3: Si no hay configuración, retorna el número sin cambios
         else {
