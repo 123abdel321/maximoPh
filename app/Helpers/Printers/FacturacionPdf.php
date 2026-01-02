@@ -284,7 +284,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             if ($descuento['descuento'] < 0) {
                 $dataDescuento[$key]['descuento'] = 0;
             } else {
-                $dataDescuento[$key]['descuento'] = $this->roundNumber($dataDescuento[$key]['descuento'], $this->redondeoProntoPago);
+                $dataDescuento[$key]['descuento'] = $totales->saldo_final - $this->roundNumber($dataDescuento[$key]['descuento'], $this->redondeoProntoPago);
             }
         }
 
