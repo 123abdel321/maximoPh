@@ -524,11 +524,18 @@ class FacturacionPdf extends AbstractPrinterPdf
     }
 
     private function roundNumber($number, $redondeo = null)
-    {
-        if ($redondeo !== null) {
-            $number = round($number, 2);
-            return round($number / $redondeo) * $redondeo;
+    {        
+        // Caso 1: Si el valor de redondeo es 0, elimina todos los decimales (redondea a entero)
+        if ($redondeo && $redondeo == 0) {
+            return (int) round($number); // Cast a int para eliminar decimales
         }
-        return $number;
+        // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
+        elseif ($redondeo && $redondeo > 0) {
+            return round($number / floatval($redondeo)) * floatval($redondeo);
+        }
+        // Caso 3: Si no hay configuración, retorna el número sin cambios
+        else {
+            return $number;
+        }
     }
 }
