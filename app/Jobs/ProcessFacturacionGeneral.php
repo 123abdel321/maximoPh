@@ -83,7 +83,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $this->inicioMes = date('Y-m', strtotime($this->periodo_facturacion));
         $this->finMes = date('Y-m-t', strtotime($this->periodo_facturacion));
         $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
-        $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
+        $this->redondeo = $this->redondeo ? floatval($this->redondeo->valor) : 0;
         $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
         $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
         $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
