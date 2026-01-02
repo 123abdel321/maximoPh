@@ -155,6 +155,7 @@ function handleReciboClick() {
         agregarToast('info', 'Importando pagos', 'Se le notificará cuando la importación haya terminado!', true);
     }).fail((err) => {
         $('#cargarPlantillaRecibos').show();
+        $('#actualizarPlantillaRecibos').show();
         $('#cargarPlantillaRecibosLoagind').hide();
 
         var errorsMsg = "";

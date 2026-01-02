@@ -291,33 +291,41 @@ th.dtfc-fixed-right {
 }
 
 .toast {
-    background: #ccc;
     display: flex;
     justify-content: space-between;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     animation-name: apertura;
     animation-duration: 200ms;
     animation-timing-function: ease-out;
     position: relative;
     width: 100% !important;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
 }
 
 .toast.exito {
     background: var(--bs-success);
     color: white !important;
+    min-height: 140px;
+    max-height: 300px;
 }
 .toast.error {
     background: var(--bs-danger);
     color: white !important;
+    min-height: 140px;
+    max-height: 300px;
 }
 .toast.info {
     background: var(--bs-info);
     color: white !important;
+    min-height: 140px;
+    max-height: 300px;
 }
 .toast.warning {
     background: var(--bs-warning);
     color: white !important;
+    min-height: 140px;
+    max-height: 300px;
 }
 
 .toast .contenido {
@@ -328,7 +336,9 @@ th.dtfc-fixed-right {
     padding: 15px;
     z-index: 9;
     overflow: auto;
-    max-height: 150px;
+    max-width: 400px;
+    max-height: 300px;
+    min-height: 140px;
 }
 
 .toast .icono {

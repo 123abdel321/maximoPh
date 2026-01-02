@@ -75,7 +75,12 @@
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
                                 <label for="example-text-input" class="form-control-label">Redondeo intereses</label>
-                                <input type="number" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
+                                <input type="text" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3" >
+                                <label for="example-text-input" class="form-control-label">Redondeo pronto pago</label>
+                                <input type="text" class="form-control form-control-sm" name="redondeo_pronto_pago" id="redondeo_pronto_pago">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">

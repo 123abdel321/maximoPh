@@ -634,7 +634,8 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
             agregarToast('exito', 'Actualización exitosa', 'Concepto de facturación actualizado con exito!', true);
         }
     }).fail((err) => {
-        $('#saveConceptoFacturacion').show();
+
+        $('#updateConceptoFacturacion').show();
         $('#saveConceptoFacturacionLoading').hide();
         var errorsMsg = "";
         var mensaje = err.responseJSON.message;

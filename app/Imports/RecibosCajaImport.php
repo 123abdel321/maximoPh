@@ -32,7 +32,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     use Importable, SkipsFailures;
 
     public $empresa = null;
-    public $redondeo = null;
+    public $redondeoIntereses = null;
+    public $redondeoProntoPago = null;
 
     public function __construct($empresa)
     {
@@ -51,8 +52,10 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $conceptoFacturacionSinIdentificar = Entorno::where('nombre', 'id_concepto_pago_none')->first();
         $conceptoFacturacionSinIdentificar = $conceptoFacturacionSinIdentificar ? $conceptoFacturacionSinIdentificar->valor : 0;
         $nitPorDefecto = Entorno::where('nombre', 'id_nit_por_defecto')->first();
-        $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
-        $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
+        $this->redondeoIntereses = Entorno::where('nombre', 'redondeo_intereses')->first();
+        $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
+        $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
+        $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
         $fechaCargaArchivos = Carbon::now()->format('Y-m-d H:i:s');
 
@@ -69,7 +72,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             $conceptoFacturacion = null;
             $saldoNuevo = 0;
             $saldoTotal = 0;
-            $descuentoProntoPago = 0;
             $anticipo = 0;
             $valorPendiente = 0;
             $extractoSaldo = 0;
@@ -147,7 +149,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             
             $faltanteDescuento = 0;
             $descuentoProntoPago = 0;
-
+            
             if ($row['valor'] && $fechaManual) {
                 if ($nit) {
                     $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
@@ -186,12 +188,11 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                             
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
                         $valorPendiente = $extracto ? $extracto->saldo : 0;
+                        $hasSaldo = $extractoCXC > 0 ? true : false;
 
-                        if ($extracto && $extracto->saldo && !$extractoCXC) {
-                            $prontoPago = 0;
-
+                        if ($extracto && $extracto->saldo) {
                             [$descuentoProntoPago, $faltanteDescuento] = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
-                            
+
                             $pagoTotal+= $descuentoProntoPago;
                             $pagoTotal+= $extractoCXC;
                             if (($valorPendiente - $pagoTotal) < 0) {
@@ -201,6 +202,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                             $anticipo+= floatval($row['valor']);
                         }
                     }
+                    
                     $extractoSaldo = (new Extracto(
                         $nit->id,
                         [3,7]
@@ -213,9 +215,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                     $extractoSaldo = $extractoSaldo ? $extractoSaldo->saldo : 0;
                     $anticipo+= $extractoCXP ? $extractoCXP->saldo : 0;
-                    $anticipo-= $extractoSaldo;
+                    // $anticipo-= $extractoSaldo;
                 }
-            }
+            }            
             
             if (!$conceptoFacturacion) {
                 $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
@@ -273,7 +275,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $extractoCXC)
     {
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
-
+        
         if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
             if ($totalPago + $descuento + $extractoCXC >= $extracto->saldo) {
                 return [$descuento, 0];
@@ -294,17 +296,24 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
                 CF.id_cuenta_gasto,
+                CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
                 SUM(FD.valor) AS subtotal,
+
+                -- Calcula si aplica descuento
                 CASE
-                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
-                        THEN ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
-                        ELSE 0
+                    WHEN CF.pronto_pago_morosos = 1 
+                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                        ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                    ELSE 0
                 END AS descuento,
+
+                -- Calcula valor total
                 CASE
-                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
-                        THEN SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
-                        ELSE SUM(FD.valor)
+                    WHEN CF.pronto_pago_morosos = 1 
+                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                        SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                    ELSE SUM(FD.valor)
                 END AS valor_total
                 
             FROM
@@ -315,11 +324,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
             WHERE FD.id_nit = $id_nit
                 AND FA.id IS NOT NULL
-                AND FD.fecha_manual = '{$inicioMes}'
                 AND FD.naturaleza_opuesta = 0
                 AND CF.porcentaje_pronto_pago > 0
                 AND FA.pronto_pago IS NULL
-                AND CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");
@@ -344,7 +351,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
         }
 
-        $data->descuento = $this->roundNumber($data->descuento);
+        if ($this->redondeoProntoPago) {
+            $data->descuento = $this->roundNumber($data->descuento, $this->redondeoProntoPago);
+        }
 
         return $data;
     }
@@ -391,13 +400,11 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         return $fechaFormateada;
     }
 
-    private function roundNumber($number)
+    private function roundNumber($number, $redondeo = null)
     {
-        if ($this->redondeo) {
-            // Primero redondeamos a 2 decimales para evitar problemas con números flotantes
+        if ($redondeo !== null) {
             $number = round($number, 2);
-            // Luego aplicamos el redondeo al múltiplo más cercano
-            return round($number / $this->redondeo) * $this->redondeo;
+            return round($number / $redondeo) * $redondeo;
         }
         return $number;
     }

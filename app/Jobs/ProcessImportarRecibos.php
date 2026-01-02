@@ -41,7 +41,8 @@ class ProcessImportarRecibos implements ShouldQueue
 
     public $id_comprobante = null;
     public $descuentoParcial = null;
-    public $redondeo = null;
+    public $redondeoIntereses = null;
+    public $redondeoProntoPago = null;
     public $empresa = null;
     public $user_id = null;
 
@@ -75,8 +76,10 @@ class ProcessImportarRecibos implements ShouldQueue
             $id_cuenta_intereses = Entorno::where('nombre', 'id_cuenta_intereses')->first()->valor;
             $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
             $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
-            $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
-            $this->redondeo = $this->redondeo ? $this->redondeo->valor : 0;
+            $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
+            $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
+            $this->redondeoIntereses = Entorno::where('nombre', 'redondeo_intereses')->first();
+            $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
             
             $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
             $cecos = CentroCostos::first();
@@ -97,8 +100,6 @@ class ProcessImportarRecibos implements ShouldQueue
 
             $recibosImport = ConRecibosImport::where('estado', 0)->cursor();
 
-            
-
             foreach ($recibosImport as $reciboImport) {
 
                 if (!$reciboImport->id_nit) continue;
@@ -106,7 +107,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 $inicioMes = date('Y-m', strtotime($reciboImport->fecha_manual));
                 $finMes = date('Y-m-t', strtotime($reciboImport->fecha_manual));
                 $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes.'-01', $reciboImport->fecha_manual);
-                
+
                 $valorDisponible = $reciboImport->pago;
                 $valorRecibido = $reciboImport->pago;
                 $this->fechaManual = $reciboImport->fecha_manual;
@@ -191,7 +192,7 @@ class ProcessImportarRecibos implements ShouldQueue
                     $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
                     $anticiposDisponibles = $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
                     
-                    if ($facturaDescuento && !$sandoPendiente && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
+                    if ($facturaDescuento && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                         $realizarDescuento = true;
                         Facturacion::where('id', $facturaDescuento->id_factura)
                             ->update(['pronto_pago' => 1]);
@@ -236,7 +237,6 @@ class ProcessImportarRecibos implements ShouldQueue
                         $totalAnticipar = 0;
                         
                         if ($realizarDescuento && array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
-
                             $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
                             $valorPendiente-= $conceptoDescuento->descuento;
 
@@ -434,17 +434,24 @@ class ProcessImportarRecibos implements ShouldQueue
                 CF.id_cuenta_gasto,
                 CF.nombre_concepto,
                 CF.porcentaje_pronto_pago,
+                CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
                 SUM(FD.valor) AS subtotal,
+                
+                -- Calcula si aplica descuento
                 CASE
-                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
-                        THEN ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
-                        ELSE 0
+                    WHEN CF.pronto_pago_morosos = 1 
+                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                        ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                    ELSE 0
                 END AS descuento,
+
+                -- Calcula valor total
                 CASE
-                    WHEN CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
-                        THEN SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
-                        ELSE SUM(FD.valor)
+                    WHEN CF.pronto_pago_morosos = 1 
+                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                        SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                    ELSE SUM(FD.valor)
                 END AS valor_total
                 
             FROM
@@ -455,10 +462,8 @@ class ProcessImportarRecibos implements ShouldQueue
 
             WHERE FD.id_nit = $id_nit
                 AND FA.id IS NOT NULL
-                AND FD.fecha_manual = '{$inicioMes}'
                 AND CF.porcentaje_pronto_pago > 0
                 AND FA.pronto_pago IS NULL
-                AND CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}')
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");
@@ -466,6 +471,7 @@ class ProcessImportarRecibos implements ShouldQueue
         $facturas = collect($facturas);
 
         if (!count($facturas)) return false;
+        
         $data = (object)[
             'id_factura' => $facturas[0]->id_factura,
             'has_pronto_pago' => $facturas[0]->has_pronto_pago,
@@ -476,15 +482,73 @@ class ProcessImportarRecibos implements ShouldQueue
         ];
 
         foreach ($facturas as $factura) {
-            $data->subtotal+= $factura->subtotal;
-            $data->descuento+= $factura->descuento;
-            $data->valor_total+= $factura->valor_total;
+            $data->subtotal += $factura->subtotal;
+            $data->descuento += $factura->descuento;
+            $data->valor_total += $factura->valor_total;
             $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
         }
 
-        $data->descuento = $this->roundNumber($data->descuento);
+        $descuentoSinRedondear = $data->descuento;
+        
+        // Aplicar redondeo al total si está configurado
+        if ($this->redondeoProntoPago) {
+            $descuentoRedondeado = $this->roundNumber($data->descuento, $this->redondeoProntoPago);
+            $diferencia = $descuentoRedondeado - $descuentoSinRedondear;
+            
+            // Actualizar el descuento total redondeado
+            $data->descuento = $descuentoRedondeado;
+            
+            // Repartir la diferencia entre los items
+            if ($diferencia != 0 && count($facturas) > 0) {
+                $this->repartirDiferenciaDescuento($data->detalle, $diferencia);
+                
+                // Recalcular el valor_total después de ajustar los descuentos
+                $data->valor_total = 0;
+                foreach ($data->detalle as $detalle) {
+                    $data->valor_total += $detalle->valor_total;
+                }
+            }
+        }
 
         return $data;
+    }
+
+    private function repartirDiferenciaDescuento(&$detalles, $diferencia)
+    {
+        // Si no hay diferencia, no hacer nada
+        if ($diferencia == 0) return;
+        
+        // Ordenar por valor de descuento (mayor a menor)
+        uasort($detalles, function($a, $b) {
+            return $b->descuento <=> $a->descuento;
+        });
+        
+        $numItems = count($detalles);
+        $diferenciaAbs = abs($diferencia);
+        $diferenciaPorItem = floor($diferenciaAbs / $numItems);
+        $diferenciaRestante = $diferenciaAbs % $numItems;
+        
+        $i = 0;
+        foreach ($detalles as $key => $detalle) {
+            $ajuste = $diferenciaPorItem;
+            
+            // Repartir el resto entre los primeros items
+            if ($i < $diferenciaRestante) {
+                $ajuste++;
+            }
+            
+            // Aplicar ajuste (positivo o negativo según la diferencia)
+            if ($diferencia > 0) {
+                $detalle->descuento += $ajuste;
+            } else {
+                $detalle->descuento -= $ajuste;
+            }
+            
+            // Recalcular el valor_total para este item
+            $detalle->valor_total = $detalle->subtotal - $detalle->descuento;
+            
+            $i++;
+        }
     }
 
     private function totalAnticipos($id_nit)
@@ -593,10 +657,11 @@ class ProcessImportarRecibos implements ShouldQueue
         return $anticipoCuenta;
     }
 
-    private function roundNumber($number)
+    private function roundNumber($number, $redondeo = null)
     {
-        if ($this->redondeo) {
-            return round($number / $this->redondeo) * $this->redondeo;
+        if ($redondeo !== null) {
+            $number = round($number, 2);
+            return round($number / $redondeo) * $redondeo;
         }
         return $number;
     }

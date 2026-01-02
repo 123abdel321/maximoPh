@@ -349,23 +349,69 @@ class Documento
             $validate = true;
             
             if ($validate) {
-                // ... (lógica de formateo de mensaje de error de descuadre) ...
-                $debitAccounts = $this->rows->where('debito', '>', 0)->pluck('cuenta.nombre', 'cuenta.cuenta')->toArray();
-                $creditAccounts = $this->rows->where('credito', '>', 0)->pluck('cuenta.nombre', 'cuenta.cuenta')->toArray();
-
-                $this->errors['Movimiento contable'][] = sprintf(
-                    "Movimiento contable descuadrado <br><br />".
-                    "<strong>Diferencia:</strong> %.2f (DÉBITO: %.2f vs CRÉDITO: %.2f)<br />" .
-                    "<strong>Cuentas con DÉBITO (%d):</strong> %s.<br />" .
-                    "<strong>Cuentas con CRÉDITO (%d):</strong> %s.",
-                    $totals->diferencia,
-                    $totals->debito,
-                    $totals->credito,
-                    count($debitAccounts),
-                    implode(', ', array_map(fn($k, $v) => "$k ($v)", array_keys($debitAccounts), $debitAccounts)),
-                    count($creditAccounts),
-                    implode(', ', array_map(fn($k, $v) => "$k ($v)", array_keys($creditAccounts), $creditAccounts))
-                );
+                // Obtener cuentas con sus valores
+                $cuentasData = [];
+                
+                foreach ($this->rows as $row) {
+                    $cuenta = $row->cuenta->cuenta ?? '';
+                    $nombre = $row->cuenta->nombre ?? '';
+                    $debito = $row->debito ?? 0;
+                    $credito = $row->credito ?? 0;
+                    
+                    if ($debito > 0 || $credito > 0) {
+                        $cuentasData[] = [
+                            'cuenta' => $cuenta,
+                            'debito' => $debito,
+                            'credito' => $credito
+                        ];
+                    }
+                }
+                
+                // Crear tabla SIMPLIFICADA - sin scroll interno
+                $html = "<div style='margin-bottom: 10px; font-weight: bold;'>Movimiento contable descuadrado</div>";
+                $html .= "<div style='color: #FFF; margin-bottom: 15px;'><strong>Diferencia:</strong> " . 
+                        number_format($totals->diferencia, 2) . "</div>";
+                
+                // Tabla simple, compacta
+                $html .= "<table style='width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px;'>";
+                
+                // Encabezado
+                $html .= "<tr style='background-color: #f8f9fa;'>";
+                $html .= "<th style='border: 1px solid #dee2e6; padding: 8px 10px; text-align: left;'>CUENTA</th>";
+                $html .= "<th style='border: 1px solid #dee2e6; padding: 8px 10px; text-align: right;'>DÉBITO</th>";
+                $html .= "<th style='border: 1px solid #dee2e6; padding: 8px 10px; text-align: right;'>CRÉDITO</th>";
+                $html .= "</tr>";
+                
+                // Cuerpo
+                foreach ($cuentasData as $data) {
+                    $html .= "<tr>";
+                    $html .= "<td style='border: 1px solid #dee2e6; color: #FFF; padding: 6px 10px;'><strong>" . $data['cuenta'] . "</strong></td>";
+                    $html .= "<td style='border: 1px solid #dee2e6; color: #FFF; padding: 6px 10px; text-align: right;'>" . 
+                            number_format($data['debito'], 2) . "</td>";
+                    $html .= "<td style='border: 1px solid #dee2e6; color: #FFF; padding: 6px 10px; text-align: right;'>" . 
+                            number_format($data['credito'], 2) . "</td>";
+                    $html .= "</tr>";
+                }
+                
+                // Totales
+                $html .= "<tr style='border-top: 2px solid #000;'>";
+                $html .= "<td style='border: 1px solid #dee2e6; color: #FFF; padding: 8px 10px; font-weight: bold;'>TOTAL</td>";
+                $html .= "<td style='border: 1px solid #dee2e6; color: #FFF; padding: 8px 10px; text-align: right; font-weight: bold;'>" . 
+                        number_format($totals->debito, 2) . "</td>";
+                $html .= "<td style='border: 1px solid #dee2e6; color: #FFF; padding: 8px 10px; text-align: right; font-weight: bold;'>" . 
+                        number_format($totals->credito, 2) . "</td>";
+                $html .= "</tr>";
+                
+                // Diferencia
+                $html .= "<tr style='background-color: #dc3545; color: white;'>";
+                $html .= "<td style='border: 1px solid #dc3545; padding: 8px 10px; font-weight: bold;'>DIFERENCIA</td>";
+                $html .= "<td colspan='2' style='border: 1px solid #dc3545; padding: 8px 10px; text-align: right; font-weight: bold;'>" . 
+                        number_format($totals->diferencia, 2) . "</td>";
+                $html .= "</tr>";
+                
+                $html .= "</table>";
+                
+                $this->errors['Movimiento contable'][] = $html;
             }
         }
     }
