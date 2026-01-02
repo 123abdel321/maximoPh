@@ -2243,7 +2243,7 @@ class FacturacionController extends Controller
         }
         // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
         elseif ($redondeo && $redondeo->valor > 0) {
-            return round($number / $redondeo->valor) * $redondeo->valor;
+            return round($number / floatval($redondeo->valor)) * floatval($redondeo->valor);
         }
         // Caso 3: Si no hay configuración, retorna el número sin cambios
         else {
