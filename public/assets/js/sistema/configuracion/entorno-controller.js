@@ -690,8 +690,8 @@ $(document).on('click', '#updateEntorno', function () {
 
     let data = {
         'area_total_m2': stringToNumberFloat($('#area_total_m2').val()),
-        'redondeo_intereses': $('#redondeo_intereses').val(),
-        'redondeo_pronto_pago': $('#redondeo_pronto_pago').val(),
+        'redondeo_intereses': stringToNumberFloat($('#redondeo_intereses').val()),
+        'redondeo_pronto_pago': stringToNumberFloat($('#redondeo_pronto_pago').val()),
         'numero_total_unidades': stringToNumberFloat($('#numero_total_unidades').val()),
         'valor_total_presupuesto_year_actual': stringToNumberFloat($('#valor_total_presupuesto_year_actual').val()),
         'porcentaje_intereses_mora': stringToNumberFloat($('#porcentaje_intereses_mora').val()),
