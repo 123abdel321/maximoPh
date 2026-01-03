@@ -421,8 +421,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
                 $totalDescuento = $this->descuentosProntoPago->detalle[$inmuebleFactura->id_inmueble] ?? 0;
-                $totalAnticipar = $totalAnticipar - round($totalDescuento);
-                $totalAnticipos+= round($totalDescuento);
+                $totalAnticipar = $totalAnticipar - $totalDescuento;
+                $totalAnticipos+= $totalDescuento;
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
@@ -433,7 +433,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                     'fecha_manual' => $this->inicioMes.'-01',
                     'documento_referencia' => $documentoReferencia,
-                    'valor' => round($totalDescuento),
+                    'valor' => $totalDescuento,
                     'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($inmuebleFactura->valor_total).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
                     'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
@@ -532,6 +532,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
+            ->where("IN.id_nit", 925)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -541,6 +542,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
+            ->where("CM.id_nit", 925)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
