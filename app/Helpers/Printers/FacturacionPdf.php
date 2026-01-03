@@ -272,7 +272,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 'descuento' => $descuento,
                 'documento_referencia' => $facturacion->documento_referencia,
                 'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-                'saldo_final' => $facturacion->saldo_final - $descuento, // Restar el descuento al saldo final
+                'saldo_final' => $facturacion->saldo_final
             ];
         }
         
