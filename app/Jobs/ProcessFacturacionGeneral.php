@@ -51,7 +51,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
     public $finMes = null;
     public $total_facturados = null;
     public $dataGeneral = null;
-    public $redondeo = null;
+    public $redondeoIntereses = null;
+    public $redondeoProntoPago = null;
     public $countIntereses = 0;
     public $saldoBase = 0;
     public $facturas = [];
@@ -60,6 +61,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     public $prontoPago = false;
     public $descuentoParcial = false;
     public $extractosAgrupados = [];
+    public $descuentosProntoPago = null;
 
     /**
      * Create a new job instance.
@@ -82,8 +84,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $this->porcentaje_intereses_mora = Entorno::where('nombre', 'porcentaje_intereses_mora')->first()->valor;
         $this->inicioMes = date('Y-m', strtotime($this->periodo_facturacion));
         $this->finMes = date('Y-m-t', strtotime($this->periodo_facturacion));
-        $this->redondeo = Entorno::where('nombre', 'redondeo_intereses')->first();
-        $this->redondeo = $this->redondeo ? floatval($this->redondeo->valor) : 0;
+        $this->redondeoIntereses = Entorno::where('nombre', 'redondeo_intereses')->first();
+        $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
+        $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
+        $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
         $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
         $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
         $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
@@ -191,7 +195,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         $primerInmueble = count($inmueblesFacturar) ? $inmueblesFacturar[0] : false;
                         [$valores, $detalleFacturasInteres] = $this->generarFacturaInmuebleIntereses($factura, $primerInmueble);
                         $valoresIntereses+= $valores;
-                        
+
                         if ($valoresIntereses) {
                             $this->dataGeneral['extras']['intereses']->items+= 1;
                             $this->dataGeneral['extras']['intereses']->valor_causado+= $valoresIntereses;
@@ -227,10 +231,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
+                        
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
-                        
+
                         //RECORREMOS CUOTAS Y MULTAS CXC
                         foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
 
@@ -336,7 +341,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $numeroTotalIntereses++;
                  
             $valorTotal = $saldo * ($this->porcentaje_intereses_mora / 100);
-            $valorTotal = $this->roundNumber($valorTotal);
+            $valorTotal = $this->roundNumber($valorTotal, $this->redondeoIntereses);
             $valorTotalIntereses+= $valorTotal;
                
             //DEFINIR CONCEPTO DE INTERESES
@@ -415,7 +420,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
-                $totalDescuento = $inmuebleFactura->valor_total * ($inmuebleFactura->porcentaje_pronto_pago / 100);
+                $totalDescuento = $this->descuentosProntoPago->detalle[$inmuebleFactura->id_inmueble] ?? 0;
                 $totalAnticipar = $totalAnticipar - round($totalDescuento);
                 $totalAnticipos+= round($totalDescuento);
                 $facturaDetalle = FacturacionDetalle::create([
@@ -626,10 +631,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $existecuenta->count() ? true : false;
     }
 
-    private function roundNumber($number)
+    private function roundNumber($number, $redondeo = null)
     {
-        if ($this->redondeo) {
-            return round($number / $this->redondeo) * $this->redondeo;
+        if ($redondeo !== null) {
+            $number = round($number, 2);
+            return round($number / $redondeo) * $redondeo;
         }
         return $number;
     }
@@ -653,6 +659,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CFA.id_cuenta_interes',
                 'CFA.intereses',
                 'CFA.pronto_pago',
+                'CFA.pronto_pago_morosos',
                 'CFA.id_cuenta_gasto',
                 'CFA.id_cuenta_anticipo',
                 'CFA.porcentaje_pronto_pago',
@@ -713,6 +720,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'id_cuenta_anticipo' => $extraCxC['concepto']['id_cuenta_anticipo'],
                     'porcentaje_pronto_pago' => $extraCxC['concepto']['porcentaje_pronto_pago'],
                     'pronto_pago' => $extraCxC['concepto']['pronto_pago'],
+                    'pronto_pago_morosos' => $extraCxC['concepto']['pronto_pago_morosos'],
                     'intereses' => $extraCxC['concepto']['intereses'],
                     'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
                 ]);
@@ -754,6 +762,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         'id_cuenta_anticipo' => $extraCxP['concepto']['id_cuenta_anticipo'],
                         'porcentaje_pronto_pago' => $extraCxP['concepto']['porcentaje_pronto_pago'],
                         'pronto_pago' => $extraCxP['concepto']['pronto_pago'],
+                        'pronto_pago_morosos' => $extraCxC['concepto']['pronto_pago_morosos'],
                         'intereses' => $extraCxP['concepto']['intereses'],
                         'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
                     ]);
@@ -766,29 +775,91 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
     private function calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses)
     {
-        if ($valoresIntereses) return false;
-
         $deudaTotal = 0;
+        $this->descuentosProntoPago = (object)[
+            'total' => 0,
+            'detalle' => []
+        ];
 
+        // Calcular descuentos sin redondear
         foreach ($inmueblesFacturar as $inmueble) {
-            $descuento = $inmueble->pronto_pago && $inmueble->porcentaje_pronto_pago ?
+            $descuento = ($inmueble->pronto_pago || $inmueble->pronto_pago_morosos) && $inmueble->porcentaje_pronto_pago ?
                 $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :
                 0;
 
-            $deudaTotal+= ($inmueble->valor_total - $descuento);
+            $this->descuentosProntoPago->detalle[$inmueble->id_inmueble] = $descuento;
+            $deudaTotal += $inmueble->valor_total;
         }
         
         foreach ($cuotasMultasFacturarCxC as $multas) {
-            $descuento = $multas->pronto_pago && $multas->porcentaje_pronto_pago ?
+            $descuento = ($multas->pronto_pago || $multas->pronto_pago_morosos) && $multas->porcentaje_pronto_pago ?
                 $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
                 0;
 
-            $deudaTotal+= ($multas->valor_total - $descuento);
+            // Asegurar que la clave existe antes de sumar
+            if (isset($this->descuentosProntoPago->detalle[$multas->id_inmueble])) {
+                $this->descuentosProntoPago->detalle[$multas->id_inmueble] += $descuento;
+            } else {
+                $this->descuentosProntoPago->detalle[$multas->id_inmueble] = $descuento;
+            }
+            
+            $deudaTotal += $multas->valor_total;
         }
 
+        // Calcular total sin redondear
+        $totalSinRedondear = array_sum($this->descuentosProntoPago->detalle);
+        
+        // Aplicar redondeo y distribuir la diferencia
+        $totalRedondeado = $this->roundNumber($totalSinRedondear, $this->redondeoProntoPago);
+        $diferencia = $totalRedondeado - $totalSinRedondear;
+        
+        // Distribuir la diferencia proporcionalmente entre los items
+        if (abs($diferencia) > 0.0001) { // Usar tolerancia para floats
+            $this->distribuirDiferencia($diferencia, $totalSinRedondear);
+        }
+        
+        $this->descuentosProntoPago->total = $totalRedondeado;
+        $deudaTotal -= $this->descuentosProntoPago->total;
+        
         if (!$this->descuentoParcial && $anticiposDisponibles >= $deudaTotal) return true;
         if ($this->descuentoParcial) return true;
         return false;
+    }
+
+    private function distribuirDiferencia($diferencia, $totalSinRedondear)
+    {
+        $numItems = count($this->descuentosProntoPago->detalle);
+        $ajusteAcumulado = 0;
+        $itemsAjustados = 0;
+        
+        // Ordenar por valor para distribuir mejor (opcional)
+        arsort($this->descuentosProntoPago->detalle);
+        
+        foreach ($this->descuentosProntoPago->detalle as $id => $valor) {
+            $itemsAjustados++;
+            
+            // Calcular ajuste proporcional
+            $proporcion = $valor / $totalSinRedondear;
+            $ajusteProporcional = $diferencia * $proporcion;
+            
+            // Para el último item, ajustar la diferencia acumulada
+            if ($itemsAjustados === $numItems) {
+                $ajuste = $diferencia - $ajusteAcumulado;
+            } else {
+                $ajuste = $this->roundNumber($ajusteProporcional, $this->redondeoProntoPago);
+                $ajusteAcumulado += $ajuste;
+            }
+            
+            $this->descuentosProntoPago->detalle[$id] += $ajuste;
+            $this->descuentosProntoPago->detalle[$id] = $this->roundNumber(
+                $this->descuentosProntoPago->detalle[$id], 
+                $this->redondeoProntoPago
+            );
+        }
+        
+        // Verificar que la suma sea exacta
+        $sumaDetalles = array_sum($this->descuentosProntoPago->detalle);
+        $this->descuentosProntoPago->total = $sumaDetalles;
     }
 
     private function generarDocumentoReferencia($inmuebleFactura, $totalInmuebles)
