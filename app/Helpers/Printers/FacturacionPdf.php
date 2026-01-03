@@ -310,7 +310,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'anticipos_disponibles' => $totalAnticipos,
             'descuento' => $totalDescuento,
             'consecutivo' => $totales->consecutivo,
-            'fecha_manual' => $totales->fecha_manual,
+            'fecha_manual' => Carbon::parse($totales->fecha_manual)->format('Y-m-d'),
             'fecha_plazo' => $fechaPlazo,
             'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
             'saldo_final' => $totales->saldo_final

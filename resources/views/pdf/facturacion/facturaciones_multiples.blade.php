@@ -266,16 +266,16 @@
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <th class="padding5">FECHA DOCUMENTO</th>
-                                                                <th class="valor padding5">{{ $factura->fecha_manual }}</th>
+                                                                <td class="padding3">FECHA DOCUMENTO</td>
+                                                                <td class="valor padding3">{{ $factura->fecha_manual }}</td>
                                                             </tr>
                                                             <tr>
-                                                                <th class="padding5">FECHA VENCIMIENTO</th>
-                                                                <th class="valor padding5">{{ $factura->fecha_plazo }}</th>
+                                                                <td class="padding3">FECHA VENCIMIENTO</td>
+                                                                <td class="valor padding3">{{ $factura->fecha_plazo }}</td>
                                                             </tr>
                                                             <tr>
-                                                                <th class="padding5">TOTAL DOCUMENTO</th>
-                                                                <th class="valor padding5">{{ number_format($factura->saldo_final) }}</th>
+                                                                <td class="padding3">TOTAL DOCUMENTO</td>
+                                                                <td class="valor padding3">{{ number_format($factura->saldo_final) }}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>

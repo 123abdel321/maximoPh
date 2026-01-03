@@ -253,16 +253,16 @@
 										</thead>
 										<tbody>
 											<tr >
-												<th class="padding5">FECHA DOCUMENTO</th>
-												<th class="valor padding5">{{ $totales->fecha_manual }}</th>
+												<td class="padding3">FECHA DOCUMENTO</td>
+												<td class="valor padding3">{{ $totales->fecha_manual }}</td>
 											</tr>
 											<tr >
-												<th class="padding5">FECHA VENCIMIENTO</th>
-												<th class="valor padding5">{{ $totales->fecha_plazo }}</th>
+												<td class="padding3">FECHA VENCIMIENTO</td>
+												<td class="valor padding3">{{ $totales->fecha_plazo }}</td>
 											</tr>
 											<tr >
-												<th class="padding5">TOTAL DOCUMENTO</th>
-												<th class="valor padding5">{{ number_format($totales->saldo_final) }}</th>
+												<td class="padding3">TOTAL DOCUMENTO</td>
+												<td class="valor padding3">{{ number_format($totales->saldo_final) }}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -286,7 +286,7 @@
 					<th class="padding5">DOCUMENTO</th>
 					<th class="padding5">SALDO ANTERIOR</th>
 					<th class="padding5">VALOR FACTURA</th>
-					<th class="padding5">ANTICIPOS</th>
+					<th class="padding5">ANT. / PAGOS</th>
 					<!-- @if ($pronto_pago)
 					<th class="padding5">PRONTO PAGO</th>
 					@endif -->
