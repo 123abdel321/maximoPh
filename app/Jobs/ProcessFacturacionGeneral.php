@@ -632,12 +632,19 @@ class ProcessFacturacionGeneral implements ShouldQueue
     }
 
     private function roundNumber($number, $redondeo = null)
-    {
-        if ($redondeo !== null) {
-            $number = round($number, 2);
+    {        
+        // Caso 1: Si el valor de redondeo es 0, elimina todos los decimales (redondea a entero)
+        if ($redondeo == 0) {
+            return (int) round($number); // Cast a int para eliminar decimales
+        }
+        // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
+        elseif ($redondeo > 0) {
             return round($number / $redondeo) * $redondeo;
         }
-        return $number;
+        // Caso 3: Si no hay configuración, retorna el número sin cambios
+        else {
+            return $number;
+        }
     }
 
     private function inmueblesNitFacturar($id_nit, $periodo_facturacion)
