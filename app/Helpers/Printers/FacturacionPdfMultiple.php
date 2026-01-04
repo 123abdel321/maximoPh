@@ -116,6 +116,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
 
             $inicioMesMenosDia = Carbon::parse("$this->periodo 23:59:59")->subDay()->format('Y-m-d H:i:m');
             $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
+            $qrFactura = Entorno::where('nombre', 'qr_facturas')->first();
+            $qrFactura = $qrFactura ? $qrFactura->valor : null;
             $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
 
             $cxp = (new Extracto(
@@ -336,6 +338,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
         return [
             'texto_1' => $texto1 ? $texto1->valor : '',
             'texto_2' => $texto2 ? $texto2->valor : '',
+            'qrFactura' => $qrFactura,
             'empresa' => $this->empresa,
             'facturas' => $dataFacturas,
             'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),

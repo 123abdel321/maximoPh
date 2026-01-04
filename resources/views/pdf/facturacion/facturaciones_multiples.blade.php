@@ -364,9 +364,23 @@
                             <table>
                                 <thead>
                                     <tr>
+                                        @if ($qrFactura)
+                                        <td class="aling-top padding5" style="width: 30%; vertical-align: middle; text-align: center;">
+                                            <table>
+                                                <tr>
+                                                    <td class="padding5">
+                                                        <img style="height: 130px;" src="{{ $qrFactura }}" alt="QR Factura"/>
+                                                        <br>
+                                                        <span style="font-size: 9px;">Escanea para pagar</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        @else
                                         <td colspan="8" class="padding5">
                                             &nbsp;
                                         </td>
+                                        @endif
                                         <td class="table-total-factura padding5">
                                             <table>
                                                 <thead>
@@ -391,6 +405,16 @@
                                     </tr>
                                 </thead>
                             </table>			
+                        @elseif ($qrFactura)
+                            <table>
+                                <tr>
+                                    <td class="aling-top padding5" style="text-align: center;">
+                                        <img style="height: 90px; width: 90px;" src="{{ $qrFactura }}" alt="QR Factura"/>
+                                        <br>
+                                        <span style="font-size: 10px;">Escanea para pago</span>
+                                    </td>
+                                </tr>
+                            </table>
                         @endif
                     </td>
                 </tr>

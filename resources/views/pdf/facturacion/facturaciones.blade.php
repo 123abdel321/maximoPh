@@ -381,6 +381,10 @@
 											</tr>
 										</table>
 									</td>
+									@else
+									<td colspan="8" class="padding5">
+										&nbsp;
+									</td>
 									@endif
 									<td class="table-total-factura padding5" style="width: 70%;">
 										<table>
