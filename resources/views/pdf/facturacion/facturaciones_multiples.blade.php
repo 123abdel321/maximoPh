@@ -266,15 +266,15 @@
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <td class="padding3">FECHA DOCUMENTO</td>
+                                                                <td class="padding3">FECHA DE EXPEDICIÓN</td>
                                                                 <td class="valor padding3">{{ $factura->fecha_manual }}</td>
                                                             </tr>
                                                             <tr>
-                                                                <td class="padding3">FECHA VENCIMIENTO</td>
+                                                                <td class="padding3">FECHA DE VENCIMIENTO</td>
                                                                 <td class="valor padding3">{{ $factura->fecha_plazo }}</td>
                                                             </tr>
                                                             <tr>
-                                                                <td class="padding3">TOTAL DOCUMENTO</td>
+                                                                <td class="padding3">TOTAL A PAGAR</td>
                                                                 <td class="valor padding3">{{ number_format($factura->saldo_final) }}</td>
                                                             </tr>
                                                         </tbody>

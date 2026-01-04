@@ -1,5 +1,6 @@
 var $nitPorDefecto = null;
 var newFirmaDigital = null;
+var newQrFactura = null;
 var tokenEco = "";
 // var tokenEco = "Bearer 5|HoHWzVDv3wwomgELloQS5RXGyEBEdBZtyKYzSI7X5e1f60a7";
 var $comboConceptoFacturacion = null;
@@ -82,6 +83,12 @@ function entornoInit() {
             $("#preview_firma_digital_paz_salvo").attr('src', variable.valor);
             $("#preview_firma_digital_paz_salvo").show();
             $("#firma_digital_paz_salvo").hide();
+        }
+
+        if (variable.nombre == 'qr_facturas') {
+            $("#preview_qr_facturas").attr('src', variable.valor);
+            $("#preview_qr_facturas").show();
+            $("#qr_facturas").hide();
         }
 
         if (variable.nombre == 'eco_login') {
@@ -519,6 +526,23 @@ function readURLFirmaDigitalNueva(input) {
     }
 }
 
+function readURLQrFactura(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            newQrFactura = e.target.result;
+            $('#preview_qr_facturas').attr('src', e.target.result);
+            $('#qr_facturas').attr('src', e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+
+        $('#preview_qr_facturas').hide();
+        $('#qr_facturas').show();
+    }
+}
+
 function validarNotificaciones() {
     $.ajax({
         url: base_url_eco + 'credenciales',
@@ -725,6 +749,7 @@ $(document).on('click', '#updateEntorno', function () {
         'id_forma_pago_comprobante': $('#id_forma_pago_comprobante').val(),
 
         'firma_digital': newFirmaDigital,
+        'qr_facturas': newQrFactura,
         'nombre_administrador': $('#nombre_administrador').val(),
 
         'placetopay_url': $('#placetopay_url').val(),

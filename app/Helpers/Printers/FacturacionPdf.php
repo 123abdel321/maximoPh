@@ -76,6 +76,8 @@ class FacturacionPdf extends AbstractPrinterPdf
         $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
         $detallar_facturas = Entorno::where('nombre', 'detallar_facturas')->first();
         $detallar_facturas = $detallar_facturas ? $detallar_facturas->valor : 0;
+        $qrFactura = Entorno::where('nombre', 'qr_facturas')->first();
+        $qrFactura = $qrFactura ? $qrFactura->valor : null;
         $id_cuenta_anticipos = Entorno::where('nombre', 'id_cuenta_anticipos')->first();
         $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
 
@@ -220,8 +222,10 @@ class FacturacionPdf extends AbstractPrinterPdf
                     
                     // Para morosos, el descuento se aplica sobre el total de facturas del mes
                     if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
-                        // Usar el descuento ya calculado por getFacturaMes()
-                        $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                        if ($facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado == false) {
+                            $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                            $facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado = true;
+                        }
                     } else {
                         // Calcular descuento sobre total_facturas si no hay datos del mes
                         $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
@@ -244,7 +248,10 @@ class FacturacionPdf extends AbstractPrinterPdf
                     
                     // Usar el descuento calculado por getFacturaMes() si está disponible
                     if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
-                        $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                        if ($facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado == false) {
+                            $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                            $facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado = true;
+                        }
                     } else {
                         // Calcular descuento sobre las facturas del mes (no sobre total_facturas que incluye saldo anterior)
                         $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
@@ -328,6 +335,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             'texto_2' => $texto2 ? $texto2->valor : '',
             'pronto_pago' => true,
             'descuentos' => $dataDescuento,
+            'qrFactura' => $qrFactura,
 			'fecha_pdf' => Carbon::now()->format('Y-m-d H:i:s'),
 			'usuario' => request()->user() ? request()->user()->username : 'MaximoPH'
 		];
@@ -346,6 +354,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 CF.id_cuenta_gasto,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
+                0 AS aprobado,
                 SUM(FD.valor) AS subtotal,
 
                 -- Calcula si aplica descuento

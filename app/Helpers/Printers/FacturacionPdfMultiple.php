@@ -208,8 +208,10 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                         
                         // Para morosos, el descuento se aplica sobre el total de facturas del mes
                         if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
-                            // Usar el descuento ya calculado por getFacturaMes()
-                            $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                            if ($facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado == false) {
+                                $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                                $facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado = true;
+                            }
                         } else {
                             // Calcular descuento sobre total_facturas si no hay datos del mes
                             $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
@@ -232,7 +234,10 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                         
                         // Usar el descuento calculado por getFacturaMes() si está disponible
                         if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
-                            $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                            if ($facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado == false) {
+                                $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
+                                $facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado = true;
+                            }
                         } else {
                             // Calcular descuento sobre las facturas del mes (no sobre total_facturas que incluye saldo anterior)
                             $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
@@ -351,6 +356,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 CF.id_cuenta_gasto,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
+                0 AS aprobado,
                 SUM(FD.valor) AS subtotal,
 
                 -- Calcula si aplica descuento

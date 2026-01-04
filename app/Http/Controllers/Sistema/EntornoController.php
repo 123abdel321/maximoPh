@@ -74,6 +74,7 @@ class EntornoController extends Controller
                 'terminos_condiciones',
                 'aceptar_terminos',
                 'firma_digital',
+                'qr_facturas',
                 'nombre_administrador',
                 'id_cuenta_ingreso',
                 'id_cuenta_anticipos'
@@ -83,6 +84,28 @@ class EntornoController extends Controller
                 if ($variable == 'firma_digital') {
                     if ($request->get('firma_digital')) {
                         $base64Image = $request->get('firma_digital');
+                        // 1. Extraer el tipo de imagen y decodificar
+                        preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type);
+                        $data = substr($base64Image, strpos($base64Image, ',') + 1);
+    
+                        $imageType = $type[1];
+                        $data = base64_decode($data);
+                        // 2. Generar un nombre único para la imagen
+                        $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagenes/'.uniqid().'.'.$imageType;
+                        // 3. Guardar la imagen en DigitalOcean Spaces
+                        Storage::disk('do_spaces')->put($finalPath, $data, 'public');
+                        // 4. obtener la URL
+                        $url = Storage::disk('do_spaces')->url($finalPath);
+                        Entorno::updateOrCreate(
+                            [ 'nombre' => $variable ],
+                            [ 'valor' =>  $url ]
+                        );
+                    }
+                    continue;
+                }
+                if ($variable == 'qr_facturas') {
+                    if ($request->get('qr_facturas')) {
+                        $base64Image = $request->get('qr_facturas');
                         // 1. Extraer el tipo de imagen y decodificar
                         preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type);
                         $data = substr($base64Image, strpos($base64Image, ',') + 1);

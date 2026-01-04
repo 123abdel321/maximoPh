@@ -253,15 +253,15 @@
 										</thead>
 										<tbody>
 											<tr >
-												<td class="padding3">FECHA DOCUMENTO</td>
+												<td class="padding3">FECHA DE EXPEDICIÓN</td>
 												<td class="valor padding3">{{ $totales->fecha_manual }}</td>
 											</tr>
 											<tr >
-												<td class="padding3">FECHA VENCIMIENTO</td>
+												<td class="padding3">FECHA DE VENCIMIENTO</td>
 												<td class="valor padding3">{{ $totales->fecha_plazo }}</td>
 											</tr>
 											<tr >
-												<td class="padding3">TOTAL DOCUMENTO</td>
+												<td class="padding3">TOTAL A PAGAR</td>
 												<td class="valor padding3">{{ number_format($totales->saldo_final) }}</td>
 											</tr>
 										</tbody>
@@ -361,41 +361,67 @@
 				</tbody>
 			@endif
 		</table>
-
+		
 		@if ($pronto_pago && $totales->saldo_final > 0)
-
 			<table>
 				<thead class="">
 					<tr>
-						<td colspan="8 padding5">
-							&nbsp;
-						</td>
-						<td class="table-total-factura padding5">
+						<td colspan="8" class="padding5">
 							<table>
-								<thead class="">
-									<tr>
-										<td class="spacer-lite"></td>
-									</tr>
-									<tr class="header-factura-descuento padding5">
-										<th class="padding5">FECHA CON DESCUENTO</th>
-										<th class="padding5">VALOR CON DESCUENTO</th>
-									</tr>
-								</thead>
-								<tbody class="detalle-factura">
-									@foreach ($descuentos as $descuento)
-										<tr>
-											<td class="padding5">{{ $descuento['fecha_limite'] }}</td>
-											<td class="padding5 valor">{{ number_format($descuento['descuento']) }}</td>
-										</tr>
-									@endforeach
-								</tbody>
+								<tr>
+									@if ($qrFactura)
+									<td class="aling-top padding5" style="width: 30%; vertical-align: middle; text-align: center;">
+										<table>
+											<tr>
+												<td class="padding5">
+													<img style="height: 130px;" src="{{ $qrFactura }}" alt="QR Factura"/>
+													<br>
+													<span style="font-size: 9px;">Escanea para pagar</span>
+												</td>
+											</tr>
+										</table>
+									</td>
+									@endif
+									<td class="table-total-factura padding5" style="width: 70%;">
+										<table>
+											<thead class="">
+												<tr>
+													<td class="spacer-lite"></td>
+												</tr>
+												<tr class="header-factura-descuento padding5">
+													<th class="padding5">FECHA CON DESCUENTO</th>
+													<th class="padding5">VALOR CON DESCUENTO</th>
+												</tr>
+											</thead>
+											<tbody class="detalle-factura">
+												@foreach ($descuentos as $descuento)
+													<tr>
+														<td class="padding5">{{ $descuento['fecha_limite'] }}</td>
+														<td class="padding5 valor">{{ number_format($descuento['descuento']) }}</td>
+													</tr>
+												@endforeach
+											</tbody>
+										</table>
+									</td>
+								</tr>
 							</table>
 						</td>
 					</tr>
 				</thead>
-			</table>			
+			</table>
+		@elseif ($qrFactura)
+			<!-- Si no hay pronto pago pero sí QR -->
+			<table>
+				<tr>
+					<td class="aling-top padding5" style="text-align: center;">
+						<img style="height: 90px; width: 90px;" src="{{ $qrFactura }}" alt="QR Factura"/>
+						<br>
+						<span style="font-size: 10px;">Escanea para pago</span>
+					</td>
+				</tr>
+			</table>
 		@endif
-
+		
 		@if ($texto_1 || $texto_2)
 			<table>
 				<tr>

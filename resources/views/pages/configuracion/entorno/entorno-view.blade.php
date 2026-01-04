@@ -49,37 +49,37 @@
                             <h6 class="section-title bg-light p-2 mb-3">1. Configuración general</h6> <br/>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Área total M2</label>
+                                <label for="area_total_m2" class="form-control-label">Área total M2</label>
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="area_total_m2" id="area_total_m2">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Numero total unidades</label>
+                                <label for="numero_total_unidades" class="form-control-label">Numero total unidades</label>
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="numero_total_unidades" id="numero_total_unidades">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Valor total presupuesto</label>
+                                <label for="valor_total_presupuesto_year_actual" class="form-control-label">Valor total presupuesto</label>
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="valor_total_presupuesto_year_actual" id="valor_total_presupuesto_year_actual">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Período facturación</label>
+                                <label for="periodo_facturacion" class="form-control-label">Período facturación</label>
                                 <input type="date" class="form-control form-control-sm" name="periodo_facturacion" id="periodo_facturacion">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Porcentaje intereses mora</label>
+                                <label for="porcentaje_intereses_mora" class="form-control-label">Porcentaje intereses mora</label>
                                 <input type="text" data-type="currency" class="form-control form-control-sm text-align-right" name="porcentaje_intereses_mora" id="porcentaje_intereses_mora">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Redondeo intereses</label>
+                                <label for="redondeo_intereses" class="form-control-label">Redondeo intereses</label>
                                 <input type="text" class="form-control form-control-sm" name="redondeo_intereses" id="redondeo_intereses">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Redondeo pronto pago</label>
+                                <label for="redondeo_pronto_pago" class="form-control-label">Redondeo pronto pago</label>
                                 <input type="text" class="form-control form-control-sm" name="redondeo_pronto_pago" id="redondeo_pronto_pago">
                             </div>
 
@@ -94,22 +94,22 @@
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Factura text 1</label>
+                                <label for="factura_texto1" class="form-control-label">Factura text 1</label>
                                 <input type="text" class="form-control form-control-sm" name="factura_texto1" id="factura_texto1">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Factura text 2</label>
+                                <label for="factura_texto2" class="form-control-label">Factura text 2</label>
                                 <input type="text" class="form-control form-control-sm" name="factura_texto2" id="factura_texto2">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3" >
-                                <label for="example-text-input" class="form-control-label">Días pronto pago</label>
+                                <label for="dias_pronto_pago" class="form-control-label">Días pronto pago</label>
                                 <input type="number" class="form-control form-control-sm" name="dias_pronto_pago" id="dias_pronto_pago">
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">
-                                <label for="exampleFormControlSelect1">Concepto pago sin identificar</label>
+                                <label for="id_concepto_pago_none">Concepto pago sin identificar</label>
                                 <select name="id_concepto_pago_none" id="id_concepto_pago_none" class="form-control form-control-sm">
                                 </select>
                             </div>
@@ -128,7 +128,7 @@
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">
-                                <label for="exampleFormControlSelect1">Nit por defecto</label>
+                                <label for="id_nit_por_defecto">Nit por defecto</label>
                                 <select name="id_nit_por_defecto" id="id_nit_por_defecto" class="form-control form-control-sm">
                                 </select>
                             </div>
@@ -180,6 +180,15 @@
                                 <label class="form-check-label" for="detallar_facturas">
                                     Detallar facturas
                                 </label>
+                            </div>
+
+                            <div class="justify-content-center col-6">
+                                <label for="qr_facturas_nueva" class="form-control-label">Qr Facturas</label>
+                                <div style="with: 190px;">
+                                    <img id="preview_qr_facturas" onclick="document.getElementById('qr_facturas_nueva').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
+                                    <img id="qr_facturas" onclick="document.getElementById('qr_facturas_nueva').click();" src="" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
+                                    <input type="file" name="qr_facturas_nueva" id="qr_facturas_nueva" onchange="readURLQrFactura(this);" style="display: none" />
+                                </div>
                             </div>
 
                             <h6 class="section-title bg-light p-2 mb-3">2. Cuentas contables</h6> <br/>
@@ -243,22 +252,22 @@
                             </div>
 
                             <div class="form-group col-12 col-sm-6 col-md-6" >
-                                <label for="example-text-input" class="form-control-label">Url base</label>
+                                <label for="placetopay_url" class="form-control-label">Url base</label>
                                 <input type="text" class="form-control form-control-sm" name="placetopay_url" id="placetopay_url">
                             </div>
 
                             <div class="form-group col-12 col-sm-6 col-md-6" >
-                                <label for="example-text-input" class="form-control-label">Login key</label>
+                                <label for="placetopay_login" class="form-control-label">Login key</label>
                                 <input type="text" class="form-control form-control-sm" name="placetopay_login" id="placetopay_login">
                             </div>
 
                             <div class="form-group col-12 col-sm-6 col-md-6" >
-                                <label for="example-text-input" class="form-control-label">Secret Key</label>
+                                <label for="placetopay_trankey" class="form-control-label">Secret Key</label>
                                 <input type="text" class="form-control form-control-sm" name="placetopay_trankey" id="placetopay_trankey">
                             </div>
 
                             <div class="form-group col-12 col-sm-6 col-md-6">
-                                <label for="exampleFormControlSelect1">Forma de pago</label>
+                                <label for="placetopay_forma_pago">Forma de pago</label>
                                 <select name="placetopay_forma_pago" id="placetopay_forma_pago" class="form-control form-control-sm">
                                 </select>
                             </div>
@@ -270,7 +279,7 @@
                         <div class="row" style="padding: 5px;">
 
                             <div class="mb-3 col-12">
-                                <label for="exampleFormControlTextarea1" class="form-label">Terminos y condiciones</label>
+                                <label for="terminos_condiciones" class="form-label">Terminos y condiciones</label>
                                 <textarea class="form-control" id="terminos_condiciones" rows="3"></textarea>
                             </div>
 
@@ -287,12 +296,12 @@
                         <br/>
                         <div class="row" style="padding: 5px;">
                             <div class="form-group col-6" >
-                                <label for="example-text-input" class="form-control-label">Nombre Administrador</label>
+                                <label for="nombre_administrador" class="form-control-label">Nombre Administrador</label>
                                 <input type="text" class="form-control form-control-sm" name="nombre_administrador" id="nombre_administrador">
                             </div>
 
                             <div class="justify-content-center col-6">
-                                <label for="example-text-input" class="form-control-label">Firma digital</label>
+                                <label for="firma_digital_paz_salvo_nueva" class="form-control-label">Firma digital</label>
                                 <div style="with: 190px;">
                                     <img id="preview_firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
                                     <img id="firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
