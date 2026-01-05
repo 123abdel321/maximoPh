@@ -60,8 +60,7 @@ class SendSingleEmail implements ShouldQueue
                 $this->pdfPath
             );
     
-            $response = Mail::to('abdel_123@hotmail.es')->send($generalEmail);
-            dd($response);
+            $response = Mail::to($this->email)->send($generalEmail);
             $sgMessageId = $response->getSymfonySentMessage()->getMessageId();
     
             $envioEmail = EnvioEmail::where('id', $this->envioEmailId)->first();
@@ -69,7 +68,7 @@ class SendSingleEmail implements ShouldQueue
             $envioEmail->save();
         } catch (\Throwable $exception) {
             Log::error('SendSingleEmail falló', [
-                'email' => 'abdel_123@hotmail.es',
+                'email' => $this->email,
                 'error' => $exception->getMessage(),
                 'line' => $exception->getLine(),
                 'pdf_path' => $this->pdfPath,
@@ -82,9 +81,8 @@ class SendSingleEmail implements ShouldQueue
 
     public function failed(\Throwable $exception)
     {
-        dd($exception->getMessage(), $exception->getLine());
         Log::error('SendSingleEmail falló', [
-            'email' => 'abdel_123@hotmail.es',
+            'email' => $this->email,
             'error' => $exception->getMessage(),
             'line' => $exception->getLine(),
             'pdf_path' => $this->pdfPath,
