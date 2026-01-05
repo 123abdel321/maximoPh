@@ -13,7 +13,9 @@ class SendGridWebhookController extends Controller
     public function handle(Request $request)
     {
         $events = json_decode($request->getContent(), true);
-
+        Log::info('No se encontro correo relacionado', [
+            'events' => $events,
+        ]);
         foreach ($events as $event) {
 
             $sgMessageId = $event['sg_message_id'] ?? null;
