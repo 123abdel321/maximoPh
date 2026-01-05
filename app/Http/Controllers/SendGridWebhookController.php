@@ -91,10 +91,6 @@ class SendGridWebhookController extends Controller
     {
         $payload = json_decode($request->getContent(), true);
 
-        Log::info('Webhook recibido', [
-            'payload' => $payload
-        ]);
-
         if (!isset($payload['event-data'])) {
             Log::warning('Payload inválido');
             return response()->json(['status' => 'invalid'], 400);
