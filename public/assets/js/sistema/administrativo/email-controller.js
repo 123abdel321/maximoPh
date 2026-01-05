@@ -132,6 +132,7 @@ function initTablesEmail() {
                 if (row.event == 'enviado') return `Enviado`;
                 if (row.event == 'entregado') return `Entregado`;
                 if (row.event == 'abierto') return `Abierto`;
+                if (row.event == 'accepted') return `Aceptado`;
                 return '';
             }},
             {"data":'fecha_creacion'}
