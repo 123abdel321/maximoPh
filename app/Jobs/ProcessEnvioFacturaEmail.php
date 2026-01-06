@@ -139,43 +139,34 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     
                     $emailIndex++;
                     $delaySeconds = ($emailIndex - 1) * $delayBetweenEmails;
-
-                    $emailData = [
-                        'nombre' => $nit->nombre_nit,
-                        'factura' => $nit->consecutivo,
-                        'valor' => $nit->saldo_final,
-                        'asunto' => 'Factura N° ' . $nit->consecutivo,
-                    ];
-
-                    $filterData = [
-                        'id_nit' => $nit->id_nit,
-                        'nombre_completo' => $nit->nombre_nit
-                    ];
-
-                    if ($facturaPdf) {
-                        $path = stripslashes($facturaPdf);
-                        $baseUrl = "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com";
-                        
-                        if (!str_contains($path, $baseUrl)) {
-                            $facturaPdf = $baseUrl . $path;
-                        }
-                    }
-
-                    $ecoToken = Entorno::where('nombre', 'eco_login')->first();
-                    $ecoToken = $ecoToken?->valor ?? null;
                     
-                    SendSingleEmail::dispatch(
+                    $envioEmail = EnvioEmail::create([
+                        'id_empresa' => $this->empresa->id,
+                        'id_nit' => $nit->id_nit,
+                        'email' => $email,
+                        'contexto' => 'emails.factura',
+                        'status' => 'en_cola'
+                    ]);
+                    
+                    $jobs[] = (new SendSingleEmail(
                         $this->empresa,
-                        'abdel_123@hotmail.es',
-                        // $email,
-                        $emailData,
-                        $filterData,
+                        $email,
+                        $nit->nombre_nit,
+                        $nit->consecutivo,
+                        $nit->saldo_final,
                         $facturaPdf,
-                        $ecoToken,
                         'emails.factura',
-                    );
+                        $envioEmail->id
+                    ))->delay(now()->addSeconds($delaySeconds));
                 }
+                
+                // Storage::disk('do_spaces')->delete($facturaPdf);
             }
+            
+            // Usar batch para mejor control
+            $batch = Bus::batch($jobs)
+                ->allowFailures()
+                ->dispatch();
 
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
             event(new PrivateMessageEvent('facturacion-email-'.$urlEventoNotificacion, [
@@ -284,26 +275,11 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 'N.id AS id',
                 'N.id AS id_nit',
                 'N.numero_documento',
-                DB::raw("
-                    CASE
-                        WHEN id_nit IS NOT NULL 
-                            AND razon_social IS NOT NULL 
-                            AND razon_social != '' 
-                            THEN razon_social
-                        
-                        WHEN id_nit IS NOT NULL 
-                            AND (razon_social IS NULL OR razon_social = '') 
-                            THEN TRIM(
-                                    CONCAT_WS(
-                                        ' ',
-                                        NULLIF(primer_nombre, ''),
-                                        NULLIF(primer_apellido, '')
-                                    )
-                                )
-                        
-                        ELSE NULL
-                    END AS nombre_nit
-                "),
+                DB::raw("(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN razon_social
+                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, primer_apellido)
+                    ELSE NULL
+                END) AS nombre_nit"),
                 "N.razon_social",
                 "N.plazo",
                 "N.email",
