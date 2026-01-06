@@ -166,8 +166,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     
                     SendSingleEmail::dispatch(
                         $this->empresa,
-                        'abdel_123@hotmail.es',
-                        // $email,
+                        // 'abdel_123@hotmail.es',
+                        $email,
                         $emailData,
                         $filterData,
                         $facturaPdf,
