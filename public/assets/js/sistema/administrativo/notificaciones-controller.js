@@ -1,3 +1,6 @@
+var quillEditor = null;
+var $comboEmailNit = null;
+var $comboEmailZona = null;
 var email_eco_table = null;
 var whatsapp_eco_table = null;
 var id_email_eco_filter = null;
@@ -6,10 +9,9 @@ var $comboEmailEcoEmail = null;
 var $comboEmailEcoWhatsapp = null;
 var email_eco_detalle_table = null;
 var whatsapp_eco_detalle_table = null;
-
+var channelEmailGeneral = pusher.subscribe('facturacion-email-'+localStorage.getItem("notificacion_code"));
 
 function notificacionesInit() {
-    console.log("notificacionesInit");
     initFechasEco();
     initTablesEco();
     initCombosEco();
@@ -454,7 +456,7 @@ function initCombosEco() {
             }
         }
     });
-    $comboEmailEcoEmail = $('#id_nit_eco_whatsapp').select2({
+    $comboEmailEcoWhatsapp = $('#id_nit_eco_whatsapp').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una persona",
@@ -487,10 +489,83 @@ function initCombosEco() {
             }
         }
     });
+    $comboEmailNit = $('#id_nit_email').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione un nit",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        }
+    });
+    $comboEmailZona = $('#id_zona_email').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Seleccione una zona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        }
+    });
+}
+
+// Obtener el contenido HTML del editor
+function obtenerContenidoCorreo() {
+    if (quillEditor) {
+        return quillEditor.root.innerHTML;
+    }
+    return '';
 }
 
 $("#email-tab").on('click', function(){
-    console.log("click aca");
     email_eco_table.ajax.reload();
     email_eco_table.columns.adjust().draw();
     setTimeout(function(){
@@ -498,11 +573,55 @@ $("#email-tab").on('click', function(){
 });
 
 $("#whatsapp-tab").on('click', function(){
-    console.log("click aca");
     whatsapp_eco_table.ajax.reload();
     whatsapp_eco_table.columns.adjust().draw();
     setTimeout(function(){
     },10);
+});
+
+$(document).on('click', '#sendEmailRedactado', function () {
+    var form = document.querySelector('#form-notificaciones-email');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    let data = {
+        mensaje: obtenerContenidoCorreo(),
+        asunto: $('#asunto_email').val(),
+        id_nit: $comboEmailNit.val(),
+        id_zona: $comboEmailZona.val(),
+        correos: $('#correos_adicionales_email').val(),
+    }
+
+    $("#sendEmailRedactado").hide();
+    $("#sendEmailRedactadoLoading").show();
+
+    $.ajax({
+        url: base_url + 'email-send',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+
+            $("#sendEmailRedactado").show();
+            $("#sendEmailRedactadoLoading").hide();
+            $("#notificacionesEmailRedactarModal").modal('hide');
+            
+            email_eco_table.ajax.reload();
+            agregarToast('exito', 'Envio exitoso', 'Correo enviado con exito!', true);
+        }
+    }).fail((err) => {
+        $('#sendEmailRedactado').show();
+        $('#sendEmailRedactadoLoading').hide();
+
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Envio errada', errorsMsg);
+    });
 });
 
 $("#estado_eco_email").on('change', function(){
@@ -535,4 +654,32 @@ $("#fecha_desde_eco_whatsapp").on('change', function(){
 
 $("#fecha_hasta_eco_whatsapp").on('change', function(){
     whatsapp_eco_table.ajax.reload();
+});
+
+$(document).on('click', '#redactarEmail', function () {
+    if (!quillEditor) {
+        quillEditor = new Quill('#editor-correo', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Redacta tu correo aquí...'
+        });
+    }
+    $("#notificacionesEmailRedactarModal").modal('show');
+});
+
+channelEmailGeneral.bind('notificaciones', function(data) {
+    if (data.tipo == 'exito') {
+        let mensaje = `Total de facturas enviadas: ${data.total_envios}`;
+        agregarToast('exito', 'Email enviados', mensaje, true);
+    } else {
+        const errorMessage = data.message || 'Fallo al enviar emails';
+        agregarToast('error', 'Error emails', errorMessage, true);
+    }
 });

@@ -1,7 +1,3 @@
-<style>
-
-</style>
-
 <div class="container-fluid py-2">
     <div class="row">
 
@@ -187,7 +183,7 @@
                                 <div style="with: 190px;">
                                     <img id="preview_qr_facturas" onclick="document.getElementById('qr_facturas_nueva').click();" src="/img/add-imagen.png" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
                                     <img id="qr_facturas" onclick="document.getElementById('qr_facturas_nueva').click();" src="" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
-                                    <input type="file" name="qr_facturas_nueva" id="qr_facturas_nueva" onchange="readURLQrFactura(this);" style="display: none" />
+                                    <input type="file" name="qr_facturas_nueva" id="qr_facturas_nueva" accept="image/*" onchange="readURLQrFactura(this);" style="display: none" />
                                 </div>
                             </div>
 

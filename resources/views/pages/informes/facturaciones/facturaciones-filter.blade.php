@@ -11,8 +11,36 @@
             <div class="accordion-body text-sm" style="padding: 0 !important;">
             
                 <form id="facturacionesInformeForm" style="margin-top: 10px;">
+                    <div class="row align-items-end">
+                        <!-- Filtros -->
+                        <div class="form-group col-12 col-sm-6 col-md-3">
+                            <label for="periodo_facturaciones">Periodo</label>
+                            <select name="periodo_facturaciones" id="periodo_facturaciones" class="form-control form-control-sm">
+                                <option value="">Seleccionar</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-12 col-sm-6 col-md-3">
+                            <label for="id_nit_facturaciones">Nit</label>
+                            <select class="form-control form-control-sm" name="id_nit_facturaciones" id="id_nit_facturaciones">
+                                <option value="">Seleccionar</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-12 col-sm-6 col-md-3">
+                            <label for="id_zona_facturaciones">Zona</label>
+                            <select class="form-control form-control-sm" name="id_zona_facturaciones" id="id_zona_facturaciones">
+                                <option value="">Seleccionar</option>
+                            </select>
+                        </div>
 
-                    <div class="row">
+                        <!-- Checkbox -->
+                        <div class="form-group col-12 col-sm-6 col-md-3 d-flex align-items-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="nit_fisica_facturaciones" id="nit_fisica_facturaciones">
+                                <label class="form-check-label ms-2" for="nit_fisica_facturaciones">Facturación física</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="row">
                         <div class="form-group col-12 col-sm-6 col-md-4">
                             <label for="periodo_facturaciones">Periodo</label>
                             <select name="periodo_facturaciones" id="periodo_facturaciones" class="form-control form-control-sm">
@@ -48,22 +76,8 @@
                             </span>
                         </div>
 
-                        @if ($tokenEco)
-                            @can('facturaciones email')
-                                <div class="form-check form-switch col-6 col-sm-4 col-md-4" style="">
-                                    <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important;">
-                                        <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
-                                        <b style="vertical-align: text-top;">ENVIAR FACTURAS</b>
-                                    </span>
-
-                                    <span id="enviarEmailFacturasLoading" class="btn disabled badge bg-gradient-dark" style="min-width: 40px; margin-right: 3px; float: right; margin-bottom: 0rem !important; display: none;">
-                                        <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>&nbsp;
-                                        <b style="vertical-align: text-top;">CARGANDO</b>
-                                    </span>
-                                </div>
-                            @endcan
-                        @endif
-                    </div>  
+                        
+                    </div>   -->
                 </form>
                 <div style="height: 10px;"></div>  
                 <div class="col-md normal-rem">
@@ -86,14 +100,37 @@
                         <b style="vertical-align: text-top;">EXCEL</b>
                         <i class="fas fa-lock" style="color: red; position: absolute; margin-top: -10px; margin-left: 4px;"></i>
                     </span> -->
-                    <!-- BOTON ULTIMO INFORME -->
-                    <!-- <span id="generarFacturacionesUltimo" href="javascript:void(0)" class="btn badge bg-gradient-info" style="min-width: 40px; margin-right: 3px; float: right; display:none;">
-                        <i class="fas fa-history" style="font-size: 17px;"></i>&nbsp;
-                        <b style="vertical-align: text-top;">CARGAR ULTIMO INFORME</b>
+                    <span id="imprimirMultipleFacturacion" href="javascript:void(0)" class="btn badge bg-gradient-danger" style="min-width: 40px; margin-right: 5px;">
+                        <i class="fa-solid fa-file-pdf" style="font-size: 17px;"></i>&nbsp;
+                        <b style="vertical-align: text-top;">IMPRIMIR FACTURAS</b>
                     </span>
-                    <div id="generarFacturacionesUltimoLoading" class="spinner-border spinner-erp" style="display:none;" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div> -->
+                    <span id="imprimirMultipleFacturacionLoading" class="badge bg-gradient-danger" style="display:none; min-width: 40px; margin-right: 5px; margin-bottom: 16px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>
+                        <b style="vertical-align: text-top;">GENERANDO FACTURAS</b>
+                    </span>
+                    @if ($tokenEco)
+                        @can('facturaciones email')
+                            <span id="enviarEmailFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 5px;">
+                                <i class="fas fa-envelope" style="font-size: 17px;"></i>&nbsp;
+                                <b style="vertical-align: text-top;">ENVIAR FACTURAS EMAIL</b>
+                            </span>
+                            <span id="enviarEmailFacturasLoading" class="badge bg-gradient-dark" style="display:none; min-width: 40px; margin-right: 5px; margin-bottom: 16px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>
+                                <b style="vertical-align: text-top;">CARGANDO</b>
+                            </span>
+                        @endcan
+
+                        <!-- @can('facturaciones whatsapp')
+                            <span id="enviarWhatsappFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 5px; background-image: linear-gradient(310deg, #25d366 0%, #25d366 100%);">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 17px;"></i>&nbsp;
+                                <b style="vertical-align: text-top;">ENVIAR FACTURAS WHATSAPP</b>
+                            </span>
+                            <span id="enviarWhatsappFacturasLoading" class="badge bg-gradient-dark" style="display:none; min-width: 40px; margin-right: 5px; margin-bottom: 16px; background-image: linear-gradient(310deg, #25d366 0%, #25d366 100%);">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>
+                                <b style="vertical-align: text-top;">CARGANDO</b>
+                            </span>
+                        @endcan -->
+                    @endif
                 </div>
             </div>
         </div>

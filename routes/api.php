@@ -65,6 +65,7 @@ use App\Http\Controllers\Sistema\EmailController;
 
 Route::post('/placetopay/notification', [PlacetoPayNotificationController::class, 'handle']);
 Route::post('/sendgrid/notification', [SendGridWebhookController::class, 'handle']);
+Route::post('/mailgun/notification', [SendGridWebhookController::class, 'handle']);
 Route::post('/whatsapp/status_callback', [WhatsappWebhookController::class, 'handle']);
 
 Route::controller(VisitantesController::class)->group(function () {
@@ -320,6 +321,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //EMAIL
         Route::controller(EmailController::class)->group(function () {
             Route::get('email', 'read');           
+            Route::post('email-send', 'send');           
             Route::get('email-detalle', 'readDetalle');           
         });
         //NOTIFICACIONES

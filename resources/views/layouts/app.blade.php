@@ -10,8 +10,7 @@
     <title>
         Maximo PH
     </title>
-    <!--     Fonts and icons 
-             -->
+    <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Nucleo Icons -->
@@ -38,6 +37,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/filepond.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/filepond-plugin-image-preview.min.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/filepond-plugin-file-poster.min.css') }}" rel="stylesheet" />
+    <!-- quill -->
+    <link rel="stylesheet" href="{{ asset('assets/css/plugins/quill.snow.css') }}" rel="stylesheet" />
     
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -256,6 +257,8 @@
     <script src="{{ asset('assets/js/sistema/responsive.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/js/sistema/dataTables.fixedHeader.min.js') }}"></script>
     <script src="{{ asset('assets/js/sistema/dataTables.fixedColumns.min.js') }}"></script>
+    <!-- QUILL -->
+    <script src="assets/js/sistema/quill.min.js"></script>
     
     <!-- SELECT 2  -->
     <script src="{{ asset('assets/js/sistema/select2.full.min.js') }}"></script>
@@ -298,8 +301,6 @@
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.6.0/mdb.min.js"></script> -->
     <!-- FULL CALENDER -->
     <script src="{{ asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
-    <!-- Include the Quill library -->
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script>
         //VALIDAR TOTAL DE NOTIFICACIONES PENDIENTES
         // setTimeout(function(){

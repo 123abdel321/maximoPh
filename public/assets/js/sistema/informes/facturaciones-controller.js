@@ -326,31 +326,45 @@ function facturacionesInit() {
 }
 
 $("#imprimirMultipleFacturacion").on('click', function(event) {
-    $("#imprimirMultipleFacturacion").hide();
-    $("#imprimirMultipleFacturacionLoading").show();
-    $.ajax({
-        url: base_url + 'facturacion-multiple',
-        method: 'POST',
-        data: JSON.stringify({
-            factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
-            periodo: formatoFechaFacturacion(),
-            id_nit: $("#id_nit_facturaciones").val(),
-            id_zona: $("#id_zona_facturaciones").val(),
-        }),
-        headers: headers
-    }).done((res) => {
-        $("#imprimirMultipleFacturacion").show();
-        $("#imprimirMultipleFacturacionLoading").hide();
-        agregarToast('info', 'Generando facturas pdf', res.message, true);
-    }).fail((err) => {
-        var mensaje = err.responseJSON.message;
-        var errorsMsg = arreglarMensajeError(mensaje);
-        agregarToast('error', 'Creación errada', errorsMsg);
+    
+    Swal.fire({
+        title: 'Imprimir facturas?',
+        text: "Desea imprimir todas las facturas filtradas?",
+        type: 'warning',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Imprimir facturas!',
+        reverseButtons: true,
+    }).then((result) => {
+
+        $("#imprimirMultipleFacturacion").hide();
+        $("#imprimirMultipleFacturacionLoading").show();
+        // $.ajax({
+        //     url: base_url + 'facturacion-multiple',
+        //     method: 'POST',
+        //     data: JSON.stringify({
+        //         factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
+        //         periodo: formatoFechaFacturacion(),
+        //         id_nit: $("#id_nit_facturaciones").val(),
+        //         id_zona: $("#id_zona_facturaciones").val(),
+        //     }),
+        //     headers: headers
+        // }).done((res) => {
+        //     $("#imprimirMultipleFacturacion").show();
+        //     $("#imprimirMultipleFacturacionLoading").hide();
+        //     agregarToast('info', 'Generando facturas pdf', res.message, true);
+        // }).fail((err) => {
+        //     var mensaje = err.responseJSON.message;
+        //     var errorsMsg = arreglarMensajeError(mensaje);
+        //     agregarToast('error', 'Creación errada', errorsMsg);
+        // });
     });
 });
 
 $("#enviarEmailFacturas").on('click', function(event) {
-
+    
     let data = {
         factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
         periodo: formatoFechaFacturacion(),
@@ -359,37 +373,80 @@ $("#enviarEmailFacturas").on('click', function(event) {
     }
 
     Swal.fire({
-        title: 'Enviar facturas?',
-        text: "Desea enviar las facturas a todas las personas filtradas?",
+        title: 'Enviar facturas por email?',
+        text: "¿Está seguro de enviar las facturas a los correos electrónicos de los contactos filtrados?",
         type: 'warning',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Enviar facturas!',
+        confirmButtonText: 'Enviar correos electrónicos!',
         reverseButtons: true,
     }).then((result) => {
         if (result.value){
             $("#enviarEmailFacturas").hide();
             $("#enviarEmailFacturasLoading").show();
-            $.ajax({
-                url: base_url + 'facturacion-email',
-                method: 'GET',
-                data: data,
-                headers: headers,
-                dataType: 'json',
-            }).done((res) => {
-                $("#enviarEmailFacturas").show();
-                $("#enviarEmailFacturasLoading").hide();
+            // $.ajax({
+            //     url: base_url + 'facturacion-email',
+            //     method: 'GET',
+            //     data: data,
+            //     headers: headers,
+            //     dataType: 'json',
+            // }).done((res) => {
+            //     $("#enviarEmailFacturas").show();
+            //     $("#enviarEmailFacturasLoading").hide();
 
-                agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
-            }).fail((err) => {
-                var mensaje = err.responseJSON.message;
-                var errorsMsg = arreglarMensajeError(mensaje);
-                agregarToast('error', 'Creación errada', errorsMsg);
-            });
+            //     agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
+            // }).fail((err) => {
+            //     var mensaje = err.responseJSON.message;
+            //     var errorsMsg = arreglarMensajeError(mensaje);
+            //     agregarToast('error', 'Creación errada', errorsMsg);
+            // });
         }
-    })
+    });
+});
+
+$("#enviarWhatsappFacturas").on('click', function(event) {
+    
+    let data = {
+        factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
+        periodo: formatoFechaFacturacion(),
+        id_nit: $("#id_nit_facturaciones").val(),
+        id_zona: $("#id_zona_facturaciones").val(),
+    }
+
+    Swal.fire({
+        title: 'Enviar facturas por whatsapp?',
+        text: "¿Está seguro de enviar las facturas a los números de whatsapp de los contactos filtrados?",
+        type: 'warning',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Enviar whatsapps!',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.value){
+            $("#enviarWhatsappFacturas").hide();
+            $("#enviarWhatsappFacturasLoading").show();
+            // $.ajax({
+            //     url: base_url + 'facturacion-email',
+            //     method: 'GET',
+            //     data: data,
+            //     headers: headers,
+            //     dataType: 'json',
+            // }).done((res) => {
+            //     $("#enviarWhatsappFacturas").show();
+            //     $("#enviarWhatsappFacturasLoading").hide();
+
+            //     agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
+            // }).fail((err) => {
+            //     var mensaje = err.responseJSON.message;
+            //     var errorsMsg = arreglarMensajeError(mensaje);
+            //     agregarToast('error', 'Creación errada', errorsMsg);
+            // });
+        }
+    });
 });
 
 function formatoFechaFacturacion() {

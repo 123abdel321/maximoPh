@@ -31,7 +31,7 @@ class SendSingleEmail implements ShouldQueue
         public string $email,
         public array $emailData,
         public array $filterData,
-        public string $pdfPath,
+        public ?string $pdfPath = null,
         public string $ecoToken,
         public string $view
     ) {}
