@@ -383,7 +383,7 @@
 							<thead>
 								<tr class="header-factura">
 									<th colspan="2" class="padding5" style="text-align: center; background-color: #05434e; color: white; font-size: 12px;">
-										ESTADO DE CUENTA / LIQUIDACIÓN
+										ESTADO DE CUENTA
 									</th>
 								</tr>
 							</thead>
