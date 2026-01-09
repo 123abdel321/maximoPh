@@ -320,11 +320,7 @@
                     
                     <tr style="background-color: #58978423;">
                         <td class="padding5">
-                            <b>TOTAL
-                            @if ($pronto_pago)
-                                SIN DESCUENTO
-                            @endif
-                            </b>
+                            <b>TOTAL</b>
                         </td>
                         <td class="padding5 valor">{{ COUNT($cuentas) }}</td>
                         <td class="padding5 valor">{{ number_format($totales->saldo_anterior) }}</td>
@@ -349,16 +345,16 @@
 						$items_count = ($has_qr ? 1 : 0) + ($has_texto1 ? 1 : 0) + ($has_texto2 ? 1 : 0);
 						
 						if($items_count == 0) {
-							$liquidacion_colspan = 6;
+							$liquidacion_colspan = 4;
 						} elseif($items_count == 1) {
-							$liquidacion_colspan = 6;
-							$item_colspan = 2;
+							$liquidacion_colspan = 4;
+							$item_colspan = 3;
 						} elseif($items_count == 2) {
-							$liquidacion_colspan = 6;
-							$item_colspan = 2;
+							$liquidacion_colspan = 4;
+							$item_colspan = 3;
 						} else {
-							$liquidacion_colspan = 6;
-							$item_colspan = 2;
+							$liquidacion_colspan = 4;
+							$item_colspan = 3;
 						}
 					@endphp
 					
