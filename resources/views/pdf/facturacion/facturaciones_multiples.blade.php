@@ -471,35 +471,6 @@
                 </tr>
             </thead>
         </table>
-
-        @if ($texto_1 || $texto_2)
-            <table>
-                <tr>
-                    @if ($texto_1)
-                    <td class="aling-top padding5">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <td colspan="2" class="empresa-footer padding5">{{ $texto_1 }}</td>
-                                </tr>
-                            </thead>
-                        </table>
-                    </td>
-                    @endif
-                    @if ($texto_2)
-                    <td class="table-total-factura padding5">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <td colspan="2" class="empresa-footer padding5">{{ $texto_2 }}</td>
-                                </tr>
-                            </thead>
-                        </table>
-                    </td>
-                    @endif
-                </tr>
-            </table>
-        @endif
                 
         <script type="text/php">
             if ( isset($pdf) ) {
