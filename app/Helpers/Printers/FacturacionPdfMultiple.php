@@ -199,6 +199,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     ->table('concepto_facturacions')
                     ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                     ->first();
+
+                $tieneDescuentoProntoPago = false;
                 
                 if ($conceptoFactura && $conceptoFactura->porcentaje_pronto_pago > 0) {
                     $diaHoy = intval(Carbon::now()->format('d'));
