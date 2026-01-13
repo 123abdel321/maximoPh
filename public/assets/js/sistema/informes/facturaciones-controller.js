@@ -362,25 +362,25 @@ $("#imprimirMultipleFacturacion").on('click', function(event) {
 
         $("#imprimirMultipleFacturacion").hide();
         $("#imprimirMultipleFacturacionLoading").show();
-        // $.ajax({
-        //     url: base_url + 'facturacion-multiple',
-        //     method: 'POST',
-        //     data: JSON.stringify({
-        //         factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
-        //         periodo: formatoFechaFacturacion(),
-        //         id_nit: $("#id_nit_facturaciones").val(),
-        //         id_zona: $("#id_zona_facturaciones").val(),
-        //     }),
-        //     headers: headers
-        // }).done((res) => {
-        //     $("#imprimirMultipleFacturacion").show();
-        //     $("#imprimirMultipleFacturacionLoading").hide();
-        //     agregarToast('info', 'Generando facturas pdf', res.message, true);
-        // }).fail((err) => {
-        //     var mensaje = err.responseJSON.message;
-        //     var errorsMsg = arreglarMensajeError(mensaje);
-        //     agregarToast('error', 'Creación errada', errorsMsg);
-        // });
+        $.ajax({
+            url: base_url + 'facturacion-multiple',
+            method: 'POST',
+            data: JSON.stringify({
+                factura_fisica: $("input[type='checkbox']#nit_fisica_facturaciones").is(':checked') ? '1' : '',
+                periodo: formatoFechaFacturacion(),
+                id_nit: $("#id_nit_facturaciones").val(),
+                id_zona: $("#id_zona_facturaciones").val(),
+            }),
+            headers: headers
+        }).done((res) => {
+            $("#imprimirMultipleFacturacion").show();
+            $("#imprimirMultipleFacturacionLoading").hide();
+            agregarToast('info', 'Generando facturas pdf', res.message, true);
+        }).fail((err) => {
+            var mensaje = err.responseJSON.message;
+            var errorsMsg = arreglarMensajeError(mensaje);
+            agregarToast('error', 'Creación errada', errorsMsg);
+        });
     });
 });
 
@@ -407,22 +407,22 @@ $("#enviarEmailFacturas").on('click', function(event) {
         if (result.value){
             $("#enviarEmailFacturas").hide();
             $("#enviarEmailFacturasLoading").show();
-            // $.ajax({
-            //     url: base_url + 'facturacion-email',
-            //     method: 'GET',
-            //     data: data,
-            //     headers: headers,
-            //     dataType: 'json',
-            // }).done((res) => {
-            //     $("#enviarEmailFacturas").show();
-            //     $("#enviarEmailFacturasLoading").hide();
+            $.ajax({
+                url: base_url + 'facturacion-email',
+                method: 'GET',
+                data: data,
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                $("#enviarEmailFacturas").show();
+                $("#enviarEmailFacturasLoading").hide();
 
-            //     agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
-            // }).fail((err) => {
-            //     var mensaje = err.responseJSON.message;
-            //     var errorsMsg = arreglarMensajeError(mensaje);
-            //     agregarToast('error', 'Creación errada', errorsMsg);
-            // });
+                agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
+            }).fail((err) => {
+                var mensaje = err.responseJSON.message;
+                var errorsMsg = arreglarMensajeError(mensaje);
+                agregarToast('error', 'Creación errada', errorsMsg);
+            });
         }
     });
 });
@@ -450,22 +450,22 @@ $("#enviarWhatsappFacturas").on('click', function(event) {
         if (result.value){
             $("#enviarWhatsappFacturas").hide();
             $("#enviarWhatsappFacturasLoading").show();
-            // $.ajax({
-            //     url: base_url + 'facturacion-email',
-            //     method: 'GET',
-            //     data: data,
-            //     headers: headers,
-            //     dataType: 'json',
-            // }).done((res) => {
-            //     $("#enviarWhatsappFacturas").show();
-            //     $("#enviarWhatsappFacturasLoading").hide();
+            $.ajax({
+                url: base_url + 'facturacion-email',
+                method: 'GET',
+                data: data,
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                $("#enviarWhatsappFacturas").show();
+                $("#enviarWhatsappFacturasLoading").hide();
 
-            //     agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
-            // }).fail((err) => {
-            //     var mensaje = err.responseJSON.message;
-            //     var errorsMsg = arreglarMensajeError(mensaje);
-            //     agregarToast('error', 'Creación errada', errorsMsg);
-            // });
+                agregarToast('info', 'Enviando email', 'Se notificará cuando se hayan enviado las facturas!', true);
+            }).fail((err) => {
+                var mensaje = err.responseJSON.message;
+                var errorsMsg = arreglarMensajeError(mensaje);
+                agregarToast('error', 'Creación errada', errorsMsg);
+            });
         }
     });
 });
