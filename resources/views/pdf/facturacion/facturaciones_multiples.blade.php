@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
+
     <style>
         body {
             margin: 0;
@@ -15,6 +16,8 @@
 
         .empresa-title {
             line-height: 1em;
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
         }
 
         .detalle-factura td {
@@ -30,6 +33,10 @@
 
         .spacer {
             height: 30px;
+        }
+
+        .spacer-lite {
+            height: 10px;
         }
 
         .valor {
@@ -77,19 +84,21 @@
         }
 
         .logo {
-            width: 25%;
+            width: 20%;
             text-align: center;
             vertical-align: middle;
             margin: 0px auto;
         }
 
         .logo img {
-            height: 90px;
+            height: 60px;
         }
 
         .empresa {
             text-align: center;
-            width: 50%;
+            width: 55%;
+            font-size: 0.85em;
+            line-height: 1.3em;
         }
 
         .empresa-footer {
@@ -98,29 +107,35 @@
 
         .empresa-footer-left {
             text-align: center;
-            
         }
 
         .consecutivo {
             width: 25%;
             text-align: center;
             border: 1px solid #f2f2f2;
-            line-height: 3em;
+            line-height: 1.4em;
+            padding: 5px;
         }
 
         .numero-consecutivo {
             color: #8d00ff;
-            font-size: 2.0em;
+            font-size: 1.5em;
+            font-weight: bold;
         }
-        
+
         .fecha-factura {
             color: black;
-            font-size: 1.3em;
+            font-size: 0.95em;
         }
 
         .ubicacion-factura {
             color: black;
-            font-size: 1.3em;
+            font-size: 0.85em;
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .generado {
@@ -155,29 +170,8 @@
             text-transform: lowercase;
         }
 
-        div.page {
-            page-break-inside: avoid;
-        }
-
-        /* ESTILOS CORREGIDOS PARA EVITAR PÁGINAS EN BLANCO */
-        .page {
-            page-break-before: always;
-            page-break-inside: avoid;
-            position: relative;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* SOLUCIÓN DEFINITIVA: usar first-of-type en lugar de first-child */
-        .page:first-of-type {
-            page-break-before: avoid !important;
-        }
-
-        /* Reset de márgenes de página */
-        @page {
-            margin: 0.5cm;
-        }
     </style>
+
 </head>
 
 <body>
@@ -205,9 +199,16 @@
                                 <td class="empresa">
                                     <h1 class="empresa-title">{{ $empresa->razon_social }}</h1>
                                     <span>NIT: {{ $empresa->nit }}-{{ $empresa->dv }}</span><br>
-                                    <span>TEL: {{ $empresa->telefono }}</span><br>
-                                    <span>{{ $empresa->direccion }}</span><br>
-                                    <span>{{ $empresa->correo }}</span><br>
+
+									@if ($empresa->telefono)
+                                    	<span>TEL: {{ $empresa->telefono }}</span><br>
+									@endif
+									@if ($empresa->direccion)
+                                    	<span>{{ $empresa->direccion }}</span><br>
+									@endif
+									@if ($empresa->correo)
+                                    	<span>{{ $empresa->correo }}</span>
+									@endif
                                 </td>
 
                                 <td class="logo">
@@ -293,12 +294,12 @@
                                     <td class="spacer-lite"></td>
                                 </tr>
                                 <tr class="header-factura padding5">
-                                    <th class="padding5">NOMBRE</th>
-                                    <th class="padding5">DOCUMENTO</th>
-                                    <th class="padding5">SALDO ANTERIOR</th>
-                                    <th class="padding5">VALOR FACTURA</th>
-                                    <th class="padding5">ANTICIPOS</th>
-                                    <th class="padding5">SALDO FINAL</th>
+                                    <th class="padding5" style="font-size: 12px;">NOMBRE</th>
+                                    <th class="padding5" style="font-size: 12px;">DOCUMENTO</th>
+                                    <th class="padding5" style="font-size: 12px;">SALDO ANTERIOR</th>
+                                    <th class="padding5" style="font-size: 12px;">VALOR FACTURA</th>
+                                    <th class="padding5" style="font-size: 12px;">ANT. / PAGOS</th>
+                                    <th class="padding5" style="font-size: 12px;">SALDO FINAL</th>
                                 </tr>
                             </thead>
                             <tbody class="detalle-factura">
@@ -314,11 +315,7 @@
                                 @endforeach
                                 <tr style="background-color: #58978423;">
                                     <td class="padding5">
-                                        <b>TOTAL
-                                        @if ($factura->pronto_pago)
-                                            SIN DESCUENTO
-                                        @endif
-                                        </b>
+                                        <b>TOTAL</b>
                                     </td>
                                     <td class="padding5 valor">{{ COUNT($factura->cuentas) }}</td>
                                     <td class="padding5 valor">{{ number_format($factura->saldo_anterior) }}</td>
@@ -327,6 +324,7 @@
                                     <td class="padding5 valor">{{ number_format($factura->saldo_final) }}</td>
                                 </tr>
                             </tbody>
+
                             @if ($factura->total_anticipos || $factura->descuento)
                             <thead>
                                 <tr>
@@ -358,64 +356,117 @@
                                 </tr>
                             </tbody>
                             @endif
+
                         </table>
 
-                        @if ($factura->pronto_pago && $factura->saldo_final > 0)
-                            <table>
-                                <thead>
-                                    <tr>
-                                        @if ($qrFactura)
-                                        <td class="aling-top padding5" style="width: 30%; vertical-align: middle; text-align: center;">
-                                            <table>
+                        <table style="width: 100%; table-layout: fixed; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    @php
+                                        $columns_count = 0;
+                                        $has_qr = !empty($qrFactura);
+                                        $has_texto1 = !empty($texto_1);
+                                        $has_texto2 = !empty($texto_2);
+                                        $items_count = ($has_qr ? 1 : 0) + ($has_texto1 ? 1 : 0) + ($has_texto2 ? 1 : 0);
+                                        
+                                        if($items_count == 0) {
+                                            $liquidacion_colspan = 4;
+                                        } elseif($items_count == 1) {
+                                            $liquidacion_colspan = 4;
+                                            $item_colspan = 3;
+                                        } elseif($items_count == 2) {
+                                            $liquidacion_colspan = 4;
+                                            $item_colspan = 3;
+                                        } else {
+                                            $liquidacion_colspan = 4;
+                                            $item_colspan = 3;
+                                        }
+                                    @endphp
+                                    
+                                    @if($has_qr)
+                                    <td colspan="{{ $item_colspan ?? 2 }}" style="width: {{ 100/($items_count + ($liquidacion_colspan/2)) }}%;" class="padding5 aling-top">
+                                        <img style="height: 130px; width: auto;" src="{{ $qrFactura }}" alt="QR Factura"/>
+                                        <br>
+                                        <span style="font-size: 9px;">Escanea para pagar</span>
+                                    </td>
+                                    @endif
+
+                                    @if($has_texto1)
+                                    <td colspan="{{ $item_colspan ?? 2 }}" style="width: {{ 100/($items_count + ($liquidacion_colspan/2)) }}%;" class="padding5 aling-top">
+                                        <div style="word-wrap: break-word;">{{ $texto_1 }}</div>
+                                    </td>
+                                    @endif
+
+                                    @if($has_texto2)
+                                    <td colspan="{{ $item_colspan ?? 2 }}" style="width: {{ 100/($items_count + ($liquidacion_colspan/2)) }}%;" class="padding5 aling-top">
+                                        <div style="word-wrap: break-word;">{{ $texto_2 }}</div>
+                                    </td>
+                                    @endif
+
+                                    <td colspan="{{ $liquidacion_colspan }}" style="width: {{ ($liquidacion_colspan/12)*100 }}%;" class="padding5 aling-top">
+                                        <table style="width: 100%; border: 1px solid #ddd;">
+                                            <thead>
+                                                <tr class="header-factura">
+                                                    <th colspan="2" class="padding5" style="text-align: center; background-color: #05434e; color: white; font-size: 12px;">
+                                                        ESTADO DE CUENTA
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
                                                 <tr>
-                                                    <td class="padding5">
-                                                        <img style="height: 130px;" src="{{ $qrFactura }}" alt="QR Factura"/>
-                                                        <br>
-                                                        <span style="font-size: 9px;">Escanea para pagar</span>
+                                                    <td class="padding3">Saldo Anterior</td>
+                                                    <td class="valor padding3">
+                                                        {{ number_format($factura->totales->saldo_anterior) }}
                                                     </td>
                                                 </tr>
-                                            </table>
-                                        </td>
-                                        @else
-                                        <td colspan="8" class="padding5">
-                                            &nbsp;
-                                        </td>
-                                        @endif
-                                        <td class="table-total-factura padding5">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <td class="spacer-lite"></td>
-                                                    </tr>
-                                                    <tr class="header-factura-descuento padding5">
-                                                        <th class="padding5">FECHA CON DESCUENTO</th>
-                                                        <th class="padding5">VALOR CON DESCUENTO</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="detalle-factura">
+                                                <tr>
+                                                    <td class="padding3">Valor Mensual</td>
+                                                    <td class="valor padding3">
+                                                        {{ number_format($factura->totales->total_facturas) }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="padding3">Anticipos / Pagos</td>
+                                                    <td class="valor padding3">
+                                                        {{ number_format($factura->totales->total_abono) }}
+                                                    </td>
+                                                </tr>
+                                                @if ($factura->pronto_pago && count($factura->descuentos) > 0)
                                                     @foreach ($factura->descuentos as $descuento)
-                                                        <tr>
-                                                            <td class="padding5">{{ $descuento['fecha_limite'] }}</td>
-                                                            <td class="padding5 valor">{{ number_format($descuento['descuento']) }}</td>
+                                                        <tr style="color: #05434e;">
+                                                            <td class="padding3">Descuento hasta el {{ $descuento['fecha_limite'] }}</td>
+                                                            <td class="valor padding3">
+                                                                {{ number_format($factura->totales->saldo_final - $descuento['descuento']) }}
+                                                            </td>
+                                                        </tr>
+                                                        <tr style="border-top: 1px solid #5c5c5cff; font-weight: bold;">
+                                                            <td class="padding3" style="font-weight: bold;">Total con descuento</td>
+                                                            <td class="valor padding3">
+                                                                {{ number_format($descuento['descuento']) }}
+                                                            </td>
                                                         </tr>
                                                     @endforeach
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </thead>
-                            </table>			
-                        @elseif ($qrFactura)
-                            <table>
-                                <tr>
-                                    <td class="aling-top padding5" style="text-align: center;">
-                                        <img style="height: 90px; width: 90px;" src="{{ $qrFactura }}" alt="QR Factura"/>
-                                        <br>
-                                        <span style="font-size: 10px;">Escanea para pago</span>
+                                                    <tr style="font-weight: bold;">
+                                                        <td class="padding3" style="font-weight: bold;">Total sin descuento</td>
+                                                        <td class="valor padding3">
+                                                            {{ number_format($factura->totales->saldo_final) }}
+                                                        </td>
+                                                    </tr>
+                                                @else
+                                                    <tr>
+                                                        <td class="padding3" style="font-weight: bold;">Total a pagar</td>
+                                                        <td class="valor padding3">
+                                                            {{ number_format($factura->totales->saldo_final) }}
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>    
+                                        </table>
                                     </td>
                                 </tr>
-                            </table>
-                        @endif
+                            </thead>
+                        </table>
+
                     </td>
                 </tr>
             </thead>

@@ -48,6 +48,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
         $this->detallar_facturas = $this->detallar_facturas ? $this->detallar_facturas->valor : 0;
         $this->redondeoIntereses = Entorno::where('nombre', 'redondeo_intereses')->first();
         $this->redondeoIntereses = $this->redondeoIntereses ? $this->redondeoIntereses->valor : 0;
+        $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
+        $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
 	}
 
     public function view()
@@ -297,6 +299,21 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             $totalAnticipos = $cxp ? $cxp->saldo : 0;
             $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
             $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
+
+            $totalData = (object)[
+                'nombre_cuenta' => '',
+                'saldo_anterior' => $totales->saldo_anterior,
+                'total_facturas' => $totales->total_facturas,
+                'total_abono' => $totales->total_abono,
+                'total_anticipos' => $cxp ? $cxp->saldo : 0,
+                'anticipos_disponibles' => $totalAnticipos,
+                'descuento' => $totalDescuento,
+                'consecutivo' => $totales->consecutivo,
+                'fecha_manual' => Carbon::parse($totales->fecha_manual)->format('Y-m-d'),
+                'fecha_plazo' => $fechaPlazo,
+                'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
+                'saldo_final' => $totales->saldo_final
+            ];
             
             $max_length = 40;
             $apartamentos_original = $getNit->apartamentos;
@@ -318,6 +335,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 'nit' => $nit,
                 'nombre_cuenta' => '',
                 'cuentas' => $dataCuentas,
+                'totales' => $totalData,
                 'descuentos' => $dataDescuento,
                 'saldo_anterior' => $totales->saldo_anterior,
                 'total_facturas' => $totales->total_facturas,
@@ -330,7 +348,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                 'fecha_plazo' => $fechaPlazo,
                 'fecha_texto' => $this->meses[intval($fechaMes) - 1].' - '.$fechaYear,
                 'saldo_final' => $totales->saldo_final,
-                'pronto_pago' => $tieneDescuentoProntoPago
+                'pronto_pago' => true
             ]);
         }
         
