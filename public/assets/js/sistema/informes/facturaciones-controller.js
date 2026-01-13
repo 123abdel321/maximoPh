@@ -170,45 +170,66 @@ function facturacionesInit() {
                 periodo: formatoFechaFacturacion(),
                 id_nit: data.id_nit
             }
+
+            $.ajax({
+                url: base_url + 'facturacion-whatsapp',
+                method: 'GET',
+                data: whatsappData,
+                headers: headers,
+                dataType: 'json',
+            }).done((res) => {
+                $("#whatsappfacturaciones_"+id).show();
+                $("#whatsappfacturacionesloading_"+id).hide();
+                
+                // agregarToast('info', 'Enviando whatsapp', 'Se notificará cuando se hayan enviado las facturas!', true);
+            }).fail((err) => {
+
+                $("#whatsappfacturaciones_"+id).show();
+                $("#whatsappfacturacionesloading_"+id).hide();
+
+                var mensaje = err.responseJSON.message;
+                var errorsMsg = arreglarMensajeError(mensaje);
+                agregarToast('error', 'Creación errada', errorsMsg);
+            });
         
-            Swal.fire({
-                title: 'Enviar factura a whatsapp?',
-                text: "Desea enviar la factura a "+data.nombre_nit+"?",
-                type: 'warning',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Enviar facturas!',
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.value){
+            // Swal.fire({
+            //     title: 'Enviar factura a whatsapp?',
+            //     text: "Desea enviar la factura a "+data.nombre_nit+"?",
+            //     type: 'warning',
+            //     icon: 'warning',
+            //     showCancelButton: true,
+            //     confirmButtonColor: '#3085d6',
+            //     cancelButtonColor: '#d33',
+            //     confirmButtonText: 'Enviar facturas!',
+            //     reverseButtons: true,
+            // }).then((result) => {
+            //     if (result.value){
 
-                    $("#whatsappfacturaciones_"+id).hide();
-                    $("#whatsappfacturacionesloading_"+id).show();
+            //         $("#whatsappfacturaciones_"+id).hide();
+            //         $("#whatsappfacturacionesloading_"+id).show();
                     
-                    $.ajax({
-                        url: base_url + 'facturacion-whatsapp',
-                        method: 'GET',
-                        data: whatsappData,
-                        headers: headers,
-                        dataType: 'json',
-                    }).done((res) => {
-                        $("#whatsappfacturaciones_"+id).show();
-                        $("#whatsappfacturacionesloading_"+id).hide();
+            //         $.ajax({
+            //             url: base_url + 'facturacion-whatsapp',
+            //             method: 'GET',
+            //             data: whatsappData,
+            //             headers: headers,
+            //             dataType: 'json',
+            //         }).done((res) => {
+            //             $("#whatsappfacturaciones_"+id).show();
+            //             $("#whatsappfacturacionesloading_"+id).hide();
                         
-                        agregarToast('info', 'Enviando whatsapp', 'Se notificará cuando se hayan enviado las facturas!', true);
-                    }).fail((err) => {
+            //             agregarToast('info', 'Enviando whatsapp', 'Se notificará cuando se hayan enviado las facturas!', true);
+            //         }).fail((err) => {
 
-                        $("#whatsappfacturaciones_"+id).show();
-                        $("#whatsappfacturacionesloading_"+id).hide();
+            //             $("#whatsappfacturaciones_"+id).show();
+            //             $("#whatsappfacturacionesloading_"+id).hide();
 
-                        var mensaje = err.responseJSON.message;
-                        var errorsMsg = arreglarMensajeError(mensaje);
-                        agregarToast('error', 'Creación errada', errorsMsg);
-                    });
-                }
-            })
+            //             var mensaje = err.responseJSON.message;
+            //             var errorsMsg = arreglarMensajeError(mensaje);
+            //             agregarToast('error', 'Creación errada', errorsMsg);
+            //         });
+            //     }
+            // })
         });
     }
     

@@ -160,12 +160,12 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
             }
 
             $urlEventoNotificacion = $this->empresa->token_db_maximo.'_'.$this->id_usuario;
-            event(new PrivateMessageEvent('facturacion-email-'.$urlEventoNotificacion, [
-                'tipo' => 'exito',
-                'success' =>  true,
-                'total_envios' => $countFacturasEnviadas,
-                'action' => 2
-            ]));
+            // event(new PrivateMessageEvent('facturacion-email-'.$urlEventoNotificacion, [
+            //     'tipo' => 'exito',
+            //     'success' =>  true,
+            //     'total_envios' => $countFacturasEnviadas,
+            //     'action' => 2
+            // ]));
 
 		} catch (Exception $exception) {
 			Log::error('ProcessEnvioFacturaEmail al enviar facturación a PortafolioERP', [
