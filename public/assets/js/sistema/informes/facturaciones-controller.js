@@ -429,7 +429,7 @@ $("#enviarWhatsappFacturas").on('click', function(event) {
             $("#enviarWhatsappFacturas").hide();
             $("#enviarWhatsappFacturasLoading").show();
             $.ajax({
-                url: base_url + 'facturacion-email',
+                url: base_url + 'facturacion-whatsapp',
                 method: 'GET',
                 data: data,
                 headers: headers,

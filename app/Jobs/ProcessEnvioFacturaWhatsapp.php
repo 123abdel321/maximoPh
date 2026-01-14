@@ -87,6 +87,8 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                 ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->get();
 
+            dd($nits);
+
             $jobs = [];
             $totalEmails = 0;
             $delayBetweenEmails = 60 / $this->whatsappPerMinute;
@@ -147,8 +149,8 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
 
                     // 
                     $sender = new SendEcoWhatsApp(
-                        // "573145876923", // Teléfono
-                        "57$whatsapp",
+                        "573145876923", // Teléfono
+                        // "57$whatsapp",
                         $whatsappData,
                         $filterData,
                         EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION,
@@ -236,12 +238,12 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                     $query->whereBetween('DG.fecha_manual', [$startOfMonth, $endOfMonth]);
                 }
 			})
-            ->when(array_key_exists('id_nit', $this->request), function ($query) {
+            ->when(array_key_exists('id_nit', $this->request) && isset($this->request['id_nit']) ?? false, function ($query) {
                 if (array_key_exists('id_nit', $this->request)) {
                     $query->where('DG.id_nit', '=', $this->request['id_nit']);
                 }
 			})
-            ->when(array_key_exists('id_zona', $this->request), function ($query) {
+            ->when(array_key_exists('id_zona', $this->request) && isset($this->request['id_zona']) ?? false, function ($query) {
                 if (array_key_exists('id_zona', $this->request)) {
                     $zona = Zonas::where('id', $this->request['id_zona'])->first();
                     if ($zona) {

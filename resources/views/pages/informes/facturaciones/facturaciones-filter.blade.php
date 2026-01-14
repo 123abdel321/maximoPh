@@ -120,7 +120,7 @@
                             </span>
                         @endcan
 
-                        <!-- @can('facturaciones whatsapp')
+                        @can('facturaciones whatsapp')
                             <span id="enviarWhatsappFacturas" href="javascript:void(0)" class="btn badge bg-gradient-dark" style="min-width: 40px; margin-right: 5px; background-image: linear-gradient(310deg, #25d366 0%, #25d366 100%);">
                                 <i class="fa-brands fa-whatsapp" style="font-size: 17px;"></i>&nbsp;
                                 <b style="vertical-align: text-top;">ENVIAR FACTURAS WHATSAPP</b>
@@ -129,7 +129,7 @@
                                 <i class="fas fa-spinner fa-spin" style="font-size: 17px;"></i>
                                 <b style="vertical-align: text-top;">CARGANDO</b>
                             </span>
-                        @endcan -->
+                        @endcan
                     @endif
                 </div>
             </div>
