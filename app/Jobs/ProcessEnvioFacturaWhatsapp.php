@@ -147,8 +147,8 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
 
                     // 
                     $sender = new SendEcoWhatsApp(
-                        "573145876923", // Teléfono
-                        // "57$whatsapp",
+                        // "573145876923", // Teléfono
+                        "57$whatsapp",
                         $whatsappData,
                         $filterData,
                         EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION,
