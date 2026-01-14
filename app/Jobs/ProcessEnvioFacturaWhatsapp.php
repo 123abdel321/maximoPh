@@ -87,8 +87,6 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                 ->orderByRaw('cuenta, id_nit, documento_referencia, created_at')
             ->get();
 
-            dd($nits);
-
             $jobs = [];
             $totalEmails = 0;
             $delayBetweenEmails = 60 / $this->whatsappPerMinute;
