@@ -46,6 +46,26 @@ function facturacionesInit() {
             {
                 "data": function (row, type, set){
                     var html = ``;
+                    html+= `
+                        <span
+                            id="imprimirfacturaciones_${row.id_nit}"
+                            href="javascript:void(0)"
+                            class="btn badge bg-gradient-success imprimir-facturaciones"
+                            style="margin-bottom: 0rem !important; min-width: 50px; background-image: linear-gradient(310deg, #CC2229 0%, #CC2229 100%);"
+                        >
+                            <i class="fa-solid fa-file-pdf"></i>&nbsp;&nbsp;
+                            Imprimir
+                        </span>&nbsp;`;
+                    html+= `
+                        <span
+                            id="imprimirpazysalvo_${row.id_nit}"
+                            href="javascript:void(0)"
+                            class="btn badge bg-gradient-info imprimir-pazysalvo"
+                            style="margin-bottom: 0rem !important; min-width: 50px; background-image: linear-gradient(310deg, #15a5af 0%, #15a5af 100%);"
+                        >
+                            <i class="fa-solid fa-file-circle-check"></i>&nbsp;&nbsp;
+                            Paz y Salvo
+                        </span>&nbsp;`;
                     if (tieneTokenEco && enviar_facturas) html+= `
                         <span
                             id="enviarfacturaciones_${row.id}"
@@ -76,26 +96,6 @@ function facturacionesInit() {
                             <i style="position: absolute; color: white; font-size: 15px; margin-left: -47px; margin-top: -2px;" class="fas fa-spinner fa-spin"></i>
                         </span>
                         `;
-                    html+= `
-                        <span
-                            id="imprimirfacturaciones_${row.id_nit}"
-                            href="javascript:void(0)"
-                            class="btn badge bg-gradient-success imprimir-facturaciones"
-                            style="margin-bottom: 0rem !important; min-width: 50px; background-image: linear-gradient(310deg, #CC2229 0%, #CC2229 100%);"
-                        >
-                            <i class="fa-solid fa-file-pdf"></i>&nbsp;&nbsp;
-                            Imprimir
-                        </span>&nbsp;`;
-                    html+= `
-                        <span
-                            id="imprimirpazysalvo_${row.id_nit}"
-                            href="javascript:void(0)"
-                            class="btn badge bg-gradient-info imprimir-pazysalvo"
-                            style="margin-bottom: 0rem !important; min-width: 50px; background-image: linear-gradient(310deg, #15a5af 0%, #15a5af 100%);"
-                        >
-                            <i class="fa-solid fa-file-circle-check"></i>&nbsp;&nbsp;
-                            Paz y Salvo
-                        </span>&nbsp;`;
                     return html;
                 }
             },
