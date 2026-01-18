@@ -207,7 +207,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     WHEN id_nit IS NOT NULL THEN 
                         NULLIF(TRIM(CONCAT_WS(' ', 
                             NULLIF(primer_nombre, ''), 
-                            NULLIF(segundo_nombre, ''), 
+                            NULLIF(otros_nombres, ''), 
                             NULLIF(primer_apellido, ''), 
                             NULLIF(segundo_apellido, '')
                         )), '')
@@ -295,7 +295,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     WHEN id_nit IS NOT NULL THEN 
                         NULLIF(TRIM(CONCAT_WS(' ', 
                             NULLIF(primer_nombre, ''), 
-                            NULLIF(segundo_nombre, ''), 
+                            NULLIF(otros_nombres, ''), 
                             NULLIF(primer_apellido, ''), 
                             NULLIF(segundo_apellido, '')
                         )), '')
