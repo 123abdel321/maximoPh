@@ -335,12 +335,11 @@ $(document).on('click', '#generatePagoEstadoCuenta', function () {
 
 $(document).on('click', '#generateComprobanteEstadoCuenta', function () {
     adjuntar_pagar_estado_cuenta = false;
-    fecha = dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2);
     clearFormEstadoCuenta();
     $("#textEstadoCuentaPagoCreate").text('Deuda total: ' + new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
     $('#valor_comprobante_estado_cuenta').val(new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
 
-    $('#fecha_pago_estado_cuenta').val(fecha);
+    $('#fecha_pago_estado_cuenta').val("");
     $("#saveEstadoCuentaPago").show();
     $("#updateEstadoCuentaPago").hide();
     $("#saveEstadoCuentaPagoLoading").hide();
