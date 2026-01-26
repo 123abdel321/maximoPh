@@ -406,6 +406,14 @@
 										{{ number_format($totales->total_abono) }}
 									</td>
 								</tr>
+                                @if ($totales->total_anticipos > 0) 
+                                <tr>
+									<td class="padding3">Anticipos Disponibles</td>
+									<td class="valor padding3">
+										{{ number_format($totales->total_anticipos) }}
+									</td>
+								</tr>
+                                @endif
 								@if ($pronto_pago && count($descuentos) > 0)
 									@foreach ($descuentos as $descuento)
 										<tr style="color: #05434e;">
