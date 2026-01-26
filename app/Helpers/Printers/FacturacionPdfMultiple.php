@@ -123,12 +123,12 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
 
             $cxp = (new Extracto(
-                $id_nit,
+                $this->id_nit,
                 [4,8],
                 null,
                 $inicioMesMenosDia,
                 $id_cuenta_anticipos
-            ))->completo()->first();
+            ))->anticipos()->first();
 
             $facturaciones = DB::connection('sam')
                 ->table(DB::raw("({$query->toSql()}) AS cartera"))

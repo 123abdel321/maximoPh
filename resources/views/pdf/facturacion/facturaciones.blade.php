@@ -184,7 +184,7 @@
                         <table>
                             <tr>
                                 <td class="consecutivo">
-                                    <span class="numero-consecutivo">Cuenta de Cobro: {{ $totales->consecutivo }}</span><br/>
+                                    <h1 class="empresa-title">Cuenta de Cobro #{{ $totales->consecutivo }}</h1>
                                     <span class="fecha-factura">{{ $totales->fecha_texto }}</span>
                                     @if ($nit)
                                     <br/>

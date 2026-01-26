@@ -141,7 +141,7 @@ class FacturacionPdf extends AbstractPrinterPdf
             null,
             $inicioMesMenosDia,
             $id_cuenta_anticipos
-        ))->completo()->first();
+        ))->anticipos()->first();
 
 		$facturaciones = DB::connection('sam')
 			->table(DB::raw("({$query->toSql()}) AS cartera"))
@@ -304,7 +304,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         if ($this->redondeoProntoPago) {
             $totalDescuento = $this->roundNumber($totalDescuento, $this->redondeoProntoPago);
         }
-        
+
         $totalAnticipos = $cxp ? $cxp->saldo : 0;
         $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
         $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
