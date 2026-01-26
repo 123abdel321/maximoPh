@@ -118,7 +118,7 @@
         }
 
         .numero-consecutivo {
-            color: #8d00ff;
+            color: #000000;
             font-size: 1.5em;
             font-weight: bold;
         }
@@ -187,7 +187,7 @@
                             <tr>
                                 <td class="consecutivo">
                                     <p>
-                                        <span class="numero-consecutivo">N° {{ $factura->consecutivo }}</span><br/>
+                                        <span class="numero-consecutivo">Cuenta de Cobro: {{ $factura->consecutivo }}</span><br/>
                                         <span class="fecha-factura">{{ $factura->fecha_texto }}</span>
                                         @if ($factura->nit)
                                         <br/>
