@@ -197,6 +197,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         
         foreach ($facturaciones as $facturacion) {
     
+            $tieneSaldoAnterior = false;
             if (floatval($facturacion->saldo_anterior) > 0) {
                 $tieneSaldoAnterior = true;
                 $dataDescuento = [];
