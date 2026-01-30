@@ -111,6 +111,16 @@
     </script>
 </head>
 <body>
+    <style>
+        #tutoriales .video-tutorial-container {
+        margin-top: 0 !important;
+    }
+    
+    #tutoriales > .container > div {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 30px !important;
+    }
+    </style>
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
@@ -132,6 +142,7 @@
                     <a href="#inicio" class="nav-link">Inicio</a>
                     <a href="#modulos" class="nav-link">Módulos</a>
                     <a href="#contabilidad" class="nav-link">Contabilidad</a>
+                    <a href="#tutoriales" class="mobile-link">Tutoriales</a>
                     <a href="#contacto" class="nav-link">Contacto</a>
                     <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
                         <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -163,6 +174,7 @@
                 <a href="#inicio" class="mobile-link">Inicio</a>
                 <a href="#modulos" class="mobile-link">Módulos</a>
                 <a href="#contabilidad" class="mobile-link">Contabilidad</a>
+                <a href="#tutoriales" class="mobile-link">Tutoriales</a>
                 <a href="#contacto" class="mobile-link">Contacto</a>
                 <button class="theme-toggle mobile-theme-toggle" id="mobileThemeToggle" aria-label="Cambiar tema" style="width: 40px;">
                     <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -647,6 +659,223 @@
             </div>
         </div>
     </section>
+
+    <section id="tutoriales" class="tutoriales">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Video Tutoriales
+                    <span class="gradient-text"> MAXIMO PH</span>
+                </h2>
+                <p class="section-description">
+                    Aprende a utilizar todas las funcionalidades de tu sistema de gestión de propiedad horizontal
+                </p>
+            </div>
+            
+            <!-- FILA 1: TUTORIAL 1 Y 2 -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 40px;">
+                
+                <!-- TUTORIAL 1: INICIAR SESIÓN -->
+                <div class="video-tutorial-container">
+                    <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">
+                        Tutorial 1: Inicio de Sesión
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">
+                        Acceso a la plataforma
+                    </p>
+                    
+                    <div class="video-wrapper">
+                        <video controls preload="metadata" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <source src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/tutoriales/ingreso_a_maximoph_usuario_y_contrase%C3%B1a%5B1%5D.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="feature-card" style="margin-top: 15px; text-align: left; padding: 15px;">
+                        <h4 class="feature-title" style="font-size: 1rem; margin-bottom: 8px;">Inicio de Sesión</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Acceso seguro desde cualquier dispositivo</p>
+                        
+                        <div style="padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.8rem;">
+                            <p style="margin-bottom: 5px; font-weight: 600;">Puntos clave:</p>
+                            <ul style="margin: 5px 0; padding-left: 15px;">
+                                <li>Ingresar a maximoph.co</li>
+                                <li>Clic en "Iniciar Sesión"</li>
+                                <li>Usuario y contraseña</li>
+                                <li>Acceso 24/7</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TUTORIAL 2: ADJUNTAR COMPROBANTES -->
+                <div class="video-tutorial-container">
+                    <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">
+                        Tutorial 2: Comprobantes de Pago
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">
+                        Adjuntar e imprimir facturas
+                    </p>
+                    
+                    <div class="video-wrapper">
+                        <video controls preload="metadata" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <source src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/tutoriales/factura%20pago%20adjunto%20impresion%20factura.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="feature-card" style="margin-top: 15px; text-align: left; padding: 15px;">
+                        <h4 class="feature-title" style="font-size: 1rem; margin-bottom: 8px;">Adjuntar Comprobantes</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Sistema de recaudo y aprobación</p>
+                        
+                        <div style="padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.8rem;">
+                            <p style="margin-bottom: 5px; font-weight: 600;">Proceso:</p>
+                            <ul style="margin: 5px 0; padding-left: 15px;">
+                                <li>Módulo Facturación</li>
+                                <li>Seleccionar "Pago Adjunto"</li>
+                                <li>Adjuntar comprobante</li>
+                                <li>Aprobación administración</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- FILA 2: TUTORIAL 3 Y 4 -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 40px;">
+                
+                <!-- TUTORIAL 3: PQRS -->
+                <div class="video-tutorial-container">
+                    <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">
+                        Tutorial 3: Sistema PQRS
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">
+                        Peticiones, Quejas, Reclamos, Sugerencias
+                    </p>
+                    
+                    <div class="video-wrapper">
+                        <video controls preload="metadata" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <source src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/tutoriales/ense%C3%B1ando%20a%20poner%20un%20pqrs.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="feature-card" style="margin-top: 15px; text-align: left; padding: 15px;">
+                        <h4 class="feature-title" style="font-size: 1rem; margin-bottom: 8px;">Sistema PQRS</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Comunicación privada con administración</p>
+                        
+                        <div style="padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.8rem;">
+                            <p style="margin-bottom: 5px; font-weight: 600;">Proceso:</p>
+                            <ul style="margin: 5px 0; padding-left: 15px;">
+                                <li>Módulo PQRS</li>
+                                <li>"Agregar" nueva solicitud</li>
+                                <li>Seleccionar tipo y área</li>
+                                <li>Comunicación privada</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TUTORIAL 4: FAMILIAS -->
+                <div class="video-tutorial-container">
+                    <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">
+                        Tutorial 4: Gestión Familias
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">
+                        Censo de propietarios y vehículos
+                    </p>
+                    
+                    <div class="video-wrapper">
+                        <video controls preload="metadata" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <source src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/tutoriales/grabando%20familias%20con%20foto.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="feature-card" style="margin-top: 15px; text-align: left; padding: 15px;">
+                        <h4 class="feature-title" style="font-size: 1rem; margin-bottom: 8px;">Censo de Familias</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Registro de vehículos y mascotas</p>
+                        
+                        <div style="padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.8rem;">
+                            <p style="margin-bottom: 5px; font-weight: 600;">Proceso:</p>
+                            <ul style="margin: 5px 0; padding-left: 15px;">
+                                <li>Módulo Familias</li>
+                                <li>Seleccionar "Agregar"</li>
+                                <li>Registrar mascotas y vehículos</li>
+                                <li>Adjuntar fotos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- FILA 3: TUTORIAL 5 Y 6 -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 40px;">
+                
+                <!-- TUTORIAL 5: PORTERÍA -->
+                <div class="video-tutorial-container">
+                    <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">
+                        Tutorial 5: Módulo Portería
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">
+                        Registro de domicilios y visitas
+                    </p>
+                    
+                    <div class="video-wrapper">
+                        <video controls preload="metadata" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <source src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/tutoriales/ense%C3%B1ando%20a%20poner%20un%20pqrs.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="feature-card" style="margin-top: 15px; text-align: left; padding: 15px;">
+                        <h4 class="feature-title" style="font-size: 1rem; margin-bottom: 8px;">Módulo Portería</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Control de acceso en tiempo real</p>
+                        
+                        <div style="padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.8rem;">
+                            <p style="margin-bottom: 5px; font-weight: 600;">Proceso:</p>
+                            <ul style="margin: 5px 0; padding-left: 15px;">
+                                <li>Registro domicilios/paquetes</li>
+                                <li>"Nuevo Registro"</li>
+                                <li>Comunicación con portería</li>
+                                <li>Control de visitas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TUTORIAL 6: PAZ Y SALVO -->
+                <div class="video-tutorial-container">
+                    <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">
+                        Tutorial 6: Paz y Salvo
+                    </h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">
+                        Generación de certificado
+                    </p>
+                    
+                    <div class="video-wrapper">
+                        <video controls preload="metadata" style="width: 100%; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <source src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/tutoriales/Maximo%20PH%20-%20Google%20Chrome%202026-01-28%2013-54-32.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="feature-card" style="margin-top: 15px; text-align: left; padding: 15px;">
+                        <h4 class="feature-title" style="font-size: 1rem; margin-bottom: 8px;">Paz y Salvo</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 10px;">Certificado automático en PDF</p>
+                        
+                        <div style="padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; font-size: 0.8rem;">
+                            <p style="margin-bottom: 5px; font-weight: 600;">Proceso:</p>
+                            <ul style="margin: 5px 0; padding-left: 15px;">
+                                <li>Módulo Paz y Salvo</li>
+                                <li>Verificación estado cuentas</li>
+                                <li>Generar PDF</li>
+                                <li>Descargar certificado</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <br/>
 
     <!-- Footer -->
     <section id="contacto">

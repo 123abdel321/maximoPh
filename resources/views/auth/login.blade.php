@@ -87,6 +87,7 @@
                     </div>
                     <div class="card-body" style="text-align: center; background-color: #081329; align-self: center;">
                         <div style="width: 300px;">
+                            <p id="info-login" style="display:none;">Bienvenido al login, ingrese usuario y contraseña  Maximo PH 2026 © All Rights Reserved.</p>
                             <p id="error-login" style="color: red; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡Usuario o contraseña incorrectos!</p>
                             <p id="error-recover" style="color: red; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡El correo electronico no existe!</p>
                             <p id="success-recover" style="color: green; margin-bottom: 0.3rem; font-size: 14px; display:none;">¡Se ha cambiado la contraseña con exito!</p>
