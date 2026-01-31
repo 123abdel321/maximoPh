@@ -41,8 +41,7 @@ function facturacionesInit() {
             { data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'saldo_final', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'email'},
-            { data: 'email_1'},
-            { data: 'email_2'},
+            { data: 'telefono_1'},
             {
                 "data": function (row, type, set){
                     var html = ``;
