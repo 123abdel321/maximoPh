@@ -9,7 +9,7 @@
         <label for="exampleFormControlSelect1">Tipo evento</label>
         <select class="form-control form-control-sm" id="tipo_evento_porteria_filter" name="tipo_evento_porteria_filter">
             <option value="">TODOS</option>
-            <option value="0">VISITA</option>
+            <option value="4">VISITA</option>
             <option value="3">DOMICILIO</option>
             <option value="1">PAQUETE</option>
             <option value="2">MINUTA</option>
