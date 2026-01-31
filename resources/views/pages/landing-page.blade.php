@@ -126,15 +126,7 @@
         <div class="nav-container">
             <div class="nav-content">
                 <div class="nav-brand">
-                    <div class="nav-logo">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
-                            <path d="M6 12h4h4"/>
-                            <path d="M6 20h4"/>
-                            <path d="M6 8h4"/>
-                            <path d="M6 16h4"/>
-                        </svg>
-                    </div>
+                    <img src="https://maximoph.co/img/logo_base.png" alt="Maximo PH" style="height: 50px;">
                     <span class="nav-title">MAXIMO PH</span>
                 </div>
 
@@ -884,15 +876,7 @@
                 <div class="footer-content">
                     <div class="footer-brand">
                         <div class="footer-logo">
-                            <div class="nav-logo">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
-                                    <path d="M6 12h4h4"/>
-                                    <path d="M6 20h4"/>
-                                    <path d="M6 8h4"/>
-                                    <path d="M6 16h4"/>
-                                </svg>
-                            </div>
+                            <img src="https://maximoph.co/img/logo_base.png" alt="Maximo PH" style="height: 50px;">
                             <span class="footer-title">MAXIMO PH</span>
                         </div>
                         <p class="footer-description">
@@ -933,7 +917,7 @@
                 </div>
                 
                 <div class="footer-bottom">
-                    <p>&copy; 2025 MAXIMOPH. Todos los derechos reservados.</p>
+                    <p>&copy; 2026 MAXIMOPH. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>
