@@ -20,12 +20,12 @@
     </div>
 
     <div class="form-group col-12 col-sm-6 col-md-3">
-        <label for="example-text-input" class="form-control-label">Fecha desde</label>
+        <label for="fecha_desde_eco_email" class="form-control-label">Fecha desde</label>
         <input name="fecha_desde_eco_email" id="fecha_desde_eco_email" class="form-control form-control-sm" type="date">
     </div>
 
     <div class="form-group col-12 col-sm-6 col-md-3">
-        <label for="example-text-input" class="form-control-label">Fecha hasta</label>
+        <label for="fecha_hasta_eco_email" class="form-control-label">Fecha hasta</label>
         <input name="fecha_hasta_eco_email" id="fecha_hasta_eco_email" class="form-control form-control-sm" type="date">
     </div>
 

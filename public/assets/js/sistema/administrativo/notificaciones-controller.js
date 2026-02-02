@@ -1,4 +1,5 @@
 var quillEditor = null;
+var emailFilterCorreos = null;
 var $comboEmailNit = null;
 var $comboEmailZona = null;
 var email_eco_table = null;
@@ -58,10 +59,10 @@ function initTablesEco() {
             // url: base_url_erp + 'email/list',
             url: 'https://eco.portafolioerp.com/api/email/list',
             data: function ( d ) {
-                d.estado = $('#estado_email_filter').val();
-                d.id_nit = $('#id_nit_email_filter').val();
-                d.fecha_desde = $('#fecha_desde_email').val();
-                d.fecha_hasta = $('#fecha_hasta_email').val();
+                d.estado = $('#estado_eco_email').val();
+                d.email = emailFilterCorreos;
+                d.fecha_desde = $('#fecha_desde_eco_email').val();
+                d.fecha_hasta = $('#fecha_hasta_eco_email').val();
             }
         },
         columns: [
@@ -418,8 +419,6 @@ function initTablesEco() {
         });
     };
 
-    email_eco_table.ajax.reload();
-    whatsapp_eco_table.ajax.reload();
 }
 
 function initCombosEco() {
@@ -566,17 +565,11 @@ function obtenerContenidoCorreo() {
 }
 
 $("#email-tab").on('click', function(){
-    email_eco_table.ajax.reload();
     email_eco_table.columns.adjust().draw();
-    setTimeout(function(){
-    },10);
 });
 
 $("#whatsapp-tab").on('click', function(){
-    whatsapp_eco_table.ajax.reload();
     whatsapp_eco_table.columns.adjust().draw();
-    setTimeout(function(){
-    },10);
 });
 
 $(document).on('click', '#sendEmailRedactado', function () {
@@ -629,6 +622,9 @@ $("#estado_eco_email").on('change', function(){
 });
 
 $("#id_nit_eco_email").on('change', function(){
+    const data = $(this).select2('data')[0];
+    emailFilterCorreos = data ? data.email : null;
+    console.log(data); 
     email_eco_table.ajax.reload();
 });
 

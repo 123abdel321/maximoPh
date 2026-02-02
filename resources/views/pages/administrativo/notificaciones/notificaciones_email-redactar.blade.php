@@ -22,13 +22,13 @@
                     </select>
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="asunto_correo">Asunto del correo</label>
+                    <label for="asunto_email">Asunto del correo</label>
                     <input type="text" class="form-control form-control-sm" name="asunto_email" id="asunto_email" >
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="asunto_correo">Correos adicionales, separados por coma</label>
+                    <label for="correos_adicionales_email">Correos adicionales, separados por coma</label>
                     <input type="text" class="form-control form-control-sm" name="correos_adicionales_email" id="correos_adicionales_email" >
-                </div>  
+                </div>
                 <!-- EDITOR DE TEXTO -->
                 <div class="col-12 mb-3">
                     <label class="form-label">Redactar correo:</label>
