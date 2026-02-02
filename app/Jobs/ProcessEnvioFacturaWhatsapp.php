@@ -37,14 +37,14 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 3;
-    public $timeout = 300;
+    public $tries = 1;
+    public $timeout = 900;
     public $empresa = null;
     public $request = null;
     public $ecoToken = null;
     public $id_empresa = null;
     public $id_usuario = null;
-    public $maxExceptions = 3;
+    public $maxExceptions = 1;
     public $backoff = [60, 120];
     public $whatsappPerMinute = 60;
 
