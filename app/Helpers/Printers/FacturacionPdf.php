@@ -135,6 +135,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         
         $inicioMesMenosDia = Carbon::parse("{$this->periodo} 23:59:59")->subDay()->format('Y-m-d H:i:m');
 
+        // dd($inicioMesMenosDia);
         $cxp = (new Extracto(
             $this->id_nit,
             [4,8],
@@ -195,8 +196,11 @@ class FacturacionPdf extends AbstractPrinterPdf
         $inicioMes = Carbon::now()->startOfMonth()->format('Y-m-d');
         $facturasMesDescuento = $this->getFacturaMes($this->id_nit, $inicioMes, $totales->fecha_manual);
         
+        $count = 0;
+        // dd($facturaciones);
         foreach ($facturaciones as $facturacion) {
-    
+            
+            
             $tieneSaldoAnterior = false;
             if (floatval($facturacion->saldo_anterior) > 0) {
                 $tieneSaldoAnterior = true;
@@ -213,6 +217,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->first();
             
             if ($conceptoFactura && $conceptoFactura->porcentaje_pronto_pago > 0) {
+                $count++;
                 $diaHoy = intval(Carbon::now()->format('d'));
                 $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
                 // $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
@@ -229,7 +234,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                         }
                     } else {
                         // Calcular descuento sobre total_facturas si no hay datos del mes
-                        $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
+                        // $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
                     }
                     
                     $totalDescuento += $descuento;
@@ -271,19 +276,24 @@ class FacturacionPdf extends AbstractPrinterPdf
                 }
             }
 
-            $dataCuentas[] = (object)[
-                'nombre_cuenta' => $facturacion->nombre_cuenta,
-                'concepto' => $concepto,
-                'saldo_anterior' => $facturacion->saldo_anterior,
-                'total_facturas' => $facturacion->total_facturas,
-                'total_abono' => $facturacion->total_abono,
-                'descuento' => $descuento,
-                'documento_referencia' => $facturacion->documento_referencia,
-                'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-                'saldo_final' => $facturacion->saldo_final
-            ];
+            // dd($descuento);
+            if ($descuento) {
+                $dataCuentas[] = (object)[
+                    'id_cuenta' => $facturacion->id_cuenta,
+                    'nombre_cuenta' => $facturacion->nombre_cuenta,
+                    'concepto' => $concepto,
+                    'saldo_anterior' => $facturacion->saldo_anterior,
+                    'total_facturas' => $facturacion->total_facturas,
+                    'total_abono' => $facturacion->total_abono,
+                    'descuento' => $descuento,
+                    'documento_referencia' => $facturacion->documento_referencia,
+                    'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
+                    'saldo_final' => $facturacion->saldo_final
+                ];
+            }
+            // dd($dataCuentas);
         }
-        
+        // dd($facturasMesDescuento, $dataCuentas);
         if ($this->redondeoProntoPago) {
             $totalDescuento = $this->roundNumber($totalDescuento, $this->redondeoProntoPago);
         }

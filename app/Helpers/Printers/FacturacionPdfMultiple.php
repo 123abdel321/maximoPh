@@ -220,7 +220,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                             }
                         } else {
                             // Calcular descuento sobre total_facturas si no hay datos del mes
-                            $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
+                            // $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
                         }
                         
                         $totalDescuento += $descuento;

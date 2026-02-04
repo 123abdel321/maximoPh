@@ -419,6 +419,8 @@ function initTablesEco() {
         });
     };
 
+    email_eco_table.ajax.reload();
+    whatsapp_eco_table.ajax.reload();
 }
 
 function initCombosEco() {
