@@ -197,14 +197,12 @@ class FacturacionPdf extends AbstractPrinterPdf
         $facturasMesDescuento = $this->getFacturaMes($this->id_nit, $inicioMes, $totales->fecha_manual);
         
         $count = 0;
-        // dd($facturaciones);
         foreach ($facturaciones as $facturacion) {
-            
             
             $tieneSaldoAnterior = false;
             if (floatval($facturacion->saldo_anterior) > 0) {
                 $tieneSaldoAnterior = true;
-                $dataDescuento = [];
+                // $dataDescuento = [];
                 // Si hay saldo anterior, no se puede aplicar pronto pago normal, solo para morosos
             }
 
@@ -225,6 +223,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 // CASO 1: Pronto pago para morosos (aplica siempre, incluso con saldo anterior)
                 if ($conceptoFactura->pronto_pago_morosos == 1) {
                     $tieneDescuentoProntoPago = true;
+                    $tieneSaldoAnterior = false;
                     
                     // Para morosos, el descuento se aplica sobre el total de facturas del mes
                     if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
@@ -247,6 +246,8 @@ class FacturacionPdf extends AbstractPrinterPdf
                             'descuento' => $descuento
                         ];
                     }
+
+                    
                 }
                 // CASO 2: Pronto pago normal (solo si NO hay saldo anterior y está dentro del plazo)
                 else if (!$tieneSaldoAnterior && $conceptoFactura->pronto_pago && $conceptoFactura->dias_pronto_pago >= $diaHoy) {
@@ -274,30 +275,31 @@ class FacturacionPdf extends AbstractPrinterPdf
                         ];
                     }
                 }
+
             }
 
-            // dd($descuento);
-            if ($descuento) {
-                $dataCuentas[] = (object)[
-                    'id_cuenta' => $facturacion->id_cuenta,
-                    'nombre_cuenta' => $facturacion->nombre_cuenta,
-                    'concepto' => $concepto,
-                    'saldo_anterior' => $facturacion->saldo_anterior,
-                    'total_facturas' => $facturacion->total_facturas,
-                    'total_abono' => $facturacion->total_abono,
-                    'descuento' => $descuento,
-                    'documento_referencia' => $facturacion->documento_referencia,
-                    'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
-                    'saldo_final' => $facturacion->saldo_final
-                ];
-            }
-            // dd($dataCuentas);
+            $dataCuentas[] = (object)[
+                'id_cuenta' => $facturacion->id_cuenta,
+                'nombre_cuenta' => $facturacion->nombre_cuenta,
+                'concepto' => $concepto,
+                'saldo_anterior' => $facturacion->saldo_anterior,
+                'total_facturas' => $facturacion->total_facturas,
+                'total_abono' => $facturacion->total_abono,
+                'descuento' => $descuento,
+                'documento_referencia' => $facturacion->documento_referencia,
+                'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
+                'saldo_final' => $facturacion->saldo_final
+            ];
+
+            if ($tieneSaldoAnterior) {
+                $dataDescuento = [];
+            }            
         }
-        // dd($facturasMesDescuento, $dataCuentas);
+
         if ($this->redondeoProntoPago) {
             $totalDescuento = $this->roundNumber($totalDescuento, $this->redondeoProntoPago);
         }
-
+        
         foreach ($dataDescuento as $key => $descuento) {
             if ($descuento['descuento'] < 0) {
                 $dataDescuento[$key]['descuento'] = 0;
@@ -314,7 +316,7 @@ class FacturacionPdf extends AbstractPrinterPdf
         if ($this->redondeoProntoPago) {
             $totalDescuento = $this->roundNumber($totalDescuento, $this->redondeoProntoPago);
         }
-
+        
         $totalAnticipos = $cxp ? $cxp->saldo : 0;
         $totalAnticipos = $totalAnticipos - ($totales->total_facturas - $totalDescuento);
         $totalAnticipos = $totalAnticipos < 0 ? 0 : $totalAnticipos;
@@ -336,7 +338,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
         $texto2 = Entorno::where('nombre', 'factura_texto2')->first();
-
+        // dd($dataDescuento);
         return [
 			'empresa' => $this->empresa,
 			'nit' => $nit,

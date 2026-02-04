@@ -190,7 +190,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
     
                 if (floatval($facturacion->saldo_anterior) > 0) {
                     $tieneSaldoAnterior = true;
-                    $dataDescuento = [];
+                    // $dataDescuento = [];
                     // Si hay saldo anterior, no se puede aplicar pronto pago normal, solo para morosos
                 }
 
@@ -211,6 +211,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     // CASO 1: Pronto pago para morosos (aplica siempre, incluso con saldo anterior)
                     if ($conceptoFactura->pronto_pago_morosos == 1) {
                         $tieneDescuentoProntoPago = true;
+                        $tieneSaldoAnterior = false;
                         
                         // Para morosos, el descuento se aplica sobre el total de facturas del mes
                         if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
@@ -273,6 +274,10 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
                     'porcentaje_descuento' => $conceptoFactura ? $conceptoFactura->porcentaje_pronto_pago : ' ',
                     'saldo_final' => $facturacion->saldo_final
                 ];
+
+                if ($tieneSaldoAnterior) {
+                    $dataDescuento = [];
+                }
             }
 
             if ($this->redondeoProntoPago) {
