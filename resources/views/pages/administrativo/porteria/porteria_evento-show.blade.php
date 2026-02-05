@@ -1,73 +1,97 @@
 <div class="modal fade" id="porteriaEventoShowFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" >Evento de porteria</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down" role="document">
+        <div class="modal-content border-0 shadow">
+            
+            <div class="modal-header bg-dark text-white py-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                        <i class="fas fa-id-card text-white"></i>
+                    </div>
+                    <div>
+                        <h6 class="modal-title mb-0">Detalle de Acceso</h6>
+                        <small class="opacity-75">Registro de Portería</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
 
-                <form id="porteriaEventoShowForm" style="margin-top: 10px;" class="row needs-invalidation" noinvalidate>
+            <div class="modal-body bg-light p-0">
+                <form id="porteriaEventoShowForm" class="needs-invalidation" noinvalidate>
+                    
+                    <input type="text" name="id_evento_porteria_up" id="id_evento_porteria_up" style="display: none;">
 
-                    <input type="text" class="form-control" name="id_evento_porteria_up" id="id_evento_porteria_up" style="display: none;">
+                    <div class="container-fluid p-0">
+                        <div class="row g-0">
+                            
+                            <div class="col-12 col-md-5 bg-white p-2 border-end">
+                                <div class="text-center mb-4">
+                                    <div class="position-relative d-inline-block shadow-sm rounded-circle p-1 bg-light border">
+                                        <img id="persona_evento_imagen"
+                                            srsrc="/img/add-imagen.png"
+                                            class="img-fluid rounded-circle" 
+                                            style="width: 140px; height: 140px; object-fit: cover;">
+                                    </div>
+                                    <h5 id="persona_evento_nombre" class="mt-3 fw-bold text-dark text-uppercase"></h5>
 
-                    <div id="div-porteria-persona" class="justify-content-center col-12 col-sm-12 col-md-12">
-                        <div style="text-align: -webkit-center; margin-bottom: 10px;">
-                            <img id="persona_evento_imagen"  src="https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/maximo/empresas/3/imagen/porteria/YWGival1Kputs4KYNErEzLkYygG5Gaob4MiLSU5M.jpg" class="img-fluid border border-2 border-white" style="height: 130px; border-radius: 5%; width: auto; object-fit: contain;">
+                                    <div class="bg-light rounded p-1 mb-1 border">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="text-muted small" style="font-size: 11px;">DOCUMENTO</div>
+                                                <div id="persona_evento_documento" class="fw-bold text-dark"></div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-muted small" style="font-size: 11px;">TELÉFONO</div>
+                                                <div id="persona_evento_telefono" class="fw-bold text-dark"></div>
+                                            </div>
+                                            <div class="col-12 mt-2">
+                                                <div class="text-muted small" style="font-size: 11px;">UBICACIÓN</div>
+                                                <div id="persona_evento_ubicacion" class="fw-bold text-dark"></div>
+                                            </div>
+                                            <div class="col-12 mt-2">
+                                                <div class="text-muted small" style="font-size: 11px;">NIT / IDENTIFICACIÓN</div>
+                                                <div id="persona_evento_nit" class="fw-bold text-dark"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-7 p-2">
+
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="text-muted small">FECHA DE INGRESO</div>
+                                        <div id="fecha_ingreso_detalle_evento" class="fw-bold text-dark"></div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="text-muted small">FECHA DE SALIDA</div>
+                                        <div id="fecha_salida_detalle_evento" class="fw-bold text-dark"></div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="text-muted small" style="font-size: 11px;">OBSERVACIÓN</div>
+                                        <div id="observacion_detalle_evento" class="fw-bold text-dark"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4 mt-2">
+                                    <label class="form-label small fw-bold text-uppercase text-muted mb-2">Registro Fotográfico de Portería</label>
+                                    <div id="div-porteria-imagen" class="ratio ratio-16x9 shadow-sm">
+                                        <img
+                                            id="porteria_evento_imagen"
+                                            src="/img/no-photo.jpg" 
+                                            class="img-fluid rounded-3 border border-2 border-white bg-secondary" 
+                                            style="object-fit: cover;"
+                                        >
+                                    </div>
+                                </div>
+
+                                
+                            </div>
                         </div>
                     </div>
-
-                    <div style="font-size: 14px; margin-bottom: 0px; text-align: center;">
-                        <h3 id="persona_evento_nombre"></h3>
-                    </div>
-
-                    <div id="div-porteria-inmueble" class="col-12" style="display: flex; justify-content: center;">
-                        <p style="font-size: 14px; margin-bottom: 0.4rem;"><b>INMUEBLE:&nbsp;</b></p>
-                        <p id="inmueble_evento_nombre" style="font-size: 14px; margin-bottom: 0.4rem;">A1 - 117</p>
-                    </div>
-                    
-                    <div id="div-fecha-ingreso-porteria" class="col-12" style="display: flex; justify-content: center;">
-                        <p style="font-size: 14px; margin-bottom: 0.4rem;"><b >FECHA INGRESO:</b>&nbsp;</p>
-                        <p id="fecha_ingreso_portafolio" style="font-size: 14px; margin-bottom: 0.4rem;"></p>
-                    </div>
-
-                    <div id="div-fecha-salida-porteria" class="col-12" style="display: flex; justify-content: center;">
-                        <p style="font-size: 14px; margin-bottom: 0.4rem;"><b >FECHA SALIDA:</b>&nbsp;</p>
-                        <p id="fecha_salida_portafolio" style="font-size: 14px; margin-bottom: 0.4rem;"></p>
-                    </div>
-                    
-                    <div id="div-porteria-imagen" class="justify-content-center col-12 col-sm-12 col-md-12" style="margin-bottom: 15px;">
-                        <div style="text-align: -webkit-center; height: 150px;">
-                            <img id="porteria_evento_imagen" src="/img/no-photo.jpg" class="img-fluid border border-2 border-white" style="height: inherit; border-radius: 5%;">
-                        </div>
-                    </div>
-
-                    <div id="div-porteria-fecha-ingreso" class="form-group col-12 col-sm-12 col-md-12" style="display: none;">
-                        <label for="fecha_salida_porteria_evento-input" class="form-control-label">Fecha ingreso</label>
-                        <input type="datetime-local" class="form-control form-control-sm" name="fecha_ingreso_evento_valor" id="fecha_ingreso_evento_valor">
-                    </div>
-
-                    <div id="div-porteria-fecha-salida" class="form-group col-12 col-sm-12 col-md-12" style="display: none;">
-                        <label for="fecha_salida_porteria_evento-input" class="form-control-label">Fecha salida</label>
-                        <input type="datetime-local" class="form-control form-control-sm" name="fecha_salida_evento_valor" id="fecha_salida_evento_valor">
-                    </div>
-
-                    <div class="form-group col-12 col-sm-12 col-md-12" >
-                        <label for="observacion_evento_valor-input" class="form-control-label">Observación</label>
-                        <textarea class="form-control form-control-sm" id="observacion_evento_valor" name="observacion_evento_valor" rows="2"></textarea>
-                    </div>
-
                 </form>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn bg-gradient-danger btn-sm" data-bs-dismiss="modal">Cerrar</button>
-                <button id="updatePorteriaEvento"type="button" class="btn bg-gradient-success btn-sm">Actualizar</button>
-                <button id="updatePorteriaEventoLoading" class="btn btn-success btn-sm ms-auto" style="display:none; float: left;" disabled>
-                    Cargando
-                    <i class="fas fa-spinner fa-spin"></i>
-                </button>
             </div>
         </div>
     </div>

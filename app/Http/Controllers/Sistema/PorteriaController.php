@@ -117,8 +117,12 @@ class PorteriaController extends Controller
                 );
 
             if (!$request->user()->can('porteria eventos')) {
-                $porteria->where('id_usuario', $request->user()->id)
-                    ->whereIn('tipo_porteria', [0,4,5,6]);
+                $porteria
+                    ->whereIn('tipo_porteria', [0, 4, 5, 6])
+                    ->where(function ($query) use ($request, $usuarioEmpresa) {
+                        $query->where('id_usuario', $request->user()->id)
+                            ->orWhere('id_nit', $usuarioEmpresa->id_nit);
+                    });
             }
 
             if ($request->user()->can('porteria eventos') && !$request->get("search") && !$filtroTipo) {
@@ -149,11 +153,12 @@ class PorteriaController extends Controller
             
             if ($request->get("id_nit")) $porteria->where('id_nit', $request->get("id_nit"));
             if ($filtroTipo) $porteria->where('tipo_porteria', $request->get("tipo"));
-            if ($request->get("fecha") && !$request->get("search")) {
-                $fechaFilter = Carbon::parse($request->get("fecha"));
-                $diaFilter = $fechaFilter->dayOfWeek;
-                $porteria->where('dias', 'LIKE', '%'.$diaFilter);
-            }
+            // if ($request->get("fecha") && !$request->get("search")) {
+            //     $fechaFilter = Carbon::parse($request->get("fecha"));
+            //     $diaFilter = $fechaFilter->dayOfWeek;
+            //     $diaFilter = $diaFilter == 0 ? 7 : $diaFilter;
+            //     $porteria->where('dias', 'LIKE', '%'.$diaFilter);
+            // }
             $totalData = $porteria->count();
             $porteria->skip($start)->take($rowperpage);
 

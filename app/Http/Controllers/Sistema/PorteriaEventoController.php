@@ -17,6 +17,7 @@ use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Message;
 use App\Models\Sistema\ChatUser;
 use App\Models\Sistema\Porteria;
+use App\Models\Sistema\ArchivosCache;
 use App\Models\Sistema\PorteriaEvento;
 use App\Models\Sistema\ArchivosGenerales;
 
@@ -48,7 +49,7 @@ class PorteriaEventoController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
             
-            $porteriaEvento = PorteriaEvento::with('archivos', 'persona.inmueble.zona', 'persona.archivos')
+            $porteriaEvento = PorteriaEvento::with('archivos', 'persona.inmueble.zona', 'persona.archivos', 'persona.nit')
                 ->select(
                     '*',
                     DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -158,7 +159,7 @@ class PorteriaEventoController extends Controller
             $itemPorteria->save();
 
             //NOTIFICAR MEDIANTE EL CHAT
-            if (! $itemPorteria->id_usuario) {
+            if (!$itemPorteria->id_usuario) {
                 $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
     
                 DB::connection('max')->commit();
@@ -244,7 +245,9 @@ class PorteriaEventoController extends Controller
                             'updated_by' => request()->user()->id
                         ]);
                         $archivo->relation()->associate($mensaje);
+                        $archivo->relation()->associate($evento);
                         $mensaje->archivos()->save($archivo);
+                        $evento->archivos()->save($archivo);
                     }
                     $archivoCache->delete();
                 }

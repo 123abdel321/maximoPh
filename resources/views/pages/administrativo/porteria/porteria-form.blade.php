@@ -39,6 +39,7 @@
                 <div class="form-group col-12 col-sm-6 col-md-6" style="align-self: center;">
                     <label for="exampleFormControlSelect1">Categorias<span style="color: red">*</span></label>
                     <select class="form-control form-control-sm" id="tipo_porteria_create" name="tipo_porteria_create">
+                        
                         <option value="4">VISITANTE</option>
                         <option value="6">DOMICILIO</option>
                         <option value="5">PAQUETE</option>

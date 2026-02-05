@@ -614,47 +614,44 @@ function initTablesPorteria() {
         porteria_table.on('click', '.evento-porteria', function() {
             var id = this.id.split('_')[1];
             var itemPorteria = getDataById(id, porteria_table);
-
             $("#id_porteria_evento").val(itemPorteria.id);
 
             clearFormEventoPorteria();
 
-            var dataPersona = {
-                id: itemPorteria.id,
-                text: itemPorteria.nombre
-            };
+            $("#mostrarPorteriaEvento").show();
 
-            if (itemPorteria.tipo_porteria == 3) {
-                dataPersona = {
-                    id: itemPorteria.id,
-                    text: itemPorteria.placa
-                };
+            let nombreEvento = 'PROPIETARIO';
+            if (parseInt(itemPorteria.tipo_porteria) == 4) {
+                nombreEvento = 'VISITANTE';
+            } else if (parseInt(itemPorteria.tipo_porteria) == 6) {
+                nombreEvento = 'DOMICILIO';
             }
-            var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
-            $comboPorteriaEventos.append(newOption).trigger('change');
-            $comboPorteriaEventos.val(itemPorteria.id).trigger('change');
+            
+            $("#evento_tipo_texto").html(nombreEvento);
+            $("#tipo_evento_porteria").val("1").trigger('change');
 
-            if (itemPorteria.nit) {
-                var dataNit = {
-                    id: itemPorteria.nit.id,
-                    text: itemPorteria.nit.nombre_completo
-                };
+            let telefonoEvento = itemPorteria.telefono;
 
-                var newOption = new Option(dataNit.text, dataNit.id, false, false);
-                $comboNitPorteriaEvento.append(newOption).trigger('change');
-                $comboNitPorteriaEvento.val(itemPorteria.nit.id).trigger('change');
+            if (itemPorteria && itemPorteria.nit) {
+
+                $("#evento_persona_nit").html(itemPorteria.nit.nombre_completo);
+                $("#evento_persona_documento").html(itemPorteria.nit.numero_documento);
+
+                if (!telefonoEvento) {
+                    telefonoEvento = itemPorteria.nit.telefono_1;
+                }
+
+                let apartamentos = itemPorteria.nit.apartamentos.split(',');
+                let html = ``;
+                for (let index = 0; index < apartamentos.length; index++) {
+                    const apartamento = apartamentos[index];
+                    html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                }
+                $("#evento_persona_ubicacion").html(html);
             }
-
-            if (itemPorteria.inmueble) {
-                var dataInmueble = {
-                    id: itemPorteria.inmueble.id,
-                    text: itemPorteria.inmueble.nombre
-                };
-
-                var newOption = new Option(dataInmueble.text, dataInmueble.id, false, false);
-                $comboInmuebleEventos.append(newOption).trigger('change');
-                $comboInmuebleEventos.val(itemPorteria.inmueble.id).trigger('change');
-            }
+            
+            $("#evento_persona_telefono").html(telefonoEvento);
+            $("#evento_persona_nombre").html(itemPorteria.nombre);
 
             $("#tipo_evento").val(itemPorteria.tipo_porteria).trigger('change');
 
@@ -664,16 +661,11 @@ function initTablesPorteria() {
                 $("#img_porteria_evento").attr("src", "/img/no-photo.jpg");
             }
 
-            $("#fecha_ingreso_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
-
-            $('#id_nit_porteria_evento').prop('disabled', true);
-            $('#persona_porteria_evento').prop('disabled', true);
-            $('#inmueble_porteria_evento').prop('disabled', true);
-
             $("#porteriaEventoFormModal").modal('show');
         });
         //EVENTO SALIDA PORTERIA
         porteria_table.on('click', '.evento-porteria-salida', function() {
+
             var id = this.id.split('_')[1];
             var itemPorteria = getDataById(id, porteria_table);
 
@@ -681,54 +673,47 @@ function initTablesPorteria() {
 
             clearFormEventoPorteria();
 
-            var dataPersona = {
-                id: itemPorteria.id,
-                text: itemPorteria.nombre
-            };
+            $("#tipo_evento_porteria").val("2").trigger('change');
+            document.getElementById("mostrarPorteriaEvento").click();
 
-            if (itemPorteria.tipo_porteria == 3) {
-                dataPersona = {
-                    id: itemPorteria.id,
-                    text: itemPorteria.placa
-                };
+            let nombreEvento = 'PROPIETARIO';
+            if (parseInt(itemPorteria.tipo_porteria) == 4) {
+                nombreEvento = 'VISITANTE';
+            } else if (parseInt(itemPorteria.tipo_porteria) == 6) {
+                nombreEvento = 'DOMICILIO';
             }
-            var newOption = new Option(dataPersona.text, dataPersona.id, false, false);
-            $comboPorteriaEventos.append(newOption).trigger('change');
-            $comboPorteriaEventos.val(itemPorteria.id).trigger('change');
+            $("#evento_tipo_texto").html(nombreEvento);
 
-            if (itemPorteria.nit) {
-                var dataNit = {
-                    id: itemPorteria.nit.id,
-                    text: itemPorteria.nit.nombre_completo
-                };
+            let telefonoEvento = itemPorteria.telefono;
 
-                var newOption = new Option(dataNit.text, dataNit.id, false, false);
-                $comboNitPorteriaEvento.append(newOption).trigger('change');
-                $comboNitPorteriaEvento.val(itemPorteria.nit.id).trigger('change');
+            if (itemPorteria && itemPorteria.nit) {
+
+                $("#evento_persona_nit").html(itemPorteria.nit.nombre_completo);
+                $("#evento_persona_documento").html(itemPorteria.nit.numero_documento);
+
+                if (!telefonoEvento) {
+                    telefonoEvento = itemPorteria.nit.telefono_1;
+                }
+
+                let apartamentos = itemPorteria.nit.apartamentos.split(',');
+                let html = ``;
+                for (let index = 0; index < apartamentos.length; index++) {
+                    const apartamento = apartamentos[index];
+                    html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                }
+                $("#evento_persona_ubicacion").html(html);
             }
-
-            if (itemPorteria.inmueble) {
-                var dataInmueble = {
-                    id: itemPorteria.inmueble.id,
-                    text: itemPorteria.inmueble.nombre
-                };
-
-                var newOption = new Option(dataInmueble.text, dataInmueble.id, false, false);
-                $comboInmuebleEventos.append(newOption).trigger('change');
-                $comboInmuebleEventos.val(itemPorteria.inmueble.id).trigger('change');
-            }
+            
+            $("#evento_persona_telefono").html(telefonoEvento);
+            $("#evento_persona_nombre").html(itemPorteria.nombre);
 
             $("#tipo_evento").val(itemPorteria.tipo_porteria).trigger('change');
 
             if (itemPorteria.archivos.length) {
                 $("#img_porteria_evento").attr("src",bucketUrl + itemPorteria.archivos[0].url_archivo);
+            } else {
+                $("#img_porteria_evento").attr("src", "/img/no-photo.jpg");
             }
-
-            $("#fecha_salida_porteria_evento").val(dateNow.getFullYear()+'-'+("0" + (dateNow.getMonth() + 1)).slice(-2)+'-'+("0" + (dateNow.getDate())).slice(-2)+'T'+("0" + (dateNow.getHours())).slice(-2)+':'+("0" + (dateNow.getMinutes())).slice(-2));
-
-            $('#id_nit_porteria_evento').prop('disabled', true);
-            $('#persona_porteria_evento').prop('disabled', true);
-            $('#inmueble_porteria_evento').prop('disabled', true);
 
             $("#porteriaEventoFormModal").modal('show');
         });
@@ -816,8 +801,8 @@ function initTablesPorteria() {
         porteria_evento_table.on('click', '.detalleevento-porteria', function() {
             var id = this.id.split('_')[1];
             var eventoPorteria = getDataById(id, porteria_evento_table);
-            console.log('eventoPorteria: ',eventoPorteria);
-
+            const nitEvento = eventoPorteria.persona ? eventoPorteria.persona.nit : null;
+            
             $("#id_evento_porteria_up").val(eventoPorteria.id);
 
             if (eventoPorteria.archivos.length > 0) {
@@ -834,41 +819,34 @@ function initTablesPorteria() {
                 if (persona.tipo_porteria == 3) nombre = persona.placa;
                 if (persona.archivos.length) imgPersona = bucketUrl+persona.archivos[0].url_archivo;
 
-                $("#div-porteria-persona").show();
                 $("#persona_evento_nombre").text(nombre);
                 $("#persona_evento_imagen").attr('src', imgPersona);
             }
+            
+            let telefonoEvento = null;
+            if (nitEvento) {
 
-            if (eventoPorteria.inmueble) {
-                var inmueble = eventoPorteria.inmueble;
+                $("#persona_evento_nit").html(nitEvento.nombre_completo);
+                $("#persona_evento_documento").html(nitEvento.numero_documento);
 
-                $("#div-porteria-inmueble").show();
-                $("#inmueble_evento_nombre").text(inmueble.zona.nombre+' - '+inmueble.nombre);
+                if (!telefonoEvento) {
+                    telefonoEvento = nitEvento.telefono_1;
+                }
+
+                let apartamentos = nitEvento.apartamentos.split(',');
+                let html = ``;
+                for (let index = 0; index < apartamentos.length; index++) {
+                    const apartamento = apartamentos[index];
+                    html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                }
+                $("#persona_evento_ubicacion").html(html);
             }
-            var valorFechaIngreso = eventoPorteria.fecha_ingreso;
-            var valorFechaSalida = eventoPorteria.fecha_salida;
+            
+            $("#persona_evento_telefono").html(telefonoEvento);
+            $("#fecha_ingreso_detalle_evento").html(eventoPorteria.fecha_ingreso);
+            $("#fecha_salida_detalle_evento").html(eventoPorteria.fecha_salida);
+            $("#observacion_detalle_evento").html(eventoPorteria.observacion);
 
-            if (eventoPorteria.fecha_ingreso) {
-                $("#fecha_ingreso_portafolio").text(valorFechaIngreso);
-                $("#div-fecha-ingreso-porteria").show();
-                $("#div-porteria-fecha-ingreso").hide();
-                $("#div-fecha-ingreso-porteria").prop('display', 'flex');
-            } else {
-                $("#div-porteria-fecha-ingreso").show();
-                $("#div-fecha-ingreso-porteria").hide();
-            }
-
-            if (eventoPorteria.fecha_salida) {
-                $("#fecha_salida_portafolio").text(valorFechaSalida);
-                $("#div-fecha-salida-porteria").show();
-                $("#div-porteria-fecha-salida").hide();
-                $("#div-fecha-salida-porteria").prop('display', 'flex');
-            } else {
-                $("#div-porteria-fecha-salida").show();
-                $("#div-fecha-salida-porteria").hide();
-            }
-
-            $("#observacion_evento_valor").val(eventoPorteria.observacion);
             $("#porteriaEventoShowFormModal").modal('show');
         });
     }
@@ -1371,7 +1349,7 @@ $(document).on('click', '#savePorteriaEvento', function () {
         fecha_ingreso_porteria_evento: $("#fecha_ingreso_porteria_evento").val(),
         fecha_salida_porteria_evento: $("#fecha_salida_porteria_evento").val(),
         observacion_porteria_evento: $("#observacion_porteria_evento").val(),
-        archivos: uploadedFilesPorteriaNovedades
+        archivos: uploadedFilesPorteria
     }
 
     $("#savePorteriaEvento").hide();
@@ -1392,6 +1370,8 @@ $(document).on('click', '#savePorteriaEvento', function () {
             $("#porteriaEventoFormModal").modal('hide');
             
             porteria_evento_table.ajax.reload();
+            porteria_table.ajax.reload();
+            
             agregarToast('exito', 'Creación exitosa', 'Porteria creado con exito!', true);
         }
     }).fail((err) => {
@@ -1663,6 +1643,10 @@ function clearFormEventoPorteria() {
     $('#default_avatar_evento').show();
     $('#default_avatar_evento').attr('src', '/img/add-imagen.png');
 
+    $("#divEventoPorteriaInputs").hide();
+    $("#cancelarPorteriaEvento").hide();
+    $("#mostrarPorteriaEvento").hide();
+
     // $comboInmuebleEventos.prop('disabled', false);
     $("#tipo_evento").val(0).trigger('change');
     $("#persona_porteria_evento").val("").trigger('change');
@@ -1866,4 +1850,52 @@ $('#id_nit_porteria').on('change', function(e) {
     var selectedValue = $(this).val();
     if (selectedValue) $('#id_inmueble_porteria').prop('disabled', false);
     else $('#id_inmueble_porteria').prop('disabled', true);
+});
+
+$('#tipo_evento_porteria').on('change', function(e) {
+
+    $("#fechaIngresoPorteriaEventoInput").hide();
+    $("#fechaSalidaPorteriaEventoInput").hide();
+    $("#fecha_ingreso_porteria_evento").prop('required', false);
+    $("#fecha_salida_porteria_evento").prop('required', false);
+
+    const tipoEvento = parseInt($("#tipo_evento_porteria").val());
+    if (tipoEvento == 1) {
+        $("#fechaIngresoPorteriaEventoInput").show();        
+        $("#fecha_ingreso_porteria_evento").prop('required', true);
+    } else if (tipoEvento == 2) {
+        $("#fechaSalidaPorteriaEventoInput").show();
+        $("#fecha_salida_porteria_evento").prop('required', true);
+    }
+});
+
+$(document).on('click', '#mostrarPorteriaEvento', function () {
+    $("#divEventoPorteriaInputs").show();
+    $("#mostrarPorteriaEvento").hide();
+    $("#cancelarPorteriaEvento").show();
+
+    $("#fechaIngresoPorteriaEventoInput").hide();
+    $("#fechaSalidaPorteriaEventoInput").hide();
+    $("#fecha_ingreso_porteria_evento").prop('required', false);
+    $("#fecha_salida_porteria_evento").prop('required', false);
+
+    const tipoEvento = parseInt($("#tipo_evento_porteria").val());
+    if (tipoEvento == 1) {
+        $("#fechaIngresoPorteriaEventoInput").show();        
+        $("#fecha_ingreso_porteria_evento").prop('required', true);
+    } else if (tipoEvento == 2) {
+        $("#fechaSalidaPorteriaEventoInput").show();
+        $("#fecha_salida_porteria_evento").prop('required', true);
+    }
+});
+
+$(document).on('click', '#cancelarPorteriaEvento', function () {
+    $("#divEventoPorteriaInputs").hide();
+    $("#mostrarPorteriaEvento").show();
+    $("#cancelarPorteriaEvento").hide();
+
+    $("#fechaIngresoPorteriaEventoInput").hide();
+    $("#fechaSalidaPorteriaEventoInput").hide();
+    $("#fecha_ingreso_porteria_evento").prop('required', false);
+    $("#fecha_salida_porteria_evento").prop('required', false);
 });
