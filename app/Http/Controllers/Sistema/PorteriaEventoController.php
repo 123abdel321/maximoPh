@@ -160,7 +160,28 @@ class PorteriaEventoController extends Controller
 
             //NOTIFICAR MEDIANTE EL CHAT
             if (!$itemPorteria->id_usuario) {
-                $empresa = Empresa::where('id', request()->user()->id_empresa)->first();
+
+                $archivos = $request->get('archivos');
+                if (count($archivos)) {
+                    foreach ($archivos as $archivo) {
+                        $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
+                        $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'.$archivoCache->name_file;
+                        if (Storage::exists($archivoCache->relative_path)) {
+                            Storage::move($archivoCache->relative_path, $finalPath);
+                            
+                            $archivo = new ArchivosGenerales([
+                                'tipo_archivo' => $archivoCache->tipo_archivo,
+                                'url_archivo' => $finalPath,
+                                'estado' => 1,
+                                'created_by' => request()->user()->id,
+                                'updated_by' => request()->user()->id
+                            ]);
+                            $archivo->relation()->associate($evento);
+                            $evento->archivos()->save($archivo);
+                        }
+                        $archivoCache->delete();
+                    }
+                }
     
                 DB::connection('max')->commit();
     
@@ -227,31 +248,6 @@ class PorteriaEventoController extends Controller
                 'content' => $contentMensaje,
                 'status' => 1
             ]);
-
-            $archivos = $request->get('archivos');
-
-            if (count($archivos)) {
-                foreach ($archivos as $archivo) {
-                    $archivoCache = ArchivosCache::where('id', $archivo['id'])->first();
-                    $finalPath = 'maximo/empresas/'.request()->user()->id_empresa.'/imagen/porteria/'.$archivoCache->name_file;
-                    if (Storage::exists($archivoCache->relative_path)) {
-                        Storage::move($archivoCache->relative_path, $finalPath);
-                        
-                        $archivo = new ArchivosGenerales([
-                            'tipo_archivo' => $archivoCache->tipo_archivo,
-                            'url_archivo' => $finalPath,
-                            'estado' => 1,
-                            'created_by' => request()->user()->id,
-                            'updated_by' => request()->user()->id
-                        ]);
-                        $archivo->relation()->associate($mensaje);
-                        $archivo->relation()->associate($evento);
-                        $mensaje->archivos()->save($archivo);
-                        $evento->archivos()->save($archivo);
-                    }
-                    $archivoCache->delete();
-                }
-            }
 
             // $telefono = "3145876923";
 

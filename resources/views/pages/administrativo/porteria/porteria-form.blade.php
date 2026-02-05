@@ -26,8 +26,8 @@
                     </div>
 
                     <div class="form-group  col-12 col-sm-6 col-md-6">
-                        <label>Inmueble<span style="color: red">*</span></label>
-                        <select name="id_inmueble_porteria" id="id_inmueble_porteria" class="form-control form-control-sm" style="width: 100%; font-size: 13px;" required>
+                        <label>Inmueble</label>
+                        <select name="id_inmueble_porteria" id="id_inmueble_porteria" class="form-control form-control-sm" style="width: 100%; font-size: 13px;">
                         </select>
                         
                         <div class="invalid-feedback">

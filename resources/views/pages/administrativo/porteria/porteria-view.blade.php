@@ -88,9 +88,6 @@
                     <button type="button" class="btn btn-dark btn-sm" id="volverEventoPorteria" style="width: 10px; height: 34px; display: none;">
                         <i style="margin-left: -8px; color: white; font-size: 15px; margin-top: 2px;" class="fas fa-fast-backward"></i>
                     </button>
-                    <button type="button" class="btn btn-primary btn-sm" id="generateEventoPorteria" style="display: none;">
-                        Agregar evento
-                    </button>
                     <button type="button" class="btn btn-info btn-sm" id="verEventoPorteria">
                         Ver minuta
                     </button>

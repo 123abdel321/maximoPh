@@ -614,6 +614,7 @@ function initTablesPorteria() {
         porteria_table.on('click', '.evento-porteria', function() {
             var id = this.id.split('_')[1];
             var itemPorteria = getDataById(id, porteria_table);
+            console.log(itemPorteria);
             $("#id_porteria_evento").val(itemPorteria.id);
 
             clearFormEventoPorteria();
@@ -641,13 +642,16 @@ function initTablesPorteria() {
                     telefonoEvento = itemPorteria.nit.telefono_1;
                 }
 
-                let apartamentos = itemPorteria.nit.apartamentos.split(',');
-                let html = ``;
-                for (let index = 0; index < apartamentos.length; index++) {
-                    const apartamento = apartamentos[index];
-                    html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                if (itemPorteria.nit.apartamentos) {
+                    let apartamentos = itemPorteria.nit.apartamentos.split(',');
+                    let html = ``;
+                    for (let index = 0; index < apartamentos.length; index++) {
+                        const apartamento = apartamentos[index];
+                        html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                    }
+                    $("#evento_persona_ubicacion").html(html);
                 }
-                $("#evento_persona_ubicacion").html(html);
+
             }
             
             $("#evento_persona_telefono").html(telefonoEvento);
@@ -833,13 +837,15 @@ function initTablesPorteria() {
                     telefonoEvento = nitEvento.telefono_1;
                 }
 
-                let apartamentos = nitEvento.apartamentos.split(',');
-                let html = ``;
-                for (let index = 0; index < apartamentos.length; index++) {
-                    const apartamento = apartamentos[index];
-                    html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                if (nitEvento.apartamentos) {
+                    let apartamentos = nitEvento.apartamentos.split(',');
+                    let html = ``;
+                    for (let index = 0; index < apartamentos.length; index++) {
+                        const apartamento = apartamentos[index];
+                        html+= `<span class="badge bg-secondary" style="margin-bottom: 0rem !important; min-width: 50px; color: white; place-self: center;">${apartamento}</span>&nbsp;`
+                    }
+                    $("#persona_evento_ubicacion").html(html);
                 }
-                $("#persona_evento_ubicacion").html(html);
             }
             
             $("#persona_evento_telefono").html(telefonoEvento);
@@ -1654,6 +1660,7 @@ function clearFormEventoPorteria() {
     $("#fecha_ingreso_porteria_evento").val("");
     $("#fecha_salida_porteria_evento").val("");
     $("#observacion_porteria_evento").val("");
+    $("#evento_persona_ubicacion").html("");
 }
 
 function readURLPorteria(input) {
