@@ -123,7 +123,7 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             $id_cuenta_anticipos = $id_cuenta_anticipos ? $id_cuenta_anticipos->valor : null;
 
             $cxp = (new Extracto(
-                $this->id_nit,
+                $id_nit,
                 [4,8],
                 null,
                 $inicioMesMenosDia,
