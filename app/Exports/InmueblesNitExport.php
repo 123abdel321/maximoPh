@@ -37,6 +37,9 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
 
     public function view(): View
 	{
+        copyDBConnection('max', 'max');
+        setDBInConnection('max', $this->empresa->token_db_maximo);
+
         $inmuebles = Inmueble::orderBy('id', 'DESC')
             ->orderBy('id', 'DESC') 
             ->with('zona', 'concepto', 'personas.nit')
@@ -48,27 +51,27 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
                 'updated_by'
             );
 
-        // if ($this->filters['id_nit']) {
-        //     $inmuebles->whereHas('personas',  function ($query) {
-        //         $query->where('id_nit', $this->filters['id_nit']);
-        //     });
-        // }
+        if ($this->filters['id_nit']) {
+            $inmuebles->whereHas('personas',  function ($query) {
+                $query->where('id_nit', $this->filters['id_nit']);
+            });
+        }
 
-        // if ($this->filters['id_zona']) {
-        //     $inmuebles->whereHas('zona',  function ($query) {
-        //         $query->where('id_zona', $this->filters['id_zona']);
-        //     });
-        // }
+        if ($this->filters['id_zona']) {
+            $inmuebles->whereHas('zona',  function ($query) {
+                $query->where('id_zona', $this->filters['id_zona']);
+            });
+        }
 
-        // if ($this->filters['id_concepto_facturacion']) {
-        //     $inmuebles->whereHas('concepto',  function ($query) {
-        //         $query->where('id_concepto_facturacion', $this->filters['id_concepto_facturacion']);
-        //     });
-        // }
+        if ($this->filters['id_concepto_facturacion']) {
+            $inmuebles->whereHas('concepto',  function ($query) {
+                $query->where('id_concepto_facturacion', $this->filters['id_concepto_facturacion']);
+            });
+        }
 
-        // if ($this->filters['search']) {
-        //     $inmuebles->where('nombre', 'LIKE', '%'.$this->filters['search'].'%');
-        // }
+        if ($this->filters['search']) {
+            $inmuebles->where('nombre', 'LIKE', '%'.$this->filters['search'].'%');
+        }
 
 		return view('excel.inmuebles-nit.inmuebles-nit', [
 			'inmuebles' => $inmuebles->get(),
