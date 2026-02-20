@@ -197,12 +197,12 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
 
     public function columnFormats(): array
     {
-        return [
-			'F' => NumberFormat::FORMAT_CURRENCY_USD,
-			'G' => NumberFormat::FORMAT_CURRENCY_USD,
-			'H' => NumberFormat::FORMAT_CURRENCY_USD,
-			'I' => NumberFormat::FORMAT_CURRENCY_USD,
-        ];
+        // return [
+		// 	'F' => NumberFormat::FORMAT_CURRENCY_USD,
+		// 	'G' => NumberFormat::FORMAT_CURRENCY_USD,
+		// 	'H' => NumberFormat::FORMAT_CURRENCY_USD,
+		// 	'I' => NumberFormat::FORMAT_CURRENCY_USD,
+        // ];
 	}
 
     public function columnWidths(): array
