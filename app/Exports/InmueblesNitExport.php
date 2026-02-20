@@ -37,12 +37,7 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
 
     public function view(): View
 	{
-        config([
-            'database.connections.max.database' => $this->empresa->token_db_maximo,
-        ]);
-
-        DB::purge('max');
-        DB::reconnect('max');
+        $this->initConfig();        
 
         $inmuebles = Inmueble::on('max')
             ->orderBy('id', 'DESC') 
@@ -84,6 +79,23 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
             'logo_empresa' => $this->empresa->logo ? $this->empresa->logo : 'https://maximoph.co/img/logo_base.png',
 		]);
 	}
+
+    private function initConfig()
+    {
+        config([
+            'database.connections.max.database' => $this->empresa->token_db_maximo,
+        ]);
+
+        DB::purge('max');
+        DB::reconnect('max');
+
+        config([
+            'database.connections.sam.database' => $this->empresa->token_db_portafolio,
+        ]);
+
+        DB::purge('sam');
+        DB::reconnect('sam');
+    }
 
     public function styles(Worksheet $sheet)
     {
