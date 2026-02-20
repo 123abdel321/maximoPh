@@ -13,7 +13,9 @@ if (host.includes("maximoph.co")) {
     base_web = "http://127.0.0.1:8090/";
     base_web_erp = "http://localhost:8000/";
     base_url_erp = "http://localhost:8000/api/";
-    base_url_eco = "http://127.0.0.1:8989/api/";
+    // base_url_eco = "http://127.0.0.1:8989/api/";
+    base_url_eco = "https://eco.portafolioerp.com/api/";
+
 }
 
 const pusher = new Pusher('9ea234cc370d308638af', {cluster: 'us2'});

@@ -298,6 +298,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     });
             });
 
+            dd('aca afuera');
+
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
                 'dataGeneral' => $this->dataGeneral,
@@ -532,6 +534,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
+            ->where('IN.id_nit', '202')
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -541,6 +544,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
+            ->where('CM.id_nit', '202')
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
