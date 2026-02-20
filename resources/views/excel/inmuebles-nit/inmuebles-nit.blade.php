@@ -145,10 +145,10 @@
                     <td>{{ count($inmueble->personas) ? $inmueble->personas[0]->nit->numero_documento : '' }}</td>
                     <td>{{ count($inmueble->personas) ? $inmueble->personas[0]->nit->nombre_completo : '' }}</td>
                     <td>{{ $inmueble->concepto ? $inmueble->concepto->nombre_concepto : '' }}</td>
-                    <td>{{ number_format(100, 2) }}%</td>
-                    <td>{{ number_format($inmueble->area, 2) }}</td>
-                    <td>{{ number_format($inmueble->coeficiente, 6) }}</td>
-                    <td>{{ number_format($inmueble->valor_total_administracion, 2) }}</td>
+                    <td>{{ 100 }}%</td>
+                    <td>{{ $inmueble->area }}</td>
+                    <td>{{ $inmueble->coeficiente }}</td>
+                    <td>{{ $inmueble->valor_total_administracion }}</td>
                     <td class="texto-centro">{{ \Carbon\Carbon::parse($inmueble->fecha_entrega)->format('Y-m-d') }}</td>
                 </tr>
             @endforeach
