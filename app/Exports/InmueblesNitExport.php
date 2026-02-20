@@ -37,10 +37,14 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
 
     public function view(): View
 	{
-        copyDBConnection('max', 'max');
-        setDBInConnection('max', $this->empresa->token_db_maximo);
+        config([
+            'database.connections.max.database' => $this->empresa->token_db_maximo,
+        ]);
 
-        $inmuebles = Inmueble::orderBy('id', 'DESC')
+        DB::purge('max');
+        DB::reconnect('max');
+
+        $inmuebles = Inmueble::on('max')
             ->orderBy('id', 'DESC') 
             ->with('zona', 'concepto', 'personas.nit')
             ->select(
