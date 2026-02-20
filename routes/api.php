@@ -128,6 +128,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::get('inmueble-combo', 'combo');
             Route::get('inmueble-combo-normal', 'comboInmueble');
             Route::get('inmueble-total', 'totales');
+            Route::post('inmueble-excel', 'excel');
         });
         //INMUEBLES NITS
         Route::controller(InmuebleNitController::class)->group(function () {

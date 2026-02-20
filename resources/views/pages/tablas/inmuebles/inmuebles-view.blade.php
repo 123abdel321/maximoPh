@@ -23,6 +23,11 @@
                     <button type="button" class="btn btn-dark btn-sm" id="volverInmuebles" style="display: none;"><i class="fas fa-step-backward back-icon-button"></i>&nbsp;Volver</button>
                     <button type="button" class="btn btn-primary btn-sm" id="createInmueblesNit" style="display: none; margin-left: 5px;">Agregar cédula / nit</button>
                 @endcan
+                <!-- BOTON EXCEL -->
+                <button type="button" class="btn btn-sm badge btn-success" style="vertical-align: middle; height: 30px;" id="exportExcelInmueble">
+                    <i id="exportExcelInmuebleIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
+                    <i id="exportExcelInmuebleIconNormal" class="fas fa-file-excel" style="font-size: 17px;"></i>&nbsp;
+                </button>
                 <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadInmueble">
                     <i id="reloadInmuebleIconLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
                     <i id="reloadInmuebleIconNormal" class="fas fa-sync-alt" style="font-size: 17px;"></i>&nbsp;

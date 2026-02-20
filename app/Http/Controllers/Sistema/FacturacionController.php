@@ -2069,9 +2069,15 @@ class FacturacionController extends Controller
                 'N.id AS id',
                 'N.id AS id_nit',
                 'N.numero_documento',
-                DB::raw("(CASE
-                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN razon_social
-                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, primer_apellido)
+                DB::raw("TRIM(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social > '' THEN razon_social
+                    WHEN id_nit IS NOT NULL THEN 
+                        NULLIF(TRIM(CONCAT_WS(' ', 
+                            NULLIF(primer_nombre, ''), 
+                            NULLIF(otros_nombres, ''), 
+                            NULLIF(primer_apellido, ''), 
+                            NULLIF(segundo_apellido, '')
+                        )), '')
                     ELSE NULL
                 END) AS nombre_nit"),
                 "N.razon_social",
@@ -2143,9 +2149,15 @@ class FacturacionController extends Controller
                 'N.id AS id',
                 'N.id AS id_nit',
                 'N.numero_documento',
-                DB::raw("(CASE
-                    WHEN id_nit IS NOT NULL AND razon_social IS NOT NULL AND razon_social != '' THEN razon_social
-                    WHEN id_nit IS NOT NULL AND (razon_social IS NULL OR razon_social = '') THEN CONCAT_WS(' ', primer_nombre, primer_apellido)
+                DB::raw("TRIM(CASE
+                    WHEN id_nit IS NOT NULL AND razon_social > '' THEN razon_social
+                    WHEN id_nit IS NOT NULL THEN 
+                        NULLIF(TRIM(CONCAT_WS(' ', 
+                            NULLIF(primer_nombre, ''), 
+                            NULLIF(otros_nombres, ''), 
+                            NULLIF(primer_apellido, ''), 
+                            NULLIF(segundo_apellido, '')
+                        )), '')
                     ELSE NULL
                 END) AS nombre_nit"),
                 "N.razon_social",

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Sistema;
 
 use DB;
 use Illuminate\Http\Request;
+use App\Exports\InmueblesNitExport;
+use App\Events\PrivateMessageEvent;
+use Illuminate\Support\Facades\Bus;
 use App\Http\Controllers\Controller;
 use App\Helpers\PortafolioERP\Extracto;
 use Illuminate\Support\Facades\Validator;
@@ -634,6 +637,57 @@ class InmuebleController extends Controller
             'success'=>	true,
             'data' => $data
         ]);
+    }
+
+    public function excel (Request $request)
+    {
+        try {
+
+            $fileName = 'export/inmuebles_'.uniqid().'.xlsx';
+            $url = $fileName;
+
+            $user_id = $request->user()->id;
+            $has_empresa = $request->user()['has_empresa'];
+
+            $filters = $request->only([
+                'id_nit',
+                'id_zona',
+                'id_concepto_facturacion',
+                'search'
+            ]);
+            
+            Bus::chain([
+                function () use ($filters, $has_empresa, $fileName) {                    
+                    // Almacena el archivo en DigitalOcean Spaces o donde lo necesites
+                    (new InmueblesNitExport($filters, $has_empresa))->store($fileName, 'do_spaces', null, [
+                        'visibility' => 'public'
+                    ]);
+                },
+                function () use ($user_id, $has_empresa, $url) {
+                    // Lanza el evento cuando el proceso termine
+                    event(new PrivateMessageEvent("inmuebles-{$has_empresa}_{$user_id}", [
+                        'tipo' => 'exito',
+                        'mensaje' => 'Excel de Inmuebles Nit generado con exito!',
+                        'titulo' => 'Excel generado',
+                        'url_file' => 'porfaolioerpbucket.nyc3.digitaloceanspaces.com/'.$url,
+                        'autoclose' => false
+                    ]));
+                }
+            ])->dispatch();
+
+            return response()->json([
+                'success'=>	true,
+                'url_file' => '',
+                'message'=> 'Se le notificará cuando el excel esté listo para descargar'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
+            ], 422);
+        }
     }
 
     private function totalesConceptoFacturacion ()

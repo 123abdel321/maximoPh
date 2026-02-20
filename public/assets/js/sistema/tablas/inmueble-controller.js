@@ -10,6 +10,7 @@ var $comboInmuebleNitFilter = null;
 var $comboInmuebleZonaFilter = null;
 var $comboInmuebleConceptoFilter = null;
 var $comboConceptoFacturacionInmueble = null;
+var channelInmuebles = pusher.subscribe('inmuebles-'+localStorage.getItem("notificacion_code"));
 
 function inmuebleInit() {
     
@@ -342,6 +343,8 @@ function inmuebleInit() {
             $('#reloadInmueble').hide();
             $('#createInmuebles').hide();
             $('#tablas_inmuebles').hide();
+            $('#exportExcelInmueble').hide();
+            $('#exportExcelInmueble').hide();
             $('#totales_inmuebles_view').hide();
             $('#searchInputInmuebles').hide();
 
@@ -633,6 +636,49 @@ $(document).on('click', '#createInmuebles', function () {
     $("#inmuebleFormModal").modal('show');
 });
 
+$(document).on('click', '#exportExcelInmueble', function () {
+    console.log('Exportar a Excel');
+    $("#exportExcelInmuebleIconLoading").show();
+    $("#exportExcelInmuebleIconNormal").hide();
+
+    let data = {
+        id_nit: $('#id_nit_inmueble_filter').val(),
+        id_zona: $('#id_zona_inmueble_filter').val(),
+        id_concepto_facturacion: $('#id_concepto_facturacion_inmueble_filter').val(),
+        search: $('#searchInputInmuebles').val()
+    }
+
+    $.ajax({
+        url: base_url + 'inmueble-excel',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        $("#exportExcelInmuebleIconLoading").hide();
+        $("#exportExcelInmuebleIconNormal").show();
+        if(res.success){
+            if(res.url_file){
+                setTimeout(function(){
+                    window.open('https://'+res.url_file, "_blank");
+                    agregarToast('info', 'Generando excel', res.message, true);
+                    return;
+                },1000);
+            } else {
+                agregarToast('info', 'Generando excel', res.message, true);
+            }
+        }
+    }).fail((err) => {
+
+        $("#exportExcelInmuebleIconLoading").hide();
+        $("#exportExcelInmuebleIconNormal").show();
+
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Error al generar excel', errorsMsg);
+    });
+});
+
 $(document).on('click', '#createInmueblesNit', function () {
     clearFormInmuebleNit();
     $("#saveInmuebleNit").show();
@@ -883,6 +929,7 @@ $(document).on('click', '#volverInmuebles', function () {
     $('#reloadInmueble').show();
     $('#createInmuebles').show();
     $('#tablas_inmuebles').show();
+    $('#exportExcelInmueble').show();
     $('#searchInputInmuebles').show();
     $('#totales_inmuebles_view').show();
 
@@ -1030,4 +1077,18 @@ $(document).on('click', '#reloadInmueble', function () {
         $("#reloadInmuebleIconNormal").show();
         $("#reloadInmuebleIconLoading").hide();
     }); 
+});
+
+
+
+channelInmuebles.bind('notificaciones', function(data) {
+    console.log('entro');
+    if(data.url_file){
+        console.log('mostro');
+        window.open('https://'+data.url_file, "_blank");
+        agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+        // setTimeout(function(){
+        // },5000);
+        return;
+    }
 });
