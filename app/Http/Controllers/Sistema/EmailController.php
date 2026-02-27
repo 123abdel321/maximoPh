@@ -168,13 +168,15 @@ class EmailController extends Controller
         }
 
         try {
+
             $id_usuario = $request->user()->id;
             $id_empresa = request()->user()->id_empresa;
 
             ProcessEnvioGeneralEmail::dispatch(
                 $request->all(),
                 $id_empresa,
-                $id_usuario
+                $id_usuario,
+                $request->get('archivos')
             );
 
             //Lógica para enviar el correo electrónico

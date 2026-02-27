@@ -26,6 +26,7 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
+    public $archivos = 3;
     public $timeout = 300;
     public $empresa = null;
     public $request = null;
@@ -36,12 +37,15 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
     public $backoff = [60, 120];
     public $emailsPerMinute = 20;
 
-    public function __construct($request, $id_empresa, $id_usuario)
+    public function __construct($request, $id_empresa, $id_usuario, $archivos = [])
     {
         $this->request = $request;
         $this->id_empresa = $id_empresa;
         $this->id_usuario = $id_usuario;
         $this->empresa = Empresa::find($id_empresa);
+        if (count($archivos)) {
+            $this->archivos = $archivos[0]['url'];
+        }
     }
 
     public function handle()
@@ -108,7 +112,8 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
                     $this->enviarEmailIndividual(
                         $email,
                         $nit->nombre_completo ?? $nit->razon_social,
-                        $nit->id
+                        $nit->id,
+                        $this->archivos
                     );
                     
                     $totalEnviados++;
@@ -120,7 +125,9 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
                 
                 $this->enviarEmailIndividual(
                     $email,
-                    'Cliente'
+                    'Cliente',
+                    null,
+                    $this->archivos
                 );
                 
                 $totalEnviados++;
@@ -193,7 +200,7 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
     /**
      * Envía un email individual con delay
      */
-    private function enviarEmailIndividual($email, $nombre, $id_nit = null)
+    private function enviarEmailIndividual($email, $nombre, $id_nit = null, $url_file = null)
     {
         $emailData = [
             'nombre' => $nombre,
@@ -212,7 +219,7 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
             // 'abdel_123@hotmail.es',
             $emailData,
             $filterData,
-            null, // Sin archivos adjuntos
+            $url_file,
             $this->ecoToken,
             'emails.general'
         );

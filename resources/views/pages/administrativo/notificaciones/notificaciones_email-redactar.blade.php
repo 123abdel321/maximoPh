@@ -32,8 +32,14 @@
                 <!-- EDITOR DE TEXTO -->
                 <div class="col-12 mb-3">
                     <label class="form-label">Redactar correo:</label>
-                    <div id="editor-correo" style="height: 300px;"></div>
+                    <div id="editor-correo" style="height: 200px;"></div>
                 </div>
+
+                <div class="container">
+                    <label for="email-files-input" class="form-control-label">Documentos</label>
+                    <input type="file" class="filepond" id="email-files" name="documentos[]" multiple>
+                </div>
+
             </form>
             
             <div class="modal-footer">

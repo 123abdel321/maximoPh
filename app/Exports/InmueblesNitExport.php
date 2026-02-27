@@ -37,7 +37,7 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
 
     public function view(): View
 	{
-        $this->initConfig();        
+        $this->initConfig();
 
         $inmuebles = Inmueble::on('max')
             ->orderBy('id', 'DESC') 

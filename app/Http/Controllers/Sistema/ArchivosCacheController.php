@@ -17,19 +17,20 @@ use App\Models\Sistema\ArchivosGenerales;
 class ArchivosCacheController extends Controller
 {
 
-    public function store (Request $request)
+    public function store(Request $request)
     {
         try {
-
             $idUsuario = request()->user()->id;
-
-            if ($request->hasFile('images')) {
-
-                $file = $request->file('images')[0];
+            
+            // Función helper para obtener el primer archivo encontrado
+            $archivoData = $this->getFirstFile($request, ['images', 'documentos']);
+            
+            if ($archivoData) {
+                $file = $archivoData['file'];
+                $campo = $archivoData['campo'];
 
                 $mimeType = $file->getMimeType();
-                $extensionType = $file->getClientOriginalExtension();
-
+                
                 $path = Storage::disk('do_spaces')->putFileAs(
                     "archivos-cache",
                     $file,
@@ -48,32 +49,45 @@ class ArchivosCacheController extends Controller
                     'updated_by' => request()->user()->id
                 ]);
 
-                info("Usuario id: {$idUsuario}, cargo archivo con exito");
+                info("Usuario id: {$idUsuario}, cargo archivo con exito en campo: {$campo}");
 
                 return response()->json([
-                    'success'=>	true,
+                    'success' => true,
                     'path' => $url,
                     'id' => $archivo->id,
-                    'message'=> 'Archivo cargado con exito'
+                    'message' => 'Archivo cargado con exito'
                 ], 200);
             }
             
-            info("Usuario id: {$idUsuario}, cargo archivo muy pesado");
+            info("Usuario id: {$idUsuario}, no se encontraron archivos");
 
             return response()->json([
-                'success'=>	false,
+                'success' => false,
                 'url' => '',
-                'message'=> 'Sin archivos para cargar'
+                'message' => 'Sin archivos para cargar'
             ], 400);
+            
         } catch (Exception $e) {
-
             info($e->getMessage());
             return response()->json([
-                "success"=>false,
+                "success" => false,
                 'data' => [],
-                "message"=>$e->getMessage()
+                "message" => $e->getMessage()
             ], 422);
         }
+    }
+
+    private function getFirstFile($request, array $campos)
+    {
+        foreach ($campos as $campo) {
+            if ($request->hasFile($campo)) {
+                return [
+                    'file' => $request->file($campo)[0],
+                    'campo' => $campo
+                ];
+            }
+        }
+        return null;
     }
 
     public function delete (Request $request)
@@ -84,16 +98,19 @@ class ArchivosCacheController extends Controller
 
             info("Eliminando archivo cache");
 
+            $idItem = null;
             $file = ArchivosCache::where('url_archivo', $content)
                 ->first();
                 
             if ($file) {
+                $idItem = $file->id;
                 Storage::disk('do_spaces')->delete($file->url_archivo);
                 $file->delete();
             }
 
             return response()->json([
                 'success'=>	true,
+                'data' => $idItem,
                 'message'=> 'Archivo eliminado con exito'
             ], 200);
         } catch (Exception $e) {

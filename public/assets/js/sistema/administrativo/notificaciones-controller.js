@@ -1,23 +1,131 @@
-var quillEditor = null;
-var emailFilterCorreos = null;
 var $comboEmailNit = null;
 var $comboEmailZona = null;
 var email_eco_table = null;
+var quillEditorNotify = null;
+var uploadedFilesNotify = [];
+var pondNotificaciones = null;
+var emailFilterCorreos = null;
 var whatsapp_eco_table = null;
 var id_email_eco_filter = null;
-var id_whatsapp_eco_filter = null;
 var $comboEmailEcoEmail = null;
+var id_whatsapp_eco_filter = null;
 var $comboEmailEcoWhatsapp = null;
 var email_eco_detalle_table = null;
 var whatsapp_eco_detalle_table = null;
+var limpiarInputFileNotificaciones = false;
 var channelEmailGeneral = pusher.subscribe('facturacion-email-'+localStorage.getItem("notificacion_code"));
 
 function notificacionesInit() {
+    initFilesPEco();
     initFechasEco();
     initTablesEco();
     initCombosEco();
 
     $('.water').hide();
+}
+
+function initFilesPEco() {
+    pondNotificaciones = FilePond.create(document.querySelector('#email-files'), {
+        allowImagePreview: true,
+        imagePreviewUpscale: true,
+        allowMultiple: true,
+        instantUpload: true,
+    });
+
+    $('.filepond--credits').remove();
+
+    pondNotificaciones.setOptions({
+        server: {
+            process: {
+                url: '/archivos-cache',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json',
+                },
+                onload: (response) => {
+                    const uploadedImagePath = JSON.parse(response);
+                    uploadedFilesNotify.push({
+                        'id': uploadedImagePath.id,
+                        'url': uploadedImagePath.path
+                    });
+                    return uploadedImagePath.path;
+                },
+                onerror: (response) => {
+                    console.error('Error al subir la imagen: ', response);
+                }
+            },
+            revert: {
+                url: '/archivos-cache',
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                onload: (response) => {
+                    // Aquí también puedes actualizar el array si necesitas
+                    console.log('Archivo revertido del servidor: ',response);
+                }
+            }
+        }
+    });
+
+    pondNotificaciones.on('addfile', actualizarEstadopondNotificaciones);
+    pondNotificaciones.on('processfile', actualizarEstadopondNotificaciones);
+    pondNotificaciones.on('processfileprogress', actualizarEstadopondNotificaciones);
+    pondNotificaciones.on('removefile', actualizarEstadopondNotificaciones);
+
+    clearFilesInputNotificaciones();
+}
+
+function clearFormNotificaciones() {
+    limpiarInputFileNotificaciones = true;
+    $("#id_nit_email").val('').change();
+    $("#id_zona_email").val('').change();
+    $("#asunto_email").val('');
+    $("#correos_adicionales_email").val('');
+    if (quillEditorNotify) {
+        quillEditorNotify.setContents([]);
+    }
+    clearFilesInputNotificaciones();
+}
+
+function clearFilesInputNotificaciones() {
+    uploadedFilesNotificaciones = [];
+    pondNotificaciones.off('removefile');
+    pondNotificaciones.removeFiles();
+    pondNotificaciones.on('removefile', (error, file) => {
+        if (error) {
+            console.error('Error al eliminar archivo:', error);
+            return;
+        }
+
+        const id = file.getMetadata('id');
+        const relationType = file.getMetadata('relation_type');
+
+        if (limpiarInputFileNotificaciones) {
+            limpiarInputFileNotificaciones = false;
+            return;
+        }
+
+        $.ajax({
+            url: base_url + 'archivo-general',
+            method: 'DELETE',
+            data: JSON.stringify({
+                id: id,
+                relationType: relationType
+            }),
+            headers: headers,
+            dataType: 'json',
+        }).done((res) => {
+        }).fail((res) => {
+            agregarToast('error', 'Eliminación errada', res.message);
+        });
+    });
+}
+
+function actualizarEstadopondNotificaciones() {
+    const algunArchivoCargando = pondNotificaciones.getFiles().some(file => file.status === 5);
+    $("#sendEmailRedactado").prop("disabled", !algunArchivoCargando);
 }
 
 function initFechasEco() {
@@ -560,8 +668,8 @@ function initCombosEco() {
 
 // Obtener el contenido HTML del editor
 function obtenerContenidoCorreo() {
-    if (quillEditor) {
-        return quillEditor.root.innerHTML;
+    if (quillEditorNotify) {
+        return quillEditorNotify.root.innerHTML;
     }
     return '';
 }
@@ -588,6 +696,7 @@ $(document).on('click', '#sendEmailRedactado', function () {
         id_nit: $comboEmailNit.val(),
         id_zona: $comboEmailZona.val(),
         correos: $('#correos_adicionales_email').val(),
+        archivos: uploadedFilesNotify
     }
 
     $("#sendEmailRedactado").hide();
@@ -626,7 +735,6 @@ $("#estado_eco_email").on('change', function(){
 $("#id_nit_eco_email").on('change', function(){
     const data = $(this).select2('data')[0];
     emailFilterCorreos = data ? data.email : null;
-    console.log(data); 
     email_eco_table.ajax.reload();
 });
 
@@ -655,8 +763,9 @@ $("#fecha_hasta_eco_whatsapp").on('change', function(){
 });
 
 $(document).on('click', '#redactarEmail', function () {
-    if (!quillEditor) {
-        quillEditor = new Quill('#editor-correo', {
+    clearFormNotificaciones();
+    if (!quillEditorNotify) {
+        quillEditorNotify = new Quill('#editor-correo', {
             theme: 'snow',
             modules: {
                 toolbar: [
