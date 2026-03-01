@@ -85,7 +85,21 @@ function clearFormNotificaciones() {
     $("#correos_adicionales_email").val('');
     if (quillEditorNotify) {
         quillEditorNotify.setContents([]);
+    } else {
+        quillEditorNotify = new Quill('#editor-correo', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Redacta tu mensaje aquí...'
+        });
     }
+
     clearFilesInputNotificaciones();
 }
 
@@ -728,6 +742,51 @@ $(document).on('click', '#sendEmailRedactado', function () {
     });
 });
 
+$(document).on('click', '#sendWhatsappRedactado', function () {
+    var form = document.querySelector('#form-notificaciones-email');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    let data = {
+        mensaje: $('#whatsapp_mensaje').val(),
+        id_nit: $comboEmailNit.val(),
+        id_zona: $comboEmailZona.val(),
+        numeros: $('#whatsapp_adicionales_email').val(),
+        archivos: uploadedFilesNotify
+    }
+
+    $("#sendWhatsappRedactado").hide();
+    $("#sendEmailRedactadoLoading").show();
+
+    $.ajax({
+        url: base_url + 'whatsapp-send',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+
+            $("#sendWhatsappRedactado").show();
+            $("#sendEmailRedactadoLoading").hide();
+            $("#notificacionesEmailRedactarModal").modal('hide');
+            
+            whatsapp_eco_table.ajax.reload();
+            agregarToast('exito', 'Envio exitoso', 'Whatsapp enviado con exito!', true);
+        }
+    }).fail((err) => {
+        $('#sendWhatsappRedactado').show();
+        $('#sendEmailRedactadoLoading').hide();
+
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Envio errada', errorsMsg);
+    });
+});
+
 $("#estado_eco_email").on('change', function(){
     email_eco_table.ajax.reload();
 });
@@ -764,20 +823,29 @@ $("#fecha_hasta_eco_whatsapp").on('change', function(){
 
 $(document).on('click', '#redactarEmail', function () {
     clearFormNotificaciones();
-    if (!quillEditorNotify) {
-        quillEditorNotify = new Quill('#editor-correo', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    ['link'],
-                    ['clean']
-                ]
-            },
-            placeholder: 'Redacta tu correo aquí...'
-        });
-    }
+    $("#whatsapp_mensaje").hide();
+    $("#input_mensaje_email").show();
+    $("#input_asunto_email").show();
+    $("#sendEmailRedactado").show();
+    $("#sendWhatsappRedactado").hide();
+    $("#input_correos_adicionales_email").show();
+    $("#input_whatsapp_adicionales_email").hide();
+    $("#input_whatsapp_adicionales_email").hide();
+    $("#textNotificacionesRedactar").html("Redactar correo");
+    $("#notificacionesEmailRedactarModal").modal('show');
+});
+
+$(document).on('click', '#redactarWhatsapp', function () {
+    clearFormNotificaciones();
+    $("#whatsapp_mensaje").show();
+    $("#input_mensaje_email").hide();
+    $("#input_asunto_email").hide();
+    $("#sendEmailRedactado").hide();
+    $("#sendWhatsappRedactado").show();
+    $("#input_correos_adicionales_email").hide();
+    $("#input_whatsapp_adicionales_email").show();
+    $("#input_whatsapp_adicionales_email").show();
+    $("#textNotificacionesRedactar").html("Redactar whatsapp");
     $("#notificacionesEmailRedactarModal").modal('show');
 });
 

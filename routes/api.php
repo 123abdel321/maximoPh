@@ -320,14 +320,17 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('archivo-general', 'deleteFile');           
         });
         //EMAIL
+        
         Route::controller(EmailController::class)->group(function () {
-            Route::get('email', 'read');           
-            Route::post('email-send', 'send');           
-            Route::get('email-detalle', 'readDetalle');           
+            Route::get('email', 'read');
+            Route::post('email-send', 'send');
+            Route::get('email-detalle', 'readDetalle');
         });
+
         //NOTIFICACIONES
         Route::controller(EcoController::class)->group(function () {
-            Route::post('eco-register', 'register');                     
+            Route::post('eco-register', 'register');
+            Route::post('whatsapp-send', 'sendWhatsapp');
         });
         
         

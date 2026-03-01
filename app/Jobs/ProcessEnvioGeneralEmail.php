@@ -26,7 +26,7 @@ class ProcessEnvioGeneralEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
-    public $archivos = 3;
+    public $archivos = null;
     public $timeout = 300;
     public $empresa = null;
     public $request = null;

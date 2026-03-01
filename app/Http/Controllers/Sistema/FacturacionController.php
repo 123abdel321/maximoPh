@@ -1435,6 +1435,7 @@ class FacturacionController extends Controller
             $id_usuario = $request->user()->id;
             $id_empresa = request()->user()->id_empresa;
             $ecoToken = Entorno::where('nombre', 'eco_login')->first();
+            
             if ($ecoToken && $ecoToken->valor) {
 
                 ProcessEnvioFacturaWhatsapp::dispatch(

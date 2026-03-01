@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+//JOBS
+use App\Jobs\ProcessEnvioGeneralWhatsapp;
 //HELPERS
 use App\Helpers\Eco\RegisterEco;
 //MODELS
@@ -110,6 +112,44 @@ class EcoController extends Controller
                 "message"=> $e->getMessage()
             ], 422);
         } 
+    }
+
+    public function sendWhatsapp(Request $request)
+    {
+        try {
+
+            $id_usuario = $request->user()->id;
+            $id_empresa = request()->user()->id_empresa;
+            $ecoToken = Entorno::where('nombre', 'eco_login')->first();
+
+            if ($ecoToken && $ecoToken->valor) {
+                
+                ProcessEnvioGeneralWhatsapp::dispatch(
+                    $request->all(),
+                    $id_empresa,
+                    $id_usuario,
+                    $request->get('archivos')
+                );
+                
+                return response()->json([
+                    'success'=>	true,
+                    'data' => [],
+                    'message'=> 'Whatsapps enviados con exito!'
+                ]);
+            }
+
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>'No se encuentra configuradas las notificaciones'
+            ], 422);
+            
+        } catch (Exception $e) {
+            return response()->json([
+                "success"=>false,
+                "message"=>$e->getMessage()
+            ], 422);
+        }
     }
 
 

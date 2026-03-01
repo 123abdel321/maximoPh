@@ -14,11 +14,27 @@
 
         <div class="row" style="z-index: 9; margin-top: 7px;">
             <div class="col-12 col-md-8 col-sm-8">
-                @can('notificaciones email')
-                    <button type="button" class="btn btn-primary btn-sm" id="redactarEmail">
-                        Redactar Email
-                    </button>
-                @endcan
+                <div class="d-flex gap-2 flex-wrap">
+
+                    @can('notificaciones email')
+                        <button type="button"
+                                class="btn btn-primary btn-sm d-flex align-items-center gap-2 shadow-sm"
+                                id="redactarEmail">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Redactar Email</span>
+                        </button>
+                    @endcan
+
+                    @can('notificaciones whatsapp')
+                        <button type="button"
+                                class="btn btn-success btn-sm d-flex align-items-center gap-2 shadow-sm"
+                                id="redactarWhatsapp">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <span>Redactar WhatsApp</span>
+                        </button>
+                    @endcan
+
+                </div>
                 
                 <!-- <button type="button" class="btn btn-sm badge btn-light" style="vertical-align: middle; height: 30px;" id="reloadEmail">
                     <i id="reloadEmailLoading" class="fa fa-refresh fa-spin" style="font-size: 16px; color: #2d3257; display: none;"></i>
