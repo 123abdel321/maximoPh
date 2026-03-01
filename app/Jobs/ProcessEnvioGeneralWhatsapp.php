@@ -160,6 +160,8 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
             "4" => $this->archivos
         ];
 
+        Log::info('Enviando WhatsApp', $whatsappData);
+
         $filterData = [
             'id_nit' => $nit->id_nit,
             'nombre_completo' => $nit->primer_nombre,
