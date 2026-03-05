@@ -511,9 +511,9 @@ class Documento
             return false;
         }
         
-        if ($this->captura && $this->isUnbalanced()) {
-            $this->validateUnbalancedDocument();
-        }
+        // if ($this->captura && $this->isUnbalanced()) {
+        //     $this->validateUnbalancedDocument();
+        // }
 
         if ($this->hasErrors()) {
             return false;
