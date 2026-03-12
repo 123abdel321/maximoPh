@@ -30,6 +30,9 @@ use App\Models\Empresa\UsuarioEmpresa;
 class EstadoCuentaController extends Controller
 {
 
+    public $messages;
+    public $redondeoProntoPago;
+
     public function __construct(Request $request)
 	{
 		$this->messages = [
@@ -238,8 +241,12 @@ class EstadoCuentaController extends Controller
                 'total_cuentas_pagar' => 0,
                 'total_cuentas_cobrar' => 0,
                 'total_cuentas_cobro' => 0,
+                'total_descuento' => 0,
                 'total_pagos' => 0
             ];
+
+            $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
+            $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
     
             $nit = null;
 
@@ -262,6 +269,11 @@ class EstadoCuentaController extends Controller
                     "message"=>'Nit asociado no se encuentra en nuestra base de datos'
                 ], 422);
             }
+
+            $inicioMes = Carbon::now()->startOfMonth()->format('Y-m-d');
+            $facturasMesDescuento = $this->getFacturaMes($nit->id, $inicioMes, $inicioMes);
+
+            $data['total_descuento'] = $facturasMesDescuento ? $facturasMesDescuento->descuento : 0;
     
             $extractos = (new Extracto(//TRAER CUENTAS POR COBRAR
                 $nit->id,
@@ -585,6 +597,80 @@ class EstadoCuentaController extends Controller
         }
     }
 
+    private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
+    {
+        $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
+
+        $facturas = DB::connection('max')->select("SELECT
+                FA.id AS id_factura,
+                FD.id AS id_factura_detalle,
+                FA.pronto_pago AS has_pronto_pago,
+                FD.id_concepto_facturacion,
+                FD.id_cuenta_por_cobrar,
+                CF.id_cuenta_gasto,
+                CF.pronto_pago_morosos AS pronto_pago_morosos,
+                FD.documento_referencia,
+                0 AS aprobado,
+                SUM(FD.valor) AS subtotal,
+
+                -- Calcula si aplica descuento
+                CASE
+                    WHEN CF.pronto_pago_morosos = 1 
+                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                        ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                    ELSE 0
+                END AS descuento,
+
+                -- Calcula valor total
+                CASE
+                    WHEN CF.pronto_pago_morosos = 1 
+                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                        SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                    ELSE SUM(FD.valor)
+                END AS valor_total
+                
+            FROM
+                facturacion_detalles FD
+                
+            LEFT JOIN facturacions FA ON FD.id_factura = FA.id
+            LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
+
+            WHERE FD.id_nit = $id_nit
+                AND FA.id IS NOT NULL
+                AND FD.fecha_manual = '{$inicioMes}'
+                AND FD.naturaleza_opuesta = 0
+                AND CF.porcentaje_pronto_pago > 0
+                AND FA.pronto_pago IS NULL
+                
+            GROUP BY FD.id_cuenta_por_cobrar
+        ");
+
+        $facturas = collect($facturas);
+        
+        if (!count($facturas)) return false;
+
+        $data = (object)[
+            'id_factura' => $facturas[0]->id_factura,
+            'has_pronto_pago' => $facturas[0]->has_pronto_pago,
+            'subtotal' => 0,
+            'descuento' => 0,
+            'valor_total' => 0,
+            'detalle' => []
+        ];
+
+        foreach ($facturas as $factura) {
+            $data->subtotal+= $factura->subtotal;
+            $data->descuento+= $factura->descuento;
+            $data->valor_total+= $factura->valor_total;
+            $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
+        }
+
+        if ($this->redondeoProntoPago) {
+            $data->descuento = $this->roundNumber($data->descuento, $this->redondeoProntoPago);
+        }
+
+        return $data;
+    }
 
     private function findFormaPagoCuenta ($idCuenta)
     {
@@ -616,5 +702,21 @@ class EstadoCuentaController extends Controller
                 END AS nombre_nit")
             )
             ->first();
+    }
+
+    private function roundNumber($number, $redondeo = null)
+    {        
+        // Caso 1: Si el valor de redondeo es 0, elimina todos los decimales (redondea a entero)
+        if ($redondeo == 0) {
+            return (int) round($number); // Cast a int para eliminar decimales
+        }
+        // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
+        elseif ($redondeo > 0) {
+            return round($number / $redondeo) * $redondeo;
+        }
+        // Caso 3: Si no hay configuración, retorna el número sin cambios
+        else {
+            return $number;
+        }
     }
 }

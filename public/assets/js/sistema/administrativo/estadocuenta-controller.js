@@ -711,6 +711,25 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
                     countC.start();
             }
 
+            var totalPagar = res.data.total_cuentas_pagar;
+            var descuento = res.data.total_descuento || 0;
+            var totalFinal = totalPagar - descuento;
+
+            var countA = new CountUp('total_estado_cuenta', 0, totalPagar);
+            countA.start();
+
+            if(descuento > 0){
+
+                $('#descuento_wrapper').show();
+                $('#total_final_wrapper').show();
+
+                var countD = new CountUp('descuento_estado_cuenta', 0, descuento);
+                countD.start();
+
+                var countF = new CountUp('total_final_estado_cuenta', 0, totalFinal);
+                countF.start();
+            }
+
             var countA = new CountUp('total_estado_cuenta', 0, res.data.total_cuentas_pagar);
                 countA.start();
 
