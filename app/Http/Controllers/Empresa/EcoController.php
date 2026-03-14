@@ -124,12 +124,7 @@ class EcoController extends Controller
                 'mensaje' => 'required|string|max:1000',
                 'tipo_envio' => 'required|in:con_archivo,sin_archivo',
                 'numeros' => 'nullable|string',
-                'archivos' => 'nullable|array',
-                'archivos.*.url' => [
-                    'required',
-                    'url',
-                    'regex:/\.pdf(\?.*)?$/i'
-                ]
+                'archivos' => 'nullable|array'
             ];
 
             $validator = Validator::make($request->all(), $rules, $this->messages);
