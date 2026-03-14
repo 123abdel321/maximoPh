@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Sistema;
 
 use DB;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -31,10 +32,22 @@ class ArchivosCacheController extends Controller
 
                 $mimeType = $file->getMimeType();
                 
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+
+                // limpiar nombre
+                $cleanName = Str::slug($originalName);
+
+                // limitar longitud
+                $cleanName = substr($cleanName, 0, 80);
+
+                // nombre final
+                $fileName = $cleanName . '.' . $extension;
+
                 $path = Storage::disk('do_spaces')->putFileAs(
                     "archivos-cache",
                     $file,
-                    $file->getClientOriginalName(),
+                    $fileName,
                     'public'
                 );
 
@@ -42,8 +55,8 @@ class ArchivosCacheController extends Controller
 
                 $archivo = ArchivosCache::create([
                     'tipo_archivo' => $mimeType,
-                    'name_file' => $file->getClientOriginalName(),
-                    'relative_path' => 'archivos-cache/'.$file->getClientOriginalName(),
+                    'name_file' => $fileName,
+                    'relative_path' => 'archivos-cache/'.$fileName,
                     'url_archivo' => $url,
                     'created_by' => request()->user()->id,
                     'updated_by' => request()->user()->id

@@ -1,10 +1,15 @@
 <div class="modal fade" id="notificacionesEmailRedactarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" style="contain: content;" role="document">
         <div class="modal-content" style="margin-top: 10px;">
+            
             <div class="modal-header">
-                <h5 class="modal-title" id="textNotificacionesRedactar" style="display: block;">Redactar correo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
+                
+                <!-- NO TOCADO -->
+                <h5 class="modal-title" id="textNotificacionesRedactar" style="display: block;">
+                    Redactar correo
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
             <form id="form-notificaciones-email" class="row modal-body">
@@ -25,47 +30,97 @@
 
                 <div id="input_asunto_email" class="form-group col-md-6">
                     <label for="asunto_email">Asunto del correo</label>
-                    <input type="text" class="form-control form-control-sm" name="asunto_email" id="asunto_email" >
+                    <input type="text" class="form-control form-control-sm" name="asunto_email" id="asunto_email">
                 </div>
 
                 <div id="input_correos_adicionales_email" class="form-group col-md-6">
-                    <label for="correos_adicionales_email">Correos adicionales, separados por coma</label>
-                    <input type="text" class="form-control form-control-sm" name="correos_adicionales_email" id="correos_adicionales_email" >
+                    <label for="correos_adicionales_email">
+                        Correos adicionales (separados por coma)
+                    </label>
+                    <input type="text" class="form-control form-control-sm" name="correos_adicionales_email" id="correos_adicionales_email">
                 </div>
 
                 <div id="input_whatsapp_adicionales_email" class="form-group col-md-6">
-                    <label for="whatsapp_adicionales_email">Whatsapp adicionales, separados por coma</label>
-                    <input type="text" class="form-control form-control-sm" name="whatsapp_adicionales_email" id="whatsapp_adicionales_email" >
+                    <label for="whatsapp_adicionales_email">
+                        WhatsApp adicionales (separados por coma)
+                    </label>
+                    <input type="text" class="form-control form-control-sm" name="whatsapp_adicionales_email" id="whatsapp_adicionales_email">
+                </div>
+
+                <!-- NUEVO: TIPO DE ENVIO WHATSAPP -->
+                <div class="form-group col-md-6">
+                    <label for="tipo_envio_whatsapp">
+                        Tipo de envío por WhatsApp
+                    </label>
+
+                    <select class="form-control form-control-sm" id="tipo_envio_whatsapp" name="tipo_envio_whatsapp">
+                        <option value="sin_archivo" selected>Mensaje sin archivo</option>
+                        <option value="con_archivo">Mensaje con archivo</option>
+                    </select>
+
+                    <small class="text-muted">
+                        Seleccione si el WhatsApp llevará documento adjunto.
+                    </small>
                 </div>
 
                 <!-- EDITOR DE TEXTO -->
                 <div id="input_mensaje_email" class="col-12 mb-3">
-                    <label class="editor-correo">Redactar mensaje:</label>
+                    <label class="editor-correo">
+                        Redactar mensaje del correo
+                    </label>
                     <div id="editor-correo" style="height: 200px;"></div>
                 </div>
 
+                <!-- MENSAJE WHATSAPP -->
                 <div id="input_mensaje_whatsapp" class="col-12 mb-3">
-                    <label class="whatsapp_mensaje">Redactar mensaje:</label>
-                    <textarea class="form-control" id="whatsapp_mensaje" rows="3"></textarea>
-                </div>                
+                    
+                    <label class="whatsapp_mensaje">
+                        Redactar mensaje de WhatsApp
+                    </label>
 
-                <div class="container">
-                    <label for="email-files-input" class="form-control-label">Documentos</label>
+                    <textarea class="form-control" id="whatsapp_mensaje" rows="3"></textarea>
+
+                    <!-- contador -->
+                    <small id="contador_whatsapp" class="text-muted">
+                        0 caracteres
+                    </small>
+
+                </div>
+
+                <!-- ARCHIVOS -->
+                <div class="container" id="contenedor_archivos">
+                    <label for="email-files-input" class="form-control-label">
+                        Documentos (opcional)
+                    </label>
+
                     <input type="file" class="filepond" id="email-files" name="documentos[]" multiple>
+
+                    <small class="text-muted">
+                        Solo se enviarán si selecciona "Mensaje con archivo".
+                    </small>
                 </div>
 
             </form>
             
             <div class="modal-footer">
+                
                 <span href="javascript:void(0)" class="btn bg-gradient-danger btn-sm" data-bs-dismiss="modal">
                     Cancelar
                 </span>
-                <button id="sendEmailRedactado" href="javascript:void(0)" class="btn bg-gradient-success btn-sm">Enviar correos</button>
-                <button id="sendWhatsappRedactado" href="javascript:void(0)" class="btn bg-gradient-success btn-sm">Enviar whatsapp</button>
+
+                <button id="sendEmailRedactado" href="javascript:void(0)" class="btn bg-gradient-success btn-sm">
+                    Enviar correos
+                </button>
+
+                <button id="sendWhatsappRedactado" href="javascript:void(0)" class="btn bg-gradient-success btn-sm">
+                    Enviar WhatsApp
+                </button>
+
                 <button id="sendEmailRedactadoLoading" class="btn btn-success btn-sm ms-auto" style="display:none; float: left;" disabled>
                     Cargando
                     <i class="fas fa-spinner fa-spin"></i>
                 </button>
+
             </div>
         </div>
     </div>

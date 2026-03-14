@@ -104,7 +104,7 @@ function clearFormNotificaciones() {
 }
 
 function clearFilesInputNotificaciones() {
-    uploadedFilesNotificaciones = [];
+    uploadedFilesNotify = [];
     pondNotificaciones.off('removefile');
     pondNotificaciones.removeFiles();
     pondNotificaciones.on('removefile', (error, file) => {
@@ -751,6 +751,7 @@ $(document).on('click', '#sendWhatsappRedactado', function () {
     }
 
     let data = {
+        tipo_envio: $('#tipo_envio_whatsapp').val(),
         mensaje: $('#whatsapp_mensaje').val(),
         id_nit: $comboEmailNit.val(),
         id_zona: $comboEmailZona.val(),
@@ -847,6 +848,24 @@ $(document).on('click', '#redactarWhatsapp', function () {
     $("#input_whatsapp_adicionales_email").show();
     $("#textNotificacionesRedactar").html("Redactar whatsapp");
     $("#notificacionesEmailRedactarModal").modal('show');
+});
+
+// ocultar archivos al inicio
+$('#contenedor_archivos').hide();
+
+$('#tipo_envio_whatsapp').on('change', function(){
+    if($(this).val() === 'con_archivo'){
+        $('#contenedor_archivos').show();
+    }else{
+        $('#contenedor_archivos').hide();
+    }
+});
+
+
+// contador caracteres whatsapp
+$('#whatsapp_mensaje').on('keyup', function(){
+    let length = $(this).val().length;
+    $('#contador_whatsapp').text(length + ' caracteres');
 });
 
 channelEmailGeneral.bind('notificaciones', function(data) {

@@ -118,25 +118,62 @@ class EcoController extends Controller
     {
         try {
 
-            $id_usuario = $request->user()->id;
-            $id_empresa = request()->user()->id_empresa;
+            $rules = [
+                'id_nit' => 'nullable|numeric',
+                'id_zona' => 'nullable|numeric',
+                'mensaje' => 'required|string|max:1000',
+                'tipo_envio' => 'required|in:con_archivo,sin_archivo',
+                'numeros' => 'nullable|string',
+                'archivos' => 'nullable|array',
+                'archivos.*.url' => [
+                    'required',
+                    'url',
+                    'regex:/\.pdf(\?.*)?$/i'
+                ]
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $this->messages);
+
+            if ($validator->fails()){
+                return response()->json([
+                    "success"=>false,
+                    'data' => [],
+                    "message"=>$validator->errors()
+                ], 422);
+            }
+
             $ecoToken = Entorno::where('nombre', 'eco_login')->first();
 
-            if ($ecoToken && $ecoToken->valor) {
-                
-                ProcessEnvioGeneralWhatsapp::dispatch(
-                    $request->all(),
-                    $id_empresa,
-                    $id_usuario,
-                    $request->get('archivos')
-                );
-                
+            if (!$ecoToken || !$ecoToken->valor) {
                 return response()->json([
-                    'success'=>	true,
-                    'data' => [],
-                    'message'=> 'Whatsapps enviados con exito!'
-                ]);
+                    "success"=>false,
+                    "message"=>'No se encuentra configurado el token de notificaciones'
+                ], 422);
             }
+
+            // validar archivo si el tipo lo requiere
+            if ($request->tipo_envio === 'con_archivo' && !$request->has('archivos')) {
+                return response()->json([
+                    "success"=>false,
+                    "message"=>'Debe adjuntar un archivo para este tipo de envío'
+                ], 422);
+            }
+
+            $id_usuario = $request->user()->id;
+            $id_empresa = request()->user()->id_empresa;
+            
+            ProcessEnvioGeneralWhatsapp::dispatch(
+                $request->all(),
+                $id_empresa,
+                $id_usuario,
+                $request->get('archivos')
+            );
+            
+            return response()->json([
+                'success'=>	true,
+                'data' => [],
+                'message'=> 'Whatsapps enviados con exito!'
+            ]);
 
             return response()->json([
                 "success"=>false,
@@ -148,7 +185,7 @@ class EcoController extends Controller
             return response()->json([
                 "success"=>false,
                 "message"=>$e->getMessage()
-            ], 422);
+            ], 500);
         }
     }
 

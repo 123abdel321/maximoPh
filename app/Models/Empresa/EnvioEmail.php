@@ -11,6 +11,7 @@ class EnvioEmail extends Model
 
     public const PLANTILLA_WHATSAPP_FACTURACION = 'HX5f1e359d73b28281e05c4a796cda7c17';
     public const PLANTILLA_WHATSAPP_MEDIA = 'HXc33818899b39cd21583f8512b466e4e4';
+    public const PLANTILLA_WHATSAPP_TEXTO = 'HXe5a2e6761037ea099ec55b5fcd606b27';
 
     protected $connection = 'clientes';
 

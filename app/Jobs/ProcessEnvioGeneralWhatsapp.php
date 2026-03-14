@@ -29,6 +29,7 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
+    public $plantilla;
     public $archivos = null;
     public $timeout = 300;
     public $empresa = null;
@@ -46,9 +47,12 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
         $this->id_empresa = $id_empresa;
         $this->id_usuario = $id_usuario;
         $this->empresa = Empresa::find($id_empresa);
+
         if (count($archivos)) {
             $this->archivos = $archivos[0]['url'];
         }
+
+        $this->plantilla = $this->request['tipo_envio'] === 'con_archivo' ? EnvioEmail::PLANTILLA_WHATSAPP_MEDIA : EnvioEmail::PLANTILLA_WHATSAPP_TEXTO;
     }
 
     public function handle()
@@ -156,15 +160,38 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
         $whatsappData = [
             "1" => $nit->primer_nombre,
             "2" => $this->empresa->razon_social,
-            "3" => $this->request['mensaje'],
-            "4" => $this->archivos
+            "3" => $this->request['mensaje']
         ];
 
+        if ($this->archivos) {
+            $whatsappData["4"] = $this->archivos;
+        }
+
+        // dd($whatsappData);
+
+        // $whatsappData = [
+        //     "1" => "ANTONIO VILLA",
+        //     "2" => "la Urbanización Altos del Prado",
+        //     "3" => "Se informa que la reunión de copropietarios será el martes a las 6pm en la sala comunal",
+        //     "4" => "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/archivos-cache/Captura%20de%20pantalla%202023-03-12%20211613.png"
+        // ];
+
+        // $whatsappData = [
+        //     "1" => "ANTONIO VILLA",
+        //     "2" => "la Urbanización Altos del Prado",
+        //     "3" => "Se informa que la reunión de copropietarios será el martes a las 6pm en la sala comunal",
+        //     "4" => "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        // ];
+                
+        
         info(json_encode($whatsappData));
+
+        $nombreCompleto = $nit->primer_nombre . ' ' . $nit->segundo_nombre . ' ' . $nit->primer_apellido . ' ' . $nit->segundo_apellido;
 
         $filterData = [
             'id_nit' => $nit->id_nit,
-            'nombre_completo' => $nit->primer_nombre,
+            'nombre_completo' => $nombreCompleto,
+            'apartamentos' => $nit->apartamentos,
             'telefono' => "57$whatsapp"
         ];
 
@@ -173,7 +200,7 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
             // "57$whatsapp",
             $whatsappData,
             $filterData,
-            EnvioEmail::PLANTILLA_WHATSAPP_MEDIA,
+            $this->plantilla,
             "whatsapp.general",
         );
 
