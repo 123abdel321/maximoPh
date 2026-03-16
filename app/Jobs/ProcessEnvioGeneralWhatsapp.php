@@ -214,11 +214,11 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
         $whatsappData = $this->buildTemplateParameters($nit);
         info(json_encode($whatsappData));
 
-        $nombreCompleto = $nit->primer_nombre . ' ' . $nit->otros_nombres . ' ' . $nit->primer_apellido . ' ' . $nit->segundo_apellido;
+        $nombreCompleto = '';
 
         $filterData = [
             'id_nit' => $nit->id,
-            'nombre_completo' => $nombreCompleto,
+            'nombre_completo' => '',
             'apartamentos' => $nit->apartamentos,
             'telefono' => $whatsapp
         ];
