@@ -10,6 +10,7 @@ var id_email_eco_filter = null;
 var $comboEmailEcoEmail = null;
 var id_whatsapp_eco_filter = null;
 var $comboEmailEcoWhatsapp = null;
+var $comboEmailNitRedactar = null;
 var email_eco_detalle_table = null;
 var whatsapp_eco_detalle_table = null;
 var limpiarInputFileNotificaciones = false;
@@ -646,6 +647,42 @@ function initCombosEco() {
             },
         }
     });
+    $comboEmailNitRedactar = $('#id_nit_redactar_email').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#notificacionesEmailRedactarModal'),
+        delay: 250,
+        placeholder: "Seleccione un nit",
+        allowClear: true,
+
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/inmueble-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        }
+    });
+    
     $comboEmailZona = $('#id_zona_email').select2({
         theme: 'bootstrap-5',
         delay: 250,
@@ -679,6 +716,42 @@ function initCombosEco() {
             },
         }
     });
+
+    $comboEmailZonaRedactar = $('#id_zona_redactar_email').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        dropdownParent: $('#notificacionesEmailRedactarModal'),
+        placeholder: "Seleccione una zona",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            },
+            inputTooShort: function () {
+                return "Por favor introduce 1 o más caracteres";
+            }
+        },
+        ajax: {
+            url: 'api/zona-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data
+                };
+            },
+        }
+    });
+    
 }
 
 // Obtener el contenido HTML del editor
@@ -708,8 +781,8 @@ $(document).on('click', '#sendEmailRedactado', function () {
     let data = {
         mensaje: obtenerContenidoCorreo(),
         asunto: $('#asunto_email').val(),
-        id_nit: $comboEmailNit.val(),
-        id_zona: $comboEmailZona.val(),
+        id_nit: $comboEmailNitRedactar.val(),
+        id_zona: $comboEmailZonaRedactar.val(),
         correos: $('#correos_adicionales_email').val(),
         archivos: uploadedFilesNotify
     }
@@ -754,8 +827,8 @@ $(document).on('click', '#sendWhatsappRedactado', function () {
     let data = {
         plantilla: $('#tipo_envio_whatsapp').val(),
         mensaje: $('#whatsapp_mensaje').val(),
-        id_nit: $comboEmailNit.val(),
-        id_zona: $comboEmailZona.val(),
+        id_nit: $comboEmailNitRedactar.val(),
+        id_zona: $comboEmailZonaRedactar.val(),
         numeros: $('#whatsapp_adicionales_email').val(),
         archivos: uploadedFilesNotify
     }
@@ -835,6 +908,9 @@ $(document).on('click', '#redactarEmail', function () {
     $("#input_whatsapp_adicionales_email").hide();
     $("#input_whatsapp_adicionales_email").hide();
     $("#textNotificacionesRedactar").html("Redactar correo");
+    $("#id_nit_redactar_email").val('').trigger('change');
+    $("#id_zona_redactar_email").val('').trigger('change');
+
     $("#notificacionesEmailRedactarModal").modal('show');
 });
 
@@ -850,6 +926,9 @@ $(document).on('click', '#redactarWhatsapp', function () {
     $("#input_whatsapp_adicionales_email").show();
     $("#input_whatsapp_adicionales_email").show();
     $("#textNotificacionesRedactar").html("Redactar whatsapp");
+    $("#id_nit_redactar_email").val('').trigger('change');
+    $("#id_zona_redactar_email").val('').trigger('change');
+
     $("#notificacionesEmailRedactarModal").modal('show');
 });
 

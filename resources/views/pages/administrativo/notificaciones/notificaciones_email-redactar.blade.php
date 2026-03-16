@@ -15,15 +15,15 @@
             <form id="form-notificaciones-email" class="row modal-body">
 
                 <div class="form-group col-md-6">
-                    <label for="id_nit_email">Nit</label>
-                    <select class="form-control form-control-sm" name="id_nit_email" id="id_nit_email">
+                    <label for="id_nit_redactar_email">Nit</label>
+                    <select class="form-control form-control-sm" name="id_nit_redactar_email" id="id_nit_redactar_email">
                         <option value="">Seleccionar</option>
                     </select>
                 </div>
 
                 <div class="form-group col-md-6">
-                    <label for="id_zona_email">Zona</label>
-                    <select class="form-control form-control-sm" name="id_zona_email" id="id_zona_email">
+                    <label for="id_zona_redactar_email">Zona</label>
+                    <select class="form-control form-control-sm" name="id_zona_redactar_email" id="id_zona_redactar_email">
                         <option value="">Seleccionar</option>
                     </select>
                 </div>
