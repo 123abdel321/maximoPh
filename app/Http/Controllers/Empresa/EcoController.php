@@ -117,12 +117,11 @@ class EcoController extends Controller
     public function sendWhatsapp(Request $request)
     {
         try {
-
             $rules = [
                 'id_nit' => 'nullable|numeric',
                 'id_zona' => 'nullable|numeric',
                 'mensaje' => 'required|string|max:1000',
-                'tipo_envio' => 'required|in:con_archivo,sin_archivo',
+                'plantilla' => 'required|in:general_text,general_media',
                 'numeros' => 'nullable|string',
                 'archivos' => 'nullable|array'
             ];
@@ -147,7 +146,7 @@ class EcoController extends Controller
             }
 
             // validar archivo si el tipo lo requiere
-            if ($request->tipo_envio === 'con_archivo' && !$request->has('archivos')) {
+            if ($request->plantilla === 'general_media' && !$request->has('archivos')) {
                 return response()->json([
                     "success"=>false,
                     "message"=>'Debe adjuntar un archivo para este tipo de envío'

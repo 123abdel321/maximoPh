@@ -80,6 +80,7 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                     'telefono_2',
                     'nombre_nit',
                     'consecutivo',
+                    'apartamentos',
                     DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
                 )
                 ->mergeBindings($query)
@@ -142,16 +143,17 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                     ];
                     $filterData = [
                         'id_nit' => $nit->id_nit,
-                        'nombre_completo' => $nit->nombre_nit
+                        'nombre_completo' => $nit->nombre_nit,
+                        'apartamentos' => $nit->apartamentos,
+                        'telefono' => $whatsapp,
                     ];
 
-                    // 
                     $sender = new SendEcoWhatsApp(
                         // "573145876923", // Teléfono
                         "57$whatsapp",
                         $whatsappData,
                         $filterData,
-                        EnvioEmail::PLANTILLA_WHATSAPP_FACTURACION,
+                        'facturacion_maximo',
                         "whatsapp.factura"
                     );
 
@@ -200,6 +202,7 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                 "N.email",
                 "N.telefono_1",
                 "N.telefono_2",
+                "N.apartamentos",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",
@@ -282,6 +285,7 @@ class ProcessEnvioFacturaWhatsapp implements ShouldQueue
                 "N.email",
                 "N.telefono_1",
                 "N.telefono_2",
+                "N.apartamentos",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",

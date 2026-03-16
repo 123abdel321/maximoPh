@@ -83,6 +83,7 @@ function clearFormNotificaciones() {
     $("#id_zona_email").val('').change();
     $("#asunto_email").val('');
     $("#correos_adicionales_email").val('');
+    
     if (quillEditorNotify) {
         quillEditorNotify.setContents([]);
     } else {
@@ -751,7 +752,7 @@ $(document).on('click', '#sendWhatsappRedactado', function () {
     }
 
     let data = {
-        tipo_envio: $('#tipo_envio_whatsapp').val(),
+        plantilla: $('#tipo_envio_whatsapp').val(),
         mensaje: $('#whatsapp_mensaje').val(),
         id_nit: $comboEmailNit.val(),
         id_zona: $comboEmailZona.val(),
@@ -829,6 +830,7 @@ $(document).on('click', '#redactarEmail', function () {
     $("#input_asunto_email").show();
     $("#sendEmailRedactado").show();
     $("#sendWhatsappRedactado").hide();
+    $("#div_tipo_envio_whatsapp").hide();
     $("#input_correos_adicionales_email").show();
     $("#input_whatsapp_adicionales_email").hide();
     $("#input_whatsapp_adicionales_email").hide();
@@ -843,6 +845,7 @@ $(document).on('click', '#redactarWhatsapp', function () {
     $("#input_asunto_email").hide();
     $("#sendEmailRedactado").hide();
     $("#sendWhatsappRedactado").show();
+    $("#div_tipo_envio_whatsapp").show();
     $("#input_correos_adicionales_email").hide();
     $("#input_whatsapp_adicionales_email").show();
     $("#input_whatsapp_adicionales_email").show();
@@ -854,7 +857,7 @@ $(document).on('click', '#redactarWhatsapp', function () {
 $('#contenedor_archivos').hide();
 
 $('#tipo_envio_whatsapp').on('change', function(){
-    if($(this).val() === 'con_archivo'){
+    if($(this).val() === 'general_media'){
         $('#contenedor_archivos').show();
     }else{
         $('#contenedor_archivos').hide();

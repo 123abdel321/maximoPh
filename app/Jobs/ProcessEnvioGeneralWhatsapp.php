@@ -41,6 +41,27 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
     public $backoff = [60, 120];
     public $emailsPerMinute = 20;
 
+    private $templateVariableMap = [
+        'general_multimedia' => [
+            '1' => 'empresa',
+            '2' => 'mensaje',
+            '3' => 'archivo_url_completa'
+        ],
+
+        'general_media' => [
+            '1' => 'nombre',
+            '2' => 'empresa',
+            '3' => 'mensaje',
+            '4' => 'archivo_url_completa'
+        ],
+        
+        'general_text' => [
+            '1' => 'nombre',
+            '2' => 'empresa',
+            '3' => 'mensaje'
+        ],
+    ];
+
     public function __construct($request, $id_empresa, $id_usuario, $archivos = [])
     {
         $this->request = $request;
@@ -52,7 +73,7 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
             $this->archivos = $archivos[0]['url'];
         }
 
-        $this->plantilla = $this->request['tipo_envio'] === 'con_archivo' ? EnvioEmail::PLANTILLA_WHATSAPP_MEDIA : EnvioEmail::PLANTILLA_WHATSAPP_TEXTO;
+        $this->plantilla = $this->request['plantilla'];        
     }
 
     public function handle()
@@ -152,47 +173,54 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
         }
     }
 
+    private function buildTemplateParameters($nit)
+    {
+        $map = $this->templateVariableMap[$this->plantilla] ?? [];
+        $archivo = $this->archivos ?? null;
+
+        if ($archivo) {
+            $archivo = str_replace(
+                'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/',
+                '',
+                $archivo
+            );
+        }
+
+        $availableData = [
+            'nombre' => $nit->primer_nombre ?? null,
+            'empresa' => $this->empresa->razon_social ?? null,
+            'mensaje' => $this->request['mensaje'] ?? null,
+            'archivo_url_completa' => $this->archivos,
+            'archivo_url_recortada' => $archivo,
+        ];
+
+        $parameters = [];
+
+        foreach ($map as $index => $field) {
+            if (isset($availableData[$field])) {
+                $parameters[$index] = $availableData[$field];
+            }
+        }
+
+        return $parameters;
+    }
+
+
     /**
      * Envía un WhatsApp individual con delay
      */
     private function enviarWhatsappIndividual($whatsapp, $nit)
     {
-        $whatsappData = [
-            "1" => $nit->primer_nombre,
-            "2" => $this->empresa->razon_social,
-            "3" => $this->request['mensaje']
-        ];
-
-        if ($this->archivos) {
-            $whatsappData["4"] = $this->archivos;
-        }
-
-        // dd($whatsappData);
-
-        // $whatsappData = [
-        //     "1" => "ANTONIO VILLA",
-        //     "2" => "la Urbanización Altos del Prado",
-        //     "3" => "Se informa que la reunión de copropietarios será el martes a las 6pm en la sala comunal",
-        //     "4" => "https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/archivos-cache/Captura%20de%20pantalla%202023-03-12%20211613.png"
-        // ];
-
-        // $whatsappData = [
-        //     "1" => "ANTONIO VILLA",
-        //     "2" => "la Urbanización Altos del Prado",
-        //     "3" => "Se informa que la reunión de copropietarios será el martes a las 6pm en la sala comunal",
-        //     "4" => "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        // ];
-                
-        
+        $whatsappData = $this->buildTemplateParameters($nit);
         info(json_encode($whatsappData));
 
         $nombreCompleto = $nit->primer_nombre . ' ' . $nit->segundo_nombre . ' ' . $nit->primer_apellido . ' ' . $nit->segundo_apellido;
 
         $filterData = [
-            'id_nit' => $nit->id_nit,
+            'id_nit' => $nit->id,
             'nombre_completo' => $nombreCompleto,
             'apartamentos' => $nit->apartamentos,
-            'telefono' => "57$whatsapp"
+            'telefono' => $whatsapp
         ];
 
         $sender = new SendEcoWhatsApp(
@@ -201,7 +229,6 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
             $whatsappData,
             $filterData,
             $this->plantilla,
-            "whatsapp.general",
         );
 
         $sender->setToken($this->ecoToken)->send();

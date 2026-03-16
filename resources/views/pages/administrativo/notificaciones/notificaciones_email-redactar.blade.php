@@ -48,14 +48,14 @@
                 </div>
 
                 <!-- NUEVO: TIPO DE ENVIO WHATSAPP -->
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-6" id="div_tipo_envio_whatsapp" style="display: none;">
                     <label for="tipo_envio_whatsapp">
                         Tipo de envío por WhatsApp
                     </label>
 
                     <select class="form-control form-control-sm" id="tipo_envio_whatsapp" name="tipo_envio_whatsapp">
-                        <option value="sin_archivo" selected>Mensaje sin archivo</option>
-                        <option value="con_archivo">Mensaje con archivo</option>
+                        <option value="general_text" selected>Mensaje sin archivo</option>
+                        <option value="general_media">Mensaje con PDF</option>
                     </select>
 
                     <small class="text-muted">
