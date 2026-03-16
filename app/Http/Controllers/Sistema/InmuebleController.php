@@ -410,7 +410,7 @@ class InmuebleController extends Controller
                 \DB::raw("
                     TRIM(
                         CONCAT_WS(' ',
-                            CONCAT_WS('', NULLIF(apartamentos,''), IF(NULLIF(apartamentos,'') IS NULL,'','.')),
+                            CONCAT_WS('', NULLIF(apartamentos,''), IF(NULLIF(apartamentos,'') IS NULL,'','•')),
                             COALESCE(
                                 NULLIF(
                                     TRIM(CONCAT_WS(' ',
