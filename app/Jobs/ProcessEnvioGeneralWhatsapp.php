@@ -217,9 +217,9 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
         $nombreCompleto = '';
 
         $filterData = [
-            'id_nit' => $nit->id,
+            'id_nit' => $nit?->id,
             'nombre_completo' => '',
-            'apartamentos' => $nit->apartamentos,
+            'apartamentos' => $nit?->apartamentos,
             'telefono' => $whatsapp
         ];
 
