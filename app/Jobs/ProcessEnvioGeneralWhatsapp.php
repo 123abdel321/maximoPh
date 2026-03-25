@@ -213,7 +213,7 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
     {
         $whatsappData = $this->buildTemplateParameters($nit);
         info(json_encode($whatsappData));
-        info(json_encode($nit));
+        // info(json_encode($nit));
 
         $nombreCompleto = '';
 
@@ -224,15 +224,15 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
             'telefono' => $whatsapp
         ];
 
-        $sender = new SendEcoWhatsApp(
-            "573145876923",
-            // "57$whatsapp",
-            $whatsappData,
-            $filterData,
-            $this->plantilla,
-        );
+        // $sender = new SendEcoWhatsApp(
+        //     "573145876923",
+        //     // "57$whatsapp",
+        //     $whatsappData,
+        //     $filterData,
+        //     $this->plantilla,
+        // );
 
-        $sender->setToken($this->ecoToken)->send();
+        // $sender->setToken($this->ecoToken)->send();
     }
 
     public function failed($exception)
