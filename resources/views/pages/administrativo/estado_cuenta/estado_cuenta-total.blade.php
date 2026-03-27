@@ -10,12 +10,12 @@
                         0
                     </h5>
 
-                    <span id="descuento_wrapper" style="display:none; color:#dc3545; font-weight:600;">
-                        - <span id="descuento_estado_cuenta">0</span>
+                    <span id="descuento_wrapper" style="display:none; font-weight:600;">
+                        Menos descuento <span id="descuento_estado_cuenta" style="color:#dc3545;">0</span>
                     </span>
 
-                    <span id="total_final_wrapper" style="display:none; color:#40b900; font-weight:700; font-size: 15px;">
-                        = <span id="total_final_estado_cuenta">0</span>
+                    <span id="total_final_wrapper" style="display:none; font-weight:700; font-size: 15px;">
+                        = <span id="total_final_estado_cuenta" style="color:#40b900;">0</span>
                     </span>
 
                 </div>

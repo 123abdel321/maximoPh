@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'version' => '1.19.334 - 2026/03/15',
+    'version' => '1.19.335 - 2026/03/27',
 
     /*
     |--------------------------------------------------------------------------
@@ -178,7 +178,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Providers\HorizonServiceProvider::class,
+        // App\Providers\HorizonServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
