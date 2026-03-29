@@ -130,6 +130,7 @@
                 <th>Cédula</th>
                 <th>Nombre</th>
                 <th>Correo</th>
+                <th>Teléfono</th>
                 <th>Concepto</th>
                 <th>Total %</th>
                 <th>Area M2</th>
@@ -146,6 +147,7 @@
                     <td>{{ $inmuebleD->nit ? $inmuebleD->nit->numero_documento : '' }}</td>
                     <td>{{ $inmuebleD->nit ? $inmuebleD->nit->nombre_completo : '' }}</td>
                     <td>{{ $inmuebleD->nit ? $inmuebleD->nit->email : '' }}</td>
+                    <td>{{ $inmuebleD->nit ? $inmuebleD->nit->telefono_1 : '' }}</td>
                     <td>{{ $inmuebleD->inmueble && $inmuebleD->inmueble->concepto ? $inmuebleD->inmueble->concepto->nombre_concepto : '' }}</td>
                     <td>{{ $inmuebleD->porcentaje_administracion }}%</td>
                     <td>{{ $inmuebleD->inmueble ? $inmuebleD->inmueble->area : '' }}</td>
