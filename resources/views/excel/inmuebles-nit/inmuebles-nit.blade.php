@@ -129,6 +129,7 @@
                 <th>Zona</th>
                 <th>Cédula</th>
                 <th>Nombre</th>
+                <th>Correo</th>
                 <th>Concepto</th>
                 <th>Total %</th>
                 <th>Area M2</th>
@@ -138,18 +139,19 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($inmuebles as $inmueble)
+            @foreach($inmuebles as $inmuebleD)
                 <tr>
-                    <td>{{ $inmueble->nombre }}</td>
-                    <td>{{ $inmueble->zona ? $inmueble->zona->nombre : '' }}</td>
-                    <td>{{ count($inmueble->personas) ? $inmueble->personas[0]->nit->numero_documento : '' }}</td>
-                    <td>{{ count($inmueble->personas) ? $inmueble->personas[0]->nit->nombre_completo : '' }}</td>
-                    <td>{{ $inmueble->concepto ? $inmueble->concepto->nombre_concepto : '' }}</td>
-                    <td>{{ 100 }}%</td>
-                    <td>{{ $inmueble->area }}</td>
-                    <td>{{ $inmueble->coeficiente }}</td>
-                    <td>{{ $inmueble->valor_total_administracion }}</td>
-                    <td class="texto-centro">{{ \Carbon\Carbon::parse($inmueble->fecha_entrega)->format('Y-m-d') }}</td>
+                    <td>{{ $inmuebleD->inmueble ? $inmuebleD->inmueble->nombre : '' }}</td>
+                    <td>{{ $inmuebleD->inmueble && $inmuebleD->inmueble->zona ? $inmuebleD->inmueble->zona->nombre : '' }}</td>
+                    <td>{{ $inmuebleD->nit ? $inmuebleD->nit->numero_documento : '' }}</td>
+                    <td>{{ $inmuebleD->nit ? $inmuebleD->nit->nombre_completo : '' }}</td>
+                    <td>{{ $inmuebleD->nit ? $inmuebleD->nit->email : '' }}</td>
+                    <td>{{ $inmuebleD->inmueble && $inmuebleD->inmueble->concepto ? $inmuebleD->inmueble->concepto->nombre_concepto : '' }}</td>
+                    <td>{{ $inmuebleD->porcentaje_administracion }}%</td>
+                    <td>{{ $inmuebleD->inmueble ? $inmuebleD->inmueble->area : '' }}</td>
+                    <td>{{ $inmuebleD->inmueble ? $inmuebleD->inmueble->coeficiente : '' }}</td>
+                    <td>{{ $inmuebleD->valor_total }}</td>
+                    <td class="texto-centro">{{ \Carbon\Carbon::parse($inmuebleD->fecha_entrega)->format('Y-m-d') }}</td>
                 </tr>
             @endforeach
             </tbody>

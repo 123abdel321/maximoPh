@@ -21,6 +21,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 //MODEL
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Inmueble;
+use App\Models\Sistema\InmuebleNit;
 
 class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, WithColumnFormatting, ShouldQueue
 {
@@ -39,9 +40,10 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
 	{
         $this->initConfig();
 
-        $inmuebles = Inmueble::on('max')
-            ->orderBy('id', 'DESC') 
-            ->with('zona', 'concepto', 'personas.nit')
+        // Cambiamos el modelo base
+        $inmuebles = InmuebleNit::on('max')
+            ->orderBy('id', 'DESC')
+            ->with('inmueble', 'nit', 'inmueble.zona', 'inmueble.concepto')
             ->select(
                 '*',
                 DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
@@ -51,33 +53,33 @@ class InmueblesNitExport implements FromView, WithColumnWidths, WithStyles, With
             );
 
         if ($this->filters['id_nit']) {
-            $inmuebles->whereHas('personas',  function ($query) {
-                $query->where('id_nit', $this->filters['id_nit']);
-            });
+            $inmuebles->where('id_nit', $this->filters['id_nit']);
         }
 
         if ($this->filters['id_zona']) {
-            $inmuebles->whereHas('zona',  function ($query) {
+            $inmuebles->whereHas('inmueble.zona', function ($query) {
                 $query->where('id_zona', $this->filters['id_zona']);
             });
         }
 
         if ($this->filters['id_concepto_facturacion']) {
-            $inmuebles->whereHas('concepto',  function ($query) {
+            $inmuebles->whereHas('inmueble.concepto', function ($query) {
                 $query->where('id_concepto_facturacion', $this->filters['id_concepto_facturacion']);
             });
         }
 
         if ($this->filters['search']) {
-            $inmuebles->where('nombre', 'LIKE', '%'.$this->filters['search'].'%');
+            $inmuebles->whereHas('inmueble', function ($query) {
+                $query->where('nombre', 'LIKE', '%' . $this->filters['search'] . '%');
+            });
         }
 
-		return view('excel.inmuebles-nit.inmuebles-nit', [
-			'inmuebles' => $inmuebles->get(),
-            'nombre_informe' => 'INMUEBLES',
+        return view('excel.inmuebles-nit.inmuebles-nit', [
+            'inmuebles' => $inmuebles->get(),
+            'nombre_informe' => 'INMUEBLES POR NIT',
             'nombre_empresa' => $this->empresa->razon_social,
             'logo_empresa' => $this->empresa->logo ? $this->empresa->logo : 'https://maximoph.co/img/logo_base.png',
-		]);
+        ]);
 	}
 
     private function initConfig()
