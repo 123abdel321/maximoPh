@@ -304,6 +304,10 @@ class EstadoCuentaController extends Controller
             $data['total_pagos'] = ConRecibos::where('id_nit', $nit->id)->count();
             $data['total_cuentas_cobro'] = Facturacion::where('id_nit', $nit->id)->count();
             $data['total_cuentas_cobrar'] = $data['total_cuentas_cobrar'] * -1;
+
+            if (!$data['total_cuentas_pagar']) {
+                $data['total_descuento'] = 0;
+            }
     
             return response()->json([
                 'success'=>	true,
