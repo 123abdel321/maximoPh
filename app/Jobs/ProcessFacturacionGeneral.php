@@ -204,7 +204,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         //TRAER ANTICIPOS
                         $anticiposNit = $this->totalAnticipos($factura->id_nit, $this->id_empresa);
                         $anticiposDisponibles = $anticiposNit;
-                        
+
                         //RECORREMOS CUOTAS Y MULTAS CXP
                         foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
 
@@ -231,14 +231,13 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
-                        
+
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
 
                         //RECORREMOS CUOTAS Y MULTAS CXC
                         foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
-
                             if (count($cuotasMultasFacturarCxC) > 1) $totalCuotasCxC++;
 
                             if (array_key_exists($cuotaMultaFactura->id_concepto_facturacion, $this->dataGeneral['extras'])) {
@@ -254,9 +253,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
                             $valoresExtra+= $cuotaMultaFactura->valor_total;
                             $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxC);
-
                             if ($anticiposDisponibles > 0) {
-                                $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
+                                $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, true);
                             }
                         }
                         
@@ -405,7 +403,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $documentoReferenciaNumeroInmuebles;
     }
 
-    private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia)
+    private function generarFacturaAnticipos(Facturacion $factura, $inmuebleFactura, $totalInmuebles, $totalAnticipos, $documentoReferencia, $isCuotaMulta = false)
     {
         $totalAnticipar = 0;
         $totalDescuento = 0;
@@ -420,9 +418,12 @@ class ProcessFacturacionGeneral implements ShouldQueue
         
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
-                $totalDescuento = $this->descuentosProntoPago->detalle[$inmuebleFactura->id_inmueble] ?? 0;
+
+                $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
+                $totalDescuento = $this->descuentosProntoPago->detalle[$index] ?? 0;
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
                 $totalAnticipos+= $totalDescuento;
+
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
@@ -787,7 +788,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'total' => 0,
             'detalle' => []
         ];
-
+        
         // Calcular descuentos sin redondear
         foreach ($inmueblesFacturar as $inmueble) {
             $descuento = ($inmueble->pronto_pago || $inmueble->pronto_pago_morosos) && $inmueble->porcentaje_pronto_pago ?
@@ -803,11 +804,13 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
                 0;
 
+            $index = "C{$multas->id_inmueble}";
+
             // Asegurar que la clave existe antes de sumar
-            if (isset($this->descuentosProntoPago->detalle[$multas->id_inmueble])) {
-                $this->descuentosProntoPago->detalle[$multas->id_inmueble] += $descuento;
+            if (isset($this->descuentosProntoPago->detalle[$index])) {
+                $this->descuentosProntoPago->detalle[$index] += $descuento;
             } else {
-                $this->descuentosProntoPago->detalle[$multas->id_inmueble] = $descuento;
+                $this->descuentosProntoPago->detalle[$index] = $descuento;
             }
             
             $deudaTotal += $multas->valor_total;
