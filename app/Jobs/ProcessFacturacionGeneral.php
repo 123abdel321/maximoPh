@@ -254,7 +254,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             $valoresExtra+= $cuotaMultaFactura->valor_total;
                             $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxC);
                             if ($anticiposDisponibles > 0) {
-                                $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, true);
+                                $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
                             }
                         }
                         
@@ -419,7 +419,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
 
-                $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
+                $index = $inmuebleFactura->id_inmueble;
+                // $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
                 $totalDescuento = $this->descuentosProntoPago->detalle[$index] ?? 0;
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
                 $totalAnticipos+= $totalDescuento;
