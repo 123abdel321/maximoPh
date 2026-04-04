@@ -353,7 +353,7 @@ function cuotasmultasInit() {
             }
         },
         ajax: {
-            url: 'api/inmueble-combo',
+            url: 'api/inmueble-combo-normal',
             headers: headers,
             dataType: 'json',
             data: function (params) {
@@ -731,8 +731,7 @@ $(document).on('click', '#saveCuotaMulta', function () {
         tipo_concepto: $('#tipo_concepto_cuotas_multas').val(),
         id_concepto_tipo_facturacion: masivo ? $('#id_concepto_tipo_facturacion_cuotas_multas').val() : null,
         id_zona: masivo ? $('#id_cuotamulta_cuotas_multas').val() : null,
-        id_nit: masivo ? null : $('#id_inmueble_cuotas_multas').val(),
-        // id_nit: masivo ? null : $('#id_nit_cuotas_multas').val(),
+        id_nit: masivo ? null : $('#id_nit_cuotas_multas').val(),
         id_concepto_facturacion: $('#id_concepto_facturacion_cuotas_multas').val(),
         fecha_inicio: $('#fecha_inicio_cuotas_multas').val(),
         fecha_fin: $('#fecha_fin_cuotas_multas').val(),
@@ -930,7 +929,7 @@ $(document).on('change', '#masivo_cuotas_multas', function () {
 
 $(document).on('change', '#id_inmueble_cuotas_multas', function () {
     var data = $(this).select2('data');
-
+    console.log('data', data);
     if (!data) return;
     if (!data.length) return;
     if (!data[0].personas) return;

@@ -450,10 +450,12 @@ class InmuebleController extends Controller
 
     public function comboInmueble (Request $request)
     {
-        $inmueble = Inmueble::select(
-            \DB::raw('*'),
-            \DB::raw("nombre as text")
-        );
+        $inmueble = Inmueble::with('personas.nit')
+            ->select(
+                \DB::raw('*'),
+                \DB::raw("nombre as text"),
+                \DB::raw("nombre as nombre_completo")
+            );
 
         if ($request->get("q")) {
             $inmueble->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
