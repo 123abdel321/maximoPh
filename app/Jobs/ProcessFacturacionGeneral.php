@@ -419,8 +419,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
 
-                $index = $inmuebleFactura->id_inmueble;
-                // $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
+                // $index = $inmuebleFactura->id_inmueble;
+                $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
                 $totalDescuento = $this->descuentosProntoPago->detalle[$index] ?? 0;
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
                 $totalAnticipos+= $totalDescuento;
@@ -437,7 +437,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $totalDescuento,
                     'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($inmuebleFactura->valor_total).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
-                    'naturaleza_opuesta' => true,
+                    'naturaleza_opuesta' => false,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
