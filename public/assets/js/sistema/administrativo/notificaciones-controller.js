@@ -310,7 +310,7 @@ function initTablesEco() {
             }},
             {"data": function (row, type, set){
                 if (row.filter_metadata) {
-                    return row.filter_metadata.apartamentos
+                    return `<div  class="text-wrap width-150">${row.filter_metadata.apartamentos}</div >`;
                 }
                 return '';
             }},
