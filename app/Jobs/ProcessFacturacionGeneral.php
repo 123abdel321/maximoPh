@@ -437,7 +437,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $totalDescuento,
                     'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($inmuebleFactura->valor_total).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
-                    'naturaleza_opuesta' => false,
+                    'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
@@ -707,7 +707,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
             
             $idNit = $extraCxC['concepto']['id_nit_cuenta_ingreso'] ? $extraCxC['concepto']['id_nit_cuenta_ingreso'] : $extraCxC['id_nit'];
             $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
-            if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
+
+            if ($tipoCuenta && array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
             } else {
                 $tipoCuenta = 3;
@@ -753,7 +754,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         foreach ($data as $extraCxP) {
             $idNit = $extraCxP['concepto']['id_nit_cuenta_ingreso'] ? $extraCxP['concepto']['id_nit_cuenta_ingreso'] : $extraCxP['id_nit'];
             $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso'];
-            if (array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
+            if ($tipoCuenta && array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
                 $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
                 if ($tipoCuenta == 4 || $tipoCuenta == 8) {
                     array_push($dataArray, (object)[
