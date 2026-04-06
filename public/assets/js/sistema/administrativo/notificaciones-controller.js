@@ -308,6 +308,12 @@ function initTablesEco() {
                 }
                 return '';
             }},
+            {"data": function (row, type, set){
+                if (row.filter_metadata) {
+                    return row.filter_metadata.apartamentos
+                }
+                return '';
+            }},
             {"data":'contexto'},
             {
                 "data": function (row, type, set){

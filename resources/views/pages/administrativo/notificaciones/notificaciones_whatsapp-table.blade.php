@@ -37,6 +37,7 @@
             <th style="border-radius: 15px 0px 0px 0px !important;">Id</th>
             <th>Para</th>
             <th>Nombre nit</th>
+            <th>Ubicación</th>
             <th>Contexto</th>
             <th>Estado</th>
             <th>Creación registro</th>
