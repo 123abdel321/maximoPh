@@ -457,8 +457,43 @@ class InmuebleController extends Controller
                 \DB::raw("nombre as nombre_completo")
             );
 
-        if ($request->get("q")) {
-            $inmueble->where('nombre', 'LIKE', '%' . $request->get("q") . '%');
+        if ($search = $request->get("q") ?? $request->get("search")) {
+
+            $inmueble->where(function ($q) use ($search) {
+
+                // Buscar por nombre del inmueble
+                $q->where('nombre', 'LIKE', "%$search%");
+
+                // --- BUSCAR NITS EN LA OTRA BASE (sam) ---
+                $nitIds = Nits::where(function($nits) use ($search) {
+
+                    $nits->where('numero_documento', 'LIKE', "%$search%")
+                        ->orWhere('segundo_apellido', 'LIKE', "%$search%")
+                        ->orWhere('primer_nombre', 'LIKE', "%$search%")
+                        ->orWhere('otros_nombres', 'LIKE', "%$search%")
+                        ->orWhere('razon_social', 'LIKE', "%$search%")
+                        ->orWhere('email', 'LIKE', "%$search%")
+                        ->orWhere(\DB::raw("CONCAT(FORMAT(numero_documento, 0),'-',digito_verificacion,' - ',razon_social)"), "like", "%$search%")
+                        ->orWhere(\DB::raw("CONCAT(FORMAT(numero_documento, 0),' - ',razon_social)"), "like", "%$search%")
+                        ->orWhere(\DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%$search%")
+                        ->orWhere(\DB::raw("CONCAT_WS(' ',FORMAT(numero_documento, 0),'-',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%$search%")
+                        ->orWhere(\DB::raw("CONCAT_WS(' ',primer_nombre,primer_apellido,segundo_apellido)"), "like", "%$search%")
+                        ->orWhere(\DB::raw("CONCAT_WS(' ',primer_nombre,otros_nombres,primer_apellido,segundo_apellido)"), "like", "%$search%")
+                        ->orWhere('primer_apellido', 'LIKE', "%$search%")
+                        ->orWhere('apartamentos', 'LIKE', "%$search%")
+                        ->orWhere('observaciones', 'LIKE', "%$search%")
+                        ->orWhere('direccion', 'LIKE', "%$search%");
+                })
+                ->pluck('id');
+
+                // --- APLICAR FILTRO EN INMUEBLES ---
+                if ($nitIds->isNotEmpty()) {
+                    $q->orWhereHas('personas', function ($sub) use ($nitIds) {
+                        $sub->whereIn('id_nit', $nitIds);
+                    });
+                }
+
+            });
         }
 
         if ($request->get("id_nit")) {
