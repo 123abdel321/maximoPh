@@ -235,7 +235,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
-
                         //RECORREMOS CUOTAS Y MULTAS CXC
                         foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
                             if (count($cuotasMultasFacturarCxC) > 1) $totalCuotasCxC++;
@@ -250,11 +249,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                     'valor_causado' => $cuotaMultaFactura->valor_total
                                 ];
                             }
-
                             $valoresExtra+= $cuotaMultaFactura->valor_total;
                             $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxC);
                             if ($anticiposDisponibles > 0) {
-                                $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia);
+                                $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, true);
                             }
                         }
                         
