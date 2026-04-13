@@ -26,6 +26,7 @@ use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\ConRecibosImport;
 use App\Models\Sistema\ConceptoFacturacion;
+use App\Models\Portafolio\DocumentosGeneral;
 
 class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure, WithChunkReading, WithHeadingRow, WithProgressBar
 {
@@ -192,7 +193,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                         if ($extracto && $extracto->saldo) {
                             [$descuentoProntoPago, $faltanteDescuento] = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
-
+                            
                             $pagoTotal+= $descuentoProntoPago;
                             $pagoTotal+= $extractoCXC;
                             if (($valorPendiente - $pagoTotal) < 0) {
@@ -215,7 +216,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                     $extractoSaldo = $extractoSaldo ? $extractoSaldo->saldo : 0;
                     $anticipo+= $extractoCXP ? $extractoCXP->saldo : 0;
-                    // $anticipo-= $extractoSaldo;
                 }
             }            
             
@@ -285,6 +285,14 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         return [0, $faltante < 0 ? 0 : $faltante];
     }
 
+    private function tieneProntoPago($id_nit, $id_cuenta_gasto, $fechaManual)
+    {
+        return DocumentosGeneral::where('id_nit', $id_nit)
+            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('fecha_manual', 'LIKE', $fechaManual.'%')
+            ->exists();
+    }
+
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
@@ -292,6 +300,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
+                FD.fecha_manual,
                 FA.pronto_pago AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
@@ -346,6 +355,13 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         ];
 
         foreach ($facturas as $factura) {
+            $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
+            $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
+
+            if ($tieneProntoPago) {
+                $factura->descuento = 0;
+            }
+
             $data->subtotal+= $factura->subtotal;
             $data->descuento+= $factura->descuento;
             $data->valor_total+= $factura->valor_total;

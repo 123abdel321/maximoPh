@@ -186,7 +186,7 @@ class ProcessImportarRecibos implements ShouldQueue
                     ))->actual()->get();
                     
                     $realizarDescuento = false;
-                    
+
                     $totalDescuentosArray = [];
                     $deudaTotal = $this->sumarDeudaTotal($extractos);
                     $totalDescuento = $facturaDescuento ? $facturaDescuento->descuento : 0;
@@ -428,6 +428,7 @@ class ProcessImportarRecibos implements ShouldQueue
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
+                FD.fecha_manual,
                 FA.pronto_pago AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
@@ -483,6 +484,13 @@ class ProcessImportarRecibos implements ShouldQueue
         ];
 
         foreach ($facturas as $factura) {
+            $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
+            $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
+
+            if ($tieneProntoPago) {
+                $factura->descuento = 0;
+            }
+
             $data->subtotal += $factura->subtotal;
             $data->descuento += $factura->descuento;
             $data->valor_total += $factura->valor_total;
@@ -512,6 +520,14 @@ class ProcessImportarRecibos implements ShouldQueue
         }
 
         return $data;
+    }
+
+    private function tieneProntoPago($id_nit, $id_cuenta_gasto, $fechaManual)
+    {
+        return DocumentosGeneral::where('id_nit', $id_nit)
+            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('fecha_manual', 'LIKE', $fechaManual.'%')
+            ->exists();
     }
 
     private function repartirDiferenciaDescuento(&$detalles, $diferencia)

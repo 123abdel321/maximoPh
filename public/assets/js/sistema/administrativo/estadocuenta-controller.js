@@ -336,6 +336,7 @@ $(document).on('click', '#generatePagoEstadoCuenta', function () {
 $(document).on('click', '#generateComprobanteEstadoCuenta', function () {
     adjuntar_pagar_estado_cuenta = false;
     clearFormEstadoCuenta();
+    
     $("#textEstadoCuentaPagoCreate").text('Deuda total: ' + new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
     $('#valor_comprobante_estado_cuenta').val(new Intl.NumberFormat("ja-JP").format(totalCuentasPagar));
 
@@ -687,7 +688,7 @@ function getTotalesEstadoCuenta(showButtonPay = true)  {
         dataType: 'json',
     }).done((res) => {
         if (res.success) {
-            totalCuentasPagar = res.data.total_cuentas_pagar;
+            totalCuentasPagar = res.data.total_cuentas_pagar - (res.data.total_descuento || 0);
             
             if (showButtonPay) {
                 if ($pasarela_pagos) {

@@ -20,15 +20,17 @@ use App\Helpers\PortafolioERP\EliminarFactura;
 //MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
-use App\Models\Portafolio\Nits;
 use App\Models\Sistema\Inmueble;
 use App\Models\Sistema\InmuebleNit;
 use App\Models\Sistema\Facturacion;
 use App\Models\Sistema\CuotasMultas;
-use App\Models\Portafolio\PlanCuentas;
-use App\Models\Portafolio\CentroCostos;
 use App\Models\Sistema\FacturacionDetalle;
 use App\Models\Sistema\ConceptoFacturacion;
+
+use App\Models\Portafolio\Nits;
+use App\Models\Portafolio\PlanCuentas;
+use App\Models\Portafolio\CentroCostos;
+use App\Models\Portafolio\DocumentosGeneral;
 
 class ProcessFacturacionGeneral implements ShouldQueue
 {
@@ -413,11 +415,12 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $totalAnticipar = $totalAnticipos;
             $totalAnticipos = 0;
         }
-        
-        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago) {
+
+        $tieneProntoPago = $this->tieneProntoPago($inmuebleFactura->id_nit, $inmuebleFactura->id_cuenta_gasto);
+
+        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago && !$tieneProntoPago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
 
-                // $index = $inmuebleFactura->id_inmueble;
                 $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
                 $totalDescuento = $this->descuentosProntoPago->detalle[$index] ?? 0;
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
@@ -479,6 +482,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $totalAnticipos;
     }
 
+    private function tieneProntoPago($id_nit, $id_cuenta_gasto)
+    {
+        return DocumentosGeneral::where('id_nit', $id_nit)
+            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('fecha_manual', 'LIKE', $this->inicioMes.'%')
+            ->exists();
+    }
+
     private function generarCruceIntereses (Facturacion $factura, $detalleFacturas, $totalAnticipos)
     {
         foreach ($detalleFacturas as $detalleFactura) {
@@ -529,6 +540,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function getInmueblesNitsQuery()
     {
         return DB::connection('max')->table('inmueble_nits AS IN')
+            ->where('IN.id_nit', 925)
             ->select(
                 'IN.id_nit'
             )
@@ -538,6 +550,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function getCuotasMultasNitsQuery($fecha_facturar)
     {
         return DB::connection('max')->table('cuotas_multas AS CM')
+            ->where('CM.id_nit', 925)
             ->select(
                 'CM.id_nit'
             )
@@ -790,6 +803,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         ];
         
         // Calcular descuentos sin redondear
+
         foreach ($inmueblesFacturar as $inmueble) {
             $descuento = ($inmueble->pronto_pago || $inmueble->pronto_pago_morosos) && $inmueble->porcentaje_pronto_pago ?
                 $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :

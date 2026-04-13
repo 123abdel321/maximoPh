@@ -21,6 +21,7 @@ use App\Models\Portafolio\CentroCostos;
 use App\Models\Portafolio\FacFormasPago;
 use App\Models\Portafolio\ConReciboPagos;
 use App\Models\Portafolio\ConReciboDetalles;
+use App\Models\Portafolio\DocumentosGeneral;
 
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Entorno;
@@ -608,6 +609,7 @@ class EstadoCuentaController extends Controller
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
+                FD.fecha_manual,
                 FA.pronto_pago AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
@@ -663,6 +665,13 @@ class EstadoCuentaController extends Controller
         ];
 
         foreach ($facturas as $factura) {
+            $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
+            $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
+
+            if ($tieneProntoPago) {
+                $factura->descuento = 0;
+            }
+
             $data->subtotal+= $factura->subtotal;
             $data->descuento+= $factura->descuento;
             $data->valor_total+= $factura->valor_total;
@@ -674,6 +683,14 @@ class EstadoCuentaController extends Controller
         }
 
         return $data;
+    }
+
+    private function tieneProntoPago($id_nit, $id_cuenta_gasto, $fechaManual)
+    {
+        return DocumentosGeneral::where('id_nit', $id_nit)
+            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('fecha_manual', 'LIKE', $fechaManual.'%')
+            ->exists();
     }
 
     private function findFormaPagoCuenta ($idCuenta)
