@@ -540,7 +540,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function getInmueblesNitsQuery()
     {
         return DB::connection('max')->table('inmueble_nits AS IN')
-            ->where('IN.id_nit', 925)
             ->select(
                 'IN.id_nit'
             )
@@ -550,7 +549,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function getCuotasMultasNitsQuery($fecha_facturar)
     {
         return DB::connection('max')->table('cuotas_multas AS CM')
-            ->where('CM.id_nit', 925)
             ->select(
                 'CM.id_nit'
             )
