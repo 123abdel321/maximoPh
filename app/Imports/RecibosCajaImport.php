@@ -275,7 +275,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $extractoCXC)
     {
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
-        
+
         if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
             if ($totalPago + $descuento + $extractoCXC >= $extracto->saldo) {
                 return [$descuento, 0];
@@ -298,13 +298,16 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
 
         $facturas = DB::connection('max')->select("SELECT
+                FA.id_nit AS id_nit,
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
                 FD.fecha_manual,
-                FA.pronto_pago AS has_pronto_pago,
+                NULL AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
                 CF.id_cuenta_gasto,
+                CF.nombre_concepto,
+                CF.porcentaje_pronto_pago,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
                 SUM(FD.valor) AS subtotal,
@@ -336,7 +339,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 AND FD.fecha_manual = '{$inicioMes}'
                 AND FD.naturaleza_opuesta = 0
                 AND CF.porcentaje_pronto_pago > 0
-                AND FA.pronto_pago IS NULL
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");
