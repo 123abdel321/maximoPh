@@ -107,7 +107,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 $inicioMes = date('Y-m', strtotime($reciboImport->fecha_manual));
                 $finMes = date('Y-m-t', strtotime($reciboImport->fecha_manual));
                 $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes.'-01', $reciboImport->fecha_manual);
-
+                
                 $valorDisponible = $reciboImport->pago;
                 $valorRecibido = $reciboImport->pago;
                 $this->fechaManual = $reciboImport->fecha_manual;
@@ -194,8 +194,6 @@ class ProcessImportarRecibos implements ShouldQueue
                     
                     if ($facturaDescuento && ($totalDescuento + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                         $realizarDescuento = true;
-                        Facturacion::where('id', $facturaDescuento->id_factura)
-                            ->update(['pronto_pago' => 1]);
                     }
 
                     //AGREGAR DESCUENTOS
@@ -203,9 +201,10 @@ class ProcessImportarRecibos implements ShouldQueue
                         $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
                         
                         foreach ($extractos as $extracto) {
-                            if (array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
+                            if (array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {
 
-                                $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
+                                $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
+
                                 $valorDescuento = $conceptoDescuento->descuento;
                                 $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
 
@@ -226,9 +225,10 @@ class ProcessImportarRecibos implements ShouldQueue
                             }
                         }
                     }
-
+                    
                     //AGREGAR DEUDA
                     foreach ($extractos as $extracto) {
+                        
                         if ($valorDisponible <= 0) continue;
                         
                         $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
@@ -236,8 +236,8 @@ class ProcessImportarRecibos implements ShouldQueue
                         $valorDescuento = 0;
                         $totalAnticipar = 0;
                         
-                        if ($realizarDescuento && array_key_exists($extracto->id_cuenta, $facturaDescuento->detalle)) {
-                            $conceptoDescuento = $facturaDescuento->detalle[$extracto->id_cuenta];
+                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {
+                            $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
                             $valorPendiente-= $conceptoDescuento->descuento;
 
                             //AGREGAR MOVIMIENTO GASTO
@@ -437,6 +437,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 CF.porcentaje_pronto_pago,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
+                0 AS aprobado,
                 SUM(FD.valor) AS subtotal,
                 
                 -- Calcula si aplica descuento
@@ -465,9 +466,8 @@ class ProcessImportarRecibos implements ShouldQueue
                 AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 AND CF.porcentaje_pronto_pago > 0
-                AND FA.pronto_pago IS NULL
                 
-            GROUP BY FD.id_cuenta_por_cobrar
+            GROUP BY FD.documento_referencia
         ");
 
         $facturas = collect($facturas);
@@ -494,8 +494,9 @@ class ProcessImportarRecibos implements ShouldQueue
             $data->subtotal += $factura->subtotal;
             $data->descuento += $factura->descuento;
             $data->valor_total += $factura->valor_total;
-            $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
+            $data->detalle[$factura->documento_referencia] = $factura;
         }
+        
 
         $descuentoSinRedondear = $data->descuento;
         
