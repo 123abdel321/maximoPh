@@ -33,9 +33,9 @@ function facturacionesInit() {
             }
         },
         columns: [
-            { data:'numero_documento'},
-            { data: 'nombre_nit'},
             { data: 'apartamentos'},
+            { data: 'nombre_nit'},
+            { data:'numero_documento'},
             { data: 'saldo_anterior', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'total_facturas', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
             { data: 'total_abono', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right' },
