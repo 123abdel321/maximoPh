@@ -337,6 +337,10 @@ $("#imprimirMultipleFacturacion").on('click', function(event) {
         reverseButtons: true,
     }).then((result) => {
 
+        if (!result.isConfirmed) {
+            return;
+        }
+
         $("#imprimirMultipleFacturacion").hide();
         $("#imprimirMultipleFacturacionLoading").show();
         $.ajax({
