@@ -27,105 +27,182 @@ class PlacetoPayNotificationController extends Controller
 
     public function handle(Request $request)
     {
-        $data = $request->all();
+        try {
+            $data = $request->all();
 
-        Log::info('Notificación PlacetoPay recibida', $data);
+            Log::info('Notificación PlacetoPay recibida', [
+                'payload' => $data
+            ]);
 
-        // Validación básica de campos necesarios
-        if (!isset($data['status'], $data['status']['status'], $data['status']['date'], $data['requestId'], $data['signature'])) {
-            return response('Bad Request', 400);
-        }
+            if (
+                !isset(
+                    $data['status'],
+                    $data['status']['status'],
+                    $data['requestId'],
+                    $data['reference']
+                )
+            ) {
+                Log::warning('Webhook con estructura inválida', [
+                    'payload' => $data
+                ]);
 
-        $requestId = $data['requestId'];
-        $reference = $data['reference'];
-        $status = $data['status']['status'];
-        $message = $data['status']['message'];
-        $signature = $data['signature'] ?? null;
-        
-        list($recibo_id, $empresa_id) = explode("-", $reference);
+                return response('Bad Request', 400);
+            }
 
-        if (!$empresa_id) {
-            Log::error('Empresa no encontrada', ['empresa_id' => $empresa_id]);
-            return response('Not Found', 404);
-        }
+            // Si no viene date, asignar una por defecto
+            $date = $data['status']['date'] ?? now()->toDateTimeString();
 
-        // Buscar Empresa
-        $empresa = Empresa::find($empresa_id);
+            $requestId = $data['requestId'];
+            $reference = $data['reference'];
+            $status = $data['status']['status'];
+            $message = $data['status']['message'] ?? null;
+            $signature = $data['signature'] ?? null;
 
-        copyDBConnection('max', 'max');
-        setDBInConnection('max', $empresa->token_db_maximo);
+            $parts = explode('-', $reference);
 
-        copyDBConnection('sam', 'sam');
-        setDBInConnection('sam', $empresa->token_db_portafolio);
+            if (count($parts) < 2) {
+                Log::warning('Referencia inválida', [
+                    'reference' => $reference
+                ]);
 
-        // Buscar el recibo
-        $recibo = ConRecibos::where('id', $recibo_id)->first();
+                return response('Bad Request', 400);
+            }
 
-        if (!$recibo) {
-            Log::error('Recibo no encontrado', ['recibo_id' => $recibo_id]);
-            return response('Not Found', 404);
-        }
+            list($recibo_id, $empresa_id) = $parts;
 
-        // Mapear estados y actualizar recibo
-        $estado = $this->mapStatus($status);
+            if (empty($empresa_id)) {
+                Log::warning('Empresa no encontrada en referencia', [
+                    'reference' => $reference
+                ]);
 
-        // Registrar movimiento contable si está aprobado
-        if ($estado == 1) { // 1 = Aprobado/Pagado
-            $response = (new PaymentStatus(
-                $recibo->request_id
-            ))->send();
+                return response('Bad Request', 400);
+            }
 
-            if ($response->status < 300) {
+            $empresa = Empresa::find($empresa_id);
 
-                $statusNew = (object)$response->response->status;
-                switch ($statusNew->status) {
-                    case 'APPROVED':
-                        $tipo_mesaje = 'exito';
-                        $recibo->update([
-                            'estado' => 1,
-                            'observacion' => $statusNew->message
-                        ]);
-                        $this->registrarMovimientoContable($recibo);
-                        break;
-                    case 'PENDING':
-                        $recibo->observacion = $statusNew->message;
-                        $recibo->save();
-                        break;
-                    case 'REJECTED':
-                        $tipo_mesaje = 'warning';
-                        $recibo->estado = 0;
-                        $recibo->observacion = $statusNew->message;
-                        $recibo->save();
-                        break;
-                    case 'PARTIAL_EXPIRED':
-                        $recibo->observacion = $statusNew->message;
-                        $recibo->save();
-                        break;
-                    case 'APPROVED_PARTIAL':
-                        $recibo->observacion = $statusNew->message;
-                        $recibo->save();
-                        break;
-                    default:
-                        break;
+            if (!$empresa) {
+                Log::error('Empresa no encontrada', [
+                    'empresa_id' => $empresa_id
+                ]);
+
+                return response('Not Found', 404);
+            }
+
+            if (!$signature) {
+                Log::warning('Webhook sin firma', [
+                    'payload' => $data
+                ]);
+
+                return response('Unauthorized', 401);
+            }
+
+            $secretKey = $empresa->placetopay_secret_key; // ajusta este campo según tu tabla
+
+            $receivedSignature = str_replace('sha256:', '', $signature);
+
+            $generatedSignature = hash(
+                'sha256',
+                $requestId . $status . $date . $secretKey
+            );
+
+            if (!hash_equals($generatedSignature, $receivedSignature)) {
+                Log::warning('Firma inválida en webhook PlacetoPay', [
+                    'received' => $receivedSignature,
+                    'generated' => $generatedSignature
+                ]);
+
+                return response('Unauthorized', 401);
+            }
+
+            copyDBConnection('max', 'max');
+            setDBInConnection('max', $empresa->token_db_maximo);
+
+            copyDBConnection('sam', 'sam');
+            setDBInConnection('sam', $empresa->token_db_portafolio);
+
+            $recibo = ConRecibos::where('id', $recibo_id)->first();
+
+            if (!$recibo) {
+                Log::error('Recibo no encontrado', [
+                    'recibo_id' => $recibo_id
+                ]);
+
+                return response('Not Found', 404);
+            }
+
+            $estado = $this->mapStatus($status);
+
+            if ($estado == 1) {
+                $response = (new PaymentStatus(
+                    $recibo->request_id
+                ))->send();
+
+                if ($response->status < 300) {
+                    $statusNew = (object) $response->response->status;
+
+                    switch ($statusNew->status) {
+                        case 'APPROVED':
+                            $recibo->update([
+                                'estado' => 1,
+                                'observacion' => $statusNew->message
+                            ]);
+
+                            $this->registrarMovimientoContable($recibo);
+                            break;
+
+                        case 'PENDING':
+                            $recibo->observacion = $statusNew->message;
+                            $recibo->save();
+                            break;
+
+                        case 'REJECTED':
+                            $recibo->estado = 0;
+                            $recibo->observacion = $statusNew->message;
+                            $recibo->save();
+                            break;
+
+                        case 'PARTIAL_EXPIRED':
+                            $recibo->observacion = $statusNew->message;
+                            $recibo->save();
+                            break;
+
+                        case 'APPROVED_PARTIAL':
+                            $recibo->observacion = $statusNew->message;
+                            $recibo->save();
+                            break;
+                    }
                 }
             }
+
+            event(new PrivateMessageEvent(
+                'estado-cuenta-' . $empresa->token_db_maximo . '_' . $recibo->created_by,
+                [
+                    'success' => true,
+                    'accion' => 2,
+                    'tipo' => 'info',
+                    'mensaje' => 'Pago actualizado',
+                    'titulo' => 'Actualización de pago',
+                    'autoclose' => false
+                ]
+            ));
+
+            Log::info('Notificación procesada correctamente', [
+                'recibo_id' => $recibo->id,
+                'nuevo_estado' => $estado
+            ]);
+
+            return response('OK', 200);
+
+        } catch (\Throwable $e) {
+            Log::error('Error procesando webhook PlacetoPay', [
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'payload' => $request->all()
+            ]);
+
+            return response('Internal Server Error', 500);
         }
-
-        event(new PrivateMessageEvent('estado-cuenta-'.$empresa->token_db_maximo.'_'.$recibo->created_by, [
-            'success'=>	true,
-            'accion' => 2,
-            'tipo' => 'info',
-            'mensaje' => 'Pago actualizado',
-            'titulo' => 'Actualización de pago',
-            'autoclose' => false
-        ]));
-
-        Log::info('Notificación procesada correctamente', [
-            'recibo_id' => $recibo->id,
-            'nuevo_estado' => $estado
-        ]);
-
-        return response('OK', 200);
     }
 
     protected function mapStatus($placetopayStatus)
