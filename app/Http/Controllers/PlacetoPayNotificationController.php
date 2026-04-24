@@ -30,28 +30,19 @@ class PlacetoPayNotificationController extends Controller
         try {
             $data = $request->all();
 
-            Log::info('Notificación PlacetoPay recibida', [
-                'payload' => $data
-            ]);
+            Log::info('Notificación PlacetoPay recibida', ['payload' => $data]);
 
-            if (
-                !isset(
-                    $data['status'],
-                    $data['status']['status'],
-                    $data['requestId'],
-                    $data['reference']
-                )
-            ) {
-                Log::warning('Webhook con estructura inválida', [
-                    'payload' => $data
-                ]);
-
-                return response('Bad Request', 400);
+            // Validar estructura mínima
+            if (!isset($data['status'], $data['status']['status'], $data['requestId'], $data['reference'])) {
+                Log::warning('Webhook con estructura inválida', ['payload' => $data]);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Estructura inválida',
+                    'required_fields' => ['status.status', 'requestId', 'reference']
+                ], 400);
             }
 
-            // Si no viene date, asignar una por defecto
             $date = $data['status']['date'] ?? now()->toDateTimeString();
-
             $requestId = $data['requestId'];
             $reference = $data['reference'];
             $status = $data['status']['status'];
@@ -59,114 +50,76 @@ class PlacetoPayNotificationController extends Controller
             $signature = $data['signature'] ?? null;
 
             $parts = explode('-', $reference);
-
             if (count($parts) < 2) {
-                Log::warning('Referencia inválida', [
-                    'reference' => $reference
-                ]);
-
-                return response('Bad Request', 400);
+                Log::warning('Referencia inválida', ['reference' => $reference]);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Referencia inválida',
+                    'message' => 'Formato esperado: {recibo_id}-{empresa_id}',
+                    'received_reference' => $reference
+                ], 400);
             }
 
             list($recibo_id, $empresa_id) = $parts;
 
             if (empty($empresa_id)) {
-                Log::warning('Empresa no encontrada en referencia', [
-                    'reference' => $reference
-                ]);
-
-                return response('Bad Request', 400);
+                return response()->json(['success' => false, 'error' => 'Empresa no especificada'], 400);
             }
 
             $empresa = Empresa::find($empresa_id);
-
             if (!$empresa) {
-                Log::error('Empresa no encontrada', [
-                    'empresa_id' => $empresa_id
-                ]);
-
-                return response('Not Found', 404);
+                Log::error('Empresa no encontrada', ['empresa_id' => $empresa_id]);
+                return response()->json(['success' => false, 'error' => 'Empresa no encontrada'], 404);
             }
 
             if (!$signature) {
-                Log::warning('Webhook sin firma', [
-                    'payload' => $data
-                ]);
-
-                return response('Unauthorized', 401);
+                Log::warning('Webhook sin firma');
+                return response()->json(['success' => false, 'error' => 'Firma requerida'], 401);
             }
 
-            $secretKey = $empresa->placetopay_secret_key; // ajusta este campo según tu tabla
-
+            // Validación de firma (ajusta el campo secret_key según tu DB)
+            $secretKey = $empresa->placetopay_secret_key ?? '';
             $receivedSignature = str_replace('sha256:', '', $signature);
-
-            $generatedSignature = hash(
-                'sha256',
-                $requestId . $status . $date . $secretKey
-            );
+            $generatedSignature = hash('sha256', $requestId . $status . $date . $secretKey);
 
             if (!hash_equals($generatedSignature, $receivedSignature)) {
-                Log::warning('Firma inválida en webhook PlacetoPay', [
-                    'received' => $receivedSignature,
-                    'generated' => $generatedSignature
-                ]);
-
-                return response('Unauthorized', 401);
+                Log::warning('Firma inválida', ['received' => $receivedSignature, 'generated' => $generatedSignature]);
+                return response()->json(['success' => false, 'error' => 'Firma inválida'], 401);
             }
 
+            // Cambiar conexiones de BD (ajusta a tu lógica)
             copyDBConnection('max', 'max');
             setDBInConnection('max', $empresa->token_db_maximo);
-
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $empresa->token_db_portafolio);
 
             $recibo = ConRecibos::where('id', $recibo_id)->first();
-
             if (!$recibo) {
-                Log::error('Recibo no encontrado', [
-                    'recibo_id' => $recibo_id
-                ]);
-
-                return response('Not Found', 404);
+                Log::error('Recibo no encontrado', ['recibo_id' => $recibo_id]);
+                return response()->json(['success' => false, 'error' => 'Recibo no encontrado'], 404);
             }
 
             $estado = $this->mapStatus($status);
-
             if ($estado == 1) {
-                $response = (new PaymentStatus(
-                    $recibo->request_id
-                ))->send();
-
+                
+                $response = (new PaymentStatus($recibo->request_id))->send();
                 if ($response->status < 300) {
                     $statusNew = (object) $response->response->status;
-
                     switch ($statusNew->status) {
                         case 'APPROVED':
-                            $recibo->update([
-                                'estado' => 1,
-                                'observacion' => $statusNew->message
-                            ]);
-
+                            $recibo->update(['estado' => 1, 'observacion' => $statusNew->message]);
                             $this->registrarMovimientoContable($recibo);
                             break;
-
                         case 'PENDING':
                             $recibo->observacion = $statusNew->message;
                             $recibo->save();
                             break;
-
                         case 'REJECTED':
                             $recibo->estado = 0;
                             $recibo->observacion = $statusNew->message;
                             $recibo->save();
                             break;
-
-                        case 'PARTIAL_EXPIRED':
-                            $recibo->observacion = $statusNew->message;
-                            $recibo->save();
-                            break;
-
-                        case 'APPROVED_PARTIAL':
+                        default:
                             $recibo->observacion = $statusNew->message;
                             $recibo->save();
                             break;
@@ -176,22 +129,11 @@ class PlacetoPayNotificationController extends Controller
 
             event(new PrivateMessageEvent(
                 'estado-cuenta-' . $empresa->token_db_maximo . '_' . $recibo->created_by,
-                [
-                    'success' => true,
-                    'accion' => 2,
-                    'tipo' => 'info',
-                    'mensaje' => 'Pago actualizado',
-                    'titulo' => 'Actualización de pago',
-                    'autoclose' => false
-                ]
+                ['success' => true, 'accion' => 2, 'tipo' => 'info', 'mensaje' => 'Pago actualizado', 'titulo' => 'Actualización de pago', 'autoclose' => false]
             ));
 
-            Log::info('Notificación procesada correctamente', [
-                'recibo_id' => $recibo->id,
-                'nuevo_estado' => $estado
-            ]);
-
-            return response('OK', 200);
+            Log::info('Notificación procesada correctamente', ['recibo_id' => $recibo->id, 'nuevo_estado' => $estado]);
+            return response()->json(['success' => true, 'message' => 'OK'], 200);
 
         } catch (\Throwable $e) {
             Log::error('Error procesando webhook PlacetoPay', [
@@ -200,8 +142,11 @@ class PlacetoPayNotificationController extends Controller
                 'file' => $e->getFile(),
                 'payload' => $request->all()
             ]);
-
-            return response('Internal Server Error', 500);
+            return response()->json([
+                'success' => false,
+                'error' => 'Internal Server Error',
+                'message' => $e->getMessage() // opcional, en desarrollo; quítalo en producción
+            ], 500);
         }
     }
 
