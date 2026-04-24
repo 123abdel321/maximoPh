@@ -55,7 +55,7 @@ class PlacetoPayNotificationController extends Controller
                 return response()->json([
                     'success' => false,
                     'error' => 'Referencia inválida',
-                    'message' => 'Formato esperado: {recibo_id}-{empresa_id}',
+                    'message' => 'La referencia no es valida para procesar el pago',
                     'received_reference' => $reference
                 ], 400);
             }
@@ -101,7 +101,7 @@ class PlacetoPayNotificationController extends Controller
 
             $estado = $this->mapStatus($status);
             if ($estado == 1) {
-                
+
                 $response = (new PaymentStatus($recibo->request_id))->send();
                 if ($response->status < 300) {
                     $statusNew = (object) $response->response->status;
