@@ -10,11 +10,9 @@ var $comboCuentaIngreso = null;
 var $comboCuentaAnticipo = null;
 var $comboCuentaIntereses = null;
 var $comboCuentaIngresoIntereses = null;
-var $comboCuentaDescuentoProntoPago = null;
 var $comboCuentaIngresoPagos = null;
 var $comboCuentaIngresoPasarela = null;
 var $comboCuentaIngresoComprobante = null;
-var $comboCuentaCobrarProntoPago = null;
 
 function entornoInit() {
 
@@ -71,8 +69,7 @@ function entornoInit() {
         'id_cuenta_egreso_pagos',
         'id_cuenta_ingreso_pasarela',
         'id_cuenta_ingreso_intereses',
-        'id_cuenta_descuento_pronto_pago',
-        'id_cuenta_cobrar_pronto_pago'
+        'id_cuenta_ingreso_recibos_caja',
     ];
 
     var img = [
@@ -199,28 +196,6 @@ function entornoInit() {
                 var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
                 $comboCuentaIngresoIntereses.append(newOption).trigger('change');
                 $comboCuentaIngresoIntereses.val(dataCuenta.id).trigger('change');
-            }
-
-            if (variable.nombre == 'id_cuenta_descuento_pronto_pago' && variable.cuenta) {
-                var dataCuenta = {
-                    id: variable.cuenta.id,
-                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
-                };
-                
-                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
-                $comboCuentaDescuentoProntoPago.append(newOption).trigger('change');
-                $comboCuentaDescuentoProntoPago.val(dataCuenta.id).trigger('change');
-            }
-
-            if (variable.nombre == 'id_cuenta_cobrar_pronto_pago' && variable.cuenta) {
-                var dataCuenta = {
-                    id: variable.cuenta.id,
-                    text: variable.cuenta.cuenta + ' - ' + variable.cuenta.nombre
-                };
-                
-                var newOption = new Option(dataCuenta.text, dataCuenta.id, false, false);
-                $comboCuentaCobrarProntoPago.append(newOption).trigger('change');
-                $comboCuentaCobrarProntoPago.val(dataCuenta.id).trigger('change');
             }
 
             if (variable.nombre == 'id_cuenta_egreso_pagos' && variable.cuenta) {
@@ -442,52 +417,6 @@ function cargarCombosEntorno() {
     });
 
     $comboCuentaIngresoIntereses = $('#id_cuenta_ingreso_intereses_entorno').select2({
-        theme: 'bootstrap-5',
-        delay: 250,
-        placeholder: "Seleccione una cuenta",
-        allowClear: true,
-        ajax: {
-            url: base_url_erp + 'plan-cuenta/combo-cuenta',
-            headers: headersERP,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
-
-    $comboCuentaDescuentoProntoPago = $('#id_cuenta_descuento_pronto_pago').select2({
-        theme: 'bootstrap-5',
-        delay: 250,
-        placeholder: "Seleccione una cuenta",
-        allowClear: true,
-        ajax: {
-            url: base_url_erp + 'plan-cuenta/combo-cuenta',
-            headers: headersERP,
-            dataType: 'json',
-            data: function (params) {
-                var query = {
-                    search: params.term
-                }
-                return query;
-            },
-            processResults: function (data) {
-                return {
-                    results: data.data
-                };
-            }
-        }
-    });
-
-    $comboCuentaCobrarProntoPago = $('#id_cuenta_cobrar_pronto_pago').select2({
         theme: 'bootstrap-5',
         delay: 250,
         placeholder: "Seleccione una cuenta",
@@ -816,8 +745,6 @@ $(document).on('click', '#updateEntorno', function () {
         'id_cuenta_egreso_pagos': $('#id_cuenta_ingreso_pagos_entorno').val(),
         'id_cuenta_ingreso_pasarela': $('#id_cuenta_ingreso_pasarela_entorno').val(),
         'id_cuenta_ingreso_recibos_caja': $('#id_cuenta_ingreso_recibos_caja').val(),
-        'id_cuenta_descuento_pronto_pago': $('#id_cuenta_descuento_pronto_pago').val(),
-        'id_cuenta_cobrar_pronto_pago': $('#id_cuenta_cobrar_pronto_pago').val(),
 
         'id_forma_pago_comprobante': $('#id_forma_pago_comprobante').val(),
 
