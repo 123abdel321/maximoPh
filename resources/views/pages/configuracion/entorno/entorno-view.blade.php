@@ -231,6 +231,17 @@
                                 </select>
                             </div>
 
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_cobrar_pronto_pago">Cuenta cobrar pronto pago</label>
+                                <select name="id_cuenta_cobrar_pronto_pago" id="id_cuenta_cobrar_pronto_pago" class="form-control form-control-sm">
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="id_cuenta_descuento_pronto_pago">Cuenta descuento pronto pago</label>
+                                <select name="id_cuenta_descuento_pronto_pago" id="id_cuenta_descuento_pronto_pago" class="form-control form-control-sm">
+                                </select>
+                            </div>
                             
 
                         </div>

@@ -35,6 +35,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     public $empresa = null;
     public $redondeoIntereses = null;
     public $redondeoProntoPago = null;
+    public $id_cuenta_descuento_pronto_pago = null;
 
     public function __construct($empresa)
     {
@@ -57,6 +58,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
         $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
         $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
+        $this->id_cuenta_descuento_pronto_pago = Entorno::where('nombre', 'id_cuenta_descuento_pronto_pago')->first();
+        $this->id_cuenta_descuento_pronto_pago = $this->id_cuenta_descuento_pronto_pago ? $this->id_cuenta_descuento_pronto_pago->valor : 0;
+
         $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
         $fechaCargaArchivos = Carbon::now()->format('Y-m-d H:i:s');
 
@@ -190,7 +194,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                         $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
                         $valorPendiente = $extracto ? $extracto->saldo : 0;
                         $hasSaldo = $extractoCXC > 0 ? true : false;
-
                         if ($extracto && $extracto->saldo) {
                             [$descuentoProntoPago, $faltanteDescuento] = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
                             
@@ -276,7 +279,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
 
-        if ($facturaDescuento && !$facturaDescuento->has_pronto_pago) {
+        if ($facturaDescuento) {
             if ($totalPago + $descuento + $extractoCXC >= $extracto->saldo) {
                 return [$descuento, 0];
             }

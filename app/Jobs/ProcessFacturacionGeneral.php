@@ -42,6 +42,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
     public $id_cuenta_intereses = null;
     public $id_cuenta_anticipos = null;
     public $id_cuenta_ingreso_intereses = null;
+    public $id_cuenta_descuento_pronto_pago = null;
     public $porcentaje_intereses_mora = null;
     public $id_comprobante_ventas = null;
     public $id_comprobante_notas = null;
@@ -90,6 +91,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
         $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
         $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
+        $this->id_cuenta_descuento_pronto_pago = Entorno::where('nombre', 'id_cuenta_descuento_pronto_pago')->first();
+        $this->id_cuenta_descuento_pronto_pago = $this->id_cuenta_descuento_pronto_pago ? $this->id_cuenta_descuento_pronto_pago->valor : 0;
+        $this->id_cuenta_cobrar_pronto_pago = Entorno::where('nombre', 'id_cuenta_cobrar_pronto_pago')->first();
+        $this->id_cuenta_cobrar_pronto_pago = $this->id_cuenta_cobrar_pronto_pago ? $this->id_cuenta_cobrar_pronto_pago->valor : 0;
         $this->descuentoParcial = Entorno::where('nombre', 'descuento_pago_parcial')->first();
         $this->descuentoParcial = $this->descuentoParcial ? $this->descuentoParcial->valor : 0;
         $this->documento_referencia_agrupado = Entorno::where('nombre', 'documento_referencia_agrupado')->first();
@@ -137,7 +142,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 ->orderByRaw('id_nit')
                 ->chunk(233, function ($nits) {
                     $nits->each(function ($nit) {
-                        
                         $this->countIntereses = 0;
 
                         $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit, $this->periodo_facturacion.'-01');
@@ -416,13 +420,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $totalAnticipos = 0;
         }
 
-        $tieneProntoPago = $this->tieneProntoPago($inmuebleFactura->id_nit, $inmuebleFactura->id_cuenta_gasto);
+        $tieneProntoPago = $this->tieneProntoPago($inmuebleFactura->id_nit);
 
-        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago && !$tieneProntoPago) {
+        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago && !$this->descuentosProntoPago->usado && !$tieneProntoPago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
 
-                $index = $isCuotaMulta ? "C{$inmuebleFactura->id_inmueble}" : $inmuebleFactura->id_inmueble;
-                $totalDescuento = $this->descuentosProntoPago->detalle[$index] ?? 0;
+                $this->descuentosProntoPago->usado = true;
+
+                $totalDescuento = $this->descuentosProntoPago->total;
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
                 $totalAnticipos+= $totalDescuento;
 
@@ -430,14 +435,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
                     'id_concepto_facturacion' => null,
-                    'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_gasto,
-                    'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                    'id_cuenta_por_cobrar' => $this->id_cuenta_descuento_pronto_pago,
+                    'id_cuenta_ingreso' => $this->id_cuenta_cobrar_pronto_pago,
                     'id_comprobante' => $this->id_comprobante_notas,
                     'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                     'fecha_manual' => $this->inicioMes.'-01',
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $totalDescuento,
-                    'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($inmuebleFactura->valor_total).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
+                    'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($this->descuentosProntoPago->base).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
                     'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
@@ -482,10 +487,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
         return $totalAnticipos;
     }
 
-    private function tieneProntoPago($id_nit, $id_cuenta_gasto)
+    private function tieneProntoPago($id_nit)
     {
         return DocumentosGeneral::where('id_nit', $id_nit)
-            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('id_cuenta', $this->id_cuenta_descuento_pronto_pago)
             ->where('fecha_manual', 'LIKE', $this->inicioMes.'%')
             ->exists();
     }
@@ -797,6 +802,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $deudaTotal = 0;
         $this->descuentosProntoPago = (object)[
             'total' => 0,
+            'base' => 0,
+            'usado' => false,
             'detalle' => []
         ];
         
@@ -808,6 +815,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 0;
 
             $this->descuentosProntoPago->detalle[$inmueble->id_inmueble] = $descuento;
+            $this->descuentosProntoPago->base += $inmueble->valor_total;
             $deudaTotal += $inmueble->valor_total;
         }
         
@@ -816,7 +824,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
                 0;
 
-            $index = "C{$multas->id_inmueble}";
+            $index = "";
+            $this->descuentosProntoPago->base += $multas->valor_total;
 
             // Asegurar que la clave existe antes de sumar
             if (isset($this->descuentosProntoPago->detalle[$index])) {

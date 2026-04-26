@@ -77,7 +77,9 @@ class EntornoController extends Controller
                 'qr_facturas',
                 'nombre_administrador',
                 'id_cuenta_ingreso',
-                'id_cuenta_anticipos'
+                'id_cuenta_anticipos',
+                'id_cuenta_descuento_pronto_pago',
+                'id_cuenta_cobrar_pronto_pago'
             ];
 
             foreach ($variablesEntorno as $variable) {

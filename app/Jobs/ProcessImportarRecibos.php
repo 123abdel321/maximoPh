@@ -43,6 +43,8 @@ class ProcessImportarRecibos implements ShouldQueue
     public $descuentoParcial = null;
     public $redondeoIntereses = null;
     public $redondeoProntoPago = null;
+    public $id_cuenta_descuento_pronto_pago = null;
+    public $id_cuenta_cobrar_pronto_pago = null;
     public $empresa = null;
     public $user_id = null;
 
@@ -80,6 +82,10 @@ class ProcessImportarRecibos implements ShouldQueue
             $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
             $this->redondeoIntereses = Entorno::where('nombre', 'redondeo_intereses')->first();
             $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
+            $this->id_cuenta_descuento_pronto_pago = Entorno::where('nombre', 'id_cuenta_descuento_pronto_pago')->first();
+            $this->id_cuenta_descuento_pronto_pago = $this->id_cuenta_descuento_pronto_pago ? $this->id_cuenta_descuento_pronto_pago->valor : 0;
+            $this->id_cuenta_cobrar_pronto_pago = Entorno::where('nombre', 'id_cuenta_cobrar_pronto_pago')->first();
+            $this->id_cuenta_cobrar_pronto_pago = $this->id_cuenta_cobrar_pronto_pago ? $this->id_cuenta_cobrar_pronto_pago->valor : 0;            
             
             $comprobante = Comprobantes::where('id', $this->id_comprobante)->first();
             $cecos = CentroCostos::first();
@@ -197,33 +203,41 @@ class ProcessImportarRecibos implements ShouldQueue
                     }
 
                     //AGREGAR DESCUENTOS
-                    if ($realizarDescuento) {
+                    if ($realizarDescuento && !$facturaDescuento->usado) {
                         $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
-                        
-                        foreach ($extractos as $extracto) {
-                            if (array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {
+                        $facturaDescuento->usado = true;
 
-                                $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
+                        $cuentaIngreso = PlanCuentas::find($this->id_cuenta_cobrar_pronto_pago);
+                        $cuentaGasto = PlanCuentas::find($this->id_cuenta_descuento_pronto_pago);
+                        $valorDescuento = $facturaDescuento->descuento ? $facturaDescuento->descuento : 0;
 
-                                $valorDescuento = $conceptoDescuento->descuento;
-                                $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
+                        //AGREGAR MOVIMIENTO GASTO
+                        $doc = new DocumentosGeneral([
+                            "id_cuenta" => $cuentaGasto->id,
+                            "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
+                            "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
+                            "concepto" => 'PRONTO PAGO '.$inicioMes.' % BASE '.number_format($facturaDescuento->subtotal),
+                            "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $inicioMes : null,
+                            "debito" => $valorDescuento,
+                            "credito" => $valorDescuento,
+                            "created_by" => $this->user_id,
+                            "updated_by" => $this->user_id
+                        ]);
+                        $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_egresos);
 
-                                //AGREGAR MOVIMIENTO GASTO
-                                $doc = new DocumentosGeneral([
-                                    "id_cuenta" => $cuentaGasto->id,
-                                    "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
-                                    "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
-                                    "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
-                                    "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
-                                    "debito" => $valorDescuento,
-                                    "credito" => $valorDescuento,
-                                    "created_by" => $this->user_id,
-                                    "updated_by" => $this->user_id
-                                ]);
-                                
-                                $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_egresos);
-                            }
-                        }
+                        //AGREGAR MOVIMIENTO INGRESO
+                        $doc = new DocumentosGeneral([
+                            "id_cuenta" => $cuentaIngreso->id,
+                            "id_nit" => $cuentaIngreso->exige_nit ? $recibo->id_nit : null,
+                            "id_centro_costos" => $cuentaIngreso->exige_centro_costos ?  $cecos->id : null,
+                            "concepto" => 'PRONTO PAGO '.$inicioMes.' % BASE '.number_format($facturaDescuento->subtotal),
+                            "documento_referencia" => $cuentaIngreso->exige_documento_referencia ? $inicioMes : null,
+                            "debito" => $valorDescuento,
+                            "credito" => $valorDescuento,
+                            "created_by" => $this->user_id,
+                            "updated_by" => $this->user_id
+                        ]);
+                        $documentoGeneral->addRow($doc, $cuentaIngreso->naturaleza_ingresos);
                     }
                     
                     //AGREGAR DEUDA
@@ -235,26 +249,6 @@ class ProcessImportarRecibos implements ShouldQueue
                         $valorPendiente = $extracto->saldo;
                         $valorDescuento = 0;
                         $totalAnticipar = 0;
-                        
-                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {
-                            $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
-                            $valorPendiente-= $conceptoDescuento->descuento;
-
-                            //AGREGAR MOVIMIENTO GASTO
-                            $doc = new DocumentosGeneral([
-                                "id_cuenta" => $cuentaPago->id,
-                                "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
-                                "id_centro_costos" => $cuentaPago->exige_centro_costos ?  $cecos->id : null,
-                                "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
-                                "documento_referencia" => $cuentaPago->exige_documento_referencia ? $extracto->documento_referencia : null,
-                                "debito" => $conceptoDescuento->descuento,
-                                "credito" => $conceptoDescuento->descuento,
-                                "created_by" => $this->user_id,
-                                "updated_by" => $this->user_id
-                            ]);
-
-                            $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
-                        }
 
                         if ($anticiposDisponibles > 0) {
                             [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
@@ -480,6 +474,7 @@ class ProcessImportarRecibos implements ShouldQueue
             'subtotal' => 0,
             'descuento' => 0,
             'valor_total' => 0,
+            'usado' => false,
             'detalle' => []
         ];
 
@@ -702,7 +697,7 @@ class ProcessImportarRecibos implements ShouldQueue
             'success'=>	false,
             'accion' => 0,
             'tipo' => 'error',
-            'mensaje' => 'Error al importar recibos: ' . $exception->getMessage(),
+            'mensaje' => 'Error al importar recibos: ' . $exception->getMessage() . ' en la línea ' . $exception->getLine(),
             'titulo' => 'Fallo en la importación',
             'autoclose' => false
         ]));
