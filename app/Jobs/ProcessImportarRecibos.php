@@ -237,7 +237,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $valorDescuento = 0;
                         $totalAnticipar = 0;
                         
-                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle) && $facturaDescuento->detalle[$extracto->documento_referencia]->usado) {
+                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle) && !$facturaDescuento->detalle[$extracto->documento_referencia]->usado) {
                             $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
                             $valorPendiente-= $conceptoDescuento->descuento;
 
