@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Sistema\Entorno;
 use App\Models\Sistema\ConceptoFacturacion;
 
-
 class ConceptoFacturacionController extends Controller
 {
     protected $messages = null;
@@ -149,6 +148,10 @@ class ConceptoFacturacionController extends Controller
                 'tipo_concepto' => $request->get('tipo_concepto'),
                 'valor' => $request->get('valor'),
                 'orden' => $request->get('orden'),
+
+                'dias_generar_intereses' => $request->get('dias_generar_intereses'),
+                'valor_fijo_intereses' => $request->get('valor_fijo_intereses'),
+
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
@@ -226,6 +229,9 @@ class ConceptoFacturacionController extends Controller
                     'id_cuenta_anticipo' => $request->get('id_cuenta_pronto_pago_anticipo'),
                     'dias_pronto_pago' => $request->get('dias_pronto_pago'),
                     'porcentaje_pronto_pago' => $request->get('porcentaje_pronto_pago'),
+
+                    'dias_generar_intereses' => $request->get('dias_generar_intereses'),
+                    'valor_fijo_intereses' => $request->get('valor_fijo_intereses'),
                     
                     'tipo_concepto' => $request->get('tipo_concepto'),
                     'valor' => $request->get('valor'),

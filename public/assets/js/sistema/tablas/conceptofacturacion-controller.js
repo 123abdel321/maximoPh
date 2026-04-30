@@ -88,8 +88,10 @@ function conceptofacturacionInit() {
                 }
                 return 'NO';
             }},
-            {"data":'dias_pronto_pago'},
-            {"data":'porcentaje_pronto_pago'},
+            {"data":'dias_pronto_pago', render: $.fn.dataTable.render.number(',', '.', 0, ''), className: 'dt-body-right'},
+            {"data":'porcentaje_pronto_pago', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'dias_generar_intereses', render: $.fn.dataTable.render.number(',', '.', 0, ''), className: 'dt-body-right'},
+            {"data":'valor_fijo_intereses', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data": function (row, type, set){
                 if (row.cuenta_gasto) {
                     return row.cuenta_gasto.cuenta+' - '+row.cuenta_gasto.nombre
@@ -215,10 +217,20 @@ function conceptofacturacionInit() {
             $("#nombre_concepto_facturacion").val(data.nombre_concepto);
             $("#valor_concepto_facturacion").val(new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(data.valor));
 
-            if (data.intereses) $('#intereses_concepto_facturacion').prop('checked', true);
-            else $('#intereses_concepto_facturacion').prop('checked', false);
+            if (data.intereses) {
+                $("#sub-title-intereses").show();
+                $("#input-dias_generar_intereses").show();
+                $("#input-valor_fijo_intereses").show();
+                $('#intereses_concepto_facturacion').prop('checked', true);
+            } else {
+                $('#intereses_concepto_facturacion').prop('checked', false);
+                $("#sub-title-intereses").hide();
+                $("#input-dias_generar_intereses").hide();
+                $("#input-valor_fijo_intereses").hide();
+            }
 
             if (data.pronto_pago) {
+                $('#sub-title-pronto-pago').show();
                 $('#pronto_pago_concepto_facturacion').prop('checked', true);
                 $('#input-id_cuenta_pronto_pago_gasto').show();
                 $('#input-id_cuenta_pronto_pago_anticipo').show();
@@ -227,6 +239,7 @@ function conceptofacturacionInit() {
                 $('#input-pronto_pago_morosos_concepto_facturacion').show();
             } else {
                 $('#pronto_pago_concepto_facturacion').prop('checked', false);
+                $('#sub-title-pronto-pago').hide();
                 $('#input-id_cuenta_pronto_pago_gasto').hide();
                 $('#input-id_cuenta_pronto_pago_anticipo').hide();
                 $('#input-dias_concepto_facturacion').hide();
@@ -548,6 +561,8 @@ $(document).on('click', '#saveConceptoFacturacion', function () {
         id_cuenta_pronto_pago_gasto: $('#id_cuenta_pronto_pago_gasto').val(),
         dias_pronto_pago: $('#dias_concepto_facturacion').val(),
         porcentaje_pronto_pago: $('#porcentaje_descuento_concepto_facturacion').val(),
+        dias_generar_intereses: $('#dias_generar_intereses').val(),
+        valor_fijo_intereses: $('#valor_fijo_intereses').val(),
     }
 
     $.ajax({
@@ -616,6 +631,8 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
         id_cuenta_pronto_pago_gasto: $('#id_cuenta_pronto_pago_gasto').val(),
         dias_pronto_pago: $('#dias_concepto_facturacion').val(),
         porcentaje_pronto_pago: $('#porcentaje_descuento_concepto_facturacion').val(),
+        dias_generar_intereses: $('#dias_generar_intereses').val(),
+        valor_fijo_intereses: $('#valor_fijo_intereses').val(),
     }
 
     $.ajax({
@@ -655,17 +672,31 @@ $(document).on('click', '#updateConceptoFacturacion', function () {
 
 $("#pronto_pago_concepto_facturacion").on('change', function(event) {
     if ($("input[type='checkbox']#pronto_pago_concepto_facturacion").is(':checked')) {
+        $('#sub-title-pronto-pago').show();
         $('#input-id_cuenta_pronto_pago_gasto').show();
         $('#input-id_cuenta_pronto_pago_anticipo').show();
         $('#input-dias_concepto_facturacion').show();
         $('#input-porcentaje_descuento_concepto_facturacion').show();
         $('#input-pronto_pago_morosos_concepto_facturacion').show();
     } else {
+        $('#sub-title-pronto-pago').hide();
         $('#input-id_cuenta_pronto_pago_gasto').hide();
         $('#input-id_cuenta_pronto_pago_anticipo').hide();
         $('#input-dias_concepto_facturacion').hide();
         $('#input-porcentaje_descuento_concepto_facturacion').hide();
         $('#input-pronto_pago_morosos_concepto_facturacion').hide();
+    }
+});
+
+$("#intereses_concepto_facturacion").on('change', function(event) {
+    if ($("input[type='checkbox']#intereses_concepto_facturacion").is(':checked')) {
+        $("#sub-title-intereses").show();
+        $("#input-dias_generar_intereses").show();
+        $("#input-valor_fijo_intereses").show();
+    } else {
+        $("#sub-title-intereses").hide();
+        $("#input-dias_generar_intereses").hide();
+        $("#input-valor_fijo_intereses").hide();
     }
 });
 

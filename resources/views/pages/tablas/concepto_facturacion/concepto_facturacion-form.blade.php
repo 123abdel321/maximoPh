@@ -71,15 +71,29 @@
                             <input type="input" class="form-control form-control-sm text-align-right" name="orden_concepto_facturacion" id="orden_concepto_facturacion" value="0">
                         </div> -->
 
-                        <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
+                        <div class="form-check form-switch col-12" style="">
                             <input class="form-check-input" type="checkbox" name="intereses_concepto_facturacion" id="intereses_concepto_facturacion" style="height: 20px;">
                             <label class="form-check-label" for="intereses_concepto_facturacion">Intereses</label>
                         </div>
 
-                        <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="">
+                        <div class="form-check form-switch col-12" style="">
                             <input class="form-check-input" type="checkbox" name="pronto_pago_concepto_facturacion" id="pronto_pago_concepto_facturacion" style="height: 20px;">
                             <label class="form-check-label" for="pronto_pago_concepto_facturacion">Pronto pago</label>
                         </div>
+
+                        <h6 id="sub-title-intereses" class="section-title bg-light p-2 mb-3 mt-3" style="display: none;">Configuración Intereses</h6>
+
+                        <div class="form-group col-3 col-sm-6 col-md-6" id="input-dias_generar_intereses" style="display: none;">
+                            <label for="dias_generar_intereses" class="form-control-label">Días para generar intereses</label>
+                            <input type="number" class="form-control form-control-sm" name="dias_generar_intereses" id="dias_generar_intereses">
+                        </div>
+                        
+                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-valor_fijo_intereses" style="display: none;">
+                            <label for="valor_fijo_intereses" class="form-control-label">Valor fijo intereses</label>
+                            <input type="number" class="form-control form-control-sm" name="valor_fijo_intereses" id="valor_fijo_intereses">
+                        </div>
+                        
+                        <h6 id="sub-title-pronto-pago" class="section-title bg-light p-2 mb-3 mt-3" style="display: none;">Configuración Pronto pago</h6>
 
                         <div class="form-group col-6 col-sm-6 col-md-6" id="input-id_cuenta_pronto_pago_gasto" style="display: none;">
                             <label for="id_cuenta_pronto_pago_gasto">Cuenta pronto pago gasto</label>

@@ -15,6 +15,8 @@
             <th>Pronto pago morosos</th>
             <th>Dias pronto pago</th>
             <th>Porcentaje pronto pago</th>
+            <th>Dias generar intereses</th>
+            <th>Valor fijo intereses</th>
             <th>Cuenta gasto</th>
             <th>Cuenta anticipo</th>
             <th>Creación registro</th>

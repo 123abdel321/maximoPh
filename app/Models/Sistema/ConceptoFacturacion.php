@@ -31,6 +31,8 @@ class ConceptoFacturacion extends Model
         'orden',
         'tipo_concepto',
         'valor',
+        'dias_generar_intereses',
+        'valor_fijo_intereses',
         'created_by',
         'updated_by',
     ];

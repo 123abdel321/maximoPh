@@ -5,6 +5,7 @@ namespace App\Jobs;
 use DB;
 use Config;
 use Exception;
+use Carbon\Carbon;
 use App\Helpers\helpers;
 use App\Helpers\Extracto;
 use Illuminate\Bus\Queueable;
@@ -186,6 +187,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                     $this->extractosAgrupados[$extracto->id_cuenta]->total_facturas+= $extracto->total_facturas;
                                     $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
                                 } else {
+                                    $conceptoFacturacion = ConceptoFacturacion::where('id_cuenta_cobrar', $extracto->id_cuenta)->first();
+
                                     $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
                                         'id_nit' => $extracto->id_nit,
                                         'concepto' => $extracto->concepto,
@@ -193,6 +196,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                         'total_facturas' => $extracto->total_facturas,
                                         'documento_referencia' => $extracto->documento_referencia,
                                         'saldo' => $extracto->saldo,
+                                        'fecha_manual' => $extracto->fecha_manual,
+                                        'dias_generar_intereses' => $conceptoFacturacion->dias_generar_intereses,
+                                        'valor_fijo_intereses' => $conceptoFacturacion->valor_fijo_intereses
                                     ];
                                 }
                             }
@@ -338,13 +344,28 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $detalleIntereses = [];
 
         foreach ($this->extractosAgrupados as $extracto) {
-            $saldo = floatval($extracto->saldo);
-            $this->saldoBase+= $saldo;   
+
+            if ($extracto->dias_generar_intereses > 0) {
+                $fechaManual = Carbon::parse($extracto->fecha_manual);
+                $diasTranscurridos = $fechaManual->diffInDays(now());
+
+                if ($diasTranscurridos < $extracto->dias_generar_intereses) {
+                    continue; // no genera intereses todavía
+                }
+            }
+            
+            $saldo = $extracto->saldo;
+            $this->saldoBase += $saldo;
             $numeroTotalIntereses++;
                  
-            $valorTotal = $saldo * ($this->porcentaje_intereses_mora / 100);
-            $valorTotal = $this->roundNumber($valorTotal, $this->redondeoIntereses);
-            $valorTotalIntereses+= $valorTotal;
+            if (floatval($extracto->valor_fijo_intereses) > 0) {
+                $valorTotal = floatval($extracto->valor_fijo_intereses);
+            } else {
+                $valorTotal = $saldo * ($this->porcentaje_intereses_mora / 100);
+                $valorTotal = $this->roundNumber($valorTotal, $this->redondeoIntereses);
+            }
+
+            $valorTotalIntereses += $valorTotal;
                
             //DEFINIR CONCEPTO DE INTERESES
             $concepto = $extracto->concepto;
@@ -686,6 +707,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CFA.id_cuenta_gasto',
                 'CFA.id_cuenta_anticipo',
                 'CFA.porcentaje_pronto_pago',
+                'CFA.dias_generar_intereses',
+                'CFA.valor_fijo_intereses',
                 'ZO.id_centro_costos',
                 'ZO.nombre AS nombre_zona',
                 'ZO.nombre AS nombre_zona',
@@ -747,6 +770,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'pronto_pago_morosos' => $extraCxC['concepto']['pronto_pago_morosos'],
                     'intereses' => $extraCxC['concepto']['intereses'],
                     'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
+                    'valor_fijo_intereses' => $extraCxC['concepto']['valor_fijo_intereses'],
+                    'dias_generar_intereses' => $extraCxC['concepto']['dias_generar_intereses']
                 ]);
             }
         }
@@ -786,8 +811,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         'id_cuenta_anticipo' => $extraCxP['concepto']['id_cuenta_anticipo'],
                         'porcentaje_pronto_pago' => $extraCxP['concepto']['porcentaje_pronto_pago'],
                         'pronto_pago' => $extraCxP['concepto']['pronto_pago'],
-                        'pronto_pago_morosos' => $extraCxC['concepto']['pronto_pago_morosos'],
+                        'pronto_pago_morosos' => $extraCxP['concepto']['pronto_pago_morosos'],
                         'intereses' => $extraCxP['concepto']['intereses'],
+                        'valor_fijo_intereses' => $extraCxP['concepto']['valor_fijo_intereses'],
+                        'dias_generar_intereses' => $extraCxP['concepto']['dias_generar_intereses'],
                         'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
                     ]);
                 }
@@ -810,6 +837,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         // Calcular descuentos sin redondear
 
         foreach ($inmueblesFacturar as $inmueble) {
+
             $descuento = ($inmueble->pronto_pago || $inmueble->pronto_pago_morosos) && $inmueble->porcentaje_pronto_pago ?
                 $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :
                 0;
