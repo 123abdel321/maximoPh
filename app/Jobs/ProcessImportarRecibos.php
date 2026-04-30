@@ -214,7 +214,7 @@ class ProcessImportarRecibos implements ShouldQueue
                                     "id_cuenta" => $cuentaGasto->id,
                                     "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
                                     "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
-                                    "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($conceptoDescuento->subtotal).' '.$conceptoDescuento->nombre_concepto,
+                                    "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($facturaDescuento->subtotal).' IMPORTADOS DESDE RECIBOS',
                                     "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
                                     "debito" => $valorDescuento,
                                     "credito" => $valorDescuento,
@@ -237,7 +237,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $valorDescuento = 0;
                         $totalAnticipar = 0;
                         
-                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle) && !$facturaDescuento->detalle[$extracto->documento_referencia]->usado) {
+                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {
                             $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
                             $valorPendiente-= $conceptoDescuento->descuento;
 
