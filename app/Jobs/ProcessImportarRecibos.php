@@ -225,6 +225,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                 $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_egresos);
                             }
                         }
+
+                        $facturaDescuento->usado = false;
                     }
                     
                     //AGREGAR DEUDA
@@ -232,12 +234,14 @@ class ProcessImportarRecibos implements ShouldQueue
                         
                         if ($valorDisponible <= 0) continue;
                         
-                        $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                         $valorPendiente = $extracto->saldo;
                         $valorDescuento = 0;
                         $totalAnticipar = 0;
                         
-                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {
+                        if ($realizarDescuento && array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle) && !$facturaDescuento->usado) {
+                            $facturaDescuento->usado = true;
+                            
+                            $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                             $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
                             $valorPendiente-= $conceptoDescuento->descuento;
 
