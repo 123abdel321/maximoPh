@@ -107,7 +107,6 @@ class ProcessImportarRecibos implements ShouldQueue
                 $inicioMes = date('Y-m', strtotime($reciboImport->fecha_manual));
                 $finMes = date('Y-m-t', strtotime($reciboImport->fecha_manual));
                 $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes.'-01', $reciboImport->fecha_manual);
-                
                 $valorDisponible = $reciboImport->pago;
                 $valorRecibido = $reciboImport->pago;
                 $this->fechaManual = $reciboImport->fecha_manual;
@@ -437,8 +436,8 @@ class ProcessImportarRecibos implements ShouldQueue
 
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
-        $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
         
+        $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
@@ -449,23 +448,23 @@ class ProcessImportarRecibos implements ShouldQueue
                 CF.id_cuenta_gasto,
                 CF.nombre_concepto,
                 CF.porcentaje_pronto_pago,
+                CF.dias_pronto_pago,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
                 FD.documento_referencia,
+                DATEDIFF('{$fechaManual}', '{$inicioMes}') AS datadiff,
                 0 AS aprobado,
                 SUM(FD.valor) AS subtotal,
                 
                 -- Calcula si aplica descuento
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
                         ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
                     ELSE 0
                 END AS descuento,
 
                 -- Calcula valor total
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
                         SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
                     ELSE SUM(FD.valor)
                 END AS valor_total
@@ -499,6 +498,9 @@ class ProcessImportarRecibos implements ShouldQueue
         ];
 
         foreach ($facturas as $factura) {
+
+            if ($factura->descuento <= 0) continue;
+
             $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
             $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
 

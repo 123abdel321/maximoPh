@@ -162,7 +162,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                     $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
                     $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
                     $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes, $fechaManual);
-
+                    
                     $pagoTotal = floatval($row['valor']);
                     
                     if ($this->existeRegistro($nit->id, $fechaManual, $pagoTotal, $fechaCargaArchivos)){
@@ -240,7 +240,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 'email' => $row['email'],
                 'pago' => $row['valor'],
                 'descuento' => $descuentoProntoPago,
-                'faltante_descuento' => $faltanteDescuento,
+                'faltante_descuento' => $descuentoProntoPago ? $faltanteDescuento : 0,
                 'saldo' => $extractoSaldo,
                 'saldo_nuevo' => $saldoNuevo,
                 'anticipos' => $anticipo,
@@ -317,16 +317,14 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                 -- Calcula si aplica descuento
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
                         ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
                     ELSE 0
                 END AS descuento,
 
                 -- Calcula valor total
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
                         SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
                     ELSE SUM(FD.valor)
                 END AS valor_total
