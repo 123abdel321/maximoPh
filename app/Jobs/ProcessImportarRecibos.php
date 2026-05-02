@@ -273,7 +273,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         if ($valorPago) {
                             ConReciboDetalles::create([
                                 'id_recibo' => $recibo->id,
-                                'id_cuenta' => $cuentaPago->id,
+                                'id_cuenta' => $extracto->id_cuenta,
                                 'id_nit' => $recibo->id_nit,
                                 'fecha_manual' => $recibo->fecha_manual,
                                 'documento_referencia' => $extracto->documento_referencia,
@@ -290,7 +290,7 @@ class ProcessImportarRecibos implements ShouldQueue
                             
                             //AGREGAR MOVIMIENTO CONTABLE
                             $doc = new DocumentosGeneral([
-                                "id_cuenta" => $cuentaPago->id,
+                                "id_cuenta" => $extracto->id_cuenta,
                                 "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
                                 "id_centro_costos" => $cuentaPago->exige_centro_costos ?  $cecos->id : null,
                                 "concepto" => $cuentaPago->exige_concepto ? 'PAGADO DESDE IMPORTADOR DE RECIBOS '.number_format($valorPago) : null,
