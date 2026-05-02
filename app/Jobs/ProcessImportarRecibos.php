@@ -232,6 +232,8 @@ class ProcessImportarRecibos implements ShouldQueue
                                 $documentoGeneral->addRow($doc, $cuentaGasto->naturaleza_egresos);
                             }
                         }
+                    } else {
+                        $totalDescuentoDisponible = 0;
                     }
 
                     //AGREGAMOS PAGOS CON EL DESCUENTO DISPONIBLE
@@ -288,7 +290,7 @@ class ProcessImportarRecibos implements ShouldQueue
                                 'total_factura' => 0,
                                 'total_abono' => $valorPago,
                                 'total_saldo' => $extracto->saldo,
-                                'nuevo_saldo' => $extracto->saldo - ($valorPago + $valorDescuento + $totalAnticipar),
+                                'nuevo_saldo' => $extracto->saldo - ($valorPago + $totalAnticipar),
                                 'total_anticipo' => 0,
                                 'created_by' => $this->user_id,
                                 'updated_by' => $this->user_id
