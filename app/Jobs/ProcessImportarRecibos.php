@@ -167,9 +167,15 @@ class ProcessImportarRecibos implements ShouldQueue
 
                 } else {//AGREGAR PAGOS EN CXP
 
+                    //INIT FECHAS
                     $inicioMes =  Carbon::parse($this->fechaManual)->format('Y-m');
                     $inicioMes = $inicioMes.'-01';
                     $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
+
+                    $deudaTotal = 0;
+                    $realizarDescuento = false;
+                    $totalDescuentoDisponible = $facturaDescuento ? $facturaDescuento->descuento : 0;
+                    $anticiposDisponibles = $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
                     
                     $sandoPendiente = (new Extracto(
                         $reciboImport->id_nit,
@@ -184,21 +190,20 @@ class ProcessImportarRecibos implements ShouldQueue
                         null,
                         $finMes
                     ))->actual()->get();
-                    
-                    $realizarDescuento = false;
 
-                    $deudaTotal = $this->sumarDeudaTotal($extractos);
-                    $totalDescuentoDisponible = $facturaDescuento ? $facturaDescuento->descuento : 0;
-                    $anticiposDisponibles = $anticiposNit = $this->totalAnticipos($reciboImport->id_nit);
+                    $extractosMapeados = [];
+                    foreach ($extractos as $extracto) {
+                        $extractosMapeados[] = $extracto;
+                        $deudaTotal = $extracto->saldo;
+                    }
                     
+                    //VALIDAR SI SE REALIZA DESCUENTO
+                    $totalAnticipar = 0;
                     if ($facturaDescuento && ($totalDescuentoDisponible + $anticiposNit + $valorDisponible) >= $deudaTotal) {
                         $realizarDescuento = true;
                     }
 
-                    $valorDescuento = 0;
-                    $totalAnticipar = 0;
-
-                    //AGREGAR DESCUENTOS
+                    //AGREGAR EL DESCUENTO AL PRIMER CONCEPTO QUE TRAE EL EXTRACTO
                     if ($realizarDescuento) {
                         $cuentaAnticipo = PlanCuentas::find($id_cuenta_anticipos);
                         
@@ -209,7 +214,6 @@ class ProcessImportarRecibos implements ShouldQueue
                                 $facturaDescuento->detalle[$extracto->documento_referencia]->usado = true;
 
                                 $valorDescuento = $facturaDescuento->descuento ? $facturaDescuento->descuento : 0;
-                                $valorDisponible+= $valorDescuento;
                                 $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
 
                                 //AGREGAR MOVIMIENTO GASTO
@@ -230,15 +234,41 @@ class ProcessImportarRecibos implements ShouldQueue
                         }
                     }
 
-                    //AGREGAR DEUDA
-                    $cruceProntoPago = 0;
-                    $conceptoDescuento = null;
-                    
-                    foreach ($extractos as $extracto) {
+                    //AGREGAMOS PAGOS CON EL DESCUENTO DISPONIBLE
+                    foreach ($extractosMapeados as $extracto) {
+                        if ($totalDescuentoDisponible <= 0) continue;
+
+                        $extractoSaldo= $extracto->saldo;
+                        $valorDescuento = $totalDescuentoDisponible > $extractoSaldo ? $extractoSaldo : $totalDescuentoDisponible;
+                        $totalDescuentoDisponible-= $valorDescuento;
+
+                        //AGREGAR MOVIMIENTO PAGO
+                        $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
+                        $doc = new DocumentosGeneral([
+                            "id_cuenta" => $cuentaPago->id,
+                            "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
+                            "id_centro_costos" => $cuentaPago->exige_centro_costos ?  $cecos->id : null,
+                            "concepto" => 'CRUCE PRONTO PAGO '.$extracto->concepto,
+                            "documento_referencia" => $cuentaPago->exige_documento_referencia ? $extracto->documento_referencia : null,
+                            "debito" => $valorDescuento,
+                            "credito" => $valorDescuento,
+                            "created_by" => $this->user_id,
+                            "updated_by" => $this->user_id
+                        ]);
+
+                        $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
+                        $extracto->saldo-= $valorDescuento;
+                    }
+
+                    $valorDisponible+= $totalDescuentoDisponible;
+
+                    //AGREGAMOS PAGOS POR EL VALOR RECIBIDO
+                    foreach ($extractosMapeados as $extracto) {
                         if ($valorDisponible <= 0) continue;
 
-                        $valorPendiente = $extracto->saldo;
+                        $valorPendiente= $extracto->saldo;
 
+                        //CRUZAR ANTICIPOS CON DEUDA PENDIENTE
                         if ($anticiposDisponibles > 0) {
                             [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
                         }
@@ -246,7 +276,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $validarPago = $valorDisponible - $valorPendiente - $valorDescuento;
                         $valorPago = $valorDisponible - $valorPendiente - $valorDescuento > 0 ? $valorPendiente : $valorDisponible;
                         $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
-                        
+
                         if ($valorPago) {
                             $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                             ConReciboDetalles::create([
@@ -373,7 +403,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 unset($documentoGeneral, $recibo, $facturaDescuento);
             }
 
-            ConRecibosImport::whereIn('estado', [0])->delete();
+            // ConRecibosImport::whereIn('estado', [0])->delete();
 
             DB::connection('max')->commit();
             DB::connection('sam')->commit();
