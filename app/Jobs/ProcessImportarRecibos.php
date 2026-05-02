@@ -261,7 +261,6 @@ class ProcessImportarRecibos implements ShouldQueue
                     }
 
                     $valorDisponible+= $totalDescuentoDisponible;
-
                     //AGREGAMOS PAGOS POR EL VALOR RECIBIDO
                     foreach ($extractosMapeados as $extracto) {
                         if ($valorDisponible <= 0) continue;
@@ -273,8 +272,7 @@ class ProcessImportarRecibos implements ShouldQueue
                             [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
                         }
 
-                        $validarPago = $valorDisponible - $valorPendiente - $valorDescuento;
-                        $valorPago = $valorDisponible - $valorPendiente - $valorDescuento > 0 ? $valorPendiente : $valorDisponible;
+                        $valorPago = $valorDisponible > $valorPendiente ? $valorPendiente : $valorDisponible;
                         $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
 
                         if ($valorPago) {
