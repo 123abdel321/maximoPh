@@ -396,7 +396,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 unset($documentoGeneral, $recibo, $facturaDescuento);
             }
 
-            // ConRecibosImport::whereIn('estado', [0])->delete();
+            ConRecibosImport::whereIn('estado', [0])->delete();
 
             DB::connection('max')->commit();
             DB::connection('sam')->commit();
