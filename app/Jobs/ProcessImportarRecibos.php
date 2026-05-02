@@ -217,7 +217,7 @@ class ProcessImportarRecibos implements ShouldQueue
                                     "id_cuenta" => $cuentaGasto->id,
                                     "id_nit" => $cuentaGasto->exige_nit ? $recibo->id_nit : null,
                                     "id_centro_costos" => $cuentaGasto->exige_centro_costos ?  $cecos->id : null,
-                                    "concepto" => 'PRONTO PAGO'.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($facturaDescuento->subtotal).' IMPORTADOS DESDE RECIBOS',
+                                    "concepto" => 'PRONTO PAGO '.$conceptoDescuento->porcentaje_pronto_pago.'% BASE '.number_format($facturaDescuento->subtotal).' IMPORTADOS DESDE RECIBOS',
                                     "documento_referencia" => $cuentaGasto->exige_documento_referencia ? $extracto->documento_referencia : null,
                                     "debito" => $valorDescuento,
                                     "credito" => $valorDescuento,
@@ -233,34 +233,11 @@ class ProcessImportarRecibos implements ShouldQueue
                     //AGREGAR DEUDA
                     $cruceProntoPago = 0;
                     $conceptoDescuento = null;
+                    
                     foreach ($extractos as $extracto) {
                         if ($valorDisponible <= 0) continue;
 
                         $valorPendiente = $extracto->saldo;
-                        //APLICAR DESCUENTO SI EXISTE
-                        if (array_key_exists($extracto->documento_referencia, $facturaDescuento->detalle)) {//EXISTE EN LOS CONCEPTOS DE FACTURACIÓN
-                            $saldoDeuda = $extracto->saldo;
-                            $conceptoDescuento = $facturaDescuento->detalle[$extracto->documento_referencia];
-                            $valorDescuento = $facturaDescuento->descuento > $saldoDeuda ? $saldoDeuda : $facturaDescuento->descuento;
-                            $facturaDescuento->descuento-= $valorDescuento;
-                            $totalDescuentoDisponible-= $valorDescuento;
-                            $valorDisponible-= $valorDescuento;
-
-                            //AGREGAR MOVIMIENTO PAGO
-                            $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
-                            $doc = new DocumentosGeneral([
-                                "id_cuenta" => $cuentaPago->id,
-                                "id_nit" => $cuentaPago->exige_nit ? $recibo->id_nit : null,
-                                "id_centro_costos" => $cuentaPago->exige_centro_costos ?  $cecos->id : null,
-                                "concepto" => 'CRUCE PRONTO PAGO '.$extracto->concepto,
-                                "documento_referencia" => $cuentaPago->exige_documento_referencia ? $extracto->documento_referencia : null,
-                                "debito" => $valorDescuento,
-                                "credito" => $valorDescuento,
-                                "created_by" => $this->user_id,
-                                "updated_by" => $this->user_id
-                            ]);
-                            $documentoGeneral->addRow($doc, $cuentaPago->naturaleza_ingresos);
-                        }
 
                         if ($anticiposDisponibles > 0) {
                             [$anticiposDisponibles, $valorPendiente, $totalAnticipar] = $this->cruzarAnticipos($extracto, $anticiposDisponibles, $documentoGeneral, $cecos, $valorPendiente);
@@ -271,6 +248,7 @@ class ProcessImportarRecibos implements ShouldQueue
                         $documentoReferencia = $extracto->documento_referencia ? $extracto->documento_referencia : $this->consecutivo;
                         
                         if ($valorPago) {
+                            $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
                             ConReciboDetalles::create([
                                 'id_recibo' => $recibo->id,
                                 'id_cuenta' => $extracto->id_cuenta,
@@ -305,7 +283,6 @@ class ProcessImportarRecibos implements ShouldQueue
                         }
 
                         $valorDisponible-= ($valorPago - ($totalAnticipar));
-                        
                     }
 
                     //AGREGAR ANTICIPO
