@@ -175,7 +175,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 
                                 $documentoReferencia = $this->generarDocumentoReferenciaAnticipos($cuentaContable, $doc);
     
-                                if ($cuentaContable->naturaleza_cuenta == PlanCuentas::DEBITO) {
+                                if ($cuentaContable->naturaleza_ventas == PlanCuentas::DEBITO) {
                                     $naturaleza = PlanCuentas::CREDITO;
                                     $docGeneral['credito'] = $doc->valor;
                                 } else {
@@ -200,12 +200,12 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                             $docGeneral['consecutivo'] = $consecutivo;
                             $docGeneral['created_by'] = $this->id_usuario;
                             $docGeneral['updated_by'] = $this->id_usuario;
-            
+
                             $docGeneral = new DocumentosGeneral($docGeneral);
                             $documentoGeneral->addRow($docGeneral, $naturaleza);
                         }
                     }
-
+                    
                     if (!$documentoGeneral->save()) {
                         DB::connection('sam')->rollback();
 
