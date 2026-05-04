@@ -180,7 +180,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             $extracto = (object)$extracto;
                             if ($extracto->saldo > 0) {
                                 if (!$this->cobrarIntereses($extracto->id_cuenta)) continue;
-                                
                                 $this->countIntereses++;
                                 if (array_key_exists($extracto->id_cuenta, $this->extractosAgrupados)) {
                                     $this->extractosAgrupados[$extracto->id_cuenta]->total_abono+= $extracto->total_abono;
@@ -188,6 +187,17 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                     $this->extractosAgrupados[$extracto->id_cuenta]->saldo+= $extracto->saldo;
                                 } else {
                                     $conceptoFacturacion = ConceptoFacturacion::where('id_cuenta_cobrar', $extracto->id_cuenta)->first();
+
+                                    $fechaDeuda = Carbon::parse($extracto->fecha_manual);
+                                    $fechaBase = Carbon::parse($this->inicioMes.'-01');
+                                    $diasCobrarIntereses = $conceptoFacturacion->dias_generar_intereses;
+
+                                    $diasTranscurridos = $fechaDeuda->diffInDays($fechaBase);
+
+                                    $aplicaInteres = is_null($diasCobrarIntereses) 
+                                        || $diasTranscurridos >= $diasCobrarIntereses;
+
+                                    if (!$aplicaInteres) continue; 
 
                                     $this->extractosAgrupados[$extracto->id_cuenta] = (object)[
                                         'id_nit' => $extracto->id_nit,
@@ -334,25 +344,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
     private function generarFacturaInmuebleIntereses(Facturacion $factura, $inmuebleFactura)
     {   
-        if (!$this->id_cuenta_intereses) return;
-        
-        //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
-        if (!count($this->extractosAgrupados)) return;
+        if (!$this->id_cuenta_intereses) return; //VALIDAMOS QUE TENGA CONFIGURADA CUENTA DE INTERESES
+        if (!count($this->extractosAgrupados)) return; //VALIDAMOS QUE TENGA CUENTAS POR COBRAR
 
         $numeroTotalIntereses = 0;
         $valorTotalIntereses = 0;
         $detalleIntereses = [];
 
         foreach ($this->extractosAgrupados as $extracto) {
-
-            if ($extracto->dias_generar_intereses > 0) {
-                $fechaManual = Carbon::parse($extracto->fecha_manual);
-                $diasTranscurridos = $fechaManual->diffInDays(now());
-
-                if ($diasTranscurridos < $extracto->dias_generar_intereses) {
-                    continue; // no genera intereses todavía
-                }
-            }
             
             $saldo = $extracto->saldo;
             $this->saldoBase += $saldo;
@@ -569,6 +568,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
+            ->where('IN.id_nit', 2)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -578,6 +578,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
+            ->where('CM.id_nit', 2)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
@@ -709,6 +710,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'CFA.porcentaje_pronto_pago',
                 'CFA.dias_generar_intereses',
                 'CFA.valor_fijo_intereses',
+                'CFA.valor_fijo_pronto_pago',
                 'ZO.id_centro_costos',
                 'ZO.nombre AS nombre_zona',
                 'ZO.nombre AS nombre_zona',
@@ -771,6 +773,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'intereses' => $extraCxC['concepto']['intereses'],
                     'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
                     'valor_fijo_intereses' => $extraCxC['concepto']['valor_fijo_intereses'],
+                    'valor_fijo_pronto_pago' => $extraCxC['concepto']['valor_fijo_pronto_pago'],
                     'dias_generar_intereses' => $extraCxC['concepto']['dias_generar_intereses']
                 ]);
             }
@@ -814,6 +817,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         'pronto_pago_morosos' => $extraCxP['concepto']['pronto_pago_morosos'],
                         'intereses' => $extraCxP['concepto']['intereses'],
                         'valor_fijo_intereses' => $extraCxP['concepto']['valor_fijo_intereses'],
+                        'valor_fijo_pronto_pago' => $extraCxP['concepto']['valor_fijo_pronto_pago'],
                         'dias_generar_intereses' => $extraCxP['concepto']['dias_generar_intereses'],
                         'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
                     ]);
@@ -834,13 +838,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'detalle' => []
         ];
         
-        // Calcular descuentos sin redondear
-
+        // Calcular descuentos sin redondearss
         foreach ($inmueblesFacturar as $inmueble) {
 
             $descuento = ($inmueble->pronto_pago || $inmueble->pronto_pago_morosos) && $inmueble->porcentaje_pronto_pago ?
                 $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :
                 0;
+
+            if ($inmueble->valor_fijo_pronto_pago) $descuento = $inmueble->valor_fijo_pronto_pago;
 
             $this->descuentosProntoPago->detalle[$inmueble->id_inmueble] = $descuento;
             $this->descuentosProntoPago->base += $inmueble->valor_total;
@@ -851,6 +856,8 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $descuento = ($multas->pronto_pago || $multas->pronto_pago_morosos) && $multas->porcentaje_pronto_pago ?
                 $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
                 0;
+
+            if ($multas->valor_fijo_pronto_pago) $descuento = $multas->valor_fijo_pronto_pago;
 
             $index = "";
             $this->descuentosProntoPago->base += $multas->valor_total;

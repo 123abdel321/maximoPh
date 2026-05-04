@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('valor', 15)->nullable()->default(0);
             $table->integer('dias_generar_intereses')->nullable()->default(0);
             $table->decimal('valor_fijo_intereses', 15)->nullable()->default(0);
+            $table->decimal('valor_fijo_pronto_pago', 15)->nullable()->default(0);
             $table->integer('id_cuenta_gasto')->nullable();
             $table->integer('id_cuenta_anticipo')->nullable();
             $table->integer('dias_pronto_pago')->nullable()->default(0);

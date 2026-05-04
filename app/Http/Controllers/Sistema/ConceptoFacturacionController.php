@@ -111,6 +111,8 @@ class ConceptoFacturacionController extends Controller
             'id_cuenta_anticipo' => 'nullable|exists:sam.plan_cuentas,id',
             'intereses' => 'nullable',
             'valor' => 'nullable',
+            'valor_fijo_intereses' => 'nullable',
+            'valor_fijo_pronto_pago' => 'nullable',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -151,6 +153,7 @@ class ConceptoFacturacionController extends Controller
 
                 'dias_generar_intereses' => $request->get('dias_generar_intereses'),
                 'valor_fijo_intereses' => $request->get('valor_fijo_intereses'),
+                'valor_fijo_pronto_pago' => $request->get('valor_fijo_pronto_pago'),
 
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
@@ -196,6 +199,8 @@ class ConceptoFacturacionController extends Controller
             'id_cuenta_iva' => 'nullable|exists:sam.plan_cuentas,id',
             'intereses' => 'nullable',
             'valor' => 'nullable',
+            'valor_fijo_intereses' => 'nullable',
+            'valor_fijo_pronto_pago' => 'nullable',
         ];
 
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -232,6 +237,7 @@ class ConceptoFacturacionController extends Controller
 
                     'dias_generar_intereses' => $request->get('dias_generar_intereses'),
                     'valor_fijo_intereses' => $request->get('valor_fijo_intereses'),
+                    'valor_fijo_pronto_pago' => $request->get('valor_fijo_pronto_pago'),
                     
                     'tipo_concepto' => $request->get('tipo_concepto'),
                     'valor' => $request->get('valor'),

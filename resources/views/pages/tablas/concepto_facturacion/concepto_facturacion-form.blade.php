@@ -117,6 +117,11 @@
                             <input type="number" class="form-control form-control-sm" name="porcentaje_descuento_concepto_facturacion" id="porcentaje_descuento_concepto_facturacion">
                         </div>
 
+                        <div class="form-group col-6 col-sm-6 col-md-6" id="input-valor_fijo_pronto_pago" style="display: none;">
+                            <label for="valor_fijo_pronto_pago" class="form-control-label">Valor fijo pronto pago</label>
+                            <input type="number" class="form-control form-control-sm" name="valor_fijo_pronto_pago" id="valor_fijo_pronto_pago">
+                        </div>
+
                         <div class="form-check form-switch col-6 col-sm-6 col-md-6" style="display: none;" id="input-pronto_pago_morosos_concepto_facturacion">
                             <input class="form-check-input" type="checkbox" name="pronto_pago_morosos_concepto_facturacion" id="pronto_pago_morosos_concepto_facturacion" style="height: 20px;">
                             <label class="form-check-label" for="pronto_pago_morosos_concepto_facturacion">Pronto pago morosos</label>

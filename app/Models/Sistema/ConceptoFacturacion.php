@@ -33,6 +33,7 @@ class ConceptoFacturacion extends Model
         'valor',
         'dias_generar_intereses',
         'valor_fijo_intereses',
+        'valor_fijo_pronto_pago',
         'created_by',
         'updated_by',
     ];

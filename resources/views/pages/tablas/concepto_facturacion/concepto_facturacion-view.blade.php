@@ -25,7 +25,7 @@
 </div>
 
 <script>
-    var editarConceptoFacturacion = '<?php echo auth()->user()->can('concepto_facturacion update'); ?>';
-    var eliminarConceptoFacturacion = '<?php echo auth()->user()->can('concepto_facturacion delete'); ?>';
-    var dias_pronto_pago = JSON.parse('<?php echo $dias_pronto_pago; ?>');
+    var editarConceptoFacturacion =  @json(auth()->user()->can('concepto_facturacion update'));
+    var eliminarConceptoFacturacion = @json(auth()->user()->can('concepto_facturacion delete'));
+    var dias_pronto_pago = @json($dias_pronto_pago);
 </script>
