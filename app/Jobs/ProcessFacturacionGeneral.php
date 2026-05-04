@@ -568,7 +568,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            ->where('IN.id_nit', 2)
+            // ->where('IN.id_nit', 2)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -578,7 +578,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            ->where('CM.id_nit', 2)
+            // ->where('CM.id_nit', 2)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
