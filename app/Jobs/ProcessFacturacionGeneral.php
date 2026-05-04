@@ -132,7 +132,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
-            
+
             DB::connection('max')
                 ->table(DB::raw("({$query->toSql()}) AS nits"))
                 ->mergeBindings($query)
@@ -442,7 +442,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
         $tieneProntoPago = $this->tieneProntoPago($inmuebleFactura->id_nit);
 
-        if ($this->prontoPago && $inmuebleFactura->pronto_pago && $inmuebleFactura->porcentaje_pronto_pago && !$this->descuentosProntoPago->usado && !$tieneProntoPago) {
+        if ($this->prontoPago && $inmuebleFactura->pronto_pago && !$this->descuentosProntoPago->usado && !$tieneProntoPago) {
             if ($totalAnticipar == $inmuebleFactura->valor_total) {
 
                 $this->descuentosProntoPago->usado = true;
@@ -450,6 +450,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 $totalDescuento = $this->descuentosProntoPago->total;
                 $totalAnticipar = $totalAnticipar - $totalDescuento;
                 $totalAnticipos+= $totalDescuento;
+
+                $concepto = 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($this->descuentosProntoPago->base).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
+                if ($inmuebleFactura->valor_fijo_pronto_pago) {
+                    $concepto = 'PRONTO PAGO VALOR FIJO '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
+                }
 
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
@@ -462,7 +467,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'fecha_manual' => $this->inicioMes.'-01',
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $totalDescuento,
-                    'concepto' => 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($this->descuentosProntoPago->base).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
+                    'concepto' => $concepto,
                     'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
@@ -568,7 +573,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 2)
+            // ->where('IN.id_nit', 1125)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -578,7 +583,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 2)
+            // ->where('CM.id_nit', 1125)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
