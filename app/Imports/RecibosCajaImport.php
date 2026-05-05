@@ -131,7 +131,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                     if ($extracto && $extracto->saldo) {
                         [$descuento, $faltanteDescuento] = $this->calcularDescuentoProntoPago($nit->id, $fechaManual, $pagoTotal, $extractoCXC);
-
+                        
                         $pagoTotal += $descuento + $extractoCXC;
                         if (($valorPendiente - $pagoTotal) < 0) {
                             $anticipo += $pagoTotal - $extracto->saldo;
@@ -291,19 +291,14 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $inicioMes = Carbon::parse($fechaManual)->format('Y-m-01');
         $facturaDescuento = $this->getFacturaMes($nitId, $inicioMes, $fechaManual);
-        
+
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
 
-        $extracto = $this->obtenerSaldo($nitId, $fechaManual);
-        if (!$extracto) {
-            return [0, 0];
-        }
-
         $totalConDescuento = $totalPago + $descuento + $extractoCXC;
-        if ($totalConDescuento >= $extracto->saldo) {
+        if ($totalConDescuento >= $facturaDescuento->saldo_pendiente) {
             return [$descuento, 0];
         } else {
-            $faltante = $extracto->saldo - $totalConDescuento;
+            $faltante = $facturaDescuento->saldo_pendiente - $totalConDescuento;
             return [$descuento, $faltante];
         }
     }
@@ -373,15 +368,19 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             'subtotal' => 0,
             'descuento' => 0,
             'valor_total' => 0,
+            'saldo_pendiente' => 0,
             'detalle' => []
         ];
 
+        $extracto = $this->obtenerSaldo($id_nit, $fechaManual);
+        $saldoPendiente = $extracto ? $extracto->saldo : 0;
+        $data->saldo_pendiente = $saldoPendiente;
+
         foreach ($facturas as $factura) {
             $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
-            
             $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
 
-            if ($tieneProntoPago) {
+            if ($tieneProntoPago || ($saldoPendiente > 0 && $factura->pronto_pago_morosos) ) {
                 $factura->descuento = 0;
             }
 

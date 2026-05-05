@@ -223,17 +223,16 @@ class ProcessImportarRecibos implements ShouldQueue
         $anticiposDisponibles = $this->totalAnticipos($reciboImport->id_nit);
         $valorDisponible = (float) $reciboImport->pago;
         $valorRecibido = (float) $reciboImport->pago;  // guardamos el original
-        $deudaTotal = 0;
+        $deudaTotal = $facturaDescuento ? $facturaDescuento->saldo_pendiente : 0; // si hay factura con pronto pago, la deuda total es lo que queda pendiente de esa factura, no de todo el extracto
 
         $extractos = (new Extracto($reciboImport->id_nit, [3,7], null, $finMes))->actual()->get();
         $extractosMapeados = [];
         foreach ($extractos as $extracto) {
             $extractosMapeados[] = $extracto;
-            $deudaTotal = $extracto->saldo;   // así queda igual que original
         }
 
         $realizarDescuento = $facturaDescuento && ($totalDescuentoDisponible + $anticiposDisponibles + $valorDisponible) >= $deudaTotal;
-
+        
         if ($realizarDescuento) {
             // Aplicar descuento al primer concepto que coincida (igual que original)
             $cuentaAnticipo = PlanCuentas::find($this->id_cuenta_anticipos);
@@ -562,17 +561,20 @@ class ProcessImportarRecibos implements ShouldQueue
             'subtotal' => 0,
             'descuento' => 0,
             'valor_total' => 0,
+            'saldo_pendiente' => 0,
             'usado' => false,
             'detalle' => []
         ];
 
-        foreach ($facturas as $factura) {
-            if ($factura->descuento <= 0) continue;
+        $extracto = (new Extracto($id_nit, [3,7], null, $fechaManual))->completo()->first();
+        $saldoPendiente = $extracto ? $extracto->saldo : 0;
+        $data->saldo_pendiente = $saldoPendiente;
 
+        foreach ($facturas as $factura) {
             $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
             $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
 
-            if ($tieneProntoPago) {
+            if ($tieneProntoPago || ($saldoPendiente > 0 && $factura->pronto_pago_morosos)) {
                 $factura->descuento = 0;
             }
 
