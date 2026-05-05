@@ -77,7 +77,7 @@ class ProcessImportarRecibos implements ShouldQueue
             DB::connection('sam')->commit();
 
             $this->sendSuccessEvent('Recibos importados con exito!');
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->rollbackAndSendError($exception);
         }
     }
@@ -122,14 +122,14 @@ class ProcessImportarRecibos implements ShouldQueue
     private function validateConfiguration()
     {
         if (!$this->id_cuenta_ingreso) {
-            throw new Error("La cuenta de ingreso no está configurada.");
+            throw new Exception("La cuenta de ingreso no está configurada.");
         }
         if (!$this->formaPago) {
             $cuenta = PlanCuentas::where('id', $this->id_cuenta_ingreso)->first();
-            throw new Error("La cuenta de ingreso {$cuenta->cuenta} - {$cuenta->nombre} no tiene forma de pago asociada.");
+            throw new Exception("La cuenta de ingreso {$cuenta->cuenta} - {$cuenta->nombre} no tiene forma de pago asociada.");
         }
         if (!$this->comprobante) {
-            throw new Error("El comprobante de recibos de caja no existe.");
+            throw new Exception("El comprobante de recibos de caja no existe.");
         }
     }
 
@@ -176,7 +176,7 @@ class ProcessImportarRecibos implements ShouldQueue
         $this->updateConsecutivo($this->id_comprobante, $consecutivo);
 
         if (!$documentoGeneral->save()) {
-            throw new Exception($documentoGeneral->getErrors());
+            throw new Exception(json_encode($documentoGeneral->getErrors()));
         }
     }
 
@@ -223,6 +223,7 @@ class ProcessImportarRecibos implements ShouldQueue
         $anticiposDisponibles = $this->totalAnticipos($reciboImport->id_nit);
         $valorDisponible = (float) $reciboImport->pago;
         $valorRecibido = (float) $reciboImport->pago;  // guardamos el original
+        $deudaTotal = 0;
 
         $extractos = (new Extracto($reciboImport->id_nit, [3,7], null, $finMes))->actual()->get();
         $extractosMapeados = [];
