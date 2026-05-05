@@ -51,9 +51,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $this->inicializarConfiguracion();
         $this->fechaCargaArchivos = Carbon::now()->format('Y-m-d H:i:s');
-
         foreach ($rows as $row) {
-            if ($this->isEmptyRow($row->toArray())) {
+            if (!$this->isValidRow($row->toArray())) {
                 continue;
             }
             $datosFila = $this->procesarFila($row);
@@ -87,6 +86,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $estado = 0;
         $observacion = '';
+
         $fechaManual = $this->parseFecha($row['fecha_manual']);
 
         if (!$fechaManual) {
@@ -358,10 +358,8 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
 
             WHERE FD.id_nit = $id_nit
-                AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 AND FD.naturaleza_opuesta = 0
-                AND CF.porcentaje_pronto_pago > 0
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");
@@ -515,11 +513,32 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         }
     }
 
-    private function isEmptyRow($row): bool
+    private function isValidRow($row): bool
     {
-        return empty(array_filter($row, function($value) {
-            return !is_null($value) && $value !== '';
-        }));
+        // 1. Si todos los campos clave están vacíos → ignorar
+        if (
+            empty($row['cedula_nit']) &&
+            empty($row['fecha_manual']) &&
+            empty($row['valor'])
+        ) {
+            return false;
+        }
+
+        // 2. Si falta alguno obligatorio → inválida
+        if (
+            empty($row['cedula_nit']) ||
+            empty($row['fecha_manual']) ||
+            empty($row['valor'])
+        ) {
+            return false;
+        }
+
+        // 3. Evitar fórmulas tipo "=IF(...)"
+        if (is_string($row['valor']) && str_starts_with($row['valor'], '=')) {
+            return false;
+        }
+
+        return true;
     }
 
     /* -------------------- MÉTODOS REQUERIDOS POR LAS INTERFACES -------------------- */
@@ -529,7 +548,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         $fileHeaders = array_keys($data);
         $requiredHeaders = ['inmueble', 'cedula_nit', 'fecha_manual', 'valor', 'email'];
         
-        if ($this->isEmptyRow($data)) {
+        if (!$this->isValidRow($data)) {
             return [];
         }
 

@@ -410,11 +410,8 @@ class FacturacionPdfMultiple extends AbstractPrinterPdf
             LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
 
             WHERE FD.id_nit = $id_nit
-                AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 AND FD.naturaleza_opuesta = 0
-                AND CF.porcentaje_pronto_pago > 0
-                AND FA.pronto_pago IS NULL
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");

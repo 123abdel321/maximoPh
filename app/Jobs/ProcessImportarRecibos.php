@@ -549,7 +549,6 @@ class ProcessImportarRecibos implements ShouldQueue
             WHERE FD.id_nit = $id_nit
                 AND FA.id IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
-                AND CF.porcentaje_pronto_pago > 0
                 
             GROUP BY FD.documento_referencia
         ");
