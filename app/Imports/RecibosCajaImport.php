@@ -387,7 +387,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
             $data->subtotal += $factura->subtotal;
             $data->descuento += $factura->descuento;
-            $data->valor_total += $factura->valor_total;
+            $data->valor_total += $factura->valor_total; 
             $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
         }
 
@@ -521,7 +521,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         // 1. Si todos los campos clave están vacíos → ignorar
         if (
-            empty($row['cedula_nit']) &&
             empty($row['fecha_manual']) &&
             empty($row['valor'])
         ) {
@@ -530,7 +529,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
         // 2. Si falta alguno obligatorio → inválida
         if (
-            empty($row['cedula_nit']) ||
             empty($row['fecha_manual']) ||
             empty($row['valor'])
         ) {
