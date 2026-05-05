@@ -60,43 +60,29 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
 
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $this->empresa->token_db_portafolio);
-           
-            $query = $this->getInmueblesNitsQuery();
-            $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
 
-            DB::connection('max')
-                ->table(DB::raw("({$query->toSql()}) AS nits"))
-                ->mergeBindings($query)
-                ->select(
-                    'id_nit'
-                )
-                ->groupByRaw('id_nit')
-                ->orderByRaw('id_nit')
-                ->chunk(233, function ($nits) {
-                    $nits->each(function ($nit) {
-                        
-                        $facturaEliminar = Facturacion::where('id_nit', $nit->id_nit)
-                            ->where('fecha_manual', $this->inicioMes.'-01')
-                            ->first();
+            // Fecha objetivo (primer día del mes)
+            $fechaObjetivo = $this->inicioMes . '-01';
 
-                        if ($facturaEliminar && $facturaEliminar->token_factura) {
-                            
-                            $facturasPortafolio = FacDocumentos::with('documentos')
-                                ->where('token_factura', $facturaEliminar->token_factura)
+            // Obtener todas las facturas de ese mes, procesando en lotes
+            Facturacion::where('fecha_manual', $fechaObjetivo)
+                ->chunk(200, function ($facturas) {
+                    foreach ($facturas as $factura) {
+                        // Si tiene token, eliminar documentos asociados en 'sam'
+                        if ($factura->token_factura) {
+                            $facturasPortafolio = FacDocumentos::on('sam')
+                                ->with('documentos')
+                                ->where('token_factura', $factura->token_factura)
                                 ->get();
-    
+
                             foreach ($facturasPortafolio as $facturaPortafolio) {
-                                // Eliminar documentos relacionados usando la relación
                                 $facturaPortafolio->documentos()->delete();
                                 $facturaPortafolio->delete();
                             }
                         }
 
-                        if ($facturaEliminar){
-                            $facturaEliminar->delete();
-                        } 
-
-                    });
+                        $factura->delete();
+                    }
                 });
 
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
