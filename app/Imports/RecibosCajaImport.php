@@ -378,6 +378,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
         foreach ($facturas as $factura) {
             $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
+            
             $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
 
             if ($tieneProntoPago) {
@@ -397,8 +398,11 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         return $data;
     }
 
-    private function tieneProntoPago(int $id_nit, int $id_cuenta_gasto, string $fechaManual): bool
+    private function tieneProntoPago($id_nit = null, $id_cuenta_gasto = null, string $fechaManual): bool
     {
+        if (!$id_nit || !$id_cuenta_gasto) {
+            return false;
+        }
         return DocumentosGeneral::where('id_nit', $id_nit)
             ->where('id_cuenta', $id_cuenta_gasto)
             ->where('fecha_manual', 'LIKE', $fechaManual . '%')

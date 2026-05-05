@@ -602,8 +602,11 @@ class ProcessImportarRecibos implements ShouldQueue
         return $data;
     }
 
-    private function tieneProntoPago($id_nit, $id_cuenta_gasto, $fechaManual)
+    private function tieneProntoPago($id_nit = null, $id_cuenta_gasto = null, $fechaManual = null)
     {
+        if (!$id_nit || !$id_cuenta_gasto) {
+            return false;
+        }
         return DocumentosGeneral::where('id_nit', $id_nit)
             ->where('id_cuenta', $id_cuenta_gasto)
             ->where('fecha_manual', 'LIKE', $fechaManual . '%')
