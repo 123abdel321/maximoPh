@@ -8,14 +8,12 @@ use App\Helpers\Extracto;
 use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithProgressBar;
-use Maatwebsite\Excel\Concerns\WithMappedCells;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Illuminate\Validation\ValidationException;
 //MODELS
@@ -32,274 +30,287 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 {
     use Importable, SkipsFailures;
 
-    public $empresa = null;
-    public $redondeoIntereses = null;
-    public $redondeoProntoPago = null;
-    public $id_cuenta_descuento_pronto_pago = null;
+    protected $empresa;
+    protected $redondeoIntereses;
+    protected $redondeoProntoPago;
+    protected $id_cuenta_descuento_pronto_pago;
+    protected $conceptoFacturacionSinIdentificar;
+    protected $nitPorDefecto;
+    protected $idComprobanteRecibosCaja;
+    protected $fechaCargaArchivos;
 
     public function __construct($empresa)
     {
         $this->empresa = $empresa;
     }
 
+    /**
+     * Punto de entrada: procesa todas las filas del Excel.
+     */
     public function collection(Collection $rows)
+    {
+        $this->inicializarConfiguracion();
+        $this->fechaCargaArchivos = Carbon::now()->format('Y-m-d H:i:s');
+
+        foreach ($rows as $row) {
+            if ($this->isEmptyRow($row->toArray())) {
+                continue;
+            }
+            $datosFila = $this->procesarFila($row);
+            ConRecibosImport::create($datosFila);
+        }
+    }
+
+    /**
+     * Carga toda la configuración necesaria desde la tabla Entorno.
+     */
+    private function inicializarConfiguracion()
     {
         copyDBConnection('max', 'max');
         setDBInConnection('max', $this->empresa->token_db_maximo);
-
         copyDBConnection('sam', 'sam');
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
-        
-        $columna = 0;
-        $conceptoFacturacionSinIdentificar = Entorno::where('nombre', 'id_concepto_pago_none')->first();
-        $conceptoFacturacionSinIdentificar = $conceptoFacturacionSinIdentificar ? $conceptoFacturacionSinIdentificar->valor : 0;
-        $nitPorDefecto = Entorno::where('nombre', 'id_nit_por_defecto')->first();
-        $this->redondeoIntereses = Entorno::where('nombre', 'redondeo_intereses')->first();
-        $this->redondeoIntereses = $this->redondeoIntereses ? floatval($this->redondeoIntereses->valor) : 0;
-        $this->redondeoProntoPago = Entorno::where('nombre', 'redondeo_pronto_pago')->first();
-        $this->redondeoProntoPago = $this->redondeoProntoPago ? floatval($this->redondeoProntoPago->valor) : 0;
-        $this->id_cuenta_descuento_pronto_pago = Entorno::where('nombre', 'id_cuenta_descuento_pronto_pago')->first();
-        $this->id_cuenta_descuento_pronto_pago = $this->id_cuenta_descuento_pronto_pago ? $this->id_cuenta_descuento_pronto_pago->valor : 0;
 
-        $nitPorDefecto = $nitPorDefecto ? $nitPorDefecto->valor : 0;
-        $fechaCargaArchivos = Carbon::now()->format('Y-m-d H:i:s');
+        $this->redondeoIntereses = (float) optional(Entorno::where('nombre', 'redondeo_intereses')->first())->valor ?? 0;
+        $this->redondeoProntoPago = (float) optional(Entorno::where('nombre', 'redondeo_pronto_pago')->first())->valor ?? 0;
+        $this->id_cuenta_descuento_pronto_pago = (int) optional(Entorno::where('nombre', 'id_cuenta_descuento_pronto_pago')->first())->valor ?? 0;
+        $this->conceptoFacturacionSinIdentificar = (int) optional(Entorno::where('nombre', 'id_concepto_pago_none')->first())->valor ?? 0;
+        $this->nitPorDefecto = (int) optional(Entorno::where('nombre', 'id_nit_por_defecto')->first())->valor ?? 0;
+        $this->idComprobanteRecibosCaja = optional(Entorno::where('nombre', 'id_comprobante_recibos_caja')->first())->valor ?? 1;
+    }
 
-        foreach ($rows as $key => $row) {
+    /**
+     * Procesa una fila individual: valida, resuelve NIT/inmueble, calcula descuentos y saldos.
+     * Retorna un array listo para crear ConRecibosImport.
+     */
+    private function procesarFila($row): array
+    {
+        $estado = 0;
+        $observacion = '';
+        $fechaManual = $this->parseFecha($row['fecha_manual']);
 
-            if (!count($row)) continue;
+        if (!$fechaManual) {
+            $observacion .= "La fecha: {$row['fecha_manual']}, no tiene el formato correcto!<br>";
+        }
 
-            $estado = 0;
-            $observacion = '';
+        // Resolver NIT, inmueble y concepto
+        $resolucion = $this->resolverNitInmuebleConcepto($row);
 
-            $nit = null;
-            $inmueble = null;
-            $inmuebleNit = null;
-            $conceptoFacturacion = null;
-            $saldoNuevo = 0;
-            $saldoTotal = 0;
-            $anticipo = 0;
-            $valorPendiente = 0;
-            $extractoSaldo = 0;
-            
-            if (!$row['inmueble'] && !$row['cedula_nit'] && !$row['valor']) {
-                continue;
-            }
+        $nit = $resolucion['nit'];
+        $inmueble = $resolucion['inmueble'];
+        $conceptoFacturacion = $resolucion['conceptoFacturacion'];
+        $observacion .= $resolucion['observacion'];
+        $estado = $resolucion['estado'] ? 1 : $estado;
 
-            if (!$row['inmueble'] && !$row['cedula_nit'] && $row['valor']) {
-                $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
-                $nit = Nits::where('id', $nitPorDefecto)->first();
-            }
-            
-            $fechaManual = $this->parseFecha($row['fecha_manual']);
-            if (!$fechaManual) {
-                $observacion.= 'La fecha: '.$row['fecha_manual'].', no tiene el formato correcto!<br>';
-            }
+        // Inicializar variables financieras
+        $descuento = 0;
+        $faltanteDescuento = 0;
+        $anticipo = 0;
+        $valorPendiente = 0;
+        $saldoNuevo = 0;
+        $extractoCXC = 0;
+        $extractoSaldo = null;
 
-            if ($row['inmueble']) {
-                $inmueble = Inmueble::with('zona')
-                    ->where('nombre', (string)$row['inmueble'])
-                    ->first();
-                    
-                if ($inmueble) {
-                    $inmuebleNit = InmuebleNit::with('nit')
-                        ->where('id_inmueble', $inmueble->id)
-                        ->first();
-                    
-                    if ($inmuebleNit->nit) {
-                        $nit = $inmuebleNit->nit;
+        if ($nit && $fechaManual && $row['valor']) {
+            $pagoTotal = (float) $row['valor'];
+            $inicioMes = Carbon::parse($fechaManual)->format('Y-m-01');
+            $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
+
+            // Validar duplicado
+            if ($this->existeRegistro($nit->id, $fechaManual, $pagoTotal, $this->fechaCargaArchivos)) {
+                $estado = 1;
+                $observacion .= "El numero de documento: {$row['cedula_nit']}, ya tiene un pago con el valor: {$row['valor']}, en el día: {$fechaManual}!<br>";
+            } else {
+                // Obtener saldos
+                $sandoPendiente = $this->obtenerSaldoPendienteHasta($nit->id, $inicioMesMenosDia);
+                $extracto = $this->obtenerSaldo($nit->id, $fechaManual);
+                $extractoCXC = $this->obtenerSaldoCXC($nit->id, $fechaManual);
+                $valorPendiente = $extracto ? $extracto->saldo : 0;
+
+                if (!$conceptoFacturacion) {
+
+                    if ($extracto && $extracto->saldo) {
+                        [$descuento, $faltanteDescuento] = $this->calcularDescuentoProntoPago($nit->id, $fechaManual, $pagoTotal, $extractoCXC);
+
+                        $pagoTotal += $descuento + $extractoCXC;
+                        if (($valorPendiente - $pagoTotal) < 0) {
+                            $anticipo += $pagoTotal - $extracto->saldo;
+                        }
                     } else {
-                        $estado = 1;
-                        $observacion.= 'El inmueble: '.(string)$row['inmueble'].', no tiene propietario!<br>'; 
+                        $anticipo += $pagoTotal;
                     }
+                }
+            }
+
+            // Saldos finales
+            $extractoSaldo = $this->obtenerSaldoTotal($nit->id);
+            $extractoCXP = $this->obtenerSaldoCXPTotal($nit->id);
+            $anticipo += $extractoCXP ? $extractoCXP->saldo : 0;
+            // Calcular nuevo saldo considerando descuento y extractoCXC
+            $totalAplicado = $pagoTotal + $descuento + $extractoCXC;
+            $nuevoSaldoCalculado = $valorPendiente - $totalAplicado;
+
+            if ($nuevoSaldoCalculado < 0) {
+                // Esto ya debería estar cubierto por el anticipo, pero por seguridad
+                $nuevoSaldoCalculado = 0;
+            }
+
+            $saldoNuevo = $anticipo ? 0 : $nuevoSaldoCalculado;
+        }
+
+        return [
+            'id_inmueble' => $inmueble ? $inmueble->id : null,
+            'id_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->id : null,
+            'id_nit' => $nit ? $nit->id : null,
+            'fecha_manual' => $fechaManual,
+            'codigo' => (string) $row['inmueble'],
+            'numero_documento' => $row['cedula_nit'],
+            'nombre_inmueble' => $inmueble ? $inmueble->nombre : '',
+            'nombre_zona' => $inmueble && $inmueble->zona ? $inmueble->zona->nombre : '',
+            'nombre_nit' => $nit ? $nit->id . '_' . $nit->numero_documento . ': ' . $nit->nombre_completo : '',
+            'numero_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->codigo . ' - ' . $conceptoFacturacion->nombre_concepto : '',
+            'email' => $row['email'],
+            'pago' => $row['valor'],
+            'descuento' => $descuento,
+            'faltante_descuento' => $descuento ? $faltanteDescuento : 0,
+            'saldo' => $extractoSaldo ? $extractoSaldo->saldo : 0,
+            'saldo_nuevo' => $saldoNuevo,
+            'anticipos' => $anticipo,
+            'observacion' => $estado ? $observacion : 'Listo para importar',
+            'estado' => $estado,
+        ];
+    }
+
+    /* -------------------- MÉTODOS DE RESOLUCIÓN DE DATOS -------------------- */
+
+    private function resolverNitInmuebleConcepto($row): array
+    {
+        $estado = 0;
+        $observacion = '';
+        $nit = null;
+        $inmueble = null;
+        $inmuebleNit = null;
+        $conceptoFacturacion = null;
+
+        // Caso especial: sin inmueble ni cédula pero con valor
+        if (!$row['inmueble'] && !$row['cedula_nit'] && $row['valor']) {
+            $conceptoFacturacion = ConceptoFacturacion::where('id', $this->conceptoFacturacionSinIdentificar)->first();
+            $nit = Nits::where('id', $this->nitPorDefecto)->first();
+            return compact('nit', 'inmueble', 'inmuebleNit', 'conceptoFacturacion', 'estado', 'observacion');
+        }
+
+        // Resolver inmueble
+        if ($row['inmueble']) {
+            $inmueble = Inmueble::with('zona')
+                ->where('nombre', (string) $row['inmueble'])
+                ->first();
+
+            if ($inmueble) {
+                $inmuebleNit = InmuebleNit::with('nit')
+                    ->where('id_inmueble', $inmueble->id)
+                    ->first();
+
+                if ($inmuebleNit && $inmuebleNit->nit) {
+                    $nit = $inmuebleNit->nit;
                 } else {
                     $estado = 1;
-                    $observacion.= 'El inmueble: '.(string)$row['inmueble'].', no fue encontrado!<br>';
+                    $observacion .= "El inmueble: {$row['inmueble']}, no tiene propietario!<br>";
                 }
+            } else {
+                $estado = 1;
+                $observacion .= "El inmueble: {$row['inmueble']}, no fue encontrado!<br>";
             }
-            
-            if ($row['cedula_nit']) {
-                
-                $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
-                $nitConcepto = null;
-                if ($row['email']) {
-                    $nitConcepto = Nits::where('email', $row['email'])->first();
-                } else {
-                    $nitConcepto = Nits::where('id', $nitPorDefecto)->first();
-                }
-
-                $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])
-                    ->whereRaw('LENGTH(numero_documento) = ?', [strlen($row['cedula_nit'])])
-                    ->first();
-                
-                if (!$nitDocumento && $nitConcepto && ($concepto || $conceptoFacturacionSinIdentificar)) {
-                    $conceptoFacturacion = ConceptoFacturacion::where('id', $conceptoFacturacionSinIdentificar)->first();
-                    $conceptoFacturacion = $concepto;
-                    $nit = $nitConcepto;
-                } else if ($concepto && $nitConcepto) {
-                    $conceptoFacturacion = $concepto;
-                    $nit = $nitConcepto;
-                } else {
-                    if (!$nitDocumento) {
-                        $estado = 1;
-                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', no fue encontrado!<br>';
-                    }
-                    if (!$nit) {
-                        $nit = $nitDocumento;
-                    } else if ($nitDocumento && $nit->id != $nitDocumento->id) {
-                        $estado = 1;
-                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', no coincide con el propietario!<br>';
-                    }
-                }
-            }
-            
-            $faltanteDescuento = 0;
-            $descuentoProntoPago = 0;
-            
-            if ($row['valor'] && $fechaManual) {
-                if ($nit) {
-                    $inicioMes =  Carbon::parse($fechaManual)->format('Y-m');
-                    $inicioMes = $inicioMes.'-01';
-                    $inicioMesMenosDia = Carbon::parse($inicioMes)->subDay()->format('Y-m-d');
-                    $finMes = Carbon::parse($fechaManual)->format('Y-m-t');
-                    $facturaDescuento = $this->getFacturaMes($nit->id, $inicioMes, $fechaManual);
-                    
-                    $pagoTotal = floatval($row['valor']);
-                    
-                    if ($this->existeRegistro($nit->id, $fechaManual, $pagoTotal, $fechaCargaArchivos)){
-                        $estado = 1;
-                        $observacion.= 'El numero de documento: '.$row['cedula_nit'].', ya tiene un pago con el valor: '.$row['valor'].', en el día: '.$fechaManual.'!<br>';
-                    } else if (!$conceptoFacturacion) {
-
-                        $sandoPendiente = (new Extracto(
-                            $nit->id,
-                            [3,7],
-                            null,
-                            $inicioMesMenosDia
-                        ))->completo()->first();
-
-                        $extracto = (new Extracto(
-                            $nit->id,
-                            [3,7],
-                            null,
-                            $fechaManual
-                        ))->completo()->first();
-
-                        $extractoCXC = (new Extracto(
-                            $nit->id,
-                            [4,8],
-                            null,
-                            $fechaManual
-                        ))->completo()->first();
-                            
-                        $extractoCXC = $extractoCXC ? $extractoCXC->saldo : 0;
-                        $valorPendiente = $extracto ? $extracto->saldo : 0;
-                        $hasSaldo = $extractoCXC > 0 ? true : false;
-                        if ($extracto && $extracto->saldo) {
-                            [$descuentoProntoPago, $faltanteDescuento] = $this->calcularTotalDescuento($facturaDescuento, $extracto, $pagoTotal, $extractoCXC);
-                            
-                            $pagoTotal+= $descuentoProntoPago;
-                            $pagoTotal+= $extractoCXC;
-                            if (($valorPendiente - $pagoTotal) < 0) {
-                                $anticipo+= $pagoTotal - $extracto->saldo;
-                            }
-                        } else {
-                            $anticipo+= floatval($row['valor']);
-                        }
-                    }
-                    
-                    $extractoSaldo = (new Extracto(
-                        $nit->id,
-                        [3,7]
-                    ))->completo()->first();
-
-                    $extractoCXP = (new Extracto(
-                        $nit->id,
-                        [4,8]
-                    ))->completo()->first();
-
-                    $extractoSaldo = $extractoSaldo ? $extractoSaldo->saldo : 0;
-                    $anticipo+= $extractoCXP ? $extractoCXP->saldo : 0;
-                }
-            }            
-            
-            if (!$conceptoFacturacion) {
-                $saldoNuevo = $anticipo ? 0 : $valorPendiente - floatval($row['valor']);
-            }
-            
-            ConRecibosImport::create([
-                'id_inmueble' => $inmueble ? $inmueble->id : null,
-                'id_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->id : null,
-                'id_nit' => $nit ? $nit->id : null,
-                'fecha_manual' => $fechaManual,
-                'codigo' => (string)$row['inmueble'],
-                'numero_documento' => $row['cedula_nit'],
-                'nombre_inmueble' => $inmueble ? $inmueble->nombre : '',
-                'nombre_zona' => $inmueble ? $inmueble->zona->nombre : '',
-                'nombre_nit' => $nit ? $nit->id.'_'.$nit->numero_documento.': '.$nit->nombre_completo : '',
-                'numero_concepto_facturacion' => $conceptoFacturacion ? $conceptoFacturacion->codigo.' - '.$conceptoFacturacion->nombre_concepto : '',
-                'email' => $row['email'],
-                'pago' => $row['valor'],
-                'descuento' => $descuentoProntoPago,
-                'faltante_descuento' => $descuentoProntoPago ? $faltanteDescuento : 0,
-                'saldo' => $extractoSaldo,
-                'saldo_nuevo' => $saldoNuevo,
-                'anticipos' => $anticipo,
-                'observacion' => $estado ? $observacion : 'Listo para importar',
-                'estado' => $estado
-            ]);
         }
+
+        // Resolver nit por número de documento / email
+        if ($row['cedula_nit']) {
+            $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
+            $nitConcepto = $row['email']
+                ? Nits::where('email', $row['email'])->first()
+                : Nits::where('id', $this->nitPorDefecto)->first();
+
+            $nitDocumento = Nits::where('numero_documento', $row['cedula_nit'])
+                ->whereRaw('LENGTH(numero_documento) = ?', [strlen($row['cedula_nit'])])
+                ->first();
+
+            if (!$nitDocumento && $nitConcepto && ($concepto || $this->conceptoFacturacionSinIdentificar)) {
+                $conceptoFacturacion = ConceptoFacturacion::where('id', $this->conceptoFacturacionSinIdentificar)->first();
+                $conceptoFacturacion = $concepto; // Nota: mantiene comportamiento original (sobrescribe)
+                $nit = $nitConcepto;
+            } elseif ($concepto && $nitConcepto) {
+                $conceptoFacturacion = $concepto;
+                $nit = $nitConcepto;
+            } else {
+                if (!$nitDocumento) {
+                    $estado = 1;
+                    $observacion .= "El numero de documento: {$row['cedula_nit']}, no fue encontrado!<br>";
+                }
+                if (!$nit) {
+                    $nit = $nitDocumento;
+                } elseif ($nitDocumento && $nit->id != $nitDocumento->id) {
+                    $estado = 1;
+                    $observacion .= "El numero de documento: {$row['cedula_nit']}, no coincide con el propietario!<br>";
+                }
+            }
+        }
+
+        return compact('nit', 'inmueble', 'inmuebleNit', 'conceptoFacturacion', 'estado', 'observacion');
     }
 
-    public function prepareForValidation($data, $index)
+    /* -------------------- MÉTODOS DE EXTRACTO (SALDOS) -------------------- */
+
+    private function obtenerSaldo(int $nitId, string $fechaManual): ?object
     {
-        $fileHeaders = array_keys($data);
-        $requiredHeaders = ['inmueble', 'cedula_nit', 'fecha_manual', 'valor', 'email'];
+        return (new Extracto($nitId, [3,7], null, $fechaManual))->completo()->first();
+    }
+
+    private function obtenerSaldoCXC(int $nitId, string $fechaManual): float
+    {
+        $extracto = (new Extracto($nitId, [4,8], null, $fechaManual))->completo()->first();
+        return $extracto ? $extracto->saldo : 0;
+    }
+
+    private function obtenerSaldoTotal(int $nitId): ?object
+    {
+        return (new Extracto($nitId, [3,7]))->completo()->first();
+    }
+
+    private function obtenerSaldoCXPTotal(int $nitId): ?object
+    {
+        return (new Extracto($nitId, [4,8]))->completo()->first();
+    }
+
+    private function obtenerSaldoPendienteHasta(int $nitId, string $fechaCorte): ?object
+    {
+        return (new Extracto($nitId, [3,7], null, $fechaCorte))->completo()->first();
+    }
+
+    /* -------------------- MÉTODOS DE DESCUENTO PRONTO PAGO -------------------- */
+
+    private function calcularDescuentoProntoPago(int $nitId, string $fechaManual, float $totalPago, float $extractoCXC): array
+    {
+        $inicioMes = Carbon::parse($fechaManual)->format('Y-m-01');
+        $facturaDescuento = $this->getFacturaMes($nitId, $inicioMes, $fechaManual);
         
-        if ($this->isEmptyRow($data)) {
-            return [];
-        }
-
-        if (array_diff($requiredHeaders, $fileHeaders)) {
-            throw ValidationException::withMessages([
-                'headers' => ['El archivo no tiene las cabeceras correctas: ' . implode(', ', $requiredHeaders)]
-            ]);
-        }
-
-        return $data;
-    }
-
-    protected function isEmptyRow($row)
-    {
-        return empty(array_filter($row, function($value) {
-            return !is_null($value) && $value !== '';
-        }));
-    }
-
-    private function calcularTotalDescuento($facturaDescuento, $extracto, $totalPago, $extractoCXC)
-    {
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
 
-        if ($facturaDescuento) {
-            if ($totalPago + $descuento + $extractoCXC >= $extracto->saldo) {
-                return [$descuento, 0];
-            }
+        $extracto = $this->obtenerSaldo($nitId, $fechaManual);
+        if (!$extracto) {
+            return [0, 0];
         }
-        $faltante = $extracto->saldo - ($totalPago + $descuento + $extractoCXC);
-        return [0, $faltante < 0 ? 0 : $faltante];
+
+        $totalConDescuento = $totalPago + $descuento + $extractoCXC;
+        if ($totalConDescuento >= $extracto->saldo) {
+            return [$descuento, 0];
+        } else {
+            $faltante = $extracto->saldo - $totalConDescuento;
+            return [$descuento, $faltante];
+        }
     }
 
-    private function tieneProntoPago($id_nit, $id_cuenta_gasto, $fechaManual)
-    {
-        return DocumentosGeneral::where('id_nit', $id_nit)
-            ->where('id_cuenta', $id_cuenta_gasto)
-            ->where('fecha_manual', 'LIKE', $fechaManual.'%')
-            ->exists();
-    }
-
-    private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
+    private function getFacturaMes(int $id_nit, string $inicioMes, string $fechaManual): ?object
     {
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
-
         $facturas = DB::connection('max')->select("SELECT
                 FA.id_nit AS id_nit,
                 FA.id AS id_factura,
@@ -312,20 +323,31 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 CF.nombre_concepto,
                 CF.porcentaje_pronto_pago,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
+                CF.valor_fijo_pronto_pago,
                 FD.documento_referencia,
                 SUM(FD.valor) AS subtotal,
 
                 -- Calcula si aplica descuento
                 CASE
                     WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
-                        ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                        CASE 
+                            WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
+                                THEN CF.valor_fijo_pronto_pago
+                            ELSE ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                        END
                     ELSE 0
                 END AS descuento,
 
                 -- Calcula valor total
                 CASE
                     WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
-                        SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                        SUM(FD.valor) - (
+                            CASE 
+                                WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
+                                    THEN CF.valor_fijo_pronto_pago
+                                ELSE (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                            END
+                        )
                     ELSE SUM(FD.valor)
                 END AS valor_total
                 
@@ -345,8 +367,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         ");
 
         $facturas = collect($facturas);
-        
-        if (!count($facturas)) return false;
+        if (!count($facturas)) return null;
 
         $data = (object)[
             'id_factura' => $facturas[0]->id_factura,
@@ -365,9 +386,9 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 $factura->descuento = 0;
             }
 
-            $data->subtotal+= $factura->subtotal;
-            $data->descuento+= $factura->descuento;
-            $data->valor_total+= $factura->valor_total;
+            $data->subtotal += $factura->subtotal;
+            $data->descuento += $factura->descuento;
+            $data->valor_total += $factura->valor_total;
             $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
         }
 
@@ -378,70 +399,21 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         return $data;
     }
 
-    private function parseFecha($fecha, $hora = null)
+    private function tieneProntoPago(int $id_nit, int $id_cuenta_gasto, string $fechaManual): bool
     {
-        $fechaObj = null;
-        
-        // Parsear la fecha
-        if ($fecha && str_contains($fecha, '/')) {
-            $fechaObj = Carbon::parse($fecha);
-        } else if ($fecha && str_contains($fecha, '-')) {
-            $fechaObj = Carbon::parse($fecha);
-        } else if (is_numeric($fecha)) {
-            $fechaObj = Carbon::instance(Date::excelToDateTimeObject($fecha));
-        }
-        
-        if (!$fechaObj) {
-            return null;
-        }
-        
-        // Formatear la fecha base
-        $fechaFormateada = $fechaObj->format('Y-m-d');
-        
-        // Si hay hora, agregarla
-        if (isset($hora)) {
-            try {
-                if (is_numeric($hora)) {
-                $horaObj = Carbon::instance(Date::excelToDateTimeObject($hora));
-                
-                } else {
-                    // Intenta parsear la hora en diferentes formatos comunes
-                    $horaObj = Carbon::createFromFormat('H:i:s', $hora) ?:
-                            Carbon::createFromFormat('H:i', $hora) ?:
-                            Carbon::parse($hora);
-                }
-                
-                $horaFormateada = $horaObj->format('H:i:s');
-                return $fechaFormateada . ' ' . $horaFormateada;
-            } catch (\Exception $e) {
-                return $fechaFormateada;
-            }
-        }
-        return $fechaFormateada;
+        return DocumentosGeneral::where('id_nit', $id_nit)
+            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('fecha_manual', 'LIKE', $fechaManual . '%')
+            ->exists();
     }
 
-    private function roundNumber($number, $redondeo = null)
-    {        
-        // Caso 1: Si el valor de redondeo es 0, elimina todos los decimales (redondea a entero)
-        if ($redondeo == 0) {
-            return (int) round($number); // Cast a int para eliminar decimales
-        }
-        // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
-        elseif ($redondeo > 0) {
-            return round($number / $redondeo) * $redondeo;
-        }
-        // Caso 3: Si no hay configuración, retorna el número sin cambios
-        else {
-            return $number;
-        }
-    }
+    /* -------------------- MÉTODOS DE VALIDACIÓN Y UTILIDADES -------------------- */
 
-    public function existeRegistro($id_nit = null, $fecha = null, $valor = null, $fecha_limite = null)
+    private function existeRegistro($id_nit = null, $fecha = null, $valor = null, $fecha_limite = null)
     {
-        $fechaHoy = Carbon::now();
-        $fecha = Carbon::parse($fecha)->format('Y-m-d');
-        $id_comprobante_recibos_caja = Entorno::where('nombre', 'id_comprobante_recibos_caja')->first()->valor;
-        $id_comprobante_recibos_caja = $id_comprobante_recibos_caja ?? 1;
+        $fecha = $fecha ? Carbon::parse($fecha)->format('Y-m-d') : null;
+        $id_comprobante_recibos_caja = $this->idComprobanteRecibosCaja ?? 1;
+
         return DB::connection('sam')->table('documentos_generals AS DG')
             ->select(
                 "N.id AS id_nit",
@@ -493,26 +465,81 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             ->leftJoin('comprobantes AS CO', 'DG.id_comprobante', 'CO.id')
             ->leftJoin('tipos_documentos AS TD', 'N.id_tipo_documento', 'TD.id')
             ->where('anulado', 0)
-            // ->whereIn('PCT.id_tipo_cuenta', [2])
-            ->when($id_nit ? $id_nit : false, function ($query) use($id_nit) {
-				$query->where('N.id', $id_nit);
-			})
-            ->when($fecha ? $fecha : false, function ($query) use($fecha) {
-				$query->where('DG.fecha_manual', $fecha);
-			})
-            ->when($id_comprobante_recibos_caja ? $id_comprobante_recibos_caja : false, function ($query) use($id_comprobante_recibos_caja) {
-				$query->where('DG.id_comprobante', $id_comprobante_recibos_caja);
-			})
-            ->when($valor ? $valor : false, function ($query) use($valor) {
-                $query->where(function ($q) use($valor) {
-                    $q->where('DG.credito', $valor)
-                        ->orWhere('DG.debito', $valor);
-                });
-			})
-            ->when($fecha_limite ? $fecha_limite : false, function ($query) use($fecha_limite) {
-				$query->where('DG.created_at', '<=', $fecha_limite);
-			})
+            ->when($id_nit, fn($q) => $q->where('N.id', $id_nit))
+            ->when($fecha, fn($q) => $q->where('DG.fecha_manual', $fecha))
+            ->when($id_comprobante_recibos_caja, fn($q) => $q->where('DG.id_comprobante', $id_comprobante_recibos_caja))
+            ->when($valor, fn($q) => $q->where(fn($sub) => $sub->where('DG.credito', $valor)->orWhere('DG.debito', $valor)))
+            ->when($fecha_limite, fn($q) => $q->where('DG.created_at', '<=', $fecha_limite))
             ->first();
+    }
+
+    private function parseFecha($fecha, $hora = null): ?string
+    {
+        $fechaObj = null;
+        if ($fecha && str_contains($fecha, '/')) {
+            $fechaObj = Carbon::parse($fecha);
+        } elseif ($fecha && str_contains($fecha, '-')) {
+            $fechaObj = Carbon::parse($fecha);
+        } elseif (is_numeric($fecha)) {
+            $fechaObj = Carbon::instance(Date::excelToDateTimeObject($fecha));
+        }
+        if (!$fechaObj) return null;
+
+        $fechaFormateada = $fechaObj->format('Y-m-d');
+        if (isset($hora)) {
+            try {
+                if (is_numeric($hora)) {
+                    $horaObj = Carbon::instance(Date::excelToDateTimeObject($hora));
+                } else {
+                    $horaObj = Carbon::createFromFormat('H:i:s', $hora) ?:
+                               Carbon::createFromFormat('H:i', $hora) ?:
+                               Carbon::parse($hora);
+                }
+                $horaFormateada = $horaObj->format('H:i:s');
+                return $fechaFormateada . ' ' . $horaFormateada;
+            } catch (\Exception $e) {
+                return $fechaFormateada;
+            }
+        }
+        return $fechaFormateada;
+    }
+
+    private function roundNumber($number, $redondeo = null): float
+    {
+        if ($redondeo == 0) {
+            return (float) round($number);
+        } elseif ($redondeo > 0) {
+            return round($number / $redondeo) * $redondeo;
+        } else {
+            return $number;
+        }
+    }
+
+    private function isEmptyRow($row): bool
+    {
+        return empty(array_filter($row, function($value) {
+            return !is_null($value) && $value !== '';
+        }));
+    }
+
+    /* -------------------- MÉTODOS REQUERIDOS POR LAS INTERFACES -------------------- */
+
+    public function prepareForValidation($data, $index)
+    {
+        $fileHeaders = array_keys($data);
+        $requiredHeaders = ['inmueble', 'cedula_nit', 'fecha_manual', 'valor', 'email'];
+        
+        if ($this->isEmptyRow($data)) {
+            return [];
+        }
+
+        if (array_diff($requiredHeaders, $fileHeaders)) {
+            throw ValidationException::withMessages([
+                'headers' => ['El archivo no tiene las cabeceras correctas: ' . implode(', ', $requiredHeaders)]
+            ]);
+        }
+
+        return $data;
     }
 
     public function headingRow(): int
@@ -520,25 +547,14 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         return 1;
     }
 
-    public function mapping(): array
-    {
-        return [
-            'inmueble'  => 'A1',
-            'cedula_nit' => 'B1',
-            'fecha_manual' => 'C1',
-            'valor' => 'D1',
-            'email' => 'E1',
-        ];
-    }
-
     public function rules(): array
     {
         return [
-            '*.inmueble'  => 'nullable',
+            '*.inmueble'   => 'nullable',
             '*.cedula_nit' => 'nullable',
             '*.fecha_manual' => 'nullable',
-            '*.valor' => 'nullable',
-            '*.email' => 'nullable'
+            '*.valor'      => 'nullable',
+            '*.email'      => 'nullable',
         ];
     }
 
@@ -546,5 +562,4 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         return 1000;
     }
-
 }

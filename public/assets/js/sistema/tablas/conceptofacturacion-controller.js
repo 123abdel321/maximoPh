@@ -524,10 +524,8 @@ function clearFormConceptoFacturacion(){
     $("#valor_fijo_intereses").val(0);
 
     if (dias_pronto_pago) {
-        $("#dias_concepto_facturacion").prop('disabled', true);
         $("#dias_concepto_facturacion").val(dias_pronto_pago);
     } else {
-        $("#dias_concepto_facturacion").prop('disabled', false);
         $("#dias_concepto_facturacion").val('0');
     }
     

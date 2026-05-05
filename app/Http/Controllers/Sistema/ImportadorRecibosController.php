@@ -179,27 +179,6 @@ class ImportadorRecibosController extends Controller
                 $empresa,
                 $user_id
             );
-            
-            // Bus::chain([
-            //     new ProcessImportarRecibos($empresa, $user_id),
-            //     new ProcessNotify("importador-recibos-{$has_empresa}_{$user_id}", [
-            //         'success'=>	true,
-            //         'accion' => 2,
-            //         'tipo' => 'exito',
-            //         'mensaje' => 'Recibos importados con exito!',
-            //         'titulo' => 'Recibos importados',
-            //         'autoclose' => false
-            //     ])
-            // ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
-            //     event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
-            //         'success'=>	false,
-            //         'accion' => 0,
-            //         'tipo' => 'error',
-            //         'mensaje' => 'Error al importar recibos: ' . $e->getMessage(),
-            //         'titulo' => 'Fallo en la importación',
-            //         'autoclose' => false
-            //     ]));
-            // })->dispatch();
 
             return response()->json([
                 'success'=>	true,
