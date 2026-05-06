@@ -131,7 +131,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                     if ($extracto && $extracto->saldo) {
                         [$descuento, $faltanteDescuento] = $this->calcularDescuentoProntoPago($nit->id, $fechaManual, $pagoTotal, $extractoCXC);
-                        
+
                         $pagoTotal += $descuento + $extractoCXC;
                         if (($valorPendiente - $pagoTotal) < 0) {
                             $anticipo += $pagoTotal - $extracto->saldo;
@@ -291,7 +291,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $inicioMes = Carbon::parse($fechaManual)->format('Y-m-01');
         $facturaDescuento = $this->getFacturaMes($nitId, $inicioMes, $fechaManual);
-
+        
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
 
         $totalConDescuento = $totalPago + $descuento + $extractoCXC;
@@ -380,7 +380,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
             $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
 
-            if ($tieneProntoPago || ($saldoPendiente > 0 && $factura->pronto_pago_morosos) ) {
+            if ($tieneProntoPago) {
                 $factura->descuento = 0;
             }
 

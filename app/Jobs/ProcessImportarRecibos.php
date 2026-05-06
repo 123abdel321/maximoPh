@@ -574,7 +574,7 @@ class ProcessImportarRecibos implements ShouldQueue
             $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
             $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
 
-            if ($tieneProntoPago || ($saldoPendiente > 0 && $factura->pronto_pago_morosos)) {
+            if ($tieneProntoPago) {
                 $factura->descuento = 0;
             }
 
