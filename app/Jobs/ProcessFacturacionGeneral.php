@@ -226,7 +226,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         //TRAER ANTICIPOS
                         $anticiposNit = $this->totalAnticipos($factura->id_nit, $this->id_empresa);
                         $anticiposDisponibles = $anticiposNit;
-
+                        
                         //RECORREMOS CUOTAS Y MULTAS CXP
                         foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
 
@@ -300,6 +300,29 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             if ($anticiposDisponibles > 0) {
                                 $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $inmuebleFactura, $totalInmuebles, $anticiposDisponibles, $documentoReferencia);
                             }
+                        }
+
+                        //EL DESCUENTO RESTANTE LO AGREGAMOS A LOS ANTICIPOS
+                        if ($this->descuentosProntoPago->total > 0) {
+
+                            $cuentaAnticipo = PlanCuentas::find($this->id_cuenta_anticipos);
+
+                            $facturaDetalle = FacturacionDetalle::create([
+                                'id_factura' => $factura->id,
+                                'id_nit' => $factura->id_nit,
+                                'id_concepto_facturacion' => null,
+                                'id_cuenta_por_cobrar' => $this->id_cuenta_anticipos,
+                                'id_cuenta_ingreso' => null,
+                                'id_comprobante' => $this->id_comprobante_notas,
+                                'id_centro_costos' => $cuentaAnticipo->exige_centro_costos ? ($this->cecos->id ?? null) : null,
+                                'fecha_manual' => $this->inicioMes.'-01',
+                                'documento_referencia' => $this->inicioMes.'-01',
+                                'valor' => $this->descuentosProntoPago->total,
+                                'concepto' => 'ANTICIPO AGREGADO DESDE EL FACTURADOR',
+                                'naturaleza_opuesta' => false,
+                                'created_by' => $this->id_usuario,
+                                'updated_by' => $this->id_usuario,
+                            ]);
                         }
                         
                         $factura->valor = ($valoresExtra + $valoresAdmon + $valoresIntereses);
@@ -440,42 +463,64 @@ class ProcessFacturacionGeneral implements ShouldQueue
             $totalAnticipos = 0;
         }
 
-        $tieneProntoPago = $this->tieneProntoPago($inmuebleFactura->id_nit);
+        //CALCULAR VALOR DE DESCUENTO PRONTO PAGO
+        if ($this->prontoPago //ES VALIDO PARA PRONTO PAGO
+            && $this->descuentosProntoPago->total > 0) { // TENEMOS DESCUENTOS DISPONIBLES PARA USAR
 
-        if ($this->prontoPago && $inmuebleFactura->pronto_pago && !$this->descuentosProntoPago->usado && !$tieneProntoPago) {
-            if ($totalAnticipar == $inmuebleFactura->valor_total) {
+            $totalDescuento = $inmuebleFactura->valor_total > $this->descuentosProntoPago->total ? $this->descuentosProntoPago->total : $inmuebleFactura->valor_total;
+            $totalAnticipar = $totalAnticipar - $totalDescuento < 0 ? 0 : $totalAnticipar - $totalDescuento;
+        }
 
+        //AGREGAR PRONTO PAGO
+        if ($totalDescuento
+            && $inmuebleFactura->pronto_pago //EL INMUEBLE TIENE DESCUENTO
+            && !$this->tieneProntoPago($inmuebleFactura->id_nit)) {
+            
+            $concepto = 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($this->descuentosProntoPago->base).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
+            if ($inmuebleFactura->valor_fijo_pronto_pago) {
+                $concepto = 'PRONTO PAGO VALOR FIJO '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
+            }
+
+            //AGREGAR CUENTA DE GASTO UNA UNICA VEZ
+            if (!$this->descuentosProntoPago->usado) {
                 $this->descuentosProntoPago->usado = true;
-
-                $totalDescuento = $this->descuentosProntoPago->total;
-                $totalAnticipar = $totalAnticipar - $totalDescuento;
-                $totalAnticipos+= $totalDescuento;
-
-                $concepto = 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($this->descuentosProntoPago->base).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
-                if ($inmuebleFactura->valor_fijo_pronto_pago) {
-                    $concepto = 'PRONTO PAGO VALOR FIJO '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
-                }
 
                 $facturaDetalle = FacturacionDetalle::create([
                     'id_factura' => $factura->id,
                     'id_nit' => $inmuebleFactura->id_nit,
                     'id_concepto_facturacion' => null,
                     'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_gasto,
-                    'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                    'id_cuenta_ingreso' => null,
                     'id_comprobante' => $this->id_comprobante_notas,
                     'id_centro_costos' => $inmuebleFactura->id_centro_costos,
                     'fecha_manual' => $this->inicioMes.'-01',
                     'documento_referencia' => $documentoReferencia,
-                    'valor' => $totalDescuento,
+                    'valor' => $this->descuentosProntoPago->total,
                     'concepto' => $concepto,
                     'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
-
-                $factura->pronto_pago = 2;
-                $factura->save();
             }
+
+            //CRUZAR PRONTO PAGO
+            $facturaDetalle = FacturacionDetalle::create([
+                'id_factura' => $factura->id,
+                'id_nit' => $inmuebleFactura->id_nit,
+                'id_concepto_facturacion' => null,
+                'id_cuenta_por_cobrar' => null,
+                'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
+                'id_comprobante' => $this->id_comprobante_notas,
+                'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                'fecha_manual' => $this->inicioMes.'-01',
+                'documento_referencia' => $documentoReferencia,
+                'valor' => $totalDescuento,
+                'concepto' => $concepto,
+                'naturaleza_opuesta' => true,
+                'created_by' => $this->id_usuario,
+                'updated_by' => $this->id_usuario,
+            ]);
+            $this->descuentosProntoPago->total-= $totalDescuento;
         }
 
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
@@ -573,7 +618,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 1125)
+            // ->where('IN.id_nit', 15)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -583,7 +628,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 1125)
+            // ->where('CM.id_nit', 15)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
