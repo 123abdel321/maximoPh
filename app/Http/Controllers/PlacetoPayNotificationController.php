@@ -72,20 +72,20 @@ class PlacetoPayNotificationController extends Controller
                 return response()->json(['success' => false, 'error' => 'Empresa no encontrada'], 404);
             }
 
-            if (!$signature) {
-                Log::warning('Webhook sin firma');
-                return response()->json(['success' => false, 'error' => 'Firma requerida'], 401);
-            }
+            // if (!$signature) {
+            //     Log::warning('Webhook sin firma');
+            //     return response()->json(['success' => false, 'error' => 'Firma requerida'], 401);
+            // }
 
             // Validación de firma (ajusta el campo secret_key según tu DB)
-            $secretKey = $empresa->placetopay_secret_key ?? '';
-            $receivedSignature = str_replace('sha256:', '', $signature);
-            $generatedSignature = hash('sha256', $requestId . $status . $date . $secretKey);
+            // $secretKey = $empresa->placetopay_secret_key ?? '';
+            // $receivedSignature = str_replace('sha256:', '', $signature);
+            // $generatedSignature = hash('sha256', $requestId . $status . $date . $secretKey);
 
-            if (!hash_equals($generatedSignature, $receivedSignature)) {
-                Log::warning('Firma inválida', ['received' => $receivedSignature, 'generated' => $generatedSignature]);
-                return response()->json(['success' => false, 'error' => 'Firma inválida'], 401);
-            }
+            // if (!hash_equals($generatedSignature, $receivedSignature)) {
+            //     Log::warning('Firma inválida', ['received' => $receivedSignature, 'generated' => $generatedSignature]);
+            //     return response()->json(['success' => false, 'error' => 'Firma inválida'], 401);
+            // }
 
             // Cambiar conexiones de BD (ajusta a tu lógica)
             copyDBConnection('max', 'max');
