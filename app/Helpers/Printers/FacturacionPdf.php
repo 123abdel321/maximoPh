@@ -394,6 +394,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
             WHERE FD.id_nit = $id_nit
                 AND FD.fecha_manual = '{$inicioMes}'
+                AND FD.id_concepto_facturacion IS NOT NULL
                 AND FD.naturaleza_opuesta = 0
                 
             GROUP BY FD.id_cuenta_por_cobrar

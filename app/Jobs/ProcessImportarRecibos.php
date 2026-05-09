@@ -171,7 +171,6 @@ class ProcessImportarRecibos implements ShouldQueue
             $this->procesarPagosCxp($reciboImport, $recibo, $documentoGeneral);
         }
 
-
         $this->agregarPagoFormaPago($reciboImport, $recibo, $documentoGeneral);
         $this->updateConsecutivo($this->id_comprobante, $consecutivo);
 
@@ -547,12 +546,14 @@ class ProcessImportarRecibos implements ShouldQueue
 
             WHERE FD.id_nit = $id_nit
                 AND FA.id IS NOT NULL
+                AND FD.id_concepto_facturacion IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 
             GROUP BY FD.documento_referencia
         ");
 
         $facturas = collect($facturas);
+        
         if (!count($facturas)) return false;
         
         $data = (object)[

@@ -125,14 +125,14 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 $sandoPendiente = $this->obtenerSaldoPendienteHasta($nit->id, $inicioMesMenosDia);
                 $extracto = $this->obtenerSaldo($nit->id, $fechaManual);
                 $extractoCXC = $this->obtenerSaldoCXC($nit->id, $fechaManual);
-                $valorPendiente = $extracto ? $extracto->saldo : 0;
 
+                $valorPendiente = $extracto ? $extracto->saldo : 0;
                 if (!$conceptoFacturacion) {
 
                     if ($extracto && $extracto->saldo) {
                         [$descuento, $faltanteDescuento] = $this->calcularDescuentoProntoPago($nit->id, $fechaManual, $pagoTotal, $extractoCXC);
-
                         $pagoTotal += $descuento + $extractoCXC;
+
                         if (($valorPendiente - $pagoTotal) < 0) {
                             $anticipo += $pagoTotal - $extracto->saldo;
                         }
@@ -354,12 +354,14 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
             WHERE FD.id_nit = $id_nit
                 AND FD.fecha_manual = '{$inicioMes}'
+                AND FD.id_concepto_facturacion IS NOT NULL
                 AND FD.naturaleza_opuesta = 0
                 
             GROUP BY FD.id_cuenta_por_cobrar
         ");
 
         $facturas = collect($facturas);
+
         if (!count($facturas)) return null;
 
         $data = (object)[
