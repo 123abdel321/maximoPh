@@ -253,7 +253,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
-
+                        
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
@@ -303,7 +303,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         //EL DESCUENTO RESTANTE LO AGREGAMOS A LOS ANTICIPOS
-                        if ($this->descuentosProntoPago->total > 0) {
+                        if ($this->prontoPago && $this->descuentosProntoPago->total > 0) {
 
                             $cuentaAnticipo = PlanCuentas::find($this->id_cuenta_anticipos);
 
@@ -314,7 +314,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                 'id_cuenta_por_cobrar' => $this->id_cuenta_anticipos,
                                 'id_cuenta_ingreso' => null,
                                 'id_comprobante' => $this->id_comprobante_notas,
-                                'id_centro_costos' => $cuentaAnticipo->exige_centro_costos ? ($this->cecos->id ?? null) : null,
+                                'id_centro_costos' => $cuentaAnticipo->exige_centro_costos ? $this->id_centro_costos : null,
                                 'fecha_manual' => $this->inicioMes.'-01',
                                 'documento_referencia' => $this->inicioMes.'-01',
                                 'valor' => $this->descuentosProntoPago->total,
@@ -401,7 +401,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'id_cuenta_por_cobrar' => $this->id_cuenta_intereses,
                 'id_cuenta_ingreso' => $this->id_cuenta_ingreso_intereses,
                 'id_comprobante' => $this->id_comprobante_ventas,
-                'id_centro_costos' => $inmuebleFactura ? $inmuebleFactura->id_centro_costos : CentroCostos::first()->id,
+                'id_centro_costos' => $inmuebleFactura?->id_centro_costos ?: $this->id_centro_costos,
                 'fecha_manual' => $this->inicioMes.'-01',
                 'documento_referencia' => $extracto->documento_referencia.'_'.$numeroTotalIntereses,
                 'valor' => round($valorTotal),
@@ -437,7 +437,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_cobrar,
             'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_ingreso,
             'id_comprobante' => $this->id_comprobante_ventas,
-            'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+            'id_centro_costos' => $inmuebleFactura?->id_centro_costos ?: $this->id_centro_costos,
             'fecha_manual' => $this->inicioMes.'-01',
             'documento_referencia' => $documentoReferenciaNumeroInmuebles,
             'valor' => round($inmuebleFactura->valor_total),
@@ -492,7 +492,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'id_cuenta_por_cobrar' => $inmuebleFactura->id_cuenta_gasto,
                     'id_cuenta_ingreso' => null,
                     'id_comprobante' => $this->id_comprobante_notas,
-                    'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                    'id_centro_costos' => $inmuebleFactura?->id_centro_costos ?: $this->id_centro_costos,
                     'fecha_manual' => $this->inicioMes.'-01',
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $this->descuentosProntoPago->total,
@@ -511,7 +511,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'id_cuenta_por_cobrar' => null,
                 'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
                 'id_comprobante' => $this->id_comprobante_notas,
-                'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                'id_centro_costos' => $inmuebleFactura?->id_centro_costos ?: $this->id_centro_costos,
                 'fecha_manual' => $this->inicioMes.'-01',
                 'documento_referencia' => $documentoReferencia,
                 'valor' => $totalDescuento,
@@ -536,7 +536,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'id_cuenta_por_cobrar' => $this->id_cuenta_anticipos,
                 'id_cuenta_ingreso' => $inmuebleFactura->id_cuenta_cobrar,
                 'id_comprobante' => $this->id_comprobante_notas,
-                'id_centro_costos' => $inmuebleFactura->id_centro_costos,
+                'id_centro_costos' => $this->id_centro_costos,
                 'fecha_manual' => $this->inicioMes.'-01',
                 'documento_referencia' => $documentoReferencia,
                 'documento_referencia_anticipo' => $facturacxp->documento_referencia,
@@ -591,7 +591,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'id_cuenta_por_cobrar' => $this->id_cuenta_anticipos,
                     'id_cuenta_ingreso' => $detalleFactura->id_cuenta_por_cobrar,
                     'id_comprobante' => $this->id_comprobante_notas,
-                    'id_centro_costos' => $detalleFactura->id_centro_costos,
+                    'id_centro_costos' => $this->id_centro_costos,
                     'fecha_manual' => $this->inicioMes.'-01',
                     'documento_referencia' => $detalleFactura->documento_referencia,
                     'documento_referencia_anticipo' => $facturacxp->documento_referencia,
@@ -618,7 +618,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 15)
+            // ->where('IN.id_nit', 352)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -628,7 +628,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 15)
+            // ->where('CM.id_nit', 352)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
@@ -656,7 +656,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'id_cuenta_por_cobrar' => $cuotaMultaFactura->id_cuenta_cobrar,
             'id_cuenta_ingreso' => $cuotaMultaFactura->id_cuenta_ingreso,
             'id_comprobante' => $this->id_comprobante_ventas,
-            'id_centro_costos' => $cuotaMultaFactura->id_centro_costos,
+            'id_centro_costos' => $cuotaMultaFactura?->id_centro_costos ?: $this->id_centro_costos,
             'fecha_manual' => $this->inicioMes.'-01',
             'documento_referencia' => $documentoReferenciaCuotaMulta,
             'valor' => round($cuotaMultaFactura->valor_total),
@@ -782,96 +782,115 @@ class ProcessFacturacionGeneral implements ShouldQueue
     private function extrasNitFacturarCxC($id_nit, $periodo_facturacion)
     {
         $fecha_facturar = date('Y-m', strtotime($periodo_facturacion));
-        $dbERP = Config::get('database.connections.sam.database');
         $data = CuotasMultas::with('nit', 'concepto.cuenta_ingreso.tipos_cuenta', 'inmueble.zona')
             ->where('id_nit', $id_nit)
             ->where("fecha_inicio", '<=', $fecha_facturar)
             ->where("fecha_fin", '>=', $fecha_facturar)
-            ->get()->toArray();
+            ->get();
 
         $dataArray = [];
 
-        
-        foreach ($data as $extraCxC) {
-            
-            $idNit = $extraCxC['concepto']['id_nit_cuenta_ingreso'] ? $extraCxC['concepto']['id_nit_cuenta_ingreso'] : $extraCxC['id_nit'];
-            $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso'];
-
-            if ($tipoCuenta && array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
-                $tipoCuenta = $extraCxC['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
-            } else {
-                $tipoCuenta = 3;
+        foreach ($data as $cuotaMulta) {
+            // Verificar que la relación 'concepto' exista
+            if (!$cuotaMulta->relationLoaded('concepto') || !$cuotaMulta->concepto) {
+                continue;
             }
-            
+
+            $concepto = $cuotaMulta->concepto;
+            $inmueble = $cuotaMulta->inmueble;
+            $zona = $inmueble ? $inmueble->zona : null;
+
+            $idNit = $concepto->id_nit_cuenta_ingreso ?: $cuotaMulta->id_nit;
+
+            // Obtener tipo de cuenta de la relación cuenta_ingreso -> tipos_cuenta
+            $tipoCuenta = 3; // valor por defecto
+            if ($concepto->cuenta_ingreso && $concepto->cuenta_ingreso->tipos_cuenta->isNotEmpty()) {
+                $tipoCuenta = $concepto->cuenta_ingreso->tipos_cuenta->first()->id_tipo_cuenta;
+            }
+
             if ($tipoCuenta != 4 && $tipoCuenta != 8) {
-                array_push($dataArray, (object)[
-                    'id_nit' => $idNit,
-                    'id_inmueble' => $extraCxC['id_inmueble'],
-                    'valor_total' => $extraCxC['valor_total'],
-                    'observacion' => $extraCxC['observacion'],
-                    'id_concepto_facturacion' => $extraCxC['concepto']['id'],
-                    'nombre' => $extraCxC['inmueble']['nombre'],
-                    'nombre_concepto' => $extraCxC['concepto']['nombre_concepto'],
-                    'id_cuenta_cobrar' => $extraCxC['concepto']['id_cuenta_cobrar'],
-                    'id_cuenta_ingreso' => $extraCxC['concepto']['id_cuenta_ingreso'],
-                    'id_cuenta_interes' => $extraCxC['concepto']['id_cuenta_interes'],
-                    'id_cuenta_gasto' => $extraCxC['concepto']['id_cuenta_gasto'],
-                    'id_cuenta_anticipo' => $extraCxC['concepto']['id_cuenta_anticipo'],
-                    'porcentaje_pronto_pago' => $extraCxC['concepto']['porcentaje_pronto_pago'],
-                    'pronto_pago' => $extraCxC['concepto']['pronto_pago'],
-                    'pronto_pago_morosos' => $extraCxC['concepto']['pronto_pago_morosos'],
-                    'intereses' => $extraCxC['concepto']['intereses'],
-                    'id_centro_costos' => $extraCxC['inmueble']['zona']['id_centro_costos'],
-                    'valor_fijo_intereses' => $extraCxC['concepto']['valor_fijo_intereses'],
-                    'valor_fijo_pronto_pago' => $extraCxC['concepto']['valor_fijo_pronto_pago'],
-                    'dias_generar_intereses' => $extraCxC['concepto']['dias_generar_intereses']
-                ]);
+                $dataArray[] = (object)[
+                    'id_nit'                  => $idNit,
+                    'id_inmueble'             => $cuotaMulta->id_inmueble,
+                    'valor_total'             => $cuotaMulta->valor_total,
+                    'observacion'             => $cuotaMulta->observacion,
+                    'id_concepto_facturacion' => $concepto->id,
+                    'nombre'                  => $inmueble ? $inmueble->nombre : '',
+                    'nombre_concepto'         => $concepto->nombre_concepto,
+                    'id_cuenta_cobrar'        => $concepto->id_cuenta_cobrar,
+                    'id_cuenta_ingreso'       => $concepto->id_cuenta_ingreso,
+                    'id_cuenta_interes'       => $concepto->id_cuenta_interes,
+                    'id_cuenta_gasto'         => $concepto->id_cuenta_gasto,
+                    'id_cuenta_anticipo'      => $concepto->id_cuenta_anticipo,
+                    'porcentaje_pronto_pago'  => $concepto->porcentaje_pronto_pago,
+                    'pronto_pago'             => $concepto->pronto_pago,
+                    'pronto_pago_morosos'     => $concepto->pronto_pago_morosos,
+                    'intereses'               => $concepto->intereses,
+                    'id_centro_costos'        => $zona ? $zona->id_centro_costos : $this->id_centro_costos,
+                    'valor_fijo_intereses'    => $concepto->valor_fijo_intereses,
+                    'valor_fijo_pronto_pago'  => $concepto->valor_fijo_pronto_pago,
+                    'dias_generar_intereses'  => $concepto->dias_generar_intereses,
+                ];
             }
         }
+
         return $dataArray;
     }
 
     private function extrasNitFacturarCxP($id_nit, $periodo_facturacion)
     {
         $fecha_facturar = date('Y-m', strtotime($periodo_facturacion));
-        $dbERP = Config::get('database.connections.sam.database');
+        
         $data = CuotasMultas::with('nit', 'concepto.cuenta_ingreso.tipos_cuenta', 'inmueble.zona')
             ->where('id_nit', $id_nit)
             ->where("fecha_inicio", '<=', $fecha_facturar)
             ->where("fecha_fin", '>=', $fecha_facturar)
-            ->get()->toArray();
+            ->get();
 
         $dataArray = [];
 
-        foreach ($data as $extraCxP) {
-            $idNit = $extraCxP['concepto']['id_nit_cuenta_ingreso'] ? $extraCxP['concepto']['id_nit_cuenta_ingreso'] : $extraCxP['id_nit'];
-            $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso'];
-            if ($tipoCuenta && array_key_exists('tipos_cuenta', $tipoCuenta) && $tipoCuenta['tipos_cuenta'] && array_key_exists('id_tipo_cuenta', $tipoCuenta['tipos_cuenta'])) {
-                $tipoCuenta = $extraCxP['concepto']['cuenta_ingreso']['tipos_cuenta']['id_tipo_cuenta'];
-                if ($tipoCuenta == 4 || $tipoCuenta == 8) {
-                    array_push($dataArray, (object)[
-                        'id_nit' => $idNit,
-                        'id_inmueble' => $extraCxP['id_inmueble'],
-                        'valor_total' => $extraCxP['valor_total'],
-                        'observacion' => $extraCxP['observacion'],
-                        'id_concepto_facturacion' => $extraCxP['concepto']['id'],
-                        'nombre' => $extraCxP['inmueble']['nombre'],
-                        'nombre_concepto' => $extraCxP['concepto']['nombre_concepto'],
-                        'id_cuenta_cobrar' => $extraCxP['concepto']['id_cuenta_cobrar'],
-                        'id_cuenta_ingreso' => $extraCxP['concepto']['id_cuenta_ingreso'],
-                        'id_cuenta_interes' => $extraCxP['concepto']['id_cuenta_interes'],
-                        'id_cuenta_gasto' => $extraCxP['concepto']['id_cuenta_gasto'],
-                        'id_cuenta_anticipo' => $extraCxP['concepto']['id_cuenta_anticipo'],
-                        'porcentaje_pronto_pago' => $extraCxP['concepto']['porcentaje_pronto_pago'],
-                        'pronto_pago' => $extraCxP['concepto']['pronto_pago'],
-                        'pronto_pago_morosos' => $extraCxP['concepto']['pronto_pago_morosos'],
-                        'intereses' => $extraCxP['concepto']['intereses'],
-                        'valor_fijo_intereses' => $extraCxP['concepto']['valor_fijo_intereses'],
-                        'valor_fijo_pronto_pago' => $extraCxP['concepto']['valor_fijo_pronto_pago'],
-                        'dias_generar_intereses' => $extraCxP['concepto']['dias_generar_intereses'],
-                        'id_centro_costos' => $extraCxP['inmueble']['zona']['id_centro_costos'],
-                    ]);
-                }
+        foreach ($data as $cuotaMulta) {
+            // Verificar que la relación 'concepto' exista y no sea nula
+            if (!$cuotaMulta->relationLoaded('concepto') || !$cuotaMulta->concepto) {
+                continue;
+            }
+
+            $concepto = $cuotaMulta->concepto;
+            $inmueble = $cuotaMulta->inmueble;
+            $zona = $inmueble ? $inmueble->zona : null;
+
+            // Obtener tipo de cuenta de manera segura
+            $tipoCuenta = 3; // valor por defecto
+            if ($concepto->cuenta_ingreso && $concepto->cuenta_ingreso->tipos_cuenta && $concepto->cuenta_ingreso->tipos_cuenta->isNotEmpty()) {
+                $tipoCuenta = $concepto->cuenta_ingreso->tipos_cuenta->first()->id_tipo_cuenta;
+            }
+
+            $idNit = $concepto->id_nit_cuenta_ingreso ?: $cuotaMulta->id_nit;
+
+            // Solo para cuentas por pagar (tipo 4 o 8)
+            if ($tipoCuenta == 4 || $tipoCuenta == 8) {
+                $dataArray[] = (object)[
+                    'id_nit'                  => $idNit,
+                    'id_inmueble'             => $cuotaMulta->id_inmueble,
+                    'valor_total'             => $cuotaMulta->valor_total,
+                    'observacion'             => $cuotaMulta->observacion,
+                    'id_concepto_facturacion' => $concepto->id,
+                    'nombre'                  => $inmueble ? $inmueble->nombre : '',
+                    'nombre_concepto'         => $concepto->nombre_concepto,
+                    'id_cuenta_cobrar'        => $concepto->id_cuenta_cobrar,
+                    'id_cuenta_ingreso'       => $concepto->id_cuenta_ingreso,
+                    'id_cuenta_interes'       => $concepto->id_cuenta_interes,
+                    'id_cuenta_gasto'         => $concepto->id_cuenta_gasto,
+                    'id_cuenta_anticipo'      => $concepto->id_cuenta_anticipo,
+                    'porcentaje_pronto_pago'  => $concepto->porcentaje_pronto_pago,
+                    'pronto_pago'             => $concepto->pronto_pago,
+                    'pronto_pago_morosos'     => $concepto->pronto_pago_morosos,
+                    'intereses'               => $concepto->intereses,
+                    'valor_fijo_intereses'    => $concepto->valor_fijo_intereses,
+                    'valor_fijo_pronto_pago'  => $concepto->valor_fijo_pronto_pago,
+                    'dias_generar_intereses'  => $concepto->dias_generar_intereses,
+                    'id_centro_costos'        => $zona ? $zona->id_centro_costos : $this->id_centro_costos,
+                ];
             }
         }
 
