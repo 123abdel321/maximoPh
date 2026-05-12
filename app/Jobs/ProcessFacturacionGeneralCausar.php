@@ -4,19 +4,15 @@ namespace App\Jobs;
 
 use DB;
 use Exception;
-use App\Helpers\helpers;
 use App\Helpers\Documento;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Helpers\DocumentoGeneralController;
-use App\Helpers\PortafolioERP\FacturacionERP;
-//MODELS
+// MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Facturacion;
@@ -29,218 +25,73 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 600;        // 10 minutos máximo de ejecución
+    public $tries = 1;            // Solo un intento (evita reintentos infinitos y error de uuid duplicado)
     public $empresa = null;
     public $inicioMes = null;
-	public $id_usuario = null;
+    public $id_usuario = null;
     public $id_empresa = null;
     public $periodo_facturacion = null;
 
     /**
      * Create a new job instance.
-	 * 
-	 * @return void
      */
     public function __construct($id_usuario, $id_empresa)
     {
         $this->id_usuario = $id_usuario;
         $this->id_empresa = $id_empresa;
         $this->empresa = Empresa::find($id_empresa);
-        $this->periodo_facturacion = Entorno::where('nombre', 'periodo_facturacion')->first()->valor;
+        $entorno = Entorno::where('nombre', 'periodo_facturacion')->first();
+        $this->periodo_facturacion = $entorno ? $entorno->valor : null;
         $this->inicioMes = date('Y-m', strtotime($this->periodo_facturacion));
     }
 
     /**
      * Execute the job.
-	 * 
-	 * @return string
      */
     public function handle()
     {
-        try {            
+        // Iniciar transacción en la conexión 'sam' (PortafolioERP)
+        DB::connection('sam')->beginTransaction();
+
+        try {
+            // Configurar conexiones
             copyDBConnection('max', 'max');
             setDBInConnection('max', $this->empresa->token_db_maximo);
 
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
-            $facturas = Facturacion::with('detalle')
-                ->where('fecha_manual', $this->inicioMes.'-01')
-                ->get();
+            // Obtener facturas del período (usar chunk para no sobrecargar memoria)
+            $facturaQuery = Facturacion::with('detalle')
+                ->where('fecha_manual', $this->inicioMes . '-01');
 
-            $lastConsecutivo = 0;
+            $lastConsecutivoGlobal = 0; // Solo para control de duplicados dentro del mismo job
 
-            foreach ($facturas as $key => $factura) {
-
-                //ARMAMOS LOS DATOS PARA LUEGO USARLOS
-                $documento = [];
-                foreach ($factura->detalle as $detalle) {
-                    $documento[] = (object)[
-                        'id_nit' => $detalle->id_nit,
-                        'id_cuenta_por_cobrar' => $detalle->id_cuenta_por_cobrar,
-                        'id_cuenta_ingreso' => $detalle->id_cuenta_ingreso,
-                        'id_comprobante' => $detalle->id_comprobante,
-                        'id_centro_costos' => $detalle->id_centro_costos,
-                        'fecha_manual' => $detalle->fecha_manual,
-                        'documento_referencia' => $detalle->documento_referencia,
-                        'documento_referencia_anticipo' => $detalle->documento_referencia_anticipo,
-                        'valor' => $detalle->valor,
-                        'concepto' => $detalle->concepto,
-                        'naturaleza_opuesta' => $detalle->naturaleza_opuesta,
-                        'token_factura' => $factura->token_factura,
-                    ];
+            // Procesar en lotes de 50 facturas
+            $facturaQuery->chunk(50, function ($facturas) use (&$lastConsecutivoGlobal) {
+                foreach ($facturas as $factura) {
+                    $this->procesarFactura($factura, $lastConsecutivoGlobal);
                 }
-                
-                //AGRUPAMOS LOS ITEMS QUE TENGAN EL MISMO TOKEN DE FACTURA
-                $documentosGroup = [];
-                foreach($documento as $document) {
-                    $document = (object)$document;
-                    $documentosGroup[$document->token_factura][] = $document;
-                }
+            });
 
-                $cuentasContables = [
-                    'id_cuenta_por_cobrar',
-                    'id_cuenta_ingreso'
-                ];
-                
-                //ARMAMOS EL MOVIMIENTO CONTABLE
-                foreach($documentosGroup as $docGroup) {
+            // Confirmar transacción
+            DB::connection('sam')->commit();
 
-                    $comprobante = Comprobantes::find($docGroup[0]->id_comprobante);
-                    $consecutivo = $comprobante->consecutivo_siguiente;
-
-                    if ($comprobante->tipo_consecutivo == Comprobantes::CONSECUTIVO_MENSUAL) {
-                        $consecutivo = $this->getLastConsecutive($comprobante->id, $fecha) + 1;
-                    }
-
-                    if ($lastConsecutivo == $consecutivo) {
-                        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-                            'tipo' => 'error',
-                            'success' => false,
-                            'message' => "El consecutivo {$consecutivo} ya esta en uso!",
-                            'line' => '121',
-                            'action' => 5
-                        ]));
-
-                        return response()->json([
-                            'success'=>	false,
-                            'data' => [],
-                            'message'=> "El consecutivo {$consecutivo} ya esta en uso!"
-                        ], 401);
-                    }
-
-                    $lastConsecutivo = $consecutivo;
-                    
-                    $facDocumento = FacDocumentos::create([
-                        'id_nit' => $docGroup[0]->id_nit,
-                        'id_comprobante' => $docGroup[0]->id_comprobante,
-                        'fecha_manual' => $docGroup[0]->fecha_manual,
-                        'consecutivo' => $consecutivo,
-                        'token_factura' => $docGroup[0]->token_factura,
-                        'debito' => 0,
-                        'credito' => 0,
-                        'saldo_final' => 0,
-                        'created_by' => $this->id_usuario,
-                        'updated_by' => $this->id_usuario,
-                    ]);
-    
-                    $documentoGeneral = new Documento(
-                        $docGroup[0]->id_comprobante,
-                        $facDocumento,
-                        $docGroup[0]->fecha_manual,
-                        $consecutivo
-                    );
-                    
-                    foreach ($docGroup as $doc) {
-                        
-                        foreach ($cuentasContables as $cuentaContableI) {
-                            $naturaleza = null;
-                            $docGeneral = $this->newDocGeneral();
-                            $cuentaContable = PlanCuentas::where('id', $doc->{$cuentaContableI})
-                                ->with('tipos_cuenta')
-                                ->first();
-
-                            if (!$cuentaContable) {
-                                continue;
-                            }
-    
-                            $tipoNumeroCuenta = mb_substr($cuentaContable->cuenta, 0, 1);
-    
-                            $naturaleza = null;
-                            $documentoReferencia = $doc->documento_referencia;
-    
-                            if ($tipoNumeroCuenta == '5') {
-                                $naturaleza = PlanCuentas::DEBITO;
-                                $docGeneral['debito'] = $doc->valor;
-                            } else if ($doc->naturaleza_opuesta) {
-
-                                $documentoReferencia = $this->generarDocumentoReferenciaAnticipos($cuentaContable, $doc);
-    
-                                if ($cuentaContable->naturaleza_ventas == PlanCuentas::DEBITO) {
-                                    $naturaleza = PlanCuentas::CREDITO;
-                                    $docGeneral['credito'] = $doc->valor;
-                                } else {
-                                    $naturaleza = PlanCuentas::DEBITO;
-                                    $docGeneral['debito'] = $doc->valor;
-                                }
-                            } else {
-                                if ($cuentaContable->naturaleza_cuenta == PlanCuentas::DEBITO) {
-                                    $naturaleza = PlanCuentas::DEBITO;
-                                    $docGeneral['debito'] = $doc->valor;
-                                } else {
-                                    $naturaleza = PlanCuentas::CREDITO;
-                                    $docGeneral['credito'] = $doc->valor;
-                                }
-                            }
-    
-                            $docGeneral['id_nit'] = $doc->id_nit;
-                            $docGeneral['id_cuenta'] = $cuentaContable->id;
-                            $docGeneral['id_centro_costos'] = $doc->id_centro_costos;
-                            $docGeneral['documento_referencia'] = $documentoReferencia;
-                            $docGeneral['concepto'] = $doc->concepto;
-                            $docGeneral['consecutivo'] = $consecutivo;
-                            $docGeneral['created_by'] = $this->id_usuario;
-                            $docGeneral['updated_by'] = $this->id_usuario;
-
-                            $docGeneral = new DocumentosGeneral($docGeneral);
-                            $documentoGeneral->addRow($docGeneral, $naturaleza);
-                        }
-                    }
-                    
-                    if (!$documentoGeneral->save()) {
-                        DB::connection('sam')->rollback();
-
-                        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-                            'tipo' => 'error',
-                            'success' => false,
-                            'message' => $documentoGeneral->getErrors(),
-                            'line' => '191',
-                            'action' => 5
-                        ]));
-
-                        return response()->json([
-                            'success'=>	false,
-                            'data' => [],
-                            'message'=> $documentoGeneral->getErrors()
-                        ], 401);
-                    }
-
-                    //ACTUALIZAR CONSECUTIVO
-                    $comprobante->consecutivo_siguiente++;
-                    $comprobante->save();
-                }
-            }
-
+            // Notificar éxito (solo después del commit)
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                 'tipo' => 'exito',
-                'success' =>  true,
+                'success' => true,
                 'action' => 4
             ]));
 
-		} catch (Exception $exception) {
+        } catch (Exception $exception) {
+            DB::connection('sam')->rollBack();
 
-			Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
+            Log::error('ProcessFacturacionGeneralCausar falló', [
                 'message' => $exception->getMessage(),
-                'line' => $exception->getLine()
+                'line' => $exception->getLine(),
+                'trace' => $exception->getTraceAsString()
             ]);
 
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
@@ -251,62 +102,220 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 'action' => 5
             ]));
 
+            // Relanzar excepción para que Laravel marque el job como fallido
             throw $exception;
-		}
+        }
     }
 
-    private function getInmueblesNitsQuery()
+    /**
+     * Procesa una sola factura y sus detalles.
+     *
+     * @param \App\Models\Sistema\Facturacion $factura
+     * @param int &$lastConsecutivoGlobal
+     * @throws Exception
+     */
+    private function procesarFactura($factura, &$lastConsecutivoGlobal)
     {
-        return DB::connection('max')->table('inmueble_nits AS IN')
-            ->select(
-                'IN.id_nit'
+        // Armar array de detalles como objetos
+        $documentos = [];
+        foreach ($factura->detalle as $detalle) {
+            $documentos[] = (object) [
+                'id_nit' => $detalle->id_nit,
+                'id_cuenta_por_cobrar' => $detalle->id_cuenta_por_cobrar,
+                'id_cuenta_ingreso' => $detalle->id_cuenta_ingreso,
+                'id_comprobante' => $detalle->id_comprobante,
+                'id_centro_costos' => $detalle->id_centro_costos,
+                'fecha_manual' => $detalle->fecha_manual,
+                'documento_referencia' => $detalle->documento_referencia,
+                'documento_referencia_anticipo' => $detalle->documento_referencia_anticipo,
+                'valor' => $detalle->valor,
+                'concepto' => $detalle->concepto,
+                'naturaleza_opuesta' => $detalle->naturaleza_opuesta,
+                'token_factura' => $factura->token_factura,
+            ];
+        }
+
+        // Agrupar por token_factura (normalmente uno solo, pero se respeta)
+        $gruposPorToken = [];
+        foreach ($documentos as $doc) {
+            $gruposPorToken[$doc->token_factura][] = $doc;
+        }
+
+        $cuentasContables = ['id_cuenta_por_cobrar', 'id_cuenta_ingreso'];
+
+        foreach ($gruposPorToken as $grupo) {
+            $primerItem = $grupo[0];
+            $comprobante = Comprobantes::find($primerItem->id_comprobante);
+            if (!$comprobante) {
+                throw new Exception("Comprobante no encontrado ID: {$primerItem->id_comprobante}");
+            }
+
+            // Calcular consecutivo
+            $consecutivo = $comprobante->consecutivo_siguiente;
+            if ($comprobante->tipo_consecutivo == Comprobantes::CONSECUTIVO_MENSUAL) {
+                $last = $this->getLastConsecutive($comprobante->id, $primerItem->fecha_manual);
+                $consecutivo = $last + 1;
+            }
+
+            // Validar duplicado dentro del mismo lote
+            if ($lastConsecutivoGlobal == $consecutivo) {
+                throw new Exception("El consecutivo {$consecutivo} ya está en uso en este proceso.");
+            }
+            $lastConsecutivoGlobal = $consecutivo;
+
+            // Crear registro FacDocumentos
+            $facDocumento = FacDocumentos::create([
+                'id_nit' => $primerItem->id_nit,
+                'id_comprobante' => $primerItem->id_comprobante,
+                'fecha_manual' => $primerItem->fecha_manual,
+                'consecutivo' => $consecutivo,
+                'token_factura' => $primerItem->token_factura,
+                'debito' => 0,
+                'credito' => 0,
+                'saldo_final' => 0,
+                'created_by' => $this->id_usuario,
+                'updated_by' => $this->id_usuario,
+            ]);
+
+            // Instancia del helper Documento
+            $documentoGeneral = new Documento(
+                $primerItem->id_comprobante,
+                $facDocumento,
+                $primerItem->fecha_manual,
+                $consecutivo
             );
+
+            // Procesar cada línea contable del grupo
+            foreach ($grupo as $item) {
+                foreach ($cuentasContables as $cuentaCampo) {
+                    $cuentaId = $item->{$cuentaCampo};
+                    if (!$cuentaId) continue;
+
+                    $cuentaContable = PlanCuentas::where('id', $cuentaId)
+                        ->with('tipos_cuenta')
+                        ->first();
+                    if (!$cuentaContable) continue;
+
+                    $tipoNumeroCuenta = mb_substr($cuentaContable->cuenta, 0, 1);
+                    $docGeneralData = $this->newDocGeneral();
+                    $docGeneralData['id_nit'] = $item->id_nit;
+                    $docGeneralData['id_cuenta'] = $cuentaContable->id;
+                    $docGeneralData['id_centro_costos'] = $item->id_centro_costos;
+                    $docGeneralData['concepto'] = $item->concepto;
+                    $docGeneralData['consecutivo'] = $consecutivo;
+                    $docGeneralData['created_by'] = $this->id_usuario;
+                    $docGeneralData['updated_by'] = $this->id_usuario;
+
+                    $naturaleza = null;
+                    $documentoReferencia = $item->documento_referencia;
+
+                    // Lógica de naturaleza y débito/crédito
+                    if ($tipoNumeroCuenta == '5') {
+                        $naturaleza = PlanCuentas::DEBITO;
+                        $docGeneralData['debito'] = $item->valor;
+                    } elseif ($item->naturaleza_opuesta) {
+                        $documentoReferencia = $this->generarDocumentoReferenciaAnticipos($cuentaContable, $item);
+                        if ($cuentaContable->naturaleza_ventas == PlanCuentas::DEBITO) {
+                            $naturaleza = PlanCuentas::CREDITO;
+                            $docGeneralData['credito'] = $item->valor;
+                        } else {
+                            $naturaleza = PlanCuentas::DEBITO;
+                            $docGeneralData['debito'] = $item->valor;
+                        }
+                    } else {
+                        if ($cuentaContable->naturaleza_cuenta == PlanCuentas::DEBITO) {
+                            $naturaleza = PlanCuentas::DEBITO;
+                            $docGeneralData['debito'] = $item->valor;
+                        } else {
+                            $naturaleza = PlanCuentas::CREDITO;
+                            $docGeneralData['credito'] = $item->valor;
+                        }
+                    }
+
+                    $docGeneralData['documento_referencia'] = $documentoReferencia;
+
+                    $docGeneral = new DocumentosGeneral($docGeneralData);
+                    $documentoGeneral->addRow($docGeneral, $naturaleza);
+                }
+            }
+
+            // Guardar el documento completo
+            if (!$documentoGeneral->save()) {
+                throw new Exception("Error guardando DocumentosGeneral: " . $documentoGeneral->getErrors());
+            }
+
+            // Actualizar consecutivo siguiente del comprobante
+            $comprobante->consecutivo_siguiente++;
+            $comprobante->save();
+        }
     }
 
-    private function getCuotasMultasNitsQuery($fecha_facturar)
+    /**
+     * Obtiene el último consecutivo usado para un comprobante en un mes específico.
+     *
+     * @param int $idComprobante
+     * @param string $fecha (formato Y-m-d)
+     * @return int
+     */
+    private function getLastConsecutive($idComprobante, $fecha)
     {
-        return DB::connection('max')->table('cuotas_multas AS CM')
-            ->select(
-                'CM.id_nit'
-            )
-            ->where("CM.fecha_inicio", '<=', $fecha_facturar)
-            ->where("CM.fecha_fin", '>=', $fecha_facturar);
+        $last = DocumentosGeneral::where('id_comprobante', $idComprobante)
+            ->whereYear('fecha_manual', '=', date('Y', strtotime($fecha)))
+            ->whereMonth('fecha_manual', '=', date('m', strtotime($fecha)))
+            ->orderBy('consecutivo', 'desc')
+            ->value('consecutivo');
+
+        return $last ? (int)$last : 0;
     }
 
-    private function generarDocumentoReferenciaAnticipos($cuenta = null, $doc)
-	{
+    /**
+     * Genera documento de referencia para anticipos.
+     *
+     * @param \App\Models\Portafolio\PlanCuentas $cuenta
+     * @param \stdClass $doc
+     * @return string
+     */
+    private function generarDocumentoReferenciaAnticipos($cuenta, $doc)
+    {
         $tiposCuenta = $cuenta->tipos_cuenta;
         foreach ($tiposCuenta as $tipoCuenta) {
             if ($tipoCuenta->id_tipo_cuenta == 4 || $tipoCuenta->id_tipo_cuenta == 8) {
-                if ($doc->documento_referencia_anticipo) {
-                    return $doc->documento_referencia_anticipo;
-                }
-                return $doc->documento_referencia;
+                return $doc->documento_referencia_anticipo ?: $doc->documento_referencia;
             }
         }
-		return $doc->documento_referencia;
-	}
+        return $doc->documento_referencia;
+    }
 
+    /**
+     * Retorna un array base para un nuevo registro de DocumentosGeneral.
+     *
+     * @return array
+     */
     private function newDocGeneral()
-	{
-		return [
-			'id_nit' => '',
-			'id_cuenta' => '',
-			'id_centro_costos' => '',
-			'created_by' => '',
-			'updated_by' => '',
-			'consecutivo' => '',
-			'concepto' => '',
-			'credito' => 0,
-			'debito' => 0,
-			'saldo' => 0,
-			'documento_referencia' => ''
-		];
-	}
+    {
+        return [
+            'id_nit' => '',
+            'id_cuenta' => '',
+            'id_centro_costos' => '',
+            'created_by' => '',
+            'updated_by' => '',
+            'consecutivo' => '',
+            'concepto' => '',
+            'credito' => 0,
+            'debito' => 0,
+            'saldo' => 0,
+            'documento_referencia' => ''
+        ];
+    }
 
-	public function failed($exception)
-	{
-		Log::error('ProcessFacturacionGeneralCausar al enviar facturación a PortafolioERP', [
+    /**
+     * Maneja el fallo definitivo del job (cuando se agotan los reintentos).
+     *
+     * @param \Exception $exception
+     */
+    public function failed($exception)
+    {
+        Log::error('ProcessFacturacionGeneralCausar falló definitivamente', [
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
@@ -318,16 +327,5 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             'line' => $exception->getLine(),
             'action' => 5
         ]));
-	}
-
-    public function getLastConsecutive($id_comprobante, $fecha)
-	{
-		$castConsecutivo = 'MAX(CAST(consecutivo AS SIGNED)) AS consecutivo';
-		$lastConsecutivo = DocumentosGeneral::select(DB::raw($castConsecutivo))
-			->where('id_comprobante', $id_comprobante)
-			->where('fecha_manual', 'like', substr($fecha, 0, 7) . '%')
-			->first();
-
-		return $lastConsecutivo ? $lastConsecutivo->consecutivo : 0;
-	}
+    }
 }
