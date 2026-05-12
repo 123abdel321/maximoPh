@@ -4,40 +4,31 @@ namespace App\Jobs;
 
 use DB;
 use Exception;
-use App\Helpers\helpers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Helpers\DocumentoGeneralController;
-//MODELS
 use App\Models\Sistema\Entorno;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\Facturacion;
-use App\Models\Portafolio\FacDocumentos;
-use App\Models\Sistema\FacturacionDetalle;
-use App\Models\Portafolio\DocumentosGeneral;
 
 class ProcessFacturacionGeneralDelete implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 1800;
+    public $tries = 1;
+    // public $queue = 'facturacion';
+
     public $empresa = null;
     public $inicioMes = null;
-	public $id_usuario = null;
+    public $id_usuario = null;
     public $id_empresa = null;
     public $periodo_facturacion = null;
-    
 
-    /**
-     * Create a new job instance.
-	 * 
-	 * @return void
-     */
     public function __construct($id_usuario, $id_empresa)
     {
         $this->id_usuario = $id_usuario;
@@ -47,63 +38,74 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
         $this->inicioMes = date('Y-m', strtotime($this->periodo_facturacion));
     }
 
-    /**
-     * Execute the job.
-	 * 
-	 * @return string
-     */
     public function handle()
     {
-        try {            
-        copyDBConnection('max', 'max');
-        setDBInConnection('max', $this->empresa->token_db_maximo);
+        try {
+            copyDBConnection('max', 'max');
+            setDBInConnection('max', $this->empresa->token_db_maximo);
 
-        copyDBConnection('sam', 'sam');
-        setDBInConnection('sam', $this->empresa->token_db_portafolio);
+            copyDBConnection('sam', 'sam');
+            setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
-        $fechaObjetivo = $this->inicioMes . '-01';
+            $fechaObjetivo = $this->inicioMes . '-01';
 
-        // 1. Eliminar facturas del mes junto con sus detalles y documentos asociados
-        Facturacion::where('fecha_manual', $fechaObjetivo)
-            ->chunk(200, function ($facturas) {
-                foreach ($facturas as $factura) {
-                    // Eliminar detalles de facturación (en 'max')
-                    $factura->detalle()->delete();
+            // 1. Obtener todos los token_factura del período
+            $tokens = Facturacion::where('fecha_manual', $fechaObjetivo)
+                ->whereNotNull('token_factura')
+                ->pluck('token_factura')
+                ->toArray();
 
-                    // Eliminar documentos en 'sam' si existe token
-                    if ($factura->token_factura) {
-                        $facturasPortafolio = FacDocumentos::on('sam')
-                            ->with('documentos')
-                            ->where('token_factura', $factura->token_factura)
-                            ->get();
+            if (!empty($tokens)) {
+                // Procesar tokens en lotes de 500 para evitar consultas gigantes
+                foreach (array_chunk($tokens, 500) as $tokenChunk) {
+                    // Obtener los IDs de fac_documentos que serán eliminados
+                    $facDocumentosIds = DB::connection('sam')->table('fac_documentos')
+                        ->whereIn('token_factura', $tokenChunk)
+                        ->pluck('id')
+                        ->toArray();
 
-                        foreach ($facturasPortafolio as $facturaPortafolio) {
-                            // Eliminar relaciones polimórficas
-                            $facturaPortafolio->documentos()->delete();
-                            // Eliminar el registro fac_documentos
-                            $facturaPortafolio->delete();
-                        }
+                    if (!empty($facDocumentosIds)) {
+                        // Eliminar documentos_generals relacionados (relación polimórfica)
+                        // relation_type = 2 significa que apunta a la tabla fac_documentos
+                        DB::connection('sam')->table('documentos_generals')
+                            ->whereIn('relation_id', $facDocumentosIds)
+                            ->where('relation_type', 2)
+                            ->delete();
+
+                        // Eliminar los fac_documentos
+                        DB::connection('sam')->table('fac_documentos')
+                            ->whereIn('id', $facDocumentosIds)
+                            ->delete();
                     }
-
-                    // Eliminar la factura principal
-                    $factura->delete();
                 }
-            });
+            }
 
-        // 2. Limpiar FacturacionDetalle huérfanos (aquellos sin factura padre)
-        $this->limpiarDetallesHuerfanos();
+            // 2. Eliminar detalles de facturación (en 'max')
+            DB::connection('max')->table('facturacion_detalles')
+                ->whereIn('id_factura', function ($query) use ($fechaObjetivo) {
+                    $query->select('id')
+                        ->from('facturacions')
+                        ->where('fecha_manual', $fechaObjetivo);
+                })->delete();
 
-        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-            'tipo' => 'exito',
-            'success' => true,
-            'action' => 2
-        ]));
+            // 3. Eliminar las facturas principales
+            $deleted = Facturacion::where('fecha_manual', $fechaObjetivo)->delete();
 
-    } catch (Exception $exception) {
+            // 4. Limpiar posibles huérfanos (detalles sin factura)
+            $this->limpiarDetallesHuerfanos();
 
-			Log::error('ProcessFacturacionGeneralDelete al enviar facturación a PortafolioERP', [
+            // Notificar éxito
+            event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                'tipo' => 'exito',
+                'success' => true,
+                'action' => 2
+            ]));
+
+        } catch (Exception $exception) {
+            Log::error('ProcessFacturacionGeneralDelete falló', [
                 'message' => $exception->getMessage(),
-                'line' => $exception->getLine()
+                'line' => $exception->getLine(),
+                'trace' => $exception->getTraceAsString()
             ]);
 
             event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
@@ -115,41 +117,28 @@ class ProcessFacturacionGeneralDelete implements ShouldQueue
             ]));
 
             throw $exception;
-		}
+        }
     }
 
+    /**
+     * Limpia registros huérfanos en facturacion_detalles (sin factura padre)
+     */
     private function limpiarDetallesHuerfanos()
     {
-        // Usar el mismo connection 'max'
         DB::connection('max')->table('facturacion_detalles')
-            ->leftJoin('facturacions', 'facturacion_detalles.id_factura', '=', 'facturacions.id')
-            ->whereNull('facturacions.id')
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('facturacions')
+                    ->whereRaw('facturacion_detalles.id_factura = facturacions.id');
+            })
             ->delete();
     }
 
-    private function getInmueblesNitsQuery()
+    public function failed($exception)
     {
-        return DB::connection('max')->table('inmueble_nits AS IN')
-            ->select(
-                'IN.id_nit'
-            );
-    }
-
-    private function getCuotasMultasNitsQuery($fecha_facturar)
-    {
-        return DB::connection('max')->table('cuotas_multas AS CM')
-            ->select(
-                'CM.id_nit'
-            )
-            ->where("CM.fecha_inicio", '<=', $fecha_facturar)
-            ->where("CM.fecha_fin", '>=', $fecha_facturar);
-    }
-
-	public function failed($exception)
-	{
-		Log::error('ProcessFacturacionGeneralDelete al enviar facturación a PortafolioERP', [
+        Log::error('ProcessFacturacionGeneralDelete falló definitivamente', [
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
-	}
+    }
 }

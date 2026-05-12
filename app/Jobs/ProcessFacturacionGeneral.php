@@ -37,6 +37,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 1800;
+    public $tries = 1;
+    // public $queue = 'facturacion';
+
     public $id_usuario = null;
     public $empresa = null;
 	public $id_empresa = null;
