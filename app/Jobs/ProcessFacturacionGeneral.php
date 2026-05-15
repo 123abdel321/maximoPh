@@ -308,7 +308,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
                         //EL DESCUENTO RESTANTE LO AGREGAMOS A LOS ANTICIPOS
                         if ($this->prontoPago && $this->descuentosProntoPago->total > 0) {
-
                             $cuentaAnticipo = PlanCuentas::find($this->id_cuenta_anticipos);
 
                             $facturaDetalle = FacturacionDetalle::create([
@@ -481,7 +480,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             && !$this->tieneProntoPago($inmuebleFactura->id_nit)) {
             
             $concepto = 'PRONTO PAGO '.$inmuebleFactura->porcentaje_pronto_pago.'% BASE '. number_format($this->descuentosProntoPago->base).' '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
-            if ($inmuebleFactura->valor_fijo_pronto_pago) {
+            if (floatval($inmuebleFactura->valor_fijo_pronto_pago) > 0) {
                 $concepto = 'PRONTO PAGO VALOR FIJO '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre;
             }
 
@@ -501,7 +500,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $this->descuentosProntoPago->total,
                     'concepto' => $concepto,
-                    'naturaleza_opuesta' => true,
+                    'naturaleza_opuesta' => false,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
@@ -546,7 +545,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'documento_referencia_anticipo' => $facturacxp->documento_referencia,
                 'valor' => round($totalCruce),
                 'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
-                'naturaleza_opuesta' => true,
+                'naturaleza_opuesta' => false,
                 'created_by' => $this->id_usuario,
                 'updated_by' => $this->id_usuario,
             ]);
@@ -622,7 +621,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 352)
+            // ->where('IN.id_nit', 342)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -632,7 +631,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 352)
+            // ->where('CM.id_nit', 342)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
@@ -911,14 +910,14 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'detalle' => []
         ];
         
-        // Calcular descuentos sin redondearss
+        // Calcular descuentos sin redondears
         foreach ($inmueblesFacturar as $inmueble) {
 
             $descuento = ($inmueble->pronto_pago || $inmueble->pronto_pago_morosos) && $inmueble->porcentaje_pronto_pago ?
                 $inmueble->valor_total * ($inmueble->porcentaje_pronto_pago / 100) :
                 0;
 
-            if ($inmueble->valor_fijo_pronto_pago) $descuento = $inmueble->valor_fijo_pronto_pago;
+            if (floatval($inmueble->valor_fijo_pronto_pago) > 0) $descuento = $inmueble->valor_fijo_pronto_pago;
 
             $this->descuentosProntoPago->detalle[$inmueble->id_inmueble] = $descuento;
             $this->descuentosProntoPago->base += $inmueble->valor_total;
@@ -930,7 +929,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 $multas->valor_total * ($multas->porcentaje_pronto_pago / 100) :
                 0;
 
-            if ($multas->valor_fijo_pronto_pago) $descuento = $multas->valor_fijo_pronto_pago;
+            if (floatval($multas->valor_fijo_pronto_pago) > 0) $descuento = $multas->valor_fijo_pronto_pago;
 
             $index = "";
             $this->descuentosProntoPago->base += $multas->valor_total;

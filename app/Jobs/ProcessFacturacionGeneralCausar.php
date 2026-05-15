@@ -156,7 +156,8 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 $primerItem->id_comprobante,
                 $facDocumento,
                 $primerItem->fecha_manual,
-                $consecutivo
+                $consecutivo,
+                false
             );
 
             foreach ($grupo as $item) {

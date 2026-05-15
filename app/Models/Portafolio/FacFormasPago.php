@@ -25,4 +25,10 @@ class FacFormasPago extends Model
     {
         return $this->belongsTo(PlanCuentas::class, "id_cuenta");
 	}
+
+    public function tipoFormaPago()
+    {
+        return $this->belongsTo(FacTipoFormasPago::class, "id_tipo_formas_pago");
+    }
+
 }
