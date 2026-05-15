@@ -308,6 +308,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
                         //EL DESCUENTO RESTANTE LO AGREGAMOS A LOS ANTICIPOS
                         if ($this->prontoPago && $this->descuentosProntoPago->total > 0) {
+
                             $cuentaAnticipo = PlanCuentas::find($this->id_cuenta_anticipos);
 
                             $facturaDetalle = FacturacionDetalle::create([
@@ -500,7 +501,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $this->descuentosProntoPago->total,
                     'concepto' => $concepto,
-                    'naturaleza_opuesta' => false,
+                    'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
@@ -545,7 +546,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 'documento_referencia_anticipo' => $facturacxp->documento_referencia,
                 'valor' => round($totalCruce),
                 'concepto' => 'CRUCE ANTICIPOS '.$inmuebleFactura->nombre_concepto.' '.$inmuebleFactura->nombre,
-                'naturaleza_opuesta' => false,
+                'naturaleza_opuesta' => true,
                 'created_by' => $this->id_usuario,
                 'updated_by' => $this->id_usuario,
             ]);
