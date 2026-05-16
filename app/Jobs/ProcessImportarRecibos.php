@@ -152,7 +152,7 @@ class ProcessImportarRecibos implements ShouldQueue
             'consecutivo' => $consecutivo,
             'total_abono' => $reciboImport->pago,
             'total_anticipo' => $reciboImport->anticipos ?? 0,
-            'observacion' => 'CARGADO DESDE IMPORTADOR',
+            'observacion' => $reciboImport->concepto ? $reciboImport->concepto : 'CARGADO DESDE IMPORTADOR',
             'created_by' => $this->user_id,
             'updated_by' => $this->user_id
         ]);
@@ -243,9 +243,10 @@ class ProcessImportarRecibos implements ShouldQueue
 
                     $valorDescuento = $facturaDescuento->descuento ?: 0;
                     $cuentaGasto = PlanCuentas::find($conceptoDescuento->id_cuenta_gasto);
+                    $conceptoAux = $reciboImport->concepto ? $reciboImport->concepto : 'IMPORTADOS DESDE RECIBOS';
                     if ($cuentaGasto) {
                         $this->agregarMovimiento($documentoGeneral, $cuentaGasto, $reciboImport->id_nit,
-                            'PRONTO PAGO ' . $conceptoDescuento->porcentaje_pronto_pago . '% BASE ' . number_format($facturaDescuento->subtotal) . ' IMPORTADOS DESDE RECIBOS',
+                            'PRONTO PAGO ' . $conceptoDescuento->porcentaje_pronto_pago . '% BASE ' . number_format($facturaDescuento->subtotal) . ' ' . $conceptoAux,
                             $extracto->documento_referencia, $valorDescuento, $cuentaGasto->naturaleza_egresos);
                     }
                     // No se resta aún del totalDescuentoDisponible porque eso se hace después
@@ -324,6 +325,7 @@ class ProcessImportarRecibos implements ShouldQueue
 
             $valorPago = $valorRestante > $valorPendiente ? $valorPendiente : $valorRestante;
             $documentoReferencia = $extracto->documento_referencia ?: $recibo->consecutivo;
+            $concepto = $reciboImport->concepto ? $reciboImport->concepto . ' - ' . number_format($valorPago) : 'PAGADO DESDE IMPORTADOR DE RECIBOS ' . number_format($valorPago);
 
             if ($valorPago) {
                 $cuentaPago = PlanCuentas::find($extracto->id_cuenta);
@@ -334,7 +336,7 @@ class ProcessImportarRecibos implements ShouldQueue
                     'fecha_manual' => $recibo->fecha_manual,
                     'documento_referencia' => $extracto->documento_referencia,
                     'consecutivo' => $recibo->consecutivo,
-                    'concepto' => 'PAGADO DESDE IMPORTADOR DE RECIBOS ' . number_format($valorPago),
+                    'concepto' => $concepto,
                     'total_factura' => 0,
                     'total_abono' => $valorPago,
                     'total_saldo' => $extracto->saldo,
@@ -343,9 +345,9 @@ class ProcessImportarRecibos implements ShouldQueue
                     'created_by' => $this->user_id,
                     'updated_by' => $this->user_id
                 ]);
-
+                
                 $this->agregarMovimiento($documentoGeneral, $cuentaPago, $recibo->id_nit,
-                    'PAGADO DESDE IMPORTADOR DE RECIBOS ' . number_format($valorPago),
+                    $concepto,
                     $documentoReferencia, $valorPago, $cuentaPago->naturaleza_ingresos);
             }
 
@@ -377,30 +379,12 @@ class ProcessImportarRecibos implements ShouldQueue
         }
     }
 
-    private function crearDetallePago($recibo, $extracto, $monto)
-    {
-        ConReciboDetalles::create([
-            'id_recibo' => $recibo->id,
-            'id_cuenta' => $extracto->id_cuenta,
-            'id_nit' => $recibo->id_nit,
-            'fecha_manual' => $recibo->fecha_manual,
-            'documento_referencia' => $extracto->documento_referencia,
-            'consecutivo' => $recibo->consecutivo,
-            'concepto' => 'PAGADO DESDE IMPORTADOR DE RECIBOS ' . number_format($monto),
-            'total_factura' => 0,
-            'total_abono' => $monto,
-            'total_saldo' => $extracto->saldo,
-            'nuevo_saldo' => $extracto->saldo - $monto,
-            'total_anticipo' => 0,
-            'created_by' => $this->user_id,
-            'updated_by' => $this->user_id
-        ]);
-    }
-
     private function crearAnticipo($reciboImport, $recibo, Documento $documentoGeneral, $monto)
     {
         $cuentaAnticipo = PlanCuentas::find($this->id_cuenta_anticipos);
         if (!$cuentaAnticipo) return;
+
+        $concepto = $reciboImport->concepto ? 'ANTICIPO - ' . $reciboImport->concepto : 'ANTICIPO IMPORTADO DESDE RECIBOS';
 
         ConReciboDetalles::create([
             'id_recibo' => $recibo->id,
@@ -409,7 +393,7 @@ class ProcessImportarRecibos implements ShouldQueue
             'fecha_manual' => $recibo->fecha_manual,
             'documento_referencia' => $recibo->consecutivo,
             'consecutivo' => $recibo->consecutivo,
-            'concepto' => 'ANTICIPO IMPORTADO DESDE RECIBOS',
+            'concepto' => $concepto,
             'total_factura' => 0,
             'total_abono' => 0,
             'total_saldo' => 0,
@@ -419,8 +403,9 @@ class ProcessImportarRecibos implements ShouldQueue
             'updated_by' => $this->user_id
         ]);
 
+        
         $this->agregarMovimiento($documentoGeneral, $cuentaAnticipo, $reciboImport->id_nit,
-            'ANTICIPO IMPORTADO DESDE RECIBOS',
+            $concepto,
             date('Ymd', strtotime($reciboImport->fecha_manual)), $monto, $cuentaAnticipo->naturaleza_ingresos);
     }
 
@@ -435,8 +420,9 @@ class ProcessImportarRecibos implements ShouldQueue
             'updated_by' => $this->user_id
         ]);
 
+        $concepto = $reciboImport->concepto ? $reciboImport->concepto : 'PAGO IMPORTADO DESDE RECIBOS';
         $this->agregarMovimiento($documentoGeneral, $this->formaPago->cuenta, $reciboImport->id_nit,
-            'PAGO IMPORTADO DESDE RECIBOS',
+            $concepto,
             date('Ymd', strtotime($reciboImport->fecha_manual)), $reciboImport->pago, $this->formaPago->cuenta->naturaleza_ventas);
     }
 

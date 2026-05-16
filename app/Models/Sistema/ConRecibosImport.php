@@ -17,6 +17,7 @@ class ConRecibosImport extends Model
         'id_inmueble',
         'id_nit',
         'id_concepto_facturacion',
+        'concepto',
         'codigo',
         'numero_documento',
         'nombre_inmueble',

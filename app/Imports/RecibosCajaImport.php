@@ -95,11 +95,11 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
         // Resolver NIT, inmueble y concepto
         $resolucion = $this->resolverNitInmuebleConcepto($row);
-
         $nit = $resolucion['nit'];
         $inmueble = $resolucion['inmueble'];
         $conceptoFacturacion = $resolucion['conceptoFacturacion'];
-        $observacion .= $resolucion['observacion'];
+        $observacion = '';
+        $conceptoMensaje = $resolucion['conceptoMensaje'];
         $estado = $resolucion['estado'] ? 1 : $estado;
 
         // Inicializar variables financieras
@@ -177,6 +177,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             'saldo_nuevo' => $saldoNuevo,
             'anticipos' => $anticipo,
             'observacion' => $estado ? $observacion : 'Listo para importar',
+            'concepto' => $conceptoMensaje,
             'estado' => $estado,
         ];
     }
@@ -187,6 +188,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $estado = 0;
         $observacion = '';
+        $conceptoMensaje = $row['observacion'];        
         $nit = null;
         $inmueble = null;
         $inmuebleNit = null;
@@ -196,7 +198,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
         if (!$row['inmueble'] && !$row['cedula_nit'] && $row['valor']) {
             $conceptoFacturacion = ConceptoFacturacion::where('id', $this->conceptoFacturacionSinIdentificar)->first();
             $nit = Nits::where('id', $this->nitPorDefecto)->first();
-            return compact('nit', 'inmueble', 'inmuebleNit', 'conceptoFacturacion', 'estado', 'observacion');
+            return compact('nit', 'inmueble', 'inmuebleNit', 'conceptoFacturacion', 'estado', 'observacion', 'conceptoMensaje');
         }
 
         // Resolver inmueble
@@ -221,7 +223,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
                 $observacion .= "El inmueble: {$row['inmueble']}, no fue encontrado!<br>";
             }
         }
-
+        
         // Resolver nit por número de documento / email
         if ($row['cedula_nit']) {
             $concepto = ConceptoFacturacion::where('codigo', $row['cedula_nit'])->first();
@@ -254,7 +256,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             }
         }
 
-        return compact('nit', 'inmueble', 'inmuebleNit', 'conceptoFacturacion', 'estado', 'observacion');
+        return compact('nit', 'inmueble', 'inmuebleNit', 'conceptoFacturacion', 'estado', 'observacion', 'conceptoMensaje');
     }
 
     /* -------------------- MÉTODOS DE EXTRACTO (SALDOS) -------------------- */
@@ -291,7 +293,6 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $inicioMes = Carbon::parse($fechaManual)->format('Y-m-01');
         $facturaDescuento = $this->getFacturaMes($nitId, $inicioMes, $fechaManual);
-        
         $descuento = ($facturaDescuento && property_exists($facturaDescuento, 'descuento')) ? $facturaDescuento->descuento : 0;
 
         $totalConDescuento = $totalPago + $descuento + $extractoCXC;
@@ -362,17 +363,20 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
         $facturas = collect($facturas);
 
-        if (!count($facturas)) return null;
-
         $data = (object)[
-            'id_factura' => $facturas[0]->id_factura,
-            'has_pronto_pago' => $facturas[0]->has_pronto_pago,
+            'id_factura' => null,
+            'has_pronto_pago' => false,
             'subtotal' => 0,
             'descuento' => 0,
             'valor_total' => 0,
             'saldo_pendiente' => 0,
             'detalle' => []
         ];
+
+        if (!count($facturas)) return $data;
+
+        $data->id_factura = $facturas[0]->id_factura;
+        $data->has_pronto_pago = $facturas[0]->has_pronto_pago;        
 
         $extracto = $this->obtenerSaldo($id_nit, $fechaManual);
         $saldoPendiente = $extracto ? $extracto->saldo : 0;

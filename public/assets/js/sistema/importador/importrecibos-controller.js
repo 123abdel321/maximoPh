@@ -48,6 +48,7 @@ function importrecibosInit() {
                 return totalNuevoSaldo < 0 ? 0 : totalNuevoSaldo;
             }, render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
             {"data":'anticipos', render: $.fn.dataTable.render.number(',', '.', 2, ''), className: 'dt-body-right'},
+            {"data":'concepto'},
             {"data":'observacion'}
         ]
     });

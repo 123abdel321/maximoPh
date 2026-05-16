@@ -4,7 +4,7 @@
             <th style="border-radius: 15px 0px 0px 0px !important;">Row</th>
             <th style="border-radius: 15px 0px 0px 0px !important;">Row</th>
             <th>Inmueble</th>
-            <th>Concepto</th>
+            <th>Concepto Fac.</th>
             <th>Documento</th>
             <th>Nombre</th>
             <th>Email</th>
@@ -15,6 +15,7 @@
             <th>Faltante Descuento</th>
             <th>Nuevo Saldo</th>
             <th>Nuevo Anticipo</th>
+            <th>Concepto</th>
             <th style="border-radius: 0px 15px 0px 0px !important;">Estado</th>
         </tr>
     </thead>
