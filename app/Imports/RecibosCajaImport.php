@@ -188,7 +188,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
     {
         $estado = 0;
         $observacion = '';
-        $conceptoMensaje = $row['observacion'];        
+        $conceptoMensaje = array_key_exists('observacion', $row) ? $row['observacion'] : '';        
         $nit = null;
         $inmueble = null;
         $inmuebleNit = null;
