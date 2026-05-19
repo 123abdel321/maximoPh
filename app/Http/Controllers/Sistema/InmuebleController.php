@@ -67,16 +67,18 @@ class InmuebleController extends Controller
             $columnName_arr = $request->get('columns');
             $order_arr = $request->get('order');
 
-            $inmueble = Inmueble::orderBy('id', 'DESC')
-                ->orderBy('id', 'DESC') 
+            $inmueble = Inmueble::query()
+                ->leftJoin('zonas', 'zonas.id', '=', 'inmuebles.id_zona')
                 ->with('zona', 'concepto', 'personas.nit')
                 ->select(
-                    '*',
-                    DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %T') AS fecha_creacion"),
-                    DB::raw("DATE_FORMAT(updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
-                    'created_by',
-                    'updated_by'
-                );
+                    'inmuebles.*',
+                    DB::raw("DATE_FORMAT(inmuebles.created_at, '%Y-%m-%d %T') AS fecha_creacion"),
+                    DB::raw("DATE_FORMAT(inmuebles.updated_at, '%Y-%m-%d %T') AS fecha_edicion"),
+                    'inmuebles.created_by',
+                    'inmuebles.updated_by'
+                )
+                ->orderBy('zonas.nombre', 'ASC')
+                ->orderBy('inmuebles.nombre', 'ASC');
 
             if ($request->get('id_nit')) {
                 $inmueble->whereHas('personas',  function ($query) use($request) {
