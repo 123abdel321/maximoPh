@@ -325,7 +325,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                 -- Calcula si aplica descuento
                 CASE
-                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
                         CASE 
                             WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
                                 THEN CF.valor_fijo_pronto_pago
@@ -336,7 +336,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
 
                 -- Calcula valor total
                 CASE
-                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
                         SUM(FD.valor) - (
                             CASE 
                                 WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
