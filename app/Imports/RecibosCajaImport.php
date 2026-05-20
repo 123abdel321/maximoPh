@@ -55,7 +55,7 @@ class RecibosCajaImport implements ToCollection, WithValidation, SkipsOnFailure,
             if (!$this->isValidRow($row->toArray())) {
                 continue;
             }
-            $datosFila = $this->procesarFila($row);
+            $datosFila = $this->procesarFila($row->toArray());
             ConRecibosImport::create($datosFila);
         }
     }
