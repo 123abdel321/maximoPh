@@ -621,17 +621,25 @@ class EstadoCuentaController extends Controller
 
                 -- Calcula si aplica descuento
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
-                        ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
+                        CASE 
+                            WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
+                                THEN CF.valor_fijo_pronto_pago
+                            ELSE ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                        END
                     ELSE 0
                 END AS descuento,
 
                 -- Calcula valor total
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
-                        SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
+                        SUM(FD.valor) - (
+                            CASE 
+                                WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
+                                    THEN CF.valor_fijo_pronto_pago
+                                ELSE (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                            END
+                        )
                     ELSE SUM(FD.valor)
                 END AS valor_total
                 

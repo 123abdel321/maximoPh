@@ -218,6 +218,7 @@ class ProcessImportarRecibos implements ShouldQueue
         $finMes = Carbon::parse($this->fechaManual)->format('Y-m-t');
 
         $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes, $this->fechaManual);
+        
         $totalDescuentoDisponible = $facturaDescuento ? $facturaDescuento->descuento : 0;
         $anticiposDisponibles = $this->totalAnticipos($reciboImport->id_nit);
         $valorDisponible = (float) $reciboImport->pago;
@@ -503,7 +504,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 SUM(FD.valor) AS subtotal,
                 
                 CASE
-                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
                         CASE 
                             WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
                                 THEN CF.valor_fijo_pronto_pago
@@ -513,7 +514,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 END AS descuento,
 
                 CASE
-                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') <= CF.dias_pronto_pago THEN 
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
                         SUM(FD.valor) - (
                             CASE 
                                 WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
@@ -539,7 +540,7 @@ class ProcessImportarRecibos implements ShouldQueue
         ");
 
         $facturas = collect($facturas);
-        
+
         if (!count($facturas)) return false;
         
         $data = (object)[
