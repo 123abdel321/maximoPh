@@ -217,12 +217,13 @@ class ProcessImportarRecibos implements ShouldQueue
         }
 
         $this->fechaManual = $reciboImport->fecha_manual;
-        $consecutivo = $this->getNextConsecutive($this->comprobante->id, $this->fechaManual);
+        $comprobanteId = $reciboImport->id_comprobante ? $reciboImport->id_comprobante : $this->comprobante->id;
+        $consecutivo = $reciboImport->consecutivo ? $reciboImport->consecutivo : $this->getNextConsecutive($comprobanteId, $this->fechaManual);
 
         // Crear cabecera del recibo
         $recibo = ConRecibos::create([
             'id_nit' => $reciboImport->id_nit,
-            'id_comprobante' => $this->id_comprobante,
+            'id_comprobante' => $comprobanteId,
             'fecha_manual' => $this->fechaManual,
             'consecutivo' => $consecutivo,
             'total_abono' => $reciboImport->pago,
@@ -233,7 +234,7 @@ class ProcessImportarRecibos implements ShouldQueue
         ]);
 
         $documentoGeneral = new Documento(
-            $this->comprobante->id,
+            $comprobanteId,
             $recibo,
             $this->fechaManual,
             $consecutivo,
@@ -247,7 +248,10 @@ class ProcessImportarRecibos implements ShouldQueue
         }
 
         $this->agregarPagoFormaPago($reciboImport, $recibo, $documentoGeneral);
-        $this->updateConsecutivo($this->id_comprobante, $consecutivo);
+        
+        if (!$reciboImport->consecutivo) {
+            $this->updateConsecutivo($comprobanteId, $consecutivo);
+        }
 
         if (!$documentoGeneral->save()) {
             throw new Exception(json_encode($documentoGeneral->getErrors()));
