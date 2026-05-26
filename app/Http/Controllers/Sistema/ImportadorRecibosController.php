@@ -9,7 +9,7 @@ use App\Helpers\Documento;
 use App\Jobs\ProcessNotify;
 use Illuminate\Http\Request;
 use App\Jobs\ImportRecibosJob;
-use App\Imports\RecibosCajaImport;
+use App\Imports\ImportRecibos;
 use App\Events\PrivateMessageEvent;
 use Illuminate\Support\Facades\Bus;
 use App\Http\Controllers\Controller;
@@ -62,7 +62,7 @@ class ImportadorRecibosController extends Controller
     public function importar (Request $request)
     {
         $rules = [
-            'file_import_recibos' => 'required|mimes:xlsx'
+            'importador_recibos' => 'required|mimes:xlsx'
         ];
         
         $validator = Validator::make($request->all(), $rules, $this->messages);
@@ -76,41 +76,19 @@ class ImportadorRecibosController extends Controller
         }
 
         try {
-            $file = $request->file('file_import_recibos');
-            $has_empresa = $request->user()['has_empresa'];
-            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
-
-            $user_id = $request->user()->id;
-
-            $filePath = $file->store('recibos');
             ConRecibosImport::truncate();
-            
-            // (new RecibosCajaImport($empresa))->import($filePath);
-            Bus::chain([
-                new ImportRecibosJob($empresa, $filePath),
-                new ProcessNotify('importador-recibos-'.$has_empresa.'_'.$user_id, [
-                    'success'=>	true,
-                    'accion' => 1,
-                    'tipo' => 'exito',
-                    'mensaje' => 'Archivo importado con exito!',
-                    'titulo' => 'Recibos importados',
-                    'autoclose' => false
-                ])
-            ])->catch(function (\Throwable $e) use ($user_id, $has_empresa) {
-                event(new PrivateMessageEvent('importador-recibos-'.$has_empresa.'_'.$user_id, [
-                    'success'=>	false,
-                    'accion' => 0,
-                    'tipo' => 'error',
-                    'mensaje' => 'Error al importar el archivo: ' . $e->getMessage(),
-                    'titulo' => 'Fallo en la importación',
-                    'autoclose' => false
-                ]));
-            })->dispatch();
+
+            $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
+            $urlNotificacion = $empresa->token_db_maximo.'_'.$request->user()['id'];
+
+            $file = $request->file('importador_recibos');
+            $import = new ImportRecibos($urlNotificacion, $empresa->id);
+            $import->import($file);
 
             return response()->json([
                 'success'=>	true,
                 'data' => [],
-                'message'=> 'Importando recibos...'
+                'message'=> 'Documentos cargados con exito!'
             ]);
 
         } catch (Exception $e) {
@@ -162,7 +140,7 @@ class ImportadorRecibosController extends Controller
     {
         return response()->json([
             'success'=>	true,
-            'url' => 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/import/importador_recibos.xlsx',
+            'url' => 'https://porfaolioerpbucket.nyc3.digitaloceanspaces.com/import/Importador%20de%20Recibos.xlsx',
             'message'=> 'Url generada con exito'
         ]);
     }
@@ -171,13 +149,11 @@ class ImportadorRecibosController extends Controller
     {
         try {
 
-            $user_id = $request->user()->id;
-            $has_empresa = $request->user()['has_empresa'];
-            $empresa = Empresa::where('token_db_maximo', $has_empresa)->first();
+            $empresa = Empresa::where('token_db_maximo', $request->user()['has_empresa'])->first();
 
             ProcessImportarRecibos::dispatch(
-                $empresa,
-                $user_id
+                $empresa->id,
+                $request->user()->id
             );
 
             return response()->json([

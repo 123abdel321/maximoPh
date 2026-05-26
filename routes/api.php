@@ -262,7 +262,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //IMPORTADOR PAGOS
         Route::controller(ImportadorRecibosController::class)->group(function () {
             Route::get('recibos-cache-import', 'generate');
-            Route::post('recibos-cargar-import', 'cargar');
+            Route::post('recibos-cache-actualizar', 'cargar');
             Route::get('recibos-totales-import', 'totales');
         });
         //IMPORTADOR CUOTAS & MULTAS

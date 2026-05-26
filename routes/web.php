@@ -176,9 +176,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 		Route::post('/pqrsf', [PqrsfController::class, 'create']);
 		Route::post('/pqrsf-mensaje/{id}', [PqrsfController::class, 'createMensaje']);
 		//IMPORTADOR PAGOS
-		Route::get('/importrecibos', [ImportadorRecibosController::class, 'index']);
-		Route::get('/importrecibos-exportar', [ImportadorRecibosController::class, 'exportar']);
-		Route::post('/importrecibos-importar', [ImportadorRecibosController::class, 'importar']);
+		Route::controller(ImportadorRecibosController::class)->group(function () {
+            Route::get('/importrecibos', 'index');
+            Route::get('/importrecibos-exportar', 'exportar');
+            Route::post('/importrecibos-importar', 'importar');
+        });
 		//IMPORTADOR CUOTAS EXTRAS
 		Route::get('/importcuotas', [ImportadorCuotasMultas::class, 'index']);
 		Route::get('/importcuotas-exportar', [ImportadorCuotasMultas::class, 'exportar']);

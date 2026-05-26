@@ -182,6 +182,127 @@ thead tr:first-child th {
     cursor: context-menu;
 }
 
+/* ANIMACION DE NUEVOS BOTONES */
+.btn-bg-info {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+}
+
+.btn-bg-info i {
+    color: #0077ff;
+}
+
+.btn-bg-info-loading {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+}
+
+.btn-bg-info-loading i {
+    color: #0077ff;
+}
+
+.btn-bg-excel {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%) !important;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+}
+
+.btn-bg-excel i {
+    color: #00ff00;
+}
+
+.btn-bg-excel-loading {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+}
+
+.btn-bg-excel-loading i {
+    color: #00ff00;
+}
+
+.btn-bg-danger {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+}
+
+.btn-bg-danger i {
+    color: #ff0000;
+}
+
+.btn-bg-danger-loading {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+}
+
+.btn-bg-danger-loading i {
+    color: #ff0000;
+}
+
+.btn-bg-gold {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+}
+
+.btn-bg-gold i {
+    color: gold;
+    position: relative; /* Para que aparezca sobre el efecto de brillo */
+}
+
+.btn-bg-gold b {
+    position: relative; /* Para que aparezca sobre el efecto de brillo */
+}
+
+.btn-bg-gold-loading {
+    background-image: linear-gradient(310deg, #212229 0%, #212529 100%);
+}
+
+.btn-bg-gold-loading i {
+    color: gold;
+}
+
+.btn-bg-blue-dark {
+    background-image: linear-gradient(310deg, #001c41 0%, #001c41 100%);
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+}
+
+.btn-bg-blue-dark i {
+    color: rgb(255, 255, 255);
+    position: relative; /* Para que aparezca sobre el efecto de brillo */
+}
+
+.btn-bg-blue-dark b {
+    position: relative; /* Para que aparezca sobre el efecto de brillo */
+}
+
+.btn-bg-blue-dark-loading {
+    background-image: linear-gradient(310deg, #001c41 0%, #001c41 100%);
+}
+
+.btn-bg-blue-dark-loading i {
+    color: rgb(255, 255, 255);
+}
+
 .btn-bg-success {
     background-image: linear-gradient(310deg, #02974d 0%, #006d37 100%);
 }

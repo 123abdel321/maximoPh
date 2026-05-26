@@ -14,11 +14,15 @@ class ConRecibosImport extends Model
     protected $table = "con_recibos_imports";
 
     protected $fillable = [
+        'row',
         'id_inmueble',
-        'id_nit',
+        'id_comprobante',
         'id_concepto_facturacion',
+        'consecutivo',
+        'id_nit',
         'concepto',
         'codigo',
+        'nombre_comprobante',
         'numero_documento',
         'nombre_inmueble',
         'nombre_zona',

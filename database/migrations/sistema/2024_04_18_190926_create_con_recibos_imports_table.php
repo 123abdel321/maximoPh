@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('con_recibos_imports', function (Blueprint $table) {
             $table->id();
+            $table->integer('id_comprobante')->nullable();
             $table->integer('id_inmueble')->nullable();
             $table->integer('id_nit')->nullable();
             $table->string('codigo', 60)->nullable();
             $table->string('concepto', 255)->nullable();
             $table->string('numero_documento', 60)->nullable();
             $table->string('nombre_inmueble', 100)->nullable();
+            $table->string('nombre_comprobante', 100)->nullable();
             $table->string('nombre_zona', 100)->nullable();
             $table->string('email', 100)->nullable();
             $table->integer('id_concepto_facturacion')->nullable();
+            $table->integer('consecutivo')->nullable();
             $table->string('numero_concepto_facturacion', 100)->nullable();
             $table->string('nombre_nit', 100)->nullable();
             $table->date('fecha_manual')->nullable();
@@ -33,6 +36,7 @@ return new class extends Migration
             $table->decimal('anticipos', 15)->default(0);
             $table->mediumText('observacion')->nullable();
             $table->integer('estado')->default(0)->comment('0: Con errores; 1: Recibo nuevo;');
+            $table->string('row', 100)->nullable();
             $table->timestamps();
         });
     }

@@ -35,6 +35,10 @@ class ProcessImportarRecibos implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use BegConsecutiveTrait;
 
+    public $timeout = 3600; // 1 hora
+    public $tries = 3;
+    public $backoff = [60, 180, 300];
+
     protected $empresa;
     protected $user_id;
     protected $id_comprobante;
@@ -50,9 +54,14 @@ class ProcessImportarRecibos implements ShouldQueue
     protected $fechaManual;
     protected $facturasAnticipos = [];
 
-    public function __construct($empresa, $user_id)
+    protected $totalRecords = 0;
+    protected $processedRecords = 0;
+    protected $correctRecords = 0;
+    protected $errorRecords = 0;
+
+    public function __construct($id_empresa, $user_id)
     {
-        $this->empresa = $empresa;
+        $this->empresa = Empresa::find($id_empresa);
         $this->user_id = $user_id;
     }
 
@@ -66,15 +75,81 @@ class ProcessImportarRecibos implements ShouldQueue
             DB::connection('max')->beginTransaction();
             DB::connection('sam')->beginTransaction();
 
-            $recibosImport = ConRecibosImport::where('estado', 0)->cursor();
-            foreach ($recibosImport as $reciboImport) {
-                $this->procesarReciboImport($reciboImport);
-            }
+            // Contar total de registros a procesar
+            $this->totalRecords = ConRecibosImport::where(function ($query) {
+                $query->where('estado', 0)
+                    ->orWhereNull('estado')
+                    ->orWhere('estado', '');
+                })
+                ->count();
+
+            // Enviar evento de inicio
+            event(new PrivateMessageEvent("importador-recibos-" . $this->empresa->token_db.'_'.$this->user_id, [
+                'name' => 'progress',
+                'tipo' => 'info',
+                'mensaje' => 'Iniciando carga de recibos al sistema...',
+                'titulo' => 'Carga de recibos',
+                'progress' => 0,
+                'processed' => 0,
+                'total' => $this->totalRecords,
+                'stage' => 'preparing'
+            ]));
+
+            ConRecibosImport::where(function ($query) {
+                $query->where('estado', 0)
+                    ->orWhereNull('estado')
+                    ->orWhere('estado', '');
+                })
+                ->chunkById(1000, function ($recibosImport) {
+                    foreach ($recibosImport as $reciboImport) {
+                        $this->processedRecords++;
+                        $this->procesarReciboImport($reciboImport);
+
+                        // Enviar evento de progreso cada 100 registros procesados
+                    if ($this->processedRecords % 34 === 0) {
+                        $progress = $this->totalRecords > 0 
+                            ? round(($this->processedRecords / $this->totalRecords) * 100) 
+                            : 0;
+                        
+                        event(new PrivateMessageEvent('importador-recibos-' . $this->empresa->token_db_maximo . '_' . $this->user_id, [
+                            'name' => 'progress',
+                            'tipo' => 'info',
+                            'mensaje' => 'Cargando recibos al sistema...',
+                            'titulo' => 'Carga de recibos',
+                            'progress' => $progress,
+                            'processed' => $this->processedRecords,
+                            'total' => $this->totalRecords,
+                            'stage' => 'processing'
+                        ]));
+                    }
+                    }
+                });            
 
             ConRecibosImport::whereIn('estado', [0])->delete();
 
             DB::connection('max')->commit();
             DB::connection('sam')->commit();
+
+            // Enviar evento de completado exitoso
+            event(new PrivateMessageEvent('importador-recibos-' . $this->empresa->token_db_maximo . '_' . $this->user_id, [
+                'name' => 'progress',
+                'tipo' => 'success',
+                'mensaje' => '¡Carga de recibos completada exitosamente!',
+                'titulo' => 'Carga de recibos',
+                'progress' => 100,
+                'processed' => $this->processedRecords,
+                'total' => $this->totalRecords,
+                'stage' => 'completed'
+            ]));
+
+            // Enviar evento final de importación
+            event(new PrivateMessageEvent('importador-recibos-' . $this->empresa->token_db_maximo . '_' . $this->user_id, [
+                'name' => 'import',
+                'tipo' => 'exito',
+                'mensaje' => 'Importador de recibos finalizado totalmente!',
+                'titulo' => 'Importador de recibos',
+                'autoclose' => false
+            ]));
 
             $this->sendSuccessEvent('Recibos importados con exito!');
         } catch (\Throwable $exception) {
