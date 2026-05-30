@@ -128,7 +128,7 @@
             </p>
         </div>
 
-        <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary-disabled">
+        <!-- <div class="col-6 col-xl-6 col-lg-4 col-sm-3 col-md-2 menu-primary-disabled">
             <i class="fa fa-lock icon-menu-carta-disabled" aria-hidden="true"></i>
             <p class="text-menu-disabled">
                 CLASIFICADOS
@@ -154,7 +154,7 @@
             <p class="text-menu-disabled">
                 PROVEEDORES
             </p>
-        </div>
+        </div> -->
 
     </div>
 </div>
