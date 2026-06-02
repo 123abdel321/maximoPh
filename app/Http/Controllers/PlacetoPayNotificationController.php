@@ -79,10 +79,10 @@ class PlacetoPayNotificationController extends Controller
                 return response()->json(['success' => false, 'error' => 'Empresa no encontrada'], 404);
             }
 
-            // if (!$signature) {
-            //     Log::warning('Webhook sin firma');
-            //     return response()->json(['success' => false, 'error' => 'Firma requerida'], 401);
-            // }
+            if (!$signature) {
+                Log::warning('Webhook sin firma');
+                return response()->json(['success' => false, 'error' => 'Firma requerida'], 401);
+            }
 
             // Validación de firma (ajusta el campo secret_key según tu DB)
             // $secretKey = $empresa->placetopay_secret_key ?? '';
