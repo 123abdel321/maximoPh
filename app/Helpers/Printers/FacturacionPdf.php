@@ -196,7 +196,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
         $inicioMes = Carbon::now()->startOfMonth()->format('Y-m-d');
         $facturasMesDescuento = $this->getFacturaMes($this->id_nit, $inicioMes, $totales->fecha_manual);
-        
+
         $count = 0;
         foreach ($facturaciones as $facturacion) {
             
@@ -215,7 +215,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
             
-            if ($conceptoFactura && $conceptoFactura->porcentaje_pronto_pago > 0) {
+            if ($conceptoFactura) {
                 $count++;
                 $diaHoy = intval(Carbon::now()->format('d'));
                 $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
