@@ -10,6 +10,7 @@ use App\Models\Sistema\Entorno;
 use App\Models\Portafolio\Nits;
 use App\Models\Empresa\Empresa;
 use App\Models\Sistema\ConceptoFacturacion;
+use App\Models\Portafolio\DocumentosGeneral;
 
 class FacturacionPdf extends AbstractPrinterPdf
 {
@@ -205,7 +206,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 // $dataDescuento = [];
                 // Si hay saldo anterior, no se puede aplicar pronto pago normal, solo para morosos
             }
-
+            
             $descuento = 0;
             $concepto = $facturacion->concepto == 'SALDOS INICIALES' ? $facturacion->nombre_cuenta : $facturacion->concepto;
 
@@ -218,64 +219,10 @@ class FacturacionPdf extends AbstractPrinterPdf
                 $count++;
                 $diaHoy = intval(Carbon::now()->format('d'));
                 $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
-                // $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
-                
-                // CASO 1: Pronto pago para morosos (aplica siempre, incluso con saldo anterior)
-                if ($conceptoFactura->pronto_pago_morosos == 1) {
-                    $tieneDescuentoProntoPago = true;
-                    $tieneSaldoAnterior = false;
-                    
-                    // Para morosos, el descuento se aplica sobre el total de facturas del mes
-                    if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
-                        if ($facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado == false) {
-                            $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
-                            $facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado = true;
-                        }
-                    } else {
-                        // Calcular descuento sobre total_facturas si no hay datos del mes
-                        // $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
-                    }
-                    
-                    $totalDescuento += $descuento;
-                    
-                    if (array_key_exists($keyDescuento, $dataDescuento)) {
-                        $dataDescuento[$keyDescuento]['descuento'] += $descuento;
-                    } else {
-                        $dataDescuento[$keyDescuento] = [
-                            'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
-                            'descuento' => $descuento
-                        ];
-                    }
-
-                    
-                }
-                // CASO 2: Pronto pago normal (solo si NO hay saldo anterior y está dentro del plazo)
-                else if (!$tieneSaldoAnterior && $conceptoFactura->pronto_pago && $conceptoFactura->dias_pronto_pago >= $diaHoy) {
-                    $tieneDescuentoProntoPago = true;
-                    
-                    // Usar el descuento calculado por getFacturaMes() si está disponible
-                    if ($facturasMesDescuento && isset($facturasMesDescuento->detalle[$facturacion->id_cuenta])) {
-                        if ($facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado == false) {
-                            $descuento = $facturasMesDescuento->detalle[$facturacion->id_cuenta]->descuento;
-                            $facturasMesDescuento->detalle[$facturacion->id_cuenta]->aprobado = true;
-                        }
-                    } else {
-                        // Calcular descuento sobre las facturas del mes (no sobre total_facturas que incluye saldo anterior)
-                        $descuento = $facturacion->total_facturas * ($conceptoFactura->porcentaje_pronto_pago / 100);
-                    }
-                    
-                    $totalDescuento += $descuento;
-                    
-                    if (array_key_exists($keyDescuento, $dataDescuento)) {
-                        $dataDescuento[$keyDescuento]['descuento'] += $descuento;
-                    } else {
-                        $dataDescuento[$keyDescuento] = [
-                            'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
-                            'descuento' => $descuento
-                        ];
-                    }
-                }
-
+                $dataDescuento[$keyDescuento] = [
+                    'fecha_limite' => Carbon::now()->format('Y-m-'.$conceptoFactura->dias_pronto_pago),
+                    'descuento' => $facturasMesDescuento->descuento
+                ];
             }
 
             $dataCuentas[] = (object)[
@@ -357,32 +304,43 @@ class FacturacionPdf extends AbstractPrinterPdf
     private function getFacturaMes($id_nit, $inicioMes, $fechaManual)
     {
         $fechaManual = Carbon::parse($fechaManual)->format("Y-m-d");
-
         $facturas = DB::connection('max')->select("SELECT
                 FA.id AS id_factura,
                 FD.id AS id_factura_detalle,
+                FD.fecha_manual,
                 FA.pronto_pago AS has_pronto_pago,
                 FD.id_concepto_facturacion,
                 FD.id_cuenta_por_cobrar,
                 CF.id_cuenta_gasto,
+                CF.nombre_concepto,
+                CF.porcentaje_pronto_pago,
+                CF.dias_pronto_pago,
                 CF.pronto_pago_morosos AS pronto_pago_morosos,
+                CF.valor_fijo_pronto_pago,
                 FD.documento_referencia,
+                DATEDIFF('{$fechaManual}', '{$inicioMes}') AS datadiff,
                 0 AS aprobado,
                 SUM(FD.valor) AS subtotal,
-
-                -- Calcula si aplica descuento
+                
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
-                        ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
+                        CASE 
+                            WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
+                                THEN CF.valor_fijo_pronto_pago
+                            ELSE ROUND(SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100), 0)
+                        END
                     ELSE 0
                 END AS descuento,
 
-                -- Calcula valor total
                 CASE
-                    WHEN CF.pronto_pago_morosos = 1 
-                        OR CF.dias_pronto_pago > DATEDIFF('{$fechaManual}', '{$inicioMes}') THEN 
-                        SUM(FD.valor) - (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                    WHEN DATEDIFF('{$fechaManual}', '{$inicioMes}') < CF.dias_pronto_pago THEN 
+                        SUM(FD.valor) - (
+                            CASE 
+                                WHEN CF.valor_fijo_pronto_pago IS NOT NULL AND CF.valor_fijo_pronto_pago > 0 
+                                    THEN CF.valor_fijo_pronto_pago
+                                ELSE (SUM(FD.valor) * (CF.porcentaje_pronto_pago / 100))
+                            END
+                        )
                     ELSE SUM(FD.valor)
                 END AS valor_total
                 
@@ -393,38 +351,75 @@ class FacturacionPdf extends AbstractPrinterPdf
             LEFT JOIN concepto_facturacions CF ON FD.id_concepto_facturacion = CF.id
 
             WHERE FD.id_nit = $id_nit
-                AND FD.fecha_manual = '{$inicioMes}'
+                AND FA.id IS NOT NULL
                 AND FD.id_concepto_facturacion IS NOT NULL
-                AND FD.naturaleza_opuesta = 0
+                AND FD.fecha_manual = '{$inicioMes}'
                 
-            GROUP BY FD.id_cuenta_por_cobrar
+            GROUP BY FD.documento_referencia
         ");
 
         $facturas = collect($facturas);
-        
-        if (!count($facturas)) return false;
 
+        if (!count($facturas)) return false;
+        
         $data = (object)[
             'id_factura' => $facturas[0]->id_factura,
             'has_pronto_pago' => $facturas[0]->has_pronto_pago,
             'subtotal' => 0,
             'descuento' => 0,
             'valor_total' => 0,
+            'saldo_pendiente' => 0,
+            'usado' => false,
             'detalle' => []
         ];
 
-        foreach ($facturas as $factura) {
-            $data->subtotal+= $factura->subtotal;
-            $data->descuento+= $factura->descuento;
-            $data->valor_total+= $factura->valor_total;
-            $data->detalle[$factura->id_cuenta_por_cobrar] = $factura;
-        }
+        $extracto = (new Extracto($id_nit, [3,7], null, $fechaManual))->completo()->first();
+        $saldoPendiente = $extracto ? $extracto->saldo : 0;
+        $data->saldo_pendiente = $saldoPendiente;
 
+        foreach ($facturas as $factura) {
+            $fechaFormateada = date('Y-m', strtotime($factura->fecha_manual));
+            $tieneProntoPago = $this->tieneProntoPago($id_nit, $factura->id_cuenta_gasto, $fechaFormateada);
+
+            if ($tieneProntoPago) {
+                $factura->descuento = 0;
+            }
+
+            $data->subtotal += $factura->subtotal;
+            $data->descuento += $factura->descuento;
+            $data->valor_total += $factura->valor_total;
+            $data->usado = false;
+            $data->detalle[$factura->documento_referencia] = $factura;
+        }
+        
+        $descuentoSinRedondear = $data->descuento;
+        
         if ($this->redondeoProntoPago) {
-            $data->descuento = $this->roundNumber($data->descuento, $this->redondeoProntoPago);
+            $descuentoRedondeado = $this->roundNumber($data->descuento, $this->redondeoProntoPago);
+            $diferencia = $descuentoRedondeado - $descuentoSinRedondear;
+            $data->descuento = $descuentoRedondeado;
+            
+            if ($diferencia != 0 && count($facturas) > 0) {
+                $this->repartirDiferenciaDescuento($data->detalle, $diferencia);
+                $data->valor_total = 0;
+                foreach ($data->detalle as $detalle) {
+                    $data->valor_total += $detalle->valor_total;
+                }
+            }
         }
 
         return $data;
+    }
+
+    private function tieneProntoPago($id_nit = null, $id_cuenta_gasto = null, $fechaManual = null)
+    {
+        if (!$id_nit || !$id_cuenta_gasto) {
+            return false;
+        }
+        return DocumentosGeneral::where('id_nit', $id_nit)
+            ->where('id_cuenta', $id_cuenta_gasto)
+            ->where('fecha_manual', 'LIKE', $fechaManual . '%')
+            ->exists();
     }
 
 	private function carteraDocumentosQuery()
@@ -545,17 +540,12 @@ class FacturacionPdf extends AbstractPrinterPdf
     }
 
     private function roundNumber($number, $redondeo = null)
-    {        
-        // Caso 1: Si el valor de redondeo es 0, elimina todos los decimales (redondea a entero)
+    {
         if ($redondeo == 0) {
-            return (int) round($number); // Cast a int para eliminar decimales
-        }
-        // Caso 2: Si el valor de redondeo es mayor que 0, aplica el redondeo específico
-        elseif ($redondeo > 0) {
+            return (int) round($number);
+        } elseif ($redondeo > 0) {
             return round($number / $redondeo) * $redondeo;
-        }
-        // Caso 3: Si no hay configuración, retorna el número sin cambios
-        else {
+        } else {
             return $number;
         }
     }
