@@ -38,7 +38,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
-    public $timeout = 3000;
+    public $timeout = 900;
     public $empresa = null;
     public $request = null;
     public $id_empresa = null;
