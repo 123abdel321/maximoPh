@@ -411,6 +411,35 @@ class FacturacionPdf extends AbstractPrinterPdf
         return $data;
     }
 
+    private function repartirDiferenciaDescuento(&$detalles, $diferencia)
+    {
+        if ($diferencia == 0) return;
+        
+        uasort($detalles, function($a, $b) {
+            return $b->descuento <=> $a->descuento;
+        });
+        
+        $numItems = count($detalles);
+        $diferenciaAbs = abs($diferencia);
+        $diferenciaPorItem = floor($diferenciaAbs / $numItems);
+        $diferenciaRestante = $diferenciaAbs % $numItems;
+        
+        $i = 0;
+        foreach ($detalles as $key => $detalle) {
+            $ajuste = $diferenciaPorItem;
+            if ($i < $diferenciaRestante) {
+                $ajuste++;
+            }
+            if ($diferencia > 0) {
+                $detalle->descuento += $ajuste;
+            } else {
+                $detalle->descuento -= $ajuste;
+            }
+            $detalle->valor_total = $detalle->subtotal - $detalle->descuento;
+            $i++;
+        }
+    }
+
     private function tieneProntoPago($id_nit = null, $id_cuenta_gasto = null, $fechaManual = null)
     {
         if (!$id_nit || !$id_cuenta_gasto) {
