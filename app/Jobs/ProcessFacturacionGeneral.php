@@ -133,7 +133,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
         try {
-
+            
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
 
@@ -148,7 +148,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 ->chunk(233, function ($nits) {
                     $nits->each(function ($nit) {
                         $this->countIntereses = 0;
-
+                        
                         $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit, $this->periodo_facturacion.'-01');
                         $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($nit->id_nit, $this->periodo_facturacion);
                         $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($nit->id_nit, $this->periodo_facturacion);
@@ -230,7 +230,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         //TRAER ANTICIPOS
                         $anticiposNit = $this->totalAnticipos($factura->id_nit, $this->id_empresa);
                         $anticiposDisponibles = $anticiposNit;
-                        
+
                         //RECORREMOS CUOTAS Y MULTAS CXP
                         foreach ($cuotasMultasFacturarCxP as $cuotaMultaFactura) {
 
@@ -257,10 +257,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
-                        
+
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
+                        
                         //RECORREMOS CUOTAS Y MULTAS CXC
                         foreach ($cuotasMultasFacturarCxC as $cuotaMultaFactura) {
                             if (count($cuotasMultasFacturarCxC) > 1) $totalCuotasCxC++;
@@ -277,6 +278,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                             }
                             $valoresExtra+= $cuotaMultaFactura->valor_total;
                             $documentoReferencia = $this->generarFacturaCuotaMulta($factura, $cuotaMultaFactura, $totalCuotasCxC);
+
                             if ($anticiposDisponibles > 0) {
                                 $anticiposDisponibles = $this->generarFacturaAnticipos($factura, $cuotaMultaFactura, 0, $anticiposDisponibles, $documentoReferencia, true);
                             }
@@ -469,7 +471,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
         //CALCULAR VALOR DE DESCUENTO PRONTO PAGO
         if ($this->prontoPago //ES VALIDO PARA PRONTO PAGO
-            && $this->descuentosProntoPago->total > 0) { // TENEMOS DESCUENTOS DISPONIBLES PARA USAR
+            && $this->descuentosProntoPago->total > 0
+            && $inmuebleFactura->pronto_pago
+            && $inmuebleFactura->porcentaje_pronto_pago) { // TENEMOS DESCUENTOS DISPONIBLES PARA USAR
 
             $totalDescuento = $inmuebleFactura->valor_total > $this->descuentosProntoPago->total ? $this->descuentosProntoPago->total : $inmuebleFactura->valor_total;
             $totalAnticipar = $totalAnticipar - $totalDescuento < 0 ? 0 : $totalAnticipar - $totalDescuento;
@@ -530,9 +534,10 @@ class ProcessFacturacionGeneral implements ShouldQueue
         $documentoReferenciaNumeroInmuebles = $totalInmuebles ? '_'.$totalInmuebles : '';
 
         foreach ($this->facturas as $key => $facturacxp) {
+
             if ($totalAnticipar <= 0) continue;
             $totalCruce = $totalAnticipar >= $facturacxp->saldo ? $facturacxp->saldo : $totalAnticipar;
-            
+
             $facturaDetalle = FacturacionDetalle::create([
                 'id_factura' => $factura->id,
                 'id_nit' => $inmuebleFactura->id_nit,
@@ -622,7 +627,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 342)
+            ->where('IN.id_nit', 283)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -632,7 +637,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 342)
+            ->where('CM.id_nit', 283)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
@@ -932,7 +937,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
             if (floatval($multas->valor_fijo_pronto_pago) > 0) $descuento = $multas->valor_fijo_pronto_pago;
 
-            $index = "";
+            $index = "m{$multas->id_concepto_facturacion}";
             $this->descuentosProntoPago->base += $multas->valor_total;
 
             // Asegurar que la clave existe antes de sumar
@@ -944,7 +949,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             
             $deudaTotal += $multas->valor_total;
         }
-
+        
         // Calcular total sin redondear
         $totalSinRedondear = array_sum($this->descuentosProntoPago->detalle);
         
