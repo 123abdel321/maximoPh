@@ -626,6 +626,9 @@ function inmuebleInit() {
         columnAreaM2.visible(false);
         $("#div-area_inmueble").hide();
         $("#div-coeficiente_inmueble").hide();
+    } else {
+        $("#div-sexo_inmueble").hide();
+        $("#div-fecha_nacimiento_inmueble").hide();
     }
 
     // if (!editarInmueble && !eliminarInmueble) column.visible(false);
@@ -653,7 +656,7 @@ $(document).on('click', '#exportExcelInmueble', function () {
         id_nit: $('#id_nit_inmueble_filter').val(),
         id_zona: $('#id_zona_inmueble_filter').val(),
         id_concepto_facturacion: $('#id_concepto_facturacion_inmueble_filter').val(),
-        search: $('#searchInputInmuebles').val()
+        search: $('#searchInputInmuebles').val(),
     }
 
     $.ajax({
@@ -715,6 +718,8 @@ $(document).on('click', '#saveInmueble', function () {
         coeficiente: stringToNumberFloat($("#coeficiente_inmueble").val()),
         valor_total_administracion: stringToNumberFloat($("#valor_total_administracion_inmueble").val()),
         fecha_entrega: $("#fecha_entrega_inmueble").val(),
+        sexo: $("#sexo_inmueble").val(),
+        fecha_nacimiento: $("#fecha_nacimiento_inmueble").val(),
     }
 
     $.ajax({

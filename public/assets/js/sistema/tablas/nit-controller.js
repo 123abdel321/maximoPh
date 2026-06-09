@@ -167,9 +167,9 @@ function nitInit() {
             $("#otros_nombres").val(data.otros_nombres);
             $("#razon_social").val(data.razon_social);
             $("#direccion").val(data.direccion);
-            $("#email").val(data.email);
-            $("#email_1").val(data.email_1);
-            $("#email_2").val(data.email_2);
+            $("#email_max").val(data.email);
+            $("#email_max_1").val(data.email_1);
+            $("#email_max_2").val(data.email_2);
             $("#telefono_1").val(data.telefono_1);
             $("#observaciones").val(data.observaciones);
             
@@ -417,9 +417,9 @@ $(document).on('click', '#updateNit', function () {
             otros_nombres: $("#otros_nombres").val(),
             razon_social: $("#razon_social").val(),
             direccion: $("#direccion").val(),
-            email: $("#email").val(),
-            email_1: $("#email_1").val(),
-            email_2: $("#email_2").val(),
+            email: $("#email_max").val(),
+            email_1: $("#email_max_1").val(),
+            email_2: $("#email_max_2").val(),
             telefono_1: $("#telefono_1").val(),
             id_ciudad: $("#id_ciudad").val(),
             observaciones: $("#observaciones").val(),
@@ -487,9 +487,9 @@ $(document).on('click', '#saveNit', function () {
             otros_nombres: $("#otros_nombres").val(),
             razon_social: $("#razon_social").val(),
             direccion: $("#direccion").val(),
-            email: $("#email").val(),
-            email_1: $("#email_1").val(),
-            email_2: $("#email_2").val(),
+            email: $("#email_max").val(),
+            email_1: $("#email_max_1").val(),
+            email_2: $("#email_max_2").val(),
             telefono_1: $("#telefono_1").val(),
             id_ciudad: $("#id_ciudad").val(),
             observaciones: $("#observaciones").val(),
@@ -554,9 +554,9 @@ function clearFormNits(){
     $("#razon_social").val('');
     $("#telefono_1").val('');
     $("#direccion").val('');
-    $("#email").val('');
-    $("#email_1").val('');
-    $("#email_2").val('');
+    $("#email_max").val('');
+    $("#email_max_1").val('');
+    $("#email_max_2").val('');
     $('#default_avatar').show();
     $('#new_avatar').hide();
 

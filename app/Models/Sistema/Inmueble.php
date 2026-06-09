@@ -22,6 +22,8 @@ class Inmueble extends Model
         'valor_total_administracion',
         'observaciones',
         'fecha_entrega',
+        'sexo',
+        'fecha_nacimiento',
         'created_by',
         'updated_by'
     ];

@@ -208,7 +208,6 @@ class InmuebleController extends Controller
                 }
             }
 
-
             $inmueble = Inmueble::create([
                 'id_zona' => $request->get('id_zona'),
                 'id_concepto_facturacion' => $request->get('id_concepto_facturacion'),
@@ -218,6 +217,8 @@ class InmuebleController extends Controller
                 'valor_total_administracion' => round($valor_total_administracion),
                 'observaciones' => $request->get('observaciones'),
                 'fecha_entrega' => $request->get('fecha_entrega'),
+                'sexo' => $request->get('sexo'),
+                'fecha_nacimiento' => $request->get('fecha_nacimiento'),
                 'created_by' => request()->user()->id,
                 'updated_by' => request()->user()->id
             ]);
@@ -335,6 +336,8 @@ class InmuebleController extends Controller
                     'valor_total_administracion' => round($valor_total_administracion),
                     'observaciones' => $request->get('observaciones'),
                     'fecha_entrega' => $request->get('fecha_entrega'),
+                    'sexo' => $request->get('sexo'),
+                    'fecha_nacimiento' => $request->get('fecha_nacimiento'),
                     'updated_by' => request()->user()->id
                 ]);
 

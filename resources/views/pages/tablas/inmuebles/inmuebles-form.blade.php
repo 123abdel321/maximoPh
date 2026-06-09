@@ -40,6 +40,20 @@
                         <input type="text" class="form-control form-control-sm text-align-right" name="coeficiente_inmueble" id="coeficiente_inmueble" data-type="currency" onfocus="this.select();">
                     </div>
 
+                    <div id="div-sexo_inmueble" class="form-group col-12 col-sm-6 col-md-6">
+                        <label for="sexo_inmueble">Sexo<span style="color: red">*</span></label>
+                        <select class="form-control form-control-sm" id="sexo_inmueble">
+                            <option value="0">Hombre</option>
+                            <option value="1">Mujer</option>
+                            <option value="2">Indeterminado</option>
+                        </select>
+                    </div>
+
+                    <div id="div-fecha_nacimiento_inmueble" class="form-group col-12 col-sm-6 col-md-6" >
+                        <label for="fecha_nacimiento_inmueble" class="form-control-label"> Fecha nacimiento </label>
+                        <input type="date" class="form-control form-control-sm" name="fecha_nacimiento_inmueble" id="fecha_entrega_inmuefecha_nacimiento_inmuebleble">
+                    </div>
+
                     <div class="form-group col-12 col-sm-6 col-md-6" >
                         <label for="valor_total_administracion_inmueble" class="form-control-label">Valor admon (Ppto mensual {{ number_format($valor_total_presupuesto_year_actual) }})</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="valor_total_administracion_inmueble" id="valor_total_administracion_inmueble" data-type="currency" onfocus="this.select();">

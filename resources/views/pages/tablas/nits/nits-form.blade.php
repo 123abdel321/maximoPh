@@ -89,7 +89,7 @@
 
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_email">
                         <label for="example-text-input" class="form-control-label">Email</label>
-                        <input type="email" class="form-control form-control-sm" name="email" id="email" >
+                        <input type="email" class="form-control form-control-sm" name="email_max" id="email_max" >
                         <div class="invalid-feedback">
                             El campo es requerido
                         </div>
@@ -97,12 +97,12 @@
 
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_email_1">
                         <label for="example-text-input" class="form-control-label">Email 2</label>
-                        <input type="email" class="form-control form-control-sm" name="email_1" id="email_1" >
+                        <input type="email" class="form-control form-control-sm" name="email_max_1" id="email_max_1" >
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_email_2">
                         <label for="example-text-input" class="form-control-label">Email 3</label>
-                        <input type="email" class="form-control form-control-sm" name="email_2" id="email_2" >
+                        <input type="email" class="form-control form-control-sm" name="email_max_2" id="email_max_2" >
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" id="div_telefono_1">
