@@ -40,10 +40,10 @@
 
         <div id="totales_inmuebles_view" style="content-visibility: auto; overflow: auto; display: block; margin-top: -5px;">
             <div class="row ">
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                <div class="col-12 col-sm-6 col-md-{{ $colegios_maximo ? '6' : '3' }}" style="margin-top: 5px; padding-bottom: 5px;">
                     <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Inmuebles Registrados</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ $colegios_maximo ? 'Alumnos' : 'Inmuebles' }} Registrados</p>
                             <div style="display: flex;">
                                 <h5 id="inmuebles_registrados_inmueble" class="font-weight-bolder">
                                     0
@@ -58,46 +58,49 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card" style="height: 100%;">
-                        <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Área M2 Registrada</p>
-                            <div style="display: flex;">
-                                <h5 id="area2_registrados_inmueble" class="font-weight-bolder">
-                                    0
-                                </h5>
-                                <h5 class="font-weight-bolder">
-                                    &nbsp;de {{ number_format($area_total_m2, 2, '.', '') }}
-                                </h5>
-                            </div>
-                            <div class="icon icon-shape bg-gradient-success shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                                <i class="fas fa-text-height text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
-                    <div class="card" style="height: 100%;">
-                        <div class="card-body p-2">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Coeficiente %</p>
-                            <div style="display: flex;">
-                                <h5 id="coeficiente_registrados_inmueble" class="font-weight-bolder">
-                                    0
-                                </h5>
-                                <h5 class="font-weight-bolder">
-                                    %&nbsp;de 100%
-                                </h5>
-                            </div>
-                            <div class="icon icon-shape bg-gradient-warning shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
-                                <i class="fas fa-calculator text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
+                @if(!$colegios_maximo)
+                    <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                        <div class="card" style="height: 100%;">
+                            <div class="card-body p-2">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Área M2 Registrada</p>
+                                <div style="display: flex;">
+                                    <h5 id="area2_registrados_inmueble" class="font-weight-bolder">
+                                        0
+                                    </h5>
+                                    <h5 class="font-weight-bolder">
+                                        &nbsp;de {{ number_format($area_total_m2, 2, '.', '') }}
+                                    </h5>
+                                </div>
+                                <div class="icon icon-shape bg-gradient-success shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
+                                    <i class="fas fa-text-height text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
-                <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                @if(!$colegios_maximo)
+                    <div class="col-12 col-sm-6 col-md-3" style="margin-top: 5px; padding-bottom: 5px;">
+                        <div class="card" style="height: 100%;">
+                            <div class="card-body p-2">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Coeficiente %</p>
+                                <div style="display: flex;">
+                                    <h5 id="coeficiente_registrados_inmueble" class="font-weight-bolder">
+                                        0
+                                    </h5>
+                                    <h5 class="font-weight-bolder">
+                                        %&nbsp;de 100%
+                                    </h5>
+                                </div>
+                                <div class="icon icon-shape bg-gradient-warning shadow-primary text-center rounded-circle" style="width: 30px !important; height: 30px !important; margin-top: -45px; float: inline-end;">
+                                    <i class="fas fa-calculator text-lg opacity-10" style="top: 6px !important;" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="col-12 col-sm-6 col-md-{{ $colegios_maximo ? '6' : '3' }}" style="margin-top: 5px; padding-bottom: 5px;">
                     <div class="card" style="height: 100%;">
                         <div class="card-body p-2">
                             <p class="text-sm mb-0 text-uppercase font-weight-bold">Presupuesto Mensual</p>
@@ -122,7 +125,9 @@
         <div id="tablas_inmuebles" class="card mb-4" style="content-visibility: auto; overflow: auto; margin-top: 10px;">
             <div class="card-body">
                 
-                @include('pages.tablas.inmuebles.inmuebles-table')
+                @include('pages.tablas.inmuebles.inmuebles-table', [
+                    'colegios_maximo' => $colegios_maximo
+                ])
 
             </div>
         </div>
@@ -151,10 +156,13 @@
 
     @include('pages.tablas.inmuebles.inmuebles-form', [
         'valor_total_presupuesto_year_actual' => $valor_total_presupuesto_year_actual,
-        'area_total_m2' => $area_total_m2
+        'area_total_m2' => $area_total_m2,
+        'colegios_maximo' => $colegios_maximo
     ])
 
-    @include('pages.tablas.inmuebles.inmuebles-nits-form')
+    @include('pages.tablas.inmuebles.inmuebles-nits-form', [
+        'colegios_maximo' => $colegios_maximo
+    ])
     
 </div>
 
@@ -166,4 +174,5 @@
     var editar_coheficiente_admon_inmueble = JSON.parse('<?php echo $editar_coheficiente_admon_inmueble; ?>');
     var valor_total_presupuesto_year_actual = JSON.parse('<?php echo $valor_total_presupuesto_year_actual; ?>');
     var numero_total_unidades = JSON.parse('<?php echo $numero_total_unidades; ?>');
+    var colegios_maximo = JSON.parse('<?php echo $colegios_maximo; ?>');
 </script>

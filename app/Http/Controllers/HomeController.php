@@ -39,6 +39,9 @@ class HomeController extends Controller
 
         $obligarAceptarTerminos = Entorno::where('nombre', 'aceptar_terminos')->first();
         $obligarAceptarTerminos = $obligarAceptarTerminos ? intval($obligarAceptarTerminos->valor) : 0;
+
+        $colegiosMaximo = Entorno::where('nombre', 'colegios_maximo')->first();
+        $colegiosMaximo = $colegiosMaximo ? intval($colegiosMaximo->valor) : 0;
         // user_id
         // terminos_condiciones_id
         $mostrarModalTerminosCondicion = null;
@@ -56,6 +59,9 @@ class HomeController extends Controller
         
 
         foreach ($menus as $key => $menu) {
+            if ($colegiosMaximo && $menu->id_componente == 1 && $menu->nombre == 'Inmuebles') {
+                $menu->nombre = 'Alumnos';
+            }
             if ($menu->code_name && !$request->user()->hasPermissionTo($menu->code_name.' read')) {
                 unset($menus[$key]);
             }

@@ -37,6 +37,7 @@ function entornoInit() {
         'recausar_meses',
         'validar_fecha_entrega_causacion',
         'detallar_facturas',
+        'colegios_maximo',
         'aceptar_terminos',
     ];
 
@@ -728,6 +729,7 @@ $(document).on('click', '#updateEntorno', function () {
         'recausar_meses': $("input[type='checkbox']#recausar_meses").is(':checked') ? '1' : '0',
         'validar_fecha_entrega_causacion': $("input[type='checkbox']#validar_fecha_entrega_causacion").is(':checked') ? '1' : '0',
         'detallar_facturas': $("input[type='checkbox']#detallar_facturas").is(':checked') ? '1' : '0',
+        'colegios_maximo': $("input[type='checkbox']#colegios_maximo").is(':checked') ? '1' : '0',
         'aceptar_terminos': $("input[type='checkbox']#aceptar_terminos").is(':checked') ? '1' : '0',
         'factura_texto1': $('#factura_texto1').val(),
         'factura_texto2': $('#factura_texto2').val(),

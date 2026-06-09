@@ -178,6 +178,13 @@
                                 </label>
                             </div>
 
+                            <div class="form-check form-switch col-12 col-sm-4 col-md-3">
+                                <input class="form-check-input" type="checkbox" name="colegios_maximo" id="colegios_maximo" style="height: 20px;">
+                                <label class="form-check-label" for="colegios_maximo">
+                                    Colegios
+                                </label>
+                            </div>
+
                             <div class="justify-content-center col-6">
                                 <label for="qr_facturas_nueva" class="form-control-label">Qr Facturas</label>
                                 <div style="with: 190px;">

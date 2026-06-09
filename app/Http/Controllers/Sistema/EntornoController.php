@@ -65,6 +65,7 @@ class EntornoController extends Controller
                 'recausar_meses',
                 'validar_fecha_entrega_causacion',
                 'detallar_facturas',
+                'colegios_maximo',
                 'documento_referencia_agrupado',
                 'placetopay_url',
                 'placetopay_login',

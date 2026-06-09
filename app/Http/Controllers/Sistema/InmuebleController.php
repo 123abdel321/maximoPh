@@ -43,6 +43,9 @@ class InmuebleController extends Controller
         $numero_total_unidades = Entorno::where('nombre', 'numero_total_unidades')->first();
         $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
 
+        $colegiosMaximo = Entorno::where('nombre', 'colegios_maximo')->first();
+        $colegiosMaximo = $colegiosMaximo ? intval($colegiosMaximo->valor) : 0;
+
         $valor_total_presupuesto_year_actual = $valor_total_presupuesto_year_actual && $valor_total_presupuesto_year_actual->valor ? $valor_total_presupuesto_year_actual->valor : 0;
         
         $data = [
@@ -51,6 +54,7 @@ class InmuebleController extends Controller
             "valor_total_presupuesto_year_actual" => $valor_total_presupuesto_year_actual ? $valor_total_presupuesto_year_actual : '0',
             "numero_total_unidades" => $numero_total_unidades && $numero_total_unidades->valor ? $numero_total_unidades->valor : '0',
             "area_total_m2" => $area_total_m2 && $area_total_m2->valor ? $area_total_m2->valor : '0',
+            'colegios_maximo' => $colegiosMaximo,
         ];
 
         return view('pages.tablas.inmuebles.inmuebles-view', $data);
@@ -133,7 +137,7 @@ class InmuebleController extends Controller
             'nombre' => 'required|min:1|max:200',
             'id_zona' => 'required|exists:max.zonas,id',
             'id_concepto_facturacion' => 'nullable|exists:max.concepto_facturacions,id',
-            'area' => 'required',
+            'area' => 'nullable',
             'valor_total_administracion' => 'nullable',
             'observaciones' => 'nullable'
         ];
@@ -176,25 +180,34 @@ class InmuebleController extends Controller
             $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
             $area_total_m2 = $area_total_m2 ? $area_total_m2->valor : 0;
 
-            if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
-                $coeficiente = $request->get('coeficiente');
+            $colegiosMaximo = Entorno::where('nombre', 'colegios_maximo')->first();
+            $colegiosMaximo = $colegiosMaximo ? intval($colegiosMaximo->valor) : 0;
+
+            if ($colegiosMaximo) {
+                $coeficiente = 0;
                 $valor_total_administracion = $request->get('valor_total_administracion');
             } else {
-                $coeficiente = $request->get('area') / $area_total_m2;
-    
-                if ($editar_valor_admon_inmueble) {
-                    if ($request->get('valor_total_administracion') <= 0) {
-                        return response()->json([
-                            "success"=>false,
-                            'data' => [],
-                            "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
-                        ], 422);
-                    }
+                if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
+                    $coeficiente = $request->get('coeficiente');
                     $valor_total_administracion = $request->get('valor_total_administracion');
                 } else {
-                    $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                    $coeficiente = $request->get('area') / $area_total_m2;
+        
+                    if ($editar_valor_admon_inmueble) {
+                        if ($request->get('valor_total_administracion') <= 0) {
+                            return response()->json([
+                                "success"=>false,
+                                'data' => [],
+                                "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
+                            ], 422);
+                        }
+                        $valor_total_administracion = $request->get('valor_total_administracion');
+                    } else {
+                        $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                    }
                 }
             }
+
 
             $inmueble = Inmueble::create([
                 'id_zona' => $request->get('id_zona'),
@@ -277,30 +290,38 @@ class InmuebleController extends Controller
 
             $area_total_m2 = Entorno::where('nombre', 'area_total_m2')->first();
             $area_total_m2 = $area_total_m2 ? $area_total_m2->valor : 0;
+
+            $colegiosMaximo = Entorno::where('nombre', 'colegios_maximo')->first();
+            $colegiosMaximo = $colegiosMaximo ? intval($colegiosMaximo->valor) : 0;
             
             $valor_total_administracion = 0;
 
-            if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
-                $coeficiente = $request->get('coeficiente');
+            if ($colegiosMaximo) {
+                $coeficiente = 0;
                 $valor_total_administracion = $request->get('valor_total_administracion');
             } else {
                 if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
                     $coeficiente = $request->get('coeficiente');
-                } else {
-                    $coeficiente = $request->get('area') / $area_total_m2;
-                }
-                
-                if ($editar_valor_admon_inmueble) {
-                    if ($request->get('valor_total_administracion') <= 0) {
-                        return response()->json([
-                            "success"=>false,
-                            'data' => [],
-                            "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
-                        ], 422);
-                    }
                     $valor_total_administracion = $request->get('valor_total_administracion');
                 } else {
-                    $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                    if ($editar_valor_admon_inmueble && $editar_valor_coeficiente_inmueble) {
+                        $coeficiente = $request->get('coeficiente');
+                    } else {
+                        $coeficiente = $request->get('area') / $area_total_m2;
+                    }
+                    
+                    if ($editar_valor_admon_inmueble) {
+                        if ($request->get('valor_total_administracion') <= 0) {
+                            return response()->json([
+                                "success"=>false,
+                                'data' => [],
+                                "message"=>['valor_total_administracion' => 'El valor de la administración en obligatorio']
+                            ], 422);
+                        }
+                        $valor_total_administracion = $request->get('valor_total_administracion');
+                    } else {
+                        $valor_total_administracion = $coeficiente * $valor_total_presupuesto_year_actual;
+                    }
                 }
             }
 

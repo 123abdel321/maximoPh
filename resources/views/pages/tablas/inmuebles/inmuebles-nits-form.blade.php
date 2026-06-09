@@ -20,12 +20,14 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label for="exampleFormControlSelect1">Tipo<span style="color: red">*</span></label>
+                        <label for="tipo_inmueble_nit">Tipo<span style="color: red">*</span></label>
                         <select class="form-control form-control-sm" id="tipo_inmueble_nit">
-                            <option value="0">PROPIETARIO</option>
-                            <option value="1">INQUILINO</option>
-                            <option value="2">INMOBILIARIA</option>
-                            <option value="3">PROPIETARIO RESIDENTE</option>
+                            <option value="0">{{ $colegios_maximo ? 'MAMÁ' : 'PROPIETARIO' }}</option>
+                            <option value="1">{{ $colegios_maximo ? 'PAPÁ' : 'INQUILINO' }}</option>
+                            <option value="2">{{ $colegios_maximo ? 'ACUDIENTE' : 'INMOBILIARIA' }}</option>
+                            @if(!$colegios_maximo)
+                                <option value="3">PROPIETARIO RESIDENTE</option>
+                            @endif
                         </select>
                     </div>
 

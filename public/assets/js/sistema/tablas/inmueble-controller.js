@@ -79,7 +79,6 @@ function inmuebleInit() {
                     return '';
                 }
             },
-            
             {"data": function (row, type, set){  
                 if (row.concepto) {
                     return row.concepto.nombre_concepto;
@@ -138,8 +137,9 @@ function inmuebleInit() {
             }},
             {
                 "data": function (row, type, set){
+                    const nombreAcciones = colegios_maximo ? 'Acudiente' : 'Propietarios';
                     var html = '';
-                    if (editarInmueble) html+= '<span id="addnitinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary add-nit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Propietarios</span>&nbsp;';
+                    if (editarInmueble) html+= '<span id="addnitinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-primary add-nit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">'+nombreAcciones+'</span>&nbsp;';
                     if (editarInmueble) html+= '<span id="editinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
                     if (eliminarInmueble) html+= '<span id="deleteinmueble_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-inmueble" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
                     return html;
@@ -618,10 +618,18 @@ function inmuebleInit() {
 
     });
 
-    let column = inmueble_table.column(7);
+    let columnCoeficiente = inmueble_table.column(6);
+    let columnAreaM2 = inmueble_table.column(7);
 
-    if (!editarInmueble && !eliminarInmueble) column.visible(false);
-    else column.visible(true);
+    if (colegios_maximo) {
+        columnCoeficiente.visible(false);
+        columnAreaM2.visible(false);
+        $("#div-area_inmueble").hide();
+        $("#div-coeficiente_inmueble").hide();
+    }
+
+    // if (!editarInmueble && !eliminarInmueble) column.visible(false);
+    // else column.visible(true);
 
     $('.water').hide();
     inmueble_table.ajax.reload();

@@ -26,16 +26,16 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6">
-                        <label for="nombre_inmueble" class="form-control-label">Codigo inmueble</label>
+                        <label for="nombre_inmueble" class="form-control-label">Codigo {{ $colegios_maximo ? 'alumno' : 'inmueble' }}</label>
                         <input type="text" class="form-control form-control-sm" name="nombre_inmueble" id="nombre_inmueble" onfocus="this.select();" required>
                     </div>
 
-                    <div class="form-group col-12 col-sm-6 col-md-6" >
+                    <div id="div-area_inmueble" class="form-group col-12 col-sm-6 col-md-6" >
                         <label for="area_inmueble" class="form-control-label">Area (Area total {{ number_format($area_total_m2) }})</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="area_inmueble" id="area_inmueble" data-type="currency" onfocus="this.select();" onkeydown="changeArea(this)">
                     </div>
 
-                    <div class="form-group col-12 col-sm-6 col-md-6" >
+                    <div id="div-coeficiente_inmueble" class="form-group col-12 col-sm-6 col-md-6" >
                         <label for="coeficiente_inmueble" class="form-control-label">Coeficiente</label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="coeficiente_inmueble" id="coeficiente_inmueble" data-type="currency" onfocus="this.select();">
                     </div>
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
-                        <label for="fecha_entrega_inmueble" class="form-control-label"> Fecha entrega </label>
+                        <label for="fecha_entrega_inmueble" class="form-control-label"> Fecha {{ $colegios_maximo ? 'ingreso' : 'entrega' }} </label>
                         <input type="date" class="form-control form-control-sm" name="fecha_entrega_inmueble" id="fecha_entrega_inmueble">
                     </div>
 

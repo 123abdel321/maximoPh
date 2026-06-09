@@ -28,7 +28,7 @@
 <table id="inmuebleTable" class="table table-bordered display responsive" width="100%" style="margin-top: -15px;">
     <thead style="background-color: #7ea1ff2b;">
         <tr>
-            <th style="border-radius: 15px 0px 0px 0px !important;">Inmueble</th>
+            <th style="border-radius: 15px 0px 0px 0px !important;">{{ $colegios_maximo ? 'Alumno' : 'Inmueble' }}</th>
             <th>Zona</th>
             <th>Cédula</th>
             <th>Nombre</th>
