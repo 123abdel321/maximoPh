@@ -2,8 +2,8 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="textInmuebleCreate" style="display: none;">Agregar Inmueble</h5>
-                <h5 class="modal-title" id="textInmuebleUpdate" style="display: none;">Editar Inmueble</h5>
+                <h5 class="modal-title" id="textInmuebleCreate" style="display: none;">Agregar {{ $colegios_maximo ? 'Alumnos' : 'Inmuebles' }}</h5>
+                <h5 class="modal-title" id="textInmuebleUpdate" style="display: none;">Editar {{ $colegios_maximo ? 'Alumnos' : 'Inmuebles' }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
@@ -55,7 +55,13 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-6 col-md-6" >
-                        <label for="valor_total_administracion_inmueble" class="form-control-label">Valor admon (Ppto mensual {{ number_format($valor_total_presupuesto_year_actual) }})</label>
+                        <label for="valor_total_administracion_inmueble" class="form-control-label">
+                            @if($colegios_maximo)
+                                Valor mes
+                            @else
+                                Valor admon (Ppto mensual {{ number_format($valor_total_presupuesto_year_actual) }})
+                            @endif
+                        </label>
                         <input type="text" class="form-control form-control-sm text-align-right" name="valor_total_administracion_inmueble" id="valor_total_administracion_inmueble" data-type="currency" onfocus="this.select();">
                     </div>
 
