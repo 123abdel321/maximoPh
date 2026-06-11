@@ -7,7 +7,7 @@
     </div>
 
     <div class="form-group col-12 col-sm-6 col-md-3" >
-        <label for="example-text-input" class="form-control-label">Nombre inmueble</label>
+        <label for="example-text-input" class="form-control-label">Nombre {{ $colegios_maximo ? 'alumnos' : 'inmuebles' }}</label>
         <input type="text" id="searchInputInmuebles" class="form-control form-control-sm" placeholder="Buscar" onkeydown="searchInmuebles(event)">
     </div>
 

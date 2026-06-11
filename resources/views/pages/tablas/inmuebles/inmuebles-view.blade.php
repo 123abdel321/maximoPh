@@ -19,7 +19,7 @@
         <div class="row" style="z-index: 9;">
             <div class="col-12 col-md-6 col-sm-6">
                 @can('inmueble create')
-                    <button type="button" class="btn btn-primary btn-sm" id="createInmuebles">Agregar inmueble</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="createInmuebles">Agregar {{ $colegios_maximo ? 'Alumnos' : 'Inmuebles' }}</button>
                     <button type="button" class="btn btn-dark btn-sm" id="volverInmuebles" style="display: none;"><i class="fas fa-step-backward back-icon-button"></i>&nbsp;Volver</button>
                     <button type="button" class="btn btn-primary btn-sm" id="createInmueblesNit" style="display: none; margin-left: 5px;">Agregar cédula / nit</button>
                 @endcan
