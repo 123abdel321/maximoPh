@@ -100,7 +100,9 @@ class PlacetoPayNotificationController extends Controller
             copyDBConnection('sam', 'sam');
             setDBInConnection('sam', $empresa->token_db_portafolio);
 
-            $recibo = ConRecibos::where('id', $recibo_id)->first();
+            $recibo = ConRecibos::where('id', $recibo_id)
+                ->first();
+
             if (!$recibo) {
                 Log::error('Recibo no encontrado', ['recibo_id' => $recibo_id]);
                 return response()->json(['success' => false, 'error' => 'Recibo no encontrado'], 404);
@@ -123,7 +125,7 @@ class PlacetoPayNotificationController extends Controller
                     $statusNew = (object) $response->response->status;
                     switch ($statusNew->status) {
                         case 'APPROVED':
-                            // $recibo->update(['estado' => 1, 'observacion' => $statusNew->message]);
+                            $recibo->update(['estado' => 1, 'observacion' => $statusNew->message]);
                             $this->registrarMovimientoContable($recibo);
                             break;
                         case 'PENDING':
