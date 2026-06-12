@@ -297,7 +297,6 @@ class ProcessImportarRecibos implements ShouldQueue
         $finMes = Carbon::parse($this->fechaManual)->format('Y-m-t');
 
         $facturaDescuento = $this->getFacturaMes($reciboImport->id_nit, $inicioMes, $this->fechaManual);
-        
         $totalDescuentoDisponible = $facturaDescuento ? $facturaDescuento->descuento : 0;
         $anticiposDisponibles = $this->totalAnticipos($reciboImport->id_nit);
         $valorDisponible = (float) $reciboImport->pago;
@@ -615,7 +614,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 AND FD.id_concepto_facturacion IS NOT NULL
                 AND FD.fecha_manual = '{$inicioMes}'
                 
-            GROUP BY FD.documento_referencia
+            GROUP BY FD.documento_referencia, FD.id_concepto_facturacion
         ");
 
         $facturas = collect($facturas);
