@@ -215,7 +215,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
             
-            if ($conceptoFactura) {
+            if ($conceptoFactura && $conceptoFactura->pronto_pago) {
                 $count++;
                 $diaHoy = intval(Carbon::now()->format('d'));
                 $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
@@ -285,7 +285,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 
         $texto1 = Entorno::where('nombre', 'factura_texto1')->first();
         $texto2 = Entorno::where('nombre', 'factura_texto2')->first();
-        // dd($dataDescuento);
+        
         return [
 			'empresa' => $this->empresa,
 			'nit' => $nit,
