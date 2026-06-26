@@ -67,6 +67,7 @@ class EntornoController extends Controller
                 'detallar_facturas',
                 'colegios_maximo',
                 'documento_referencia_agrupado',
+                'referencia_paz_salvo',
                 'placetopay_url',
                 'placetopay_login',
                 'placetopay_trankey',

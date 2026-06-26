@@ -57,6 +57,7 @@ function entornoInit() {
 
     var select = [
         'documento_referencia_agrupado',
+        'referencia_paz_salvo',
     ];
 
     var select2 = [
@@ -736,6 +737,7 @@ $(document).on('click', '#updateEntorno', function () {
         'terminos_condiciones': $('#terminos_condiciones').val(),
         'dias_pronto_pago': stringToNumberFloat($('#dias_pronto_pago').val()),
         'documento_referencia_agrupado': $('#documento_referencia_agrupado').val(),
+        'referencia_paz_salvo': $('#referencia_paz_salvo').val(),
         // 'tasa_pronto_pago': stringToNumberFloat($('#tasa_pronto_pago').val()),
         'id_concepto_pago_none': $('#id_concepto_pago_none').val(),
         'id_nit_por_defecto': $('#id_nit_por_defecto').val(),

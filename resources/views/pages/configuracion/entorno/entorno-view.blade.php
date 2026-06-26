@@ -80,7 +80,7 @@
                             </div>
 
                             <div class="form-group col-12 col-sm-4 col-md-3">
-                                <label for="exampleFormControlSelect1">Doc. Ref. agrupado por</label>
+                                <label for="documento_referencia_agrupado">Doc. Ref. agrupado por</label>
                                 <select class="form-control form-control-sm" name="documento_referencia_agrupado" id="documento_referencia_agrupado">
                                     <option value="0">AÑO-MES_CANTIDAD INMUEBLES</option>
                                     <option value="1">NOMBRE INMUEBLE-NOMBRE ZONA</option>
@@ -310,6 +310,14 @@
                                     <img id="firma_digital_paz_salvo" onclick="document.getElementById('firma_digital_paz_salvo_nueva').click();" src="" class="img-fluid border border-2 border-white" style="width: 180px; height: auto; cursor: pointer; border-radius: 5%;">
                                     <input type="file" name="firma_digital_paz_salvo_nueva" id="firma_digital_paz_salvo_nueva" onchange="readURLFirmaDigitalNueva(this);" style="display: none" />
                                 </div>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-4 col-md-3">
+                                <label for="referencia_paz_salvo">Referencia</label>
+                                <select class="form-control form-control-sm" name="referencia_paz_salvo" id="referencia_paz_salvo">
+                                    <option value="0">Cédula - Nombre</option>
+                                    <option value="1">Zona - Inmueble</option>
+                                </select>
                             </div>
 
                         </div>
