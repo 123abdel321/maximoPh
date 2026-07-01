@@ -215,7 +215,7 @@ class FacturacionPdf extends AbstractPrinterPdf
                 ->where('id_cuenta_cobrar', $facturacion->id_cuenta)
                 ->first();
             
-            if ($conceptoFactura && $conceptoFactura->pronto_pago) {
+            if ($conceptoFactura && $conceptoFactura->pronto_pago && $facturasMesDescuento) {
                 $count++;
                 $diaHoy = intval(Carbon::now()->format('d'));
                 $keyDescuento = Carbon::now()->format('Ym').$conceptoFactura->dias_pronto_pago;
