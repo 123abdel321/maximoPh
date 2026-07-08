@@ -78,6 +78,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                     'email_2',
                     'nombre_nit',
                     'consecutivo',
+                    'apartamentos',
                     DB::raw('SUM(saldo_anterior) + SUM(debito) - SUM(credito) AS saldo_final'),
                 )
                 ->mergeBindings($query)
@@ -149,7 +150,8 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                     $filterData = [
                         'id_nit' => $nit->id_nit,
-                        'nombre_completo' => $nit->nombre_nit
+                        'nombre_completo' => $nit->nombre_nit,
+                        'apartamentos' => $nit->apartamentos
                     ];
 
                     if ($facturaPdf) {
@@ -163,10 +165,9 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
 
                     $ecoToken = Entorno::where('nombre', 'eco_login')->first();
                     $ecoToken = $ecoToken?->valor ?? null;
-                    
+
                     SendSingleEmail::dispatch(
                         $this->empresa,
-                        // 'abdel_123@hotmail.es',
                         $email,
                         $emailData,
                         $filterData,
@@ -218,6 +219,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 "N.email",
                 "N.email_1",
                 "N.email_2",
+                "N.apartamentos",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",
@@ -306,6 +308,7 @@ class ProcessEnvioFacturaEmail implements ShouldQueue
                 "N.email",
                 "N.email_1",
                 "N.email_2",
+                "N.apartamentos",
                 "PC.id AS id_cuenta",
                 "PC.cuenta",
                 "PC.naturaleza_cuenta",

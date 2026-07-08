@@ -180,8 +180,7 @@ function initTablesEco() {
                 "Content-Type": "application/json",
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            // url: base_url_erp + 'email/list',
-            url: 'https://eco.portafolioerp.com/api/email/list',
+            url: base_url_eco + 'email/list',
             data: function ( d ) {
                 d.estado = $('#estado_eco_email').val();
                 d.email = emailFilterCorreos;
@@ -193,8 +192,14 @@ function initTablesEco() {
             {"data": 'id'},
             {"data":'email'},
             {"data": function (row, type, set){
-                if (row.filter_metadata) {
+                if (row.filter_metadata && row.filter_metadata.nombre_completo) {
                     return row.filter_metadata.nombre_completo
+                }
+                return '';
+            }},
+            {"data": function (row, type, set){
+                if (row.filter_metadata && row.filter_metadata.apartamentos) {
+                    return `<div  class="text-wrap width-150">${row.filter_metadata.apartamentos}</div >`;
                 }
                 return '';
             }},
@@ -290,8 +295,7 @@ function initTablesEco() {
                 "Content-Type": "application/json",
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            // url: base_url_erp + 'email/list',
-            url: 'https://eco.portafolioerp.com/api/whatsapp/list',
+            url: base_url_eco + 'whatsapp/list',
             data: function ( d ) {
                 d.estado = $('#estado_eco_whatsapp').val();
                 d.id_nit = $('#id_nit_eco_whatsapp').val();
@@ -395,8 +399,7 @@ function initTablesEco() {
                 "Content-Type": "application/json",
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            // url: base_url_erp + 'email/detail',
-            url: 'https://eco.portafolioerp.com/api/email/detail',
+            url: base_url_eco + 'email/detail',
             data: function ( d ) {
                 d.id = $("#id_email_eco").val();;
             }
@@ -472,8 +475,7 @@ function initTablesEco() {
                 "Content-Type": "application/json",
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            // url: base_url_erp + 'email/detail',
-            url: 'https://eco.portafolioerp.com/api/whatsapp/detail',
+            url: base_url_eco + '/whatsapp/detail',
             data: function ( d ) {
                 d.id = $("#id_whatsapp_eco").val();
             }
