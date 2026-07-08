@@ -8,8 +8,10 @@
             <option value="">TODOS</option>
             <option value="en_cola">EN COLA</option>
             <option value="enviado">ENVIADO</option>
-            <option value="abierto">ABIERTO</option>
-            <option value="rechazado">RECHAZADO</option>
+            <option value="entregado">ENTREGADO</option>
+            <option value="leido">LEIDO</option>
+            <option value="diferido">DIFERIDO</option>
+            <option value="fallido">FALLIDO</option>
         </select>
     </div>
 
