@@ -133,7 +133,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
         try {
-            
+
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
 
@@ -148,11 +148,11 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 ->chunk(233, function ($nits) {
                     $nits->each(function ($nit) {
                         $this->countIntereses = 0;
-                        
+
                         $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit, $this->periodo_facturacion.'-01');
                         $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($nit->id_nit, $this->periodo_facturacion);
                         $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($nit->id_nit, $this->periodo_facturacion);
-                        
+
                         $factura = Facturacion::create([//CABEZA DE FACTURA
                             'id_comprobante' => $this->id_comprobante_ventas,
                             'id_nit' => $nit->id_nit,
@@ -257,7 +257,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
-
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
@@ -505,7 +504,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $this->descuentosProntoPago->total,
                     'concepto' => $concepto,
-                    'naturaleza_opuesta' => true,
+                    'naturaleza_opuesta' => false,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
@@ -627,7 +626,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 283)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -637,7 +635,6 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 283)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
