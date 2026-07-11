@@ -462,7 +462,7 @@ class Documento
         $ultimoConsecutivoUsado = $query
             // Forzar la conversión a entero para la comparación y ordenamiento
             ->orderByRaw('CAST(consecutivo AS UNSIGNED) DESC') // Usar ORDER BY RAW para ordenar numéricamente
-            ->value('consecutivo');// <-- ¡CORREGIDO! Trae el consecutivo, no el ID.
+            ->value('consecutivo');
 
         // Si no hay documentos previos dentro del período (o en general), no hay salto.
         // if (is_null($ultimoConsecutivoUsado) || $ultimoConsecutivoUsado == 0) {
@@ -511,9 +511,9 @@ class Documento
             return false;
         }
         
-        // if ($this->captura && $this->isUnbalanced()) {
-        //     $this->validateUnbalancedDocument();
-        // }
+        if ($this->saveUnbalancedDocuments && $this->captura && $this->isUnbalanced()) {
+            $this->validateUnbalancedDocument();
+        }
 
         if ($this->hasErrors()) {
             return false;

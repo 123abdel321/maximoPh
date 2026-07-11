@@ -133,7 +133,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
         setDBInConnection('sam', $this->empresa->token_db_portafolio);
 
         try {
-
+            
             $query = $this->getInmueblesNitsQuery();
             $query->unionAll($this->getCuotasMultasNitsQuery(date('Y-m', strtotime($this->periodo_facturacion))));
 
@@ -148,7 +148,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                 ->chunk(233, function ($nits) {
                     $nits->each(function ($nit) {
                         $this->countIntereses = 0;
-
+                        
                         $inmueblesFacturar = $this->inmueblesNitFacturar($nit->id_nit, $this->periodo_facturacion.'-01');
                         $cuotasMultasFacturarCxC = $this->extrasNitFacturarCxC($nit->id_nit, $this->periodo_facturacion);
                         $cuotasMultasFacturarCxP = $this->extrasNitFacturarCxP($nit->id_nit, $this->periodo_facturacion);
@@ -257,6 +257,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                         }
 
                         $this->prontoPago = $this->calcularTotalDeuda($inmueblesFacturar, $cuotasMultasFacturarCxC, $anticiposDisponibles, $valoresIntereses);
+                        
                         if ($anticiposDisponibles > 0 && $valoresIntereses) {
                             $anticiposDisponibles = $this->generarCruceIntereses($factura, $detalleFacturasInteres, $anticiposDisponibles);
                         }
@@ -317,9 +318,9 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                 'id_nit' => $factura->id_nit,
                                 'id_concepto_facturacion' => null,
                                 'id_cuenta_por_cobrar' => $this->id_cuenta_anticipos,
-                                'id_cuenta_ingreso' => null,
+                                'id_cuenta_ingreso' => $this->descuentosProntoPago->id_cuenta_gasto,
                                 'id_comprobante' => $this->id_comprobante_notas,
-                                'id_centro_costos' => $cuentaAnticipo->exige_centro_costos ? $this->id_centro_costos : null,
+                                'id_centro_costos' => $this->id_centro_costos,
                                 'fecha_manual' => $this->inicioMes.'-01',
                                 'documento_referencia' => $this->inicioMes.'-01',
                                 'valor' => $this->descuentosProntoPago->total,
@@ -504,7 +505,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                     'documento_referencia' => $documentoReferencia,
                     'valor' => $this->descuentosProntoPago->total,
                     'concepto' => $concepto,
-                    'naturaleza_opuesta' => false,
+                    'naturaleza_opuesta' => true,
                     'created_by' => $this->id_usuario,
                     'updated_by' => $this->id_usuario,
                 ]);
@@ -626,6 +627,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
+            // ->where('IN.id_nit', 1031)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -635,6 +637,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
+            // ->where('CM.id_nit', 1031)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
@@ -910,6 +913,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             'total' => 0,
             'base' => 0,
             'usado' => false,
+            'id_cuenta_gasto' => null,
             'detalle' => []
         ];
         
@@ -924,6 +928,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
 
             $this->descuentosProntoPago->detalle[$inmueble->id_inmueble] = $descuento;
             $this->descuentosProntoPago->base += $inmueble->valor_total;
+            $this->descuentosProntoPago->id_cuenta_gasto = $inmueble->id_cuenta_gasto;
             $deudaTotal += $inmueble->valor_total;
         }
         

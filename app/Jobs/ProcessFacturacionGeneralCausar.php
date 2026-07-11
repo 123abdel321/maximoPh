@@ -156,8 +156,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 $primerItem->id_comprobante,
                 $facDocumento,
                 $primerItem->fecha_manual,
-                $consecutivo,
-                false
+                $consecutivo
             );
 
             foreach ($grupo as $item) {
@@ -211,7 +210,14 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             }
 
             if (!$documentoGeneral->save()) {
-                throw new Exception("Error guardando DocumentosGeneral: " . $documentoGeneral->getErrors());
+
+                event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+                    'tipo' => 'error', 'success' => false,
+                    'message' => $documentoGeneral->getErrors(),
+                    'line' => 217,
+                    'action' => 5
+                ]));
+                throw new Exception("Error guardando DocumentosGeneral");
             }
 
             $comprobante->consecutivo_siguiente++;
@@ -256,11 +262,11 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             'message' => $exception->getMessage(),
             'line' => $exception->getLine()
         ]);
-        event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
-            'tipo' => 'error', 'success' => false,
-            'message' => $exception->getMessage(),
-            'line' => $exception->getLine(),
-            'action' => 5
-        ]));
+        // event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
+        //     'tipo' => 'error', 'success' => false,
+        //     'message' => $exception->getMessage(),
+        //     'line' => $exception->getLine(),
+        //     'action' => 5
+        // ]));
     }
 }
