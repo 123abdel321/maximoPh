@@ -325,7 +325,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                 'documento_referencia' => $this->inicioMes.'-01',
                                 'valor' => $this->descuentosProntoPago->total,
                                 'concepto' => 'ANTICIPO AGREGADO DESDE EL FACTURADOR',
-                                'naturaleza_opuesta' => false,
+                                'naturaleza_opuesta' => true,
                                 'created_by' => $this->id_usuario,
                                 'updated_by' => $this->id_usuario,
                             ]);
