@@ -361,8 +361,6 @@
 					@if($has_qr)
 					<td colspan="{{ $item_colspan ?? 2 }}" style="width: {{ 100/($items_count + ($liquidacion_colspan/2)) }}%;" class="padding5 aling-top">
 						<img style="height: 130px; width: auto;" src="{{ $qrFactura }}" alt="QR Factura"/>
-						<br>
-						<span style="font-size: 9px;">Escanea para pagar</span>
 					</td>
 					@endif
 
