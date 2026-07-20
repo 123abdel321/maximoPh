@@ -28,7 +28,7 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 3;
+    public $tries = 1;
     public $plantilla;
     public $archivos = null;
     public $timeout = 300;
@@ -216,9 +216,9 @@ class ProcessEnvioGeneralWhatsapp implements ShouldQueue
         $nombreCompleto = '';
 
         $filterData = [
-            'id_nit' => $nit->id,
-            'nombre_completo' => $nit->nombre_completo,
-            'apartamentos' => $nit->apartamentos,
+            'id_nit' => $nit?->id,
+            'nombre_completo' => $nit?->nombre_completo,
+            'apartamentos' => $nit?->apartamentos,
             'telefono' => $whatsapp
         ];
 
