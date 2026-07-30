@@ -103,7 +103,7 @@ class InmuebleController extends Controller
             }
 
             if ($request->get('search')) {
-                $inmueble->where('nombre', 'LIKE', '%'.$request->get('search').'%');
+                $inmueble->where('inmuebles.nombre', 'LIKE', '%'.$request->get('search').'%');
             }
 
             $inmuebleTotals = $inmueble->get();
