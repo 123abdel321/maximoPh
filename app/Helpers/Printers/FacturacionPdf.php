@@ -166,7 +166,7 @@ class FacturacionPdf extends AbstractPrinterPdf
 				'codigo_comprobante',
 				'nombre_comprobante',
 				'consecutivo',
-				DB::raw('MIN(concepto) AS concepto'),
+				DB::raw('MAX(concepto) AS concepto'),
 				'fecha_manual',
 				'created_at',
 				'fecha_creacion',
