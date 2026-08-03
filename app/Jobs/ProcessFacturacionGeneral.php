@@ -325,7 +325,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
                                 'documento_referencia' => $this->inicioMes.'-01',
                                 'valor' => $this->descuentosProntoPago->total,
                                 'concepto' => 'ANTICIPO AGREGADO DESDE EL FACTURADOR',
-                                'naturaleza_opuesta' => true,
+                                'naturaleza_opuesta' => false,
                                 'created_by' => $this->id_usuario,
                                 'updated_by' => $this->id_usuario,
                             ]);
@@ -627,7 +627,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'IN.id_nit'
             )
-            // ->where('IN.id_nit', 1031)
+            // ->where('IN.id_nit', 1054)
             ->whereRaw('CAST(valor_total AS DECIMAL) > 0');
     }
 
@@ -637,7 +637,7 @@ class ProcessFacturacionGeneral implements ShouldQueue
             ->select(
                 'CM.id_nit'
             )
-            // ->where('CM.id_nit', 1031)
+            // ->where('CM.id_nit', 1054)
             ->where("CM.fecha_inicio", '<=', $fecha_facturar)
             ->where("CM.fecha_fin", '>=', $fecha_facturar);
     }
