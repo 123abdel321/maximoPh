@@ -156,7 +156,8 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
                 $primerItem->id_comprobante,
                 $facDocumento,
                 $primerItem->fecha_manual,
-                $consecutivo
+                $consecutivo,
+                false
             );
 
             foreach ($grupo as $item) {
@@ -212,7 +213,7 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             if (!$documentoGeneral->save()) {
                 event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                     'tipo' => 'error', 'success' => false,
-                    'message' => json_encode($documentoGeneral->getErrors()),
+                    'message' => $documentoGeneral->getErrors(),
                     'line' => 217,
                     'action' => 5
                 ]));
