@@ -210,13 +210,13 @@ class ProcessFacturacionGeneralCausar implements ShouldQueue
             }
 
             if (!$documentoGeneral->save()) {
-
                 event(new PrivateMessageEvent("facturacion-rapida-{$this->empresa->token_db_maximo}_{$this->id_usuario}", [
                     'tipo' => 'error', 'success' => false,
-                    'message' => $documentoGeneral->getErrors(),
+                    'message' => json_encode($documentoGeneral->getErrors()),
                     'line' => 217,
                     'action' => 5
                 ]));
+                
                 throw new Exception("Error guardando DocumentosGeneral");
             }
 
