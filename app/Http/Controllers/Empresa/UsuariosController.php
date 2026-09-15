@@ -48,9 +48,12 @@ class UsuariosController extends Controller
             ->where('id_usuario', $request->user()['id'])
             ->first();
 
+        $esDios = $request->user()['rol_maximo'];
+
         $data = [
-            'roles' => RolesGenerales::where('id', '!=', 1)->get(),
+            'esDios' => $esDios,
             'usuario_nit' => $usuarioEmpresa,
+            'roles' => RolesGenerales::where('id', '!=', 1)->get(),
         ];
 
         return view('pages.configuracion.usuarios.usuarios-view', $data);
@@ -169,6 +172,51 @@ class UsuariosController extends Controller
             'iTotalRecords' => $totalUsuarios,
             'iTotalDisplayRecords' => $totalUsuarios,
             'data' => $dataUsuarios,
+            'perPage' => $rowperpage,
+            'message' => 'Usuarios cargados con éxito!'
+        ]);
+    }
+
+    public function generateEmpresas(Request $request)
+    {
+        $draw = $request->get('draw');
+        $start = $request->get("start");
+        $rowperpage = $request->get("length");
+
+        $columnIndex_arr = $request->get('order');
+        $columnName_arr = $request->get('columns');
+        $order_arr = $request->get('order');
+
+        $columnIndex = $columnIndex_arr[0]['column'];
+        $columnName = $columnName_arr[$columnIndex]['data'];
+        $columnSortOrder = $order_arr[0]['dir'];
+        $idUsuario = $request->get('id_usuario');
+
+        $esDios = $request->user()['rol_portafolio'];
+        // Consulta base: usuarios que pertenecen a la empresa actual
+        $empresas = UsuarioEmpresa::with('empresa', 'rol', 'nit')
+            ->select(
+                '*'
+            );            
+
+        if ($idUsuario) {
+            $empresas->where('id_usuario', $idUsuario);
+        }
+
+        // Obtener el total de registros
+        $usuariosTotals = $empresas->get();
+
+        // Obtener datos paginados
+        $usuariosPaginate = $empresas->skip($start)
+            ->take($rowperpage)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'draw' => $draw,
+            'iTotalRecords' => $usuariosTotals->count(),
+            'iTotalDisplayRecords' => $usuariosTotals->count(),
+            'data' => $usuariosPaginate,
             'perPage' => $rowperpage,
             'message' => 'Usuarios cargados con éxito!'
         ]);
@@ -362,6 +410,101 @@ class UsuariosController extends Controller
                 "success" => false,
                 'data' => [],
                 "message" => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function createEmpresas(Request $request)
+    {
+        $rules = [
+            'id_usuario' => 'required|exists:App\Models\User,id',
+            'id_rol' => 'required|exists:App\Models\Empresa\RolesGenerales,id',
+            'id_empresa' => 'required|exists:App\Models\Empresa\Empresa,id',
+        ];
+        
+        $validator = Validator::make($request->all(), $rules, $this->messages);
+
+        if ($validator->fails()){
+            return response()->json([
+                "success" => false,
+                'data' => [],
+                "message" => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            DB::connection('clientes')->beginTransaction();
+
+            $rolGeneral = RolesGenerales::find($request->get('id_rol'));
+
+            UsuarioEmpresa::updateOrCreate(
+                [
+                    'id_usuario' => $request->get('id_usuario'),
+                    'id_empresa' => $request->get('id_empresa')
+                ],
+                [
+                    'id_rol' => $request->get('id_rol'), 
+                    'id_nit' => 0,
+                    'estado' => 1,
+                ]
+            );
+
+            UsuarioPermisos::updateOrCreate(
+                [
+                    'id_user' => $request->get('id_usuario'),
+                    'id_empresa' => $request->get('id_empresa')
+                ],
+                [
+                    'id_rol' => $request->get('id_rol'),
+                    'ids_permission' => $rolGeneral->ids_permission
+                ]
+            );
+
+            DB::connection('clientes')->commit();
+
+            return response()->json([
+                'success'=>	true,   
+                'data' => '',
+                'message'=> 'Usuario actualizado con exito!'
+            ]);
+        } catch (Exception $e) {
+            DB::connection('clientes')->rollback();
+            return response()->json([
+                "success" => false,
+                'data' => [],
+                "message" => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function deleteEmpresas (Request $request)
+    {
+        try {
+
+            DB::connection('clientes')->beginTransaction();
+
+            UsuarioEmpresa::where('id_usuario', $request->get('id_usuario'))
+                ->where('id_empresa', $request->get('id_empresa'))
+                ->delete();
+
+            UsuarioPermisos::where('id_user', $request->get('id_usuario'))
+                ->where('id_empresa', $request->get('id_empresa'))
+                ->delete();
+
+            DB::connection('clientes')->commit();
+
+            return response()->json([
+                'success'=>	true,
+                'data' => '',
+                'message'=> 'Empresa eliminada con exito!'
+            ]);
+            
+        } catch (Exception $e) {
+            DB::connection('sam')->rollback();
+            return response()->json([
+                "success"=>false,
+                'data' => [],
+                "message"=>$e->getMessage()
             ], 422);
         }
     }

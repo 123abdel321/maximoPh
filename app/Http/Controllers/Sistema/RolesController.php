@@ -235,7 +235,7 @@ class RolesController extends Controller
 
     public function combo (Request $request)
     {
-        $roles = Roles::select(
+        $roles = RolesGenerales::select(
             \DB::raw('*'),
             \DB::raw("nombre as text")
         );

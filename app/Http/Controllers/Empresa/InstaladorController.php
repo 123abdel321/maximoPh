@@ -387,6 +387,28 @@ class InstaladorController extends Controller
         }
     }
 
+    public function comboEmpresas(Request $request)
+    {
+        $empresas = Empresa::select(
+            \DB::raw('*'),
+            \DB::raw("CONCAT(nit, ' - ', razon_social) as text")
+        );
+
+        if ($request->get("search")) {
+            $empresas->where('razon_social', 'LIKE', '%' . $request->get("search") . '%')
+                ->orWhere('nombre', 'LIKE', '%' . $request->get("search") . '%')
+                ->orWhere('nit', 'LIKE', '%' . $request->get("search") . '%');
+        }
+
+        if ($request->get("q")) {
+            $empresas->where('razon_social', 'LIKE', '%' . $request->get("q") . '%')
+                ->orWhere('nombre', 'LIKE', '%' . $request->get("q") . '%')
+                ->orWhere('nit', 'LIKE', '%' . $request->get("q") . '%');
+        }
+
+        return $empresas->paginate(40);
+    }
+
     private function getNitCompleto($dataPage)
     {
         if (array_key_exists(85, $dataPage)) {

@@ -1,221 +1,24 @@
+var id_usuario_filter = null;
 var usuarios_table = null;
+var usuarios_empresa_table = null;
+var searchTimeoutUsuarios;
 var $comboNitUsuario = null;
 var $comboBodegaUsuario = null;
 var $comboNitUsuarioFilter = null;
 var $comboResolucionUsuario = null;
+var $comboFilterEmpresaUsuario = null;
 var syncUsuarios = pusher.subscribe('sincronizar-usuarios-'+localStorage.getItem("notificacion_code"));
 
 function usuariosInit() {
-    
-    usuarios_table =  $('#usuariosTable').DataTable({
-        pageLength: 15,
-        dom: 'Brtip',
-        paging: true,
-        responsive: false,
-        processing: true,
-        serverSide: true,
-        fixedHeader: true,
-        deferLoading: 0,
-        initialLoad: false,
-        ordering: false,
-        language: lenguajeDatatable,
-        sScrollX: "100%",
-        fixedColumns : {
-            left: 0,
-            right : 1,
-        },
-        ajax:  {
-            type: "GET",
-            headers: headers,
-            url: base_url + 'usuarios',
-            data: function ( d ) {
-                d.id_nit = $("#id_nit_usuario_filter").val(),
-                d.id_rol = $("#id_rol_usuario_filter").val(),
-                d.search = $("#searchInputUsuarios").val()
-            }
-        },
-        columns: [
-            {"data":'username'},
-            {"data":'nombre_rol'},
-            {"data":'nombre_completo'},
-            {"data": function (row, type, set){  
-                var nombre = row.firstname;
-                nombre+= row.lastname ? ' '+row.lastname : '';
-                return nombre;
-            }},
-            {"data":'email'},
-            {"data":'telefono'},
-            {"data":'address'},
-            {"data": function (row, type, set){  
-                var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
-                if(!row.created_by && !row.fecha_creacion) return '';
-                if(!row.created_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_creacion+'</div>';
-                return html;
-            }},
-            {"data": function (row, type, set){
-                var html = '<div class="button-user" onclick="showUser('+row.updated_by+',`'+row.fecha_edicion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_edicion+'</div>';
-                if(!row.updated_by && !row.fecha_edicion) return '';
-                if(!row.updated_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_edicion+'</div>';
-                return html;
-            }},
-            {
-                "data": function (row, type, set){
-                    var html = '';
-                    if (correoUsuarios && !row.email_verified_at) {
-                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
-                            html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>&nbsp;';
-                        } else if (row.id_rol != 1) {
-                            html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>&nbsp;';
-                        }
-                    }
-                    if (editarUsuarios) {
-                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
-                            html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                        } else if (row.id_rol != 1) {
-                            html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
-                        }
-                    }
-                    if (eliminarUsuarios) {
-                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
-                            html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
-                        } else if (row.id_rol != 1) {
-                            html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
-                        }
-                    }
-                    return html;
-                }
-            },
-        ]
-    });
 
-    let column = usuarios_table.column(8);
-    
-    if (!editarUsuarios && !eliminarUsuarios) column.visible(false);
-    else column.visible(true);
+    cargarCombosUsuarios();
+    cargarTablasUsuarios();
+    cargarChangesUsuarios();
 
-    if (usuarios_table) {
-        usuarios_table.on('click', '.edit-usuarios', function() {
-            clearFormUsuarios();
-            
-            $("#textUsuariosCreate").hide();
-            $("#textUsuariosUpdate").show();
-            $("#saveUsuariosLoading").hide();
-            $("#updateUsuarios").show();
-            $("#saveUsuarios").hide();
+    $('.water').hide();
+}
 
-            var id = this.id.split('_')[1];
-            var data = getDataById(id, usuarios_table);
-            
-            $('#password_usuario').val('');
-            $('#password_confirm').val('');
-            $("#id_usuarios_up").val(data.id);
-            
-            $("#rol_usuario").val(data.id_rol).change();
-            $("#usuario").val(data.username);
-            
-            $("#firstname_usuario").val(data.firstname);
-            $("#lastname_usuario").val(data.lastname);
-            $("#address_usuario").val(data.address);
-
-            if(data.id_nit) {
-                var dataNit = {
-                    id: data.id_nit,
-                    text: data.nombre_completo,
-                    email: data.email,
-                };
-                var newOption = new Option(dataNit.text, dataNit.id, false, false);
-                $comboNitUsuario.append(newOption).trigger('change');
-                $comboNitUsuario.val(dataNit.id).trigger('change');
-            }
-
-            $("#email_usuario").val(data.email);
-
-
-            if (data.id_rol == 1) $("#div-id_nit_usuario").hide();
-            else $("#div-id_nit_usuario").show();
-    
-            $("#usuariosFormModal").modal('show');
-        });
-
-        usuarios_table.on('click', '.drop-usuarios', function() {
-            var trUsuario = $(this).closest('tr');
-            var id = this.id.split('_')[1];
-            var data = getDataById(id, usuarios_table);
-            var nombre = data.firstname;
-            nombre+= data.lastname ? ' '+data.lastname : '';
-
-            Swal.fire({
-                title: 'Eliminar usuario: '+nombre+'?',
-                html: "No se podrá revertir!",
-                type: 'warning',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Borrar!',
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.value){
-                    $.ajax({
-                        url: base_url + 'usuarios',
-                        method: 'DELETE',
-                        data: JSON.stringify({id: id}),
-                        headers: headers,
-                        dataType: 'json',
-                    }).done((res) => {
-                        if(res.success){
-                            usuarios_table.row(trUsuario).remove().draw();
-                            agregarToast('exito', 'Eliminación exitosa', 'Usuario eliminada con exito!', true );
-                        } else {
-                            agregarToast('error', 'Eliminación errada', res.message);
-                        }
-                    }).fail((res) => {
-                        agregarToast('error', 'Eliminación errada', res.message);
-                    });
-                }
-            })
-        });
-
-        usuarios_table.on('click', '.correo-usuarios', function() {
-            var trUsuario = $(this).closest('tr');
-            var id = this.id.split('_')[1];
-            var data = getDataById(id, usuarios_table);
-            var nombre = data.firstname;
-            nombre+= data.lastname ? ' '+data.lastname : '';
-
-            Swal.fire({
-                title: 'Enviar correo ?',
-                html: "Desea enviar el correo de bienvenida a "+nombre+'?',
-                type: 'info',
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Enviar!',
-                reverseButtons: true,
-            }).then((result) => {
-                if (result.value){
-                    $.ajax({
-                        url: base_url + 'usuarios-welcome',
-                        method: 'POST',
-                        data: JSON.stringify({id: id}),
-                        headers: headers,
-                        dataType: 'json',
-                    }).done((res) => {
-                        if(res.success){
-                            usuarios_table.row(trUsuario).remove().draw();
-                            agregarToast('exito', 'Envio exitoso', 'Correo enviado con exito!', true );
-                        } else {
-                            agregarToast('error', 'Envio errado', res.message);
-                        }
-                    }).fail((res) => {
-                        agregarToast('error', 'Envio errado', res.message);
-                    });
-                }
-            })
-        });
-    }
-
+function cargarCombosUsuarios() {
     $comboResolucionUsuario = $('#id_resolucion_usuario').select2({
         theme: 'bootstrap-5',
         dropdownParent: $('#usuariosFormModal'),
@@ -412,6 +215,403 @@ function usuariosInit() {
         }
     });
 
+    $comboFilterEmpresaUsuario  = $('#id_empresa_filter_usuario').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        placeholder: "Filtrar por empresas",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No hay resultado";        
+            },
+            searching: function() {
+                return "Buscando..";
+            }
+        },
+        ajax: {
+            url: 'api/empresas-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function(data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_empresa_usuario_create').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        dropdownParent: $('#usuariosEmpresaFormModal'),
+        ajax: {
+            url: 'api/empresas-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function(data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+
+    $('#id_rol_usuario_create').select2({
+        theme: 'bootstrap-5',
+        delay: 250,
+        dropdownParent: $('#usuariosEmpresaFormModal'),
+        ajax: {
+            url: 'api/roles-combo',
+            headers: headers,
+            dataType: 'json',
+            data: function (params) {
+                var query = {
+                    search: params.term
+                }
+                return query;
+            },
+            processResults: function(data) {
+                return {
+                    results: data.data
+                };
+            }
+        }
+    });
+}
+
+function cargarTablasUsuarios() {
+    usuarios_table =  $('#usuariosTable').DataTable({
+        pageLength: 15,
+        dom: 'Brtip',
+        paging: true,
+        responsive: false,
+        processing: true,
+        serverSide: true,
+        fixedHeader: true,
+        deferLoading: 0,
+        initialLoad: false,
+        ordering: false,
+        language: lenguajeDatatable,
+        sScrollX: "100%",
+        fixedColumns : {
+            left: 0,
+            right : 1,
+        },
+        ajax:  {
+            type: "GET",
+            headers: headers,
+            url: base_url + 'usuarios',
+            data: function ( d ) {
+                d.id_nit = $("#id_nit_usuario_filter").val(),
+                d.id_rol = $("#id_rol_usuario_filter").val(),
+                d.search = $("#searchInputUsuarios").val()
+            }
+        },
+        columns: [
+            {"data":'username'},
+            {"data":'nombre_rol'},
+            {"data":'nombre_completo'},
+            {"data": function (row, type, set){  
+                var nombre = row.firstname;
+                nombre+= row.lastname ? ' '+row.lastname : '';
+                return nombre;
+            }},
+            {"data":'email'},
+            {"data":'telefono'},
+            {"data":'address'},
+            {"data": function (row, type, set){  
+                var html = '<div class="button-user" onclick="showUser('+row.created_by+',`'+row.fecha_creacion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_creacion+'</div>';
+                if(!row.created_by && !row.fecha_creacion) return '';
+                if(!row.created_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_creacion+'</div>';
+                return html;
+            }},
+            {"data": function (row, type, set){
+                var html = '<div class="button-user" onclick="showUser('+row.updated_by+',`'+row.fecha_edicion+'`,0)"><i class="fas fa-user icon-user"></i>&nbsp;'+row.fecha_edicion+'</div>';
+                if(!row.updated_by && !row.fecha_edicion) return '';
+                if(!row.updated_by) html = '<div class=""><i class="fas fa-user-times icon-user-none"></i>'+row.fecha_edicion+'</div>';
+                return html;
+            }},
+            {
+                "data": function (row, type, set){
+                    var html = '';
+                    if (correoUsuarios && !row.email_verified_at) {
+                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
+                            html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>&nbsp;';
+                        } else if (row.id_rol != 1) {
+                            html+= '<span id="correousuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-info correo-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Enviar correo</span>&nbsp;';
+                        }
+                    }
+                    if (editarUsuarios) {
+                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
+                            html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                        } else if (row.id_rol != 1) {
+                            html+= '<span id="editusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                        }
+                    }
+                    if (eliminarUsuarios) {
+                        if (row.id_rol == 1 && usuario_nit.id_rol == 1) {
+                            html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                        } else if (row.id_rol != 1) {
+                            html+= '<span id="deleteusuarios_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuarios" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                        }
+                    }
+                    if (esDios) html+= `<span id="asociarempresa_${row.id}" href="javascript:void(0)" class="btn badge bg-gradient-primary asociar-empresa-usuarios" style="margin-bottom: 0rem !important; min-width: 50px; margin-left: 3px;">Empresas</span>`;
+                    return html;
+                }
+            },
+        ]
+    });
+
+    usuarios_empresa_table = $('#usuariosEmpresaTable').DataTable({
+        pageLength: 15,
+        dom: 'Brtip',
+        paging: true,
+        responsive: false,
+        processing: true,
+        serverSide: true,
+        fixedHeader: true,
+        deferLoading: 0,
+        initialLoad: false,
+        language: lenguajeDatatable,
+        sScrollX: "100%",
+        fixedColumns : {
+            left: 0,
+            right : 1,
+        },
+        ajax:  {
+            type: "GET",
+            headers: headers,
+            url: base_url + 'generate-empresa',
+            data: function(d) {
+                d.id_usuario = id_usuario_filter
+            }
+        },
+        columns: [
+            {"data":'empresa.nit'},
+            {"data":'empresa.razon_social'},
+            {"data":'rol.nombre'},
+            {
+                "data": function (row, type, set){
+                    var html = '';
+                    // html+= '<span id="editusuarioempresa_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-success edit-usuario-empresa" style="margin-bottom: 0rem !important; min-width: 50px;">Editar</span>&nbsp;';
+                    html+= '<span id="deleteusuarioempresa_'+row.id+'" href="javascript:void(0)" class="btn badge bg-gradient-danger drop-usuario-empresa" style="margin-bottom: 0rem !important; min-width: 50px;">Eliminar</span>';
+                    return html;
+                }
+            },
+        ]
+    });
+
+    let column = usuarios_table.column(8);
+    
+    if (!editarUsuarios && !eliminarUsuarios) column.visible(false);
+    else column.visible(true);
+
+    if (usuarios_table) {
+        usuarios_table.on('click', '.edit-usuarios', function() {
+            clearFormUsuarios();
+            
+            $("#textUsuariosCreate").hide();
+            $("#textUsuariosUpdate").show();
+            $("#saveUsuariosLoading").hide();
+            $("#updateUsuarios").show();
+            $("#saveUsuarios").hide();
+
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_table);
+            
+            $('#password_usuario').val('');
+            $('#password_confirm').val('');
+            $("#id_usuarios_up").val(data.id);
+            
+            $("#rol_usuario").val(data.id_rol).change();
+            $("#usuario").val(data.username);
+            
+            $("#firstname_usuario").val(data.firstname);
+            $("#lastname_usuario").val(data.lastname);
+            $("#address_usuario").val(data.address);
+
+            if(data.id_nit) {
+                var dataNit = {
+                    id: data.id_nit,
+                    text: data.nombre_completo,
+                    email: data.email,
+                };
+                var newOption = new Option(dataNit.text, dataNit.id, false, false);
+                $comboNitUsuario.append(newOption).trigger('change');
+                $comboNitUsuario.val(dataNit.id).trigger('change');
+            }
+
+            $("#email_usuario").val(data.email);
+
+
+            if (data.id_rol == 1) $("#div-id_nit_usuario").hide();
+            else $("#div-id_nit_usuario").show();
+    
+            $("#usuariosFormModal").modal('show');
+        });
+
+        usuarios_table.on('click', '.drop-usuarios', function() {
+            var trUsuario = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_table);
+            var nombre = data.firstname;
+            nombre+= data.lastname ? ' '+data.lastname : '';
+
+            Swal.fire({
+                title: 'Eliminar usuario: '+nombre+'?',
+                html: "No se podrá revertir!",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Borrar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'usuarios',
+                        method: 'DELETE',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            usuarios_table.row(trUsuario).remove().draw();
+                            agregarToast('exito', 'Eliminación exitosa', 'Usuario eliminada con exito!', true );
+                        } else {
+                            agregarToast('error', 'Eliminación errada', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Eliminación errada', res.message);
+                    });
+                }
+            })
+        });
+
+        usuarios_table.on('click', '.correo-usuarios', function() {
+            var trUsuario = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_table);
+            var nombre = data.firstname;
+            nombre+= data.lastname ? ' '+data.lastname : '';
+
+            Swal.fire({
+                title: 'Enviar correo ?',
+                html: "Desea enviar el correo de bienvenida a "+nombre+'?',
+                type: 'info',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Enviar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'usuarios-welcome',
+                        method: 'POST',
+                        data: JSON.stringify({id: id}),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            usuarios_table.row(trUsuario).remove().draw();
+                            agregarToast('exito', 'Envio exitoso', 'Correo enviado con exito!', true );
+                        } else {
+                            agregarToast('error', 'Envio errado', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Envio errado', res.message);
+                    });
+                }
+            })
+        });
+
+        usuarios_table.on('click', '.asociar-empresa-usuarios', function() {
+            var trInmueble = $(this).closest('tr');
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_table);
+
+            id_usuario_filter = data.id;
+
+            $('#volverUsuarios').show();
+            $('#asociarEmpresaUsuarios').show();
+            $('#nombre_usuario_empresa').show();
+            $('#tablas_usuarios_empresas_view').show();
+
+            $('#reloadUsuarios').hide();
+            $('#createUsuarios').hide();
+            $('#sincronizarInmueblesNitsUsuarios').hide();
+            $('#tablas_usuarios_view').hide();
+            $('#searchInputUsuarios').hide();
+
+            $('#div-searchInputUsuarios').hide();
+            $('#div-id_empresa_filter_usuario').hide();
+
+            $("#nombre_usuario_empresa").html(data.nombre_completo);
+
+            usuarios_empresa_table.ajax.reload();
+        });
+    }
+
+    if (usuarios_empresa_table) {
+        usuarios_empresa_table.on('click', '.drop-usuario-empresa', function() {
+            var id = this.id.split('_')[1];
+            var data = getDataById(id, usuarios_empresa_table);
+
+            Swal.fire({
+                title: `Desasociar empresa ${data.empresa.razon_social}?`,
+                text: "No se podrá revertir!",
+                type: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Desasociar!',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.value){
+                    $.ajax({
+                        url: base_url + 'usuario-empresa',
+                        method: 'DELETE',
+                        data: JSON.stringify({
+                            id_usuario: data.id_usuario,
+                            id_empresa: data.id_empresa,
+                        }),
+                        headers: headers,
+                        dataType: 'json',
+                    }).done((res) => {
+                        if(res.success){
+                            usuarios_empresa_table.ajax.reload();
+                            agregarToast('exito', 'Desasociación exitosa', 'Empresa desasociar con exito!', true );
+                        } else {
+                            agregarToast('error', 'Desasociación errada', res.message);
+                        }
+                    }).fail((res) => {
+                        agregarToast('error', 'Desasociación errada', res.message);
+                    });
+                }
+            })
+        });
+    }
+
+    usuarios_table.ajax.reload();
+}
+
+function cargarChangesUsuarios() {
     $(document).on('change', '#rol_usuario', function () {
         var id_rol = $('#rol_usuario').val();
         if (id_rol == 1) $("#div-id_nit_usuario").hide();
@@ -439,10 +639,29 @@ function usuariosInit() {
         if (data.telefono_1) $("#telefono_usuario").val(data.telefono_1);
         if (data.direccion) $("#address_usuario").val(data.direccion);
     });
-
-    $('.water').hide();
-    usuarios_table.ajax.reload();
 }
+
+$(document).on('click', '#volverUsuarios', function() {
+    $('#volverUsuarios').hide();
+    $('#asociarEmpresaUsuarios').hide();
+    $('#nombre_usuario_empresa').hide();
+    $('#tablas_usuarios_empresas_view').hide();
+
+    $('#reloadUsuarios').show();
+    $('#createUsuarios').show();
+    $('#sincronizarInmueblesNitsUsuarios').show();
+    $('#tablas_usuarios_view').show();
+    $('#searchInputUsuarios').show();
+    $('#div-searchInputUsuarios').show();
+    $('#div-id_empresa_filter_usuario').show();
+});
+
+$(document).on('click', '#asociarEmpresaUsuarios', function() {
+    clearFormUsuariosEmpresa();
+
+    $("#saveUsuarios").show();
+    $("#usuariosEmpresaFormModal").modal('show');
+});
 
 syncUsuarios.bind('notificaciones', function(data) {
     usuarios_table.ajax.reload();
@@ -508,6 +727,50 @@ $(document).on('click', '#saveSyncUsuarios', function () {
     });
 });
 
+$(document).on('click', '#usuariosEmpresaCreate', function () {
+    var form = document.querySelector('#usuariosEmpresaForm');
+
+    if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        return;
+    }
+
+    $("#usuariosEmpresaCreateLoading").show();
+    $("#usuariosEmpresaCreate").hide();
+
+    let data = {
+        id_usuario: id_usuario_filter,
+        id_empresa: $("#id_empresa_usuario_create").val(),
+        id_rol: $("#id_rol_usuario_create").val()
+    }
+
+    $.ajax({
+        url: base_url + 'usuario-empresa',
+        method: 'POST',
+        data: JSON.stringify(data),
+        headers: headers,
+        dataType: 'json',
+    }).done((res) => {
+        if(res.success){
+            clearFormUsuarios();
+            $("#usuariosEmpresaCreate").show();
+            $("#usuariosEmpresaCreateLoading").hide();
+
+            $("#usuariosEmpresaFormModal").modal('hide');
+            usuarios_empresa_table.row.add(res.data).draw();
+            agregarToast('exito', 'Asosiación exitosa', 'Empresa asociada con exito!', true);
+        }
+    }).fail((err) => {
+        $('#usuariosEmpresaCreate').show();
+        $('#usuariosEmpresaCreateLoading').hide();
+        
+        var mensaje = err.responseJSON.message;
+        var errorsMsg = arreglarMensajeError(mensaje);
+        agregarToast('error', 'Asosiación errada', errorsMsg);
+    });
+
+});
+
 $(document).on('click', '#sincronizarInmueblesNitsUsuarios', function () {
     $("#id_nit_sync_usuario").val('').change();
     $("#id_zona_sync_usuario").val('').change();
@@ -537,6 +800,11 @@ function clearFormUsuarios(){
     $("#password_confirm").val('');
     $("#telefono_usuario").val('');
 
+}
+
+function clearFormUsuariosEmpresa() {
+    $("#id_empresa_usuario_create").val('').change();
+    $("#id_empresa_rol_create").val('').change();
 }
 
 function usuarioNombre(event){

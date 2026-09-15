@@ -257,6 +257,9 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('usuarios-welcome', 'welcome');
             Route::post('usuarios-welcome-multiple', 'welcomeMultiple');
             Route::get('usuarios/combo', 'combo');
+            Route::get('generate-empresa', 'generateEmpresas');
+            Route::post('usuario-empresa', 'createEmpresas');
+            Route::delete('usuario-empresa', 'deleteEmpresas');
             
         });
         //IMPORTADOR PAGOS
@@ -280,6 +283,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         //EMPRESA
         Route::controller(InstaladorController::class)->group(function () {
             Route::get('empresas', 'generate');
+            Route::get('empresas-combo', 'comboEmpresas');
         });
         //NOTIFICACIONES
         Route::controller(NotificacionesController::class)->group(function () {
@@ -309,6 +313,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::put('roles', 'update');
             Route::post('roles', 'create');
             Route::delete('roles', 'delete');
+            Route::get('roles-combo', 'combo');
         });        
         //PASARELA
         Route::controller(PasarelaController::class)->group(function () {
