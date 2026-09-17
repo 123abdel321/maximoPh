@@ -64,8 +64,8 @@ class UsuariosController extends Controller
         $draw = $request->get('draw');
         $start = $request->get("start");
         $rowperpage = $request->get("length");
-        $searchValue = $request->get('search')['value'] ?? '';
-        
+        $searchValue = $request->get('search');
+
         $id_empresa = $request->user()['id_empresa'];
         $rol_maximo = $request->user()['rol_maximo'];
 
@@ -99,6 +99,11 @@ class UsuariosController extends Controller
         // Filtro por rol máximo del usuario
         if (!$rol_maximo) {
             $usuariosQuery->where('US.rol_maximo', 0);
+            $usuariosQuery->where('UE.id_empresa', $id_empresa);
+        }
+
+        if ($rol_maximo && $id_empresa) {
+            $usuariosQuery->where('UE.id_empresa', $id_empresa);
         }
 
         // Filtro por id_rol
