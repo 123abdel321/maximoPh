@@ -218,4 +218,7 @@ channelImportadorRecibos.bind('notificaciones', function(data) {
         $('#importarRecibosLoading').hide();
         $('#importarRecibos').show();
     }
+    else if (data.name === 'exito' || data.name === 'error') {
+        agregarToast(data.tipo, data.titulo, data.mensaje, data.autoclose);
+    }
 });

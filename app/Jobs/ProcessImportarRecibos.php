@@ -103,6 +103,7 @@ class ProcessImportarRecibos implements ShouldQueue
                 ->chunkById(1000, function ($recibosImport) {
                     foreach ($recibosImport as $reciboImport) {
                         $this->processedRecords++;
+                        
                         $this->procesarReciboImport($reciboImport);
 
                         // Enviar evento de progreso cada 100 registros procesados
@@ -238,6 +239,7 @@ class ProcessImportarRecibos implements ShouldQueue
             $recibo,
             $this->fechaManual,
             $consecutivo,
+            false,
             false
         );
 
@@ -726,6 +728,7 @@ class ProcessImportarRecibos implements ShouldQueue
     private function sendSuccessEvent($message)
     {
         event(new PrivateMessageEvent('importador-recibos-' . $this->empresa->token_db_maximo . '_' . $this->user_id, [
+            'name' => 'exito',
             'success' => true,
             'accion' => 2,
             'tipo' => 'exito',
@@ -744,6 +747,7 @@ class ProcessImportarRecibos implements ShouldQueue
             'line' => $exception->getLine()
         ]);
         event(new PrivateMessageEvent('importador-recibos-' . $this->empresa->token_db_maximo . '_' . $this->user_id, [
+            'name' => 'error',
             'success' => false,
             'accion' => 0,
             'tipo' => 'error',
