@@ -65,7 +65,7 @@
       },
       "contactPoint": [{ 
         "@type": "ContactPoint", 
-        "telephone": "+57-320-714-1104", 
+        "telephone": "+57-333-247-5846", 
         "contactType": "sales", 
         "areaServed": "CO", 
         "availableLanguage": ["es"] 
@@ -226,7 +226,7 @@
         </div>
     </header>
 
-    <a href="https://wa.me/573207141104?text=Hola,%20quiero%20una%20demo%20de%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
+    <a href="https://wa.me/573332475846?text=Hola,%20quiero%20una%20demo%20de%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
         <svg viewBox="0 0 24 24" width="28" height="28"><use href="#i-wa"/></svg>
     </a>
 
@@ -267,7 +267,7 @@
                         </p>
 
                         <div class="hero-buttons" data-reveal="up" data-delay="400">
-                            <a href="https://wa.me/573207141104?text=Hola,%20quiero%20una%20demo%20de%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg magnetic">
+                            <a href="https://wa.me/573332475846?text=Hola,%20quiero%20una%20demo%20de%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg magnetic">
                                 <svg class="ic" width="20" height="20"><use href="#i-wa"/></svg>
                                 Solicitar demo
                             </a>
@@ -699,7 +699,7 @@
                                 <li><span><svg class="ic"><use href="#i-headset"/></svg></span><div><b>Soporte cercano</b><p>Un equipo real que conoce tu conjunto y responde por WhatsApp y teléfono.</p></div></li>
                                 <li><span><svg class="ic"><use href="#i-chart"/></svg></span><div><b>Acompañamiento en cierres</b><p>Te ayudamos con el cierre contable y los reportes del mes.</p></div></li>
                             </ul>
-                            <a href="https://wa.me/573207141104?text=Hola,%20quiero%20migrar%20mi%20conjunto%20a%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block magnetic">
+                            <a href="https://wa.me/573332475846?text=Hola,%20quiero%20migrar%20mi%20conjunto%20a%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block magnetic">
                                 <svg class="ic" width="18" height="18"><use href="#i-wa"/></svg>
                                 Hablar con un asesor
                             </a>
@@ -883,7 +883,7 @@
                         con pagos AV Villas en tiempo real y tus datos reales.
                     </p>
                     <div class="cta-final-buttons" data-reveal="up" data-delay="150">
-                        <a href="https://wa.me/573207141104?text=Hola,%20quiero%20una%20demo%20de%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg magnetic">
+                        <a href="https://wa.me/573332475846?text=Hola,%20quiero%20una%20demo%20de%20Máximo%20PH" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg magnetic">
                             <svg class="ic" width="20" height="20"><use href="#i-wa"/></svg>
                             Agendar demo
                         </a>
@@ -922,14 +922,14 @@
                     <ul>
                         <li><a href="#">Documentación</a></li>
                         <li><a href="#">Centro de ayuda</a></li>
-                        <li><a href="https://wa.me/573207141104" target="_blank" rel="noopener noreferrer">Contacto</a></li>
+                        <li><a href="https://wa.me/573332475846" target="_blank" rel="noopener noreferrer">Contacto</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-column">
                     <h4>Contacto</h4>
                     <ul>
-                        <li><a href="tel:+573207141104"><svg class="ic" width="16" height="16"><use href="#i-phone"/></svg> +57 333 247 5846</a></li>
+                        <li><a href="tel:+573332475846"><svg class="ic" width="16" height="16"><use href="#i-phone"/></svg> +57 333 247 5846</a></li>
                         <li><a href="mailto:portafolioerp@gmail.com"><svg class="ic" width="16" height="16"><use href="#i-mail"/></svg> portafolioerp@gmail.com</a></li>
                         <li><a href="#"><svg class="ic" width="16" height="16"><use href="#i-pin"/></svg> Medellín, Colombia</a></li>
                     </ul>
