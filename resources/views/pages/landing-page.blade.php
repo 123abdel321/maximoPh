@@ -148,7 +148,8 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js" defer></script>
-    <link id="pagestyle" href="{{ asset('assets/css/landing-page.css') }}" rel="stylesheet" />
+    <link id="pagestyle" href="{{ asset('assets/css/landing-page.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
+    
 </head>
 
 <body>
