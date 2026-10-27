@@ -3,154 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Título Primario (Keyword Principal + Propuesta de Valor + Marca) -->
-    <title>Software para Propiedad Horizontal en Colombia | Máximo PH</title>
 
-    <!-- Meta Description Agresiva (Incitación al clic + Palabras clave transaccionales) -->
-    <meta name="description" content="El software #1 para Administración de Propiedad Horizontal en Colombia. Pagos AV Villas en tiempo real, contabilidad automática con Portafolio ERP, facturación masiva y portería. ¡Pruébalo hoy!">
-    <meta name="keywords" content="software propiedad horizontal, software ph colombia, programa contabilidad ph, administracion de conjuntos residenciales, software para administradores de ph, pagos av villas propiedad horizontal, portafolio erp ph, aplicacion conjunto cerrado">
-    <meta name="author" content="Máximo PH">
+    <!-- SEO principal -->
+    <title>Software para Propiedad Horizontal en Colombia | MáximoPH</title>
+
+    <meta name="description" content="Administra conjuntos y edificios con MáximoPH: facturación por coeficientes, contabilidad, cuentas de cobro y pagos integrados. Solicita una demostración.">
+    <meta name="author" content="MáximoPH">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="theme-color" content="#059669">
     <meta name="color-scheme" content="light dark">
+
+    <!-- URL canónica -->
     <link rel="canonical" href="https://maximoph.co/">
 
-    <!-- Favicon & App Icons -->
+    <!-- Favicon y App Icons -->
     <link rel="icon" type="image/png" href="/img/logo_base.png">
     <link rel="apple-touch-icon" href="/img/logo_base.png">
 
-    <!-- Open Graph (Optimizado para compartir en WhatsApp / LinkedIn / Facebook) -->
+    <!-- Open Graph: WhatsApp, Facebook y LinkedIn -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Máximo PH">
+    <meta property="og:site_name" content="MáximoPH">
     <meta property="og:locale" content="es_CO">
-    <meta property="og:title" content="Software de Administración y Contabilidad para Propiedad Horizontal | Máximo PH">
-    <meta property="og:description" content="Automatiza la gestión de tu conjunto o edificio. Integración AV Villas en tiempo real + Portafolio ERP. Migración de datos en 24 horas.">
+    <meta property="og:title" content="MáximoPH | Software para Propiedad Horizontal">
+    <meta property="og:description" content="Simplifica la administración de conjuntos y edificios con facturación por coeficientes, contabilidad, cuentas de cobro y pagos integrados. Solicita una demostración.">
     <meta property="og:url" content="https://maximoph.co/">
     <meta property="og:image" content="https://maximoph.co/img/og-image.jpg">
     <meta property="og:image:secure_url" content="https://maximoph.co/img/og-image.jpg">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Máximo PH - Plataforma de Gestión de Propiedad Horizontal">
+    <meta property="og:image:alt" content="MáximoPH, software de administración de propiedad horizontal">
 
-    <!-- Twitter Cards -->
+    <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@MaximoPH">
-    <meta name="twitter:title" content="Software para Propiedad Horizontal en Colombia | Máximo PH">
-    <meta name="twitter:description" content="Pagos AV Villas en tiempo real, contabilidad automática, portería y PQRS para conjuntos y edificios.">
+    <meta name="twitter:title" content="MáximoPH | Software para Propiedad Horizontal">
+    <meta name="twitter:description" content="Gestiona conjuntos y edificios con facturación, contabilidad, cuentas de cobro y pagos integrados. Solicita una demostración.">
     <meta name="twitter:image" content="https://maximoph.co/img/og-image.jpg">
+    <meta name="twitter:image:alt" content="Plataforma de gestión de propiedad horizontal MáximoPH">
 
-    <!-- Preconnect y Carga de Fuentes -->
+    <!-- Preconnect y carga de fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"></noscript>
 
-    <!-- Schema 1: Datos de la Organización + Cobertura Nacional -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet"
+        media="print"
+        onload="this.media='all'"
+    >
+
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+            rel="stylesheet"
+        >
+    </noscript>
+
+    <!-- Schema 1: Organización -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": "https://maximoph.co/#organization",
-      "name": "Máximo PH",
-      "legalName": "Máximo PH Colombia",
-      "url": "https://maximoph.co/",
-      "logo": "https://maximoph.co/img/logo_base.png",
-      "description": "Plataforma líder en Colombia para la gestión, administración y contabilidad en tiempo real de propiedad horizontal.",
-      "address": { 
-        "@type": "PostalAddress", 
-        "addressLocality": "Bogotá", 
-        "addressRegion": "Cundinamarca",
-        "addressCountry": "CO" 
-      },
-      "contactPoint": [{ 
-        "@type": "ContactPoint", 
-        "telephone": "+57-333-247-5846", 
-        "contactType": "sales", 
-        "areaServed": "CO", 
-        "availableLanguage": ["es"] 
-      }],
-      "sameAs": [
-        "https://portafolioerp.com"
-      ]
-    }
-    </script>
-
-    <!-- Schema 2: Marcado del Producto/Software -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "@id": "https://maximoph.co/#software",
-      "name": "Máximo PH",
-      "applicationCategory": "BusinessApplication",
-      "applicationSubCategory": "Property Management Software",
-      "operatingSystem": "Web, All",
-      "description": "Software integral para administración de propiedad horizontal en Colombia con integración bancaria AV Villas y contabilidad automática Portafolio ERP.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "COP",
-        "availability": "https://schema.org/InStock",
-        "description": "Demostración gratuita y cotizaciones a medida para copropiedades"
-      },
-      "featureList": [
-        "Software para Propiedad Horizontal en Colombia",
-        "Pagos AV Villas en tiempo real",
-        "Contabilidad en tiempo real con Portafolio ERP",
-        "Facturación masiva por coeficientes de copropiedad",
-        "Envío automático de cuentas de cobro por WhatsApp y Correo",
-        "Control de portería, PQRS y censo de residentes",
-        "Migración completa de datos en 24 horas"
-      ],
-      "publisher": { "@id": "https://maximoph.co/#organization" },
-      "areaServed": { "@type": "Country", "name": "Colombia" }
-    }
-    </script>
-
-    <!-- Schema 3: FAQ Schema (Aparece directo en los resultados de Google) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "¿Cuál es el mejor software para administración de propiedad horizontal en Colombia?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Máximo PH es una de las soluciones más completas en Colombia, ya que integra pagos en tiempo real con Banco AV Villas, contabilidad automática a través de Portafolio ERP y migración de datos en menos de 24 horas."
-          }
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://maximoph.co/#organization",
+        "name": "MáximoPH",
+        "url": "https://maximoph.co/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://maximoph.co/img/logo_base.png"
         },
-        {
-          "@type": "Question",
-          "name": "¿Cómo funciona la integración con Banco AV Villas en Máximo PH?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Los pagos realizados por los residentes mediante la pasarela o convenio de AV Villas se reflejan e identifican de forma automática e instantánea en el módulo contable de la copropiedad."
-          }
+        "description": "Software de administración de propiedad horizontal para conjuntos residenciales, edificios y copropiedades, con herramientas de facturación y contabilidad.",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+57-333-247-5846",
+            "contactType": "sales",
+            "areaServed": {
+                "@type": "Country",
+                "name": "Colombia"
+            },
+            "availableLanguage": "Spanish"
         }
-      ]
     }
     </script>
 
-    <!-- Detección Temprana de Tema -->
+    <!-- Schema 2: Aplicación de software -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "@id": "https://maximoph.co/#software",
+        "name": "MáximoPH",
+        "url": "https://maximoph.co/",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Software de administración de propiedad horizontal",
+        "operatingSystem": "Web browser",
+        "inLanguage": "es-CO",
+        "description": "Software de administración de propiedad horizontal en Colombia con funcionalidades de facturación por coeficientes, gestión de cuentas de cobro, contabilidad e integración bancaria.",
+        "featureList": [
+            "Administración de conjuntos residenciales, edificios y copropiedades",
+            "Facturación por coeficientes y valores",
+            "Contabilidad integrada con Portafolio ERP",
+            "Gestión y envío de cuentas de cobro",
+            "Integración de pagos con Banco AV Villas",
+            "Control de portería y residentes",
+            "Gestión de PQRS",
+            "Migración de datos para copropiedades"
+        ],
+        "publisher": {
+            "@id": "https://maximoph.co/#organization"
+        }
+    }
+    </script>
+
+    <!-- Schema 3: Preguntas frecuentes
+         IMPORTANTE: publica estas mismas preguntas y respuestas
+         en el contenido visible de la página. -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": "https://maximoph.co/#faq",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "¿Qué es MáximoPH?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "MáximoPH es un software de administración de propiedad horizontal para conjuntos residenciales, edificios y copropiedades, con herramientas de facturación, contabilidad y gestión administrativa."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Qué funcionalidades ofrece MáximoPH para la propiedad horizontal?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "MáximoPH ofrece funcionalidades de facturación por coeficientes y valores, gestión de cuentas de cobro, contabilidad integrada, control de portería, gestión de residentes y PQRS, según los módulos contratados."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- Detección temprana del tema -->
     <script>
         (function () {
             try {
                 var savedTheme = localStorage.getItem('theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                document.documentElement.setAttribute('data-theme', savedTheme || (prefersDark ? 'dark' : 'light'));
+                var prefersDark = window.matchMedia(
+                    '(prefers-color-scheme: dark)'
+                ).matches;
+
+                document.documentElement.setAttribute(
+                    'data-theme',
+                    savedTheme || (prefersDark ? 'dark' : 'light')
+                );
             } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'light');
             }
         })();
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js" defer></script>
-    <link id="pagestyle" href="{{ asset('assets/css/landing-page.css') }}?v={{ config('app.version') }}" rel="stylesheet" />
-    
+    <!-- Anime.js -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js"
+        defer
+    ></script>
+
+    <!-- Estilos de Laravel -->
+    <link
+        id="pagestyle"
+        href="{{ asset('assets/css/landing-page.css') }}?v={{ config('app.version') }}"
+        rel="stylesheet"
+    >
+
 </head>
 
 <body>
