@@ -44,7 +44,8 @@
     <!-- Preconnect y Carga de Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"></noscript>
 
     <!-- Schema 1: Datos de la Organización + Cobertura Nacional -->
     <script type="application/ld+json">
@@ -331,7 +332,7 @@
                             </div>
 
                             <div class="float-chip chip-erp">
-                                <img src="https://app.portafolioerp.com/img/logo_contabilidad.png" alt="Portafolio ERP" width="34" height="34">
+                                <img src="https://app.portafolioerp.com/img/logo_contabilidad.png" alt="Portafolio ERP" width="34" height="34" loading="lazy" decoding="async">
                                 <div>
                                     <span class="chip-label">Asiento generado</span>
                                     <span class="chip-name">Portafolio ERP</span>
@@ -943,6 +944,6 @@
         </div>
     </footer>
 
-    <script src="{{ asset('assets/js/landing-page.js') }}?v={{ config('app.version') }}"></script>
+    <script src="{{ asset('assets/js/landing-page.js') }}?v={{ config('app.version') }}" defer></script>
 </body>
 </html>
