@@ -931,7 +931,7 @@
                     <ul>
                         <li><a href="tel:+573207141104"><svg class="ic" width="16" height="16"><use href="#i-phone"/></svg> +57 333 247 5846</a></li>
                         <li><a href="mailto:portafolioerp@gmail.com"><svg class="ic" width="16" height="16"><use href="#i-mail"/></svg> portafolioerp@gmail.com</a></li>
-                        <li><a href="#"><svg class="ic" width="16" height="16"><use href="#i-pin"/></svg> medellín, Colombia</a></li>
+                        <li><a href="#"><svg class="ic" width="16" height="16"><use href="#i-pin"/></svg> Medellín, Colombia</a></li>
                     </ul>
                 </div>
             </div>
