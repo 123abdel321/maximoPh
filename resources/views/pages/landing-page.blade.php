@@ -942,6 +942,6 @@
         </div>
     </footer>
 
-    <script src="{{ asset('assets/js/landing-page.js') }}"></script>
+    <script src="{{ asset('assets/js/landing-page.js') }}?v={{ config('app.version') }}"></script>
 </body>
 </html>
