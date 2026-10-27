@@ -102,6 +102,7 @@ Route::get('/phpinfo_acartaca', function (Request $request) {
 Auth::routes();
 
 Route::get('/login', [LoginController::class, 'show'])->name('login')->middleware('guest');
+Route::get('/register', [LoginController::class, 'show'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest');
 Route::get('/welcome', [LoginController::class, 'welcome'])->middleware('guest');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
